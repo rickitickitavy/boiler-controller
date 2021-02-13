@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lamp WiFi settings</title>
+    <link rel="stylesheet" type="text/css" href="css/all.css"/>
+    <script src="js/jq/jquery-3.4.1.js"></script>
+    <script language="JavaScript">
+        function saveSystemSettings() {
+            var wiFiSsId = document.getElementById("wiFiSSID").value;
+            var wiFiPassword = document.getElementById("wiFiPassword").value;
+
+            $.ajax({
+                url: "/settingsApi",
+                method: "POST",
+                data: "operation=write&parameter=wifi&network>ssid=" + wiFiSsId + "&network>password=" + wiFiPassword,
+                success: function (response) {
+                    window.location = "/";
+                }.bind(this),
+                error: function (error) {
+                    alert(error.statusText);
+                }.bind(this),
+                dataType: "json"
+            });
+
+        }
+    </script>
+</head>
+<body>
+<div class="formBase form-flex-vertical-container">
+
+    <div class="formHeader">
+        Настройки WiFi
+    </div>
+
+    <div class="form-flex-vertical-container">
+        <div class="form-inputField-container">
+            <div class="formParamCaption">WiFi SSID</div>
+            <div class="formParamValue">
+                <input id="wiFiSSID" class="formStringParamValue" value="%network>ssid%">
+            </div>
+        </div>
+
+        <div class="form-inputField-container">
+            <div class="formParamCaption">WiFi password</div>
+            <div class="formParamValue">
+                <input id="wiFiPassword" class="formStringParamValue" value="%network>password%">
+            </div>
+        </div>
+
+        <div class="form-bottom">
+            <button class="toolButton" onclick="saveSystemSettings()">Сохранить</button>
+            <button class="toolButton" onclick="window.location='/'">Отмена</button>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
