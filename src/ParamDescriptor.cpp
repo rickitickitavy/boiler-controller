@@ -3,6 +3,7 @@
 //
 
 #include "ParamDescriptor.h"
+#include "../lib/ESPAsyncWebServer/ESPAsyncWebServer.h"
 
 ParamDescriptor::ParamDescriptor(String paramName, ParamType paramType, float minValue, float maxValue,
                                  void *valueReferenceForRead, void *valueReferenceForWrite) {

@@ -5,7 +5,7 @@
 #define GLOBAL_SETTINGS_MARKER_0 0x32
 #define GLOBAL_SETTINGS_MARKER_1 0x32
 #define GLOBAL_SETTINGS_MARKER_2 0x33
-#define GLOBAL_SETTINGS_MARKER_3 0x34
+#define GLOBAL_SETTINGS_MARKER_3 0x37
 
 #define MAX_PROFILE_COUNTER 10
 #define SYSTEM_PROFILE_COUNTER 5
@@ -22,12 +22,6 @@ struct NetworkSettings {
      * Имя станции светильника в сети
      */
     char hostName[64];
-
-    /**
-     * Резерв сюда будут идти вставки новых настроек, чтобы не сбить имеющиеся настройки при расширении
-     */
-    char reserved[64];
-
 };
 
 struct GlobalSettings {
@@ -45,6 +39,26 @@ struct GlobalSettings {
      * Сетевые настройки и настройки WiFi
      */
     NetworkSettings network;
+
+    /**
+     * Mqtt server or IP
+     */
+    char mqttServer[64];
+
+    /**
+     * Mqtt port. defaul 1883
+     */
+    int mqttPort;
+
+    /**
+     * Reconnect interval for MQTT if it broke
+     */
+    long mqttReconnectIntervalMs;
+
+    /**
+     * Unique, in home, deviceName
+     */
+    char mqttDeviceName[32];
 };
 
 #endif //EFLAME328_SETTINGS_H

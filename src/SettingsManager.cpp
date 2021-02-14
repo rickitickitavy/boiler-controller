@@ -23,12 +23,20 @@ SettingsManager::SettingsManager(){
         settings.initMarker[2] = GLOBAL_SETTINGS_MARKER_2;
         settings.initMarker[3] = GLOBAL_SETTINGS_MARKER_3;
 
-        LOGGER.error("Settings has neve been initialized. Initializing by default config...");
+        LOGGER.error("Settings has never been initialized. Initializing by default config...");
 
         settings.version = GLOBAL_CURRENT_SETTINGS_VERSION;
 
         // Заполнение дефолтными значениями
         resetWiFi();
+
+        settings.mqttPort = 1883;
+        memset(settings.mqttServer, 0, 12);
+        memcpy(settings.mqttServer, String("192.168.2.2").c_str(), 11);
+        settings.mqttReconnectIntervalMs = 1000;
+
+        memset(settings.mqttDeviceName, 0, 7);
+        memcpy(settings.mqttDeviceName, String("device").c_str(), 6);
 
         saveSetting(true);
         LOGGER.warning("Settings has never been initialized");
@@ -47,8 +55,7 @@ SettingsManager::SettingsManager(){
     }
 
 
-
-
+    logSettings();
 };
 //--------------------------------------------------------------------
 
@@ -117,5 +124,19 @@ void SettingsManager::resetWiFi() {
 
 GlobalSettings* SettingsManager::getSettings(){
     return &settings;
+}
+//--------------------------------------------------------------------
+
+void SettingsManager::logSettings() {
+    LOGGER.info("----- SETTINGS ----");
+    LOGGER.info("   wifw:");
+    LOGGER.info("      SSID: " + String(settings.network.ssid));
+    LOGGER.info("      password: " + String(settings.network.password));
+    LOGGER.info("      host: " + String(settings.network.hostName));
+    LOGGER.info("   mqtt:");
+    LOGGER.info("      server: " + String(settings.mqttServer));
+    LOGGER.info("      port: " + String(settings.mqttPort));
+    LOGGER.info("      reconIntervalMs: " + String(settings.mqttReconnectIntervalMs));
+    LOGGER.info("      device name: " + String(settings.mqttDeviceName));
 }
 //--------------------------------------------------------------------

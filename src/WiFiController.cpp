@@ -17,11 +17,7 @@ WiFiController::WiFiController(SettingsManager *settingsManager) {
 void WiFiController::init() {
     GlobalSettings *settings = settingsManager->getSettings();
 
-    LOGGER.info("WiFi  \r\nSID: " + String(&settings->network.ssid[0]) + "\r\n"
-            " password: " + String(&settings->network.password[0]) + "\r\n"
-                        " hostName: " + String(settings->network.hostName) + "\r\n"
-                        " Current state: " + String(WiFi.getMode()) + "\r\n"
-                        " is persistent: " + String(WiFi.getPersistent()) + "\r\n");
+    LOGGER.info("WiFi is persistent: " + String(WiFi.getPersistent()) + "\r\n");
 
     if ((WiFi.hostname() != String(settings->network.hostName))
         || (WiFi.softAPSSID() != settings->network.ssid)
@@ -35,7 +31,7 @@ void WiFiController::init() {
         WiFi.hostname(settings->network.hostName);
         wifi_station_set_hostname(settings->network.hostName);
 //        WiFi.mode(settings->network.wifiMode == 1 ? WIFI_AP : WIFI_STA);
-        WiFi.mode(WIFI_STA);
+//        WiFi.mode(WIFI_STA);
         delay(2);
 
         WiFi.begin(settings->network.ssid, settings->network.password);

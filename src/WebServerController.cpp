@@ -59,11 +59,15 @@ void WebServerController::settingsApiProcessor(AsyncWebServerRequest *request) {
         request->send(200, TEXT_PLAN, message);
     } else if (parameter == "wifi") {
         if (operation = PARAMETER_OPERATION_WRITE) {
-            LOGGER.info("network setting.");
+            LOGGER.info("all setting.");
 
             String wifiSSID = request->arg("network>ssid");
             String wifiPassword = request->arg("network>password");
             String wifiHostName = request->arg("network>hostName");
+            String mqttServer = request->arg("mqtt>server");
+            String mqttPort = request->arg("mqtt>port");
+            String mqttDeviceName = request->arg("mqtt>deviceName");
+            String mqttReconnectIntervalMs = request->arg("mqtt>reconnectIntervalMs");
 
             LOGGER.info("   start check");
 

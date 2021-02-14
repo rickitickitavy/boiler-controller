@@ -34,6 +34,21 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
                                                                            63,
                                                                            (void *) &settings->network.hostName[0],
                                                                            (void *) &settings->network.hostName[0]);
+
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("mqtt>server", STRING, 5,
+                                                                           63,
+                                                                           (void *) &settings->mqttServer[0],
+                                                                           (void *) &settings->mqttServer[0]);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("mqtt>port", INTEGER, 30, 65534,
+                                                                           (void *) &settings->mqttPort,
+                                                                           (void *) &settings->mqttPort);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("mqtt>reconnectIntervalMs", INTEGER, 30, 60000,
+                                                                           (void *) &settings->mqttReconnectIntervalMs,
+                                                                           (void *) &settings->mqttReconnectIntervalMs);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("mqtt>deviceName", STRING, 2,
+                                                                           31,
+                                                                           (void *) &settings->mqttDeviceName[0],
+                                                                           (void *) &settings->mqttDeviceName[0]);
 //    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("network>ipAddress", IPv4, 7,
 //                                                                           15,
 //                                                                           (void *) &settings->network.ipAddress[0],
@@ -179,6 +194,10 @@ String SettingsNavigator::saveSettingsByNames(String *params, int paramsCount) {
         }
     }
 
+    settingsManager->saveSetting(false);
+
+    settingsManager->logSettings();
+
     return res;
 }
 //--------------------------------------------------------------------
@@ -207,6 +226,17 @@ String SettingsNavigator::saveSettingByName(String paramName, String value) {
                                + String(paramDescriptors[descriptorIndex]->maxValue);
                     } else {
                         *((float *) paramDescriptors[descriptorIndex]->valueReferenceForWrite) = floatValue;
+                    }
+                } else if (paramDescriptors[descriptorIndex]->paramType == STRING){
+                    int valLen = value.length();
+                    if ((valLen < paramDescriptors[descriptorIndex]->minValue)
+                            || (valLen > paramDescriptors[descriptorIndex]->maxValue)){
+                        return "Length of \"" + paramName + "\" is not in diapason from "
+                               + String(paramDescriptors[descriptorIndex]->minValue) + " to "
+                               + String(paramDescriptors[descriptorIndex]->maxValue);
+                    } else {
+                        memset(paramDescriptors[descriptorIndex]->valueReferenceForWrite, 0, valLen+1);
+                        memcpy(paramDescriptors[descriptorIndex]->valueReferenceForWrite, value.c_str(), valLen);
                     }
                 }
             } else {

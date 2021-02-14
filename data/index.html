@@ -9,20 +9,38 @@
         function saveSystemSettings() {
             var wiFiSsId = document.getElementById("wiFiSSID").value;
             var wiFiPassword = document.getElementById("wiFiPassword").value;
+            var mqttServer = document.getElementById("mqttServer").value;
+            var mqttPort = document.getElementById("mqttPort").value;
+            var mqttDeviceName = document.getElementById("mqttDeviceName").value;
+            var mqttReconnectIntervalMs = document.getElementById("mqttReconnectIntervalMs").value;
 
             $.ajax({
                 url: "/settingsApi",
                 method: "POST",
-                data: "operation=write&parameter=wifi&network>ssid=" + wiFiSsId + "&network>password=" + wiFiPassword,
+                data: "operation=write&parameter=mqtt>server=" + mqttServer
+                + "|mqtt>port=" + mqttPort
+                + "|mqtt>deviceName=" + mqttDeviceName
+                + "|mqtt>reconnectIntervalMs=" + mqttReconnectIntervalMs,
                 success: function (response) {
                     window.location = "/";
+//                    $.ajax({
+//                        url: "/settingsApi",
+//                        method: "POST",
+//                        data: "operation=write&parameter=wifi&network>ssid=" + wiFiSsId + "&network>password=" + wiFiPassword,
+//                        success: function (response) {
+//                            window.location = "/";
+//                        }.bind(this),
+//                        error: function (error) {
+//                            alert(error.statusText);
+//                        }.bind(this),
+//                        dataType: "json"
+//                    });
                 }.bind(this),
                 error: function (error) {
                     alert(error.statusText);
                 }.bind(this),
                 dataType: "json"
             });
-
         }
     </script>
 </head>
@@ -45,6 +63,34 @@
             <div class="formParamCaption">WiFi password</div>
             <div class="formParamValue">
                 <input id="wiFiPassword" class="formStringParamValue" value="%network>password%">
+            </div>
+        </div>
+
+        <div class="form-inputField-container">
+            <div class="formParamCaption">Mqtt server</div>
+            <div class="formParamValue">
+                <input id="mqttServer" class="formStringParamValue" value="%mqtt>server%">
+            </div>
+        </div>
+
+        <div class="form-inputField-container">
+            <div class="formParamCaption">Mqtt port</div>
+            <div class="formParamValue">
+                <input id="mqttPort" class="formStringParamValue" value="%mqtt>port%">
+            </div>
+        </div>
+
+        <div class="form-inputField-container">
+            <div class="formParamCaption">Unique device name</div>
+            <div class="formParamValue">
+                <input id="mqttDeviceName" class="formStringParamValue" value="%mqtt>deviceName%">
+            </div>
+        </div>
+
+        <div class="form-inputField-container">
+            <div class="formParamCaption">Mqtt reconnect interval (Ms)</div>
+            <div class="formParamValue">
+                <input id="mqttReconnectIntervalMs" class="formStringParamValue" value="%mqtt>reconnectIntervalMs%">
             </div>
         </div>
 
