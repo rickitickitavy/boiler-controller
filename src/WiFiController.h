@@ -15,6 +15,8 @@ private:
     WebServerController* serverController;
 
     void init();
+
+    String getTextErrorStatus();
 public:
     WiFiController(SettingsManager* settingsManager);
 };

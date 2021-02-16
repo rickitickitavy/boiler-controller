@@ -14,6 +14,21 @@
             var mqttDeviceName = document.getElementById("mqttDeviceName").value;
             var mqttReconnectIntervalMs = document.getElementById("mqttReconnectIntervalMs").value;
 
+            var saveNetworkSettings = function(){
+                $.ajax({
+                    url: "/settingsApi",
+                    method: "POST",
+                    data: "operation=write&parameter=wifi&network>ssid=" + wiFiSsId + "&network>password=" + wiFiPassword,
+                    success: function (response) {
+                        window.location = "/";
+                    }.bind(this),
+                    error: function (error) {
+                        alert(error.statusText);
+                    }.bind(this),
+                    dataType: "json"
+                });
+            }.bind(this);
+
             $.ajax({
                 url: "/settingsApi",
                 method: "POST",
@@ -22,22 +37,17 @@
                 + "|mqtt>deviceName=" + mqttDeviceName
                 + "|mqtt>reconnectIntervalMs=" + mqttReconnectIntervalMs,
                 success: function (response) {
-                    window.location = "/";
-//                    $.ajax({
-//                        url: "/settingsApi",
-//                        method: "POST",
-//                        data: "operation=write&parameter=wifi&network>ssid=" + wiFiSsId + "&network>password=" + wiFiPassword,
-//                        success: function (response) {
-//                            window.location = "/";
-//                        }.bind(this),
-//                        error: function (error) {
-//                            alert(error.statusText);
-//                        }.bind(this),
-//                        dataType: "json"
-//                    });
+                    if (response != undefined){
+
+                    }
+                    saveNetworkSettings();
                 }.bind(this),
                 error: function (error) {
-                    alert(error.statusText);
+                    if (error.status == 200){
+                        saveNetworkSettings();
+                    } else {
+                        alert(error.statusText);
+                    }
                 }.bind(this),
                 dataType: "json"
             });
