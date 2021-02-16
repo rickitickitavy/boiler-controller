@@ -50,8 +50,9 @@ void WiFiController::init() {
         WiFi.mode(WIFI_OFF);
         delay(300);
 
-        WiFi.hostname(settings->network.hostName);
-        wifi_station_set_hostname(settings->network.hostName);
+        WiFi.hostname(String(settings->mqttDeviceName));
+        wifi_station_set_hostname(settings->mqttDeviceName);
+
 //        WiFi.mode(settings->network.wifiMode == 1 ? WIFI_AP : WIFI_STA);
         WiFi.mode(WIFI_STA);
         WiFi.begin(settings->network.ssid, settings->network.password);
@@ -70,7 +71,7 @@ void WiFiController::init() {
 
             IPAddress ipAddress = IPAddress(192, 168, 0, 1);
             WiFi.mode(WIFI_AP);
-            delay(20);
+            delay(300);
             WiFi.softAP(String(settings->mqttDeviceName) + "-WiFi", "00000000");
             delay(20);
             WiFi.softAPConfig(ipAddress, ipAddress, IPAddress(255, 255, 255, 0));

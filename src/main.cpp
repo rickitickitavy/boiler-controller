@@ -4,11 +4,13 @@
 #include <Arduino.h>
 #include <ArduinoOTA.h>
 #include "WiFiController.h"
+#include "MqttClient.h"
 
 long lastWork;
 
 SettingsManager *settingsManager;
 WiFiController *wiFiController;
+MqttClient *mqtt;
 
 void setup(){
 #ifdef CON_DEBUG
@@ -25,13 +27,14 @@ void setup(){
 
     wiFiController = new WiFiController(settingsManager);
 
+    mqtt = new MqttClient(settingsManager->getSettings());
+
     lastWork = millis();
     LOGGER.info("all done");
 }
 
 
 void loop(){
-
     ArduinoOTA.handle();
-
+    mqtt->checkConnection();
 }

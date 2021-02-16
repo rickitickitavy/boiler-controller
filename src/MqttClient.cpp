@@ -7,46 +7,53 @@
 #include "Defines.h"
 
 MqttClient::MqttClient(GlobalSettings *settings) {
-    this->server = server;
-    this->port = port;
     this->settings = settings;
+
+    this->server = String(settings->mqttServer);
+    this->port = settings->mqttPort;
+
     espClient = new WiFiClient();
     client = new PubSubClient(*espClient);
     client->setServer(server.c_str(), port);
     client->setCallback(callback);
+
     lastReconnectTime = 0;
 }
 
 void MqttClient::checkConnection() {
-
+    if ((!client->connected()) &&
+        ((millis() - lastReconnectTime > settings->mqttReconnectIntervalMs) || (lastReconnectTime == 0))) {
+        lastReconnectTime = millis();
+        reconnect();
+    }
 }
 
 void MqttClient::reconnect() {
-    if ((!client->connected()) && ((millis() - lastReconnectTime > settings->mqttReconnectIntervalMs) || (lastReconnectTime == 0))) {
+    if (!client->connected()) {
         LOGGER.info("Attempting MQTT connection...");
         // Attempt to connect
-        String deviceName = String(settings->mqttDeviceName[0]);
-        if (client->connect(deviceName.c_str())) {
-            Serial.println("connected");
+        String deviceInputTopic = INCOME_COMMAND_TOPIC + String(settings->mqttDeviceName);
+        if (client->connect(deviceInputTopic.c_str())) {
+            LOGGER.info("   MQTT connected. Subscribing to '" + deviceInputTopic + "'");
             // Once connected, publish an announcement...
             client->publish(LOGIN_TOPIC, "1");
             // ... and resubscribe
-            client->subscribe((INCOME_COMMAND_TOPIC + deviceName).c_str());
+//            boolean rslt = client->subscribe(deviceInputTopic.c_str());
+            LOGGER.info(client->subscribe("device")
+                        ? "   subscribed "
+                        : "   NOT subscribed");
         } else {
-            LOGGER.error("connection failed, state=");
-            Serial.print(client->state());
-            Serial.println(" try again in 5 seconds");
-            // Wait 5 seconds before retrying
-            delay(5000);
+            LOGGER.error("connection failed, state=" + String(client->state()));
         }
     }
 }
 
 void MqttClient::callback(char *topic, byte *payload, unsigned int length) {
-    LOGGER.debug("Message arrived");
-    LOGGER.debug(topic);
-    for (int i = 0; i < length; i++) {
-        Serial.print((char)payload[i]);
-    }
-    Serial.println();
+    LOGGER.info("Message arrived");
+//    LOGGER.info(topic);
+//    String(payload)
+//    for (int i = 0; i < length; i++) {
+//        Serial.print((char)payload[i]);
+//    }
+//    Serial.println();
 }
