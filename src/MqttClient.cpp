@@ -14,17 +14,22 @@ MqttClient::MqttClient(GlobalSettings *settings) {
 
     espClient = new WiFiClient();
     client = new PubSubClient(*espClient);
-    client->setServer(server.c_str(), port);
     client->setCallback(callback);
+    client->setServer(server.c_str(), port);
 
     lastReconnectTime = 0;
+    lastCheckTime = 0;
 }
 
 void MqttClient::checkConnection() {
-    if ((!client->connected()) &&
-        ((millis() - lastReconnectTime > settings->mqttReconnectIntervalMs) || (lastReconnectTime == 0))) {
-        lastReconnectTime = millis();
-        reconnect();
+    if ((lastCheckTime == 0)
+        || ((millis() - lastCheckTime) > 100)) {
+        lastCheckTime = millis();
+        if ((!client->connected()) &&
+            ((millis() - lastReconnectTime > settings->mqttReconnectIntervalMs) || (lastReconnectTime == 0))) {
+            lastReconnectTime = millis();
+            reconnect();
+        }
     }
 }
 
@@ -38,8 +43,7 @@ void MqttClient::reconnect() {
             // Once connected, publish an announcement...
             client->publish(LOGIN_TOPIC, "1");
             // ... and resubscribe
-//            boolean rslt = client->subscribe(deviceInputTopic.c_str());
-            LOGGER.info(client->subscribe("device")
+            LOGGER.info(client->subscribe(deviceInputTopic.c_str())
                         ? "   subscribed "
                         : "   NOT subscribed");
         } else {
@@ -50,10 +54,18 @@ void MqttClient::reconnect() {
 
 void MqttClient::callback(char *topic, byte *payload, unsigned int length) {
     LOGGER.info("Message arrived");
-//    LOGGER.info(topic);
-//    String(payload)
-//    for (int i = 0; i < length; i++) {
-//        Serial.print((char)payload[i]);
-//    }
-//    Serial.println();
+    LOGGER.info(topic);
+    char *data = (char*) malloc(length + 1);
+    memcpy(data, payload, length);
+    data[length] = 0;
+    String text =  String(data);
+    free(data);
+    LOGGER.info(text);
+}
+
+void MqttClient::dispatch() {
+    checkConnection();
+    if (client->connected()) {
+        client->loop();
+    }
 }

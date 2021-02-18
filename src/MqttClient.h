@@ -18,15 +18,18 @@ private:
     PubSubClient *client;
     GlobalSettings *settings;
     long lastReconnectTime;
+    long lastCheckTime;
     static void callback(char* topic, byte* payload, unsigned int length);
+
+    void reconnect();
+
+    void checkConnection();
 
 public:
 
     MqttClient(GlobalSettings *settings);
 
-    void reconnect();
-
-    void checkConnection();
+    void dispatch();
 };
 
 

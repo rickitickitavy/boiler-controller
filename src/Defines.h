@@ -26,4 +26,4 @@
 
 
 #define LOGIN_TOPIC "login"
-#define INCOME_COMMAND_TOPIC "cmd_in"
+#define INCOME_COMMAND_TOPIC "cmdin"

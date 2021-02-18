@@ -36,5 +36,5 @@ void setup(){
 
 void loop(){
     ArduinoOTA.handle();
-    mqtt->checkConnection();
+    mqtt->dispatch();
 }
