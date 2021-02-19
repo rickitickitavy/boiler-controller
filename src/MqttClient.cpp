@@ -41,7 +41,7 @@ void MqttClient::reconnect() {
         if (client->connect(deviceInputTopic.c_str())) {
             LOGGER.info("   MQTT connected. Subscribing to '" + deviceInputTopic + "'");
             // Once connected, publish an announcement...
-            client->publish(LOGIN_TOPIC, "1");
+            client->publish(LOGIN_TOPIC, settings->mqttDeviceName);
             // ... and resubscribe
             LOGGER.info(client->subscribe(deviceInputTopic.c_str())
                         ? "   subscribed "
