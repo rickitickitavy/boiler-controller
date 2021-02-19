@@ -6,15 +6,20 @@
 #include "Logger.h"
 #include "Defines.h"
 
-MqttClient::MqttClient(GlobalSettings *settings) {
+MqttClient::MqttClient(GlobalSettings *settings, CONNECTED_CALLBACK connectedCallback, MQTT_MESSAGE_CALLBACK messageCallback) {
     this->settings = settings;
+    this->connectedCallback = connectedCallback;
 
     this->server = String(settings->mqttServer);
     this->port = settings->mqttPort;
 
     espClient = new WiFiClient();
     client = new PubSubClient(*espClient);
-    client->setCallback(callback);
+    if (messageCallback){
+        client->setCallback(messageCallback);
+    } else {
+        client->setCallback(callback);
+    }
     client->setServer(server.c_str(), port);
 
     lastReconnectTime = 0;
@@ -37,11 +42,14 @@ void MqttClient::reconnect() {
     if (!client->connected()) {
         LOGGER.info("Attempting MQTT connection...");
         // Attempt to connect
-        String deviceInputTopic = INCOME_COMMAND_TOPIC + String(settings->mqttDeviceName);
+        String deviceInputTopic = String(settings->deviceIncomingCommandTopicPrefix) + "/" +  String(settings->mqttDeviceName);
         if (client->connect(deviceInputTopic.c_str())) {
             LOGGER.info("   MQTT connected. Subscribing to '" + deviceInputTopic + "'");
             // Once connected, publish an announcement...
-            client->publish(LOGIN_TOPIC, settings->mqttDeviceName);
+            if (this->connectedCallback){
+                this->connectedCallback();
+            }
+            client->publish(settings->deviceIHaveBornTopic, settings->mqttDeviceName);
             // ... and resubscribe
             LOGGER.info(client->subscribe(deviceInputTopic.c_str())
                         ? "   subscribed "
@@ -55,10 +63,10 @@ void MqttClient::reconnect() {
 void MqttClient::callback(char *topic, byte *payload, unsigned int length) {
     LOGGER.info("Message arrived");
     LOGGER.info(topic);
-    char *data = (char*) malloc(length + 1);
+    char *data = (char *) malloc(length + 1);
     memcpy(data, payload, length);
     data[length] = 0;
-    String text =  String(data);
+    String text = String(data);
     free(data);
     LOGGER.info(text);
 }

@@ -27,7 +27,7 @@ void setup(){
 
     wiFiController = new WiFiController(settingsManager);
 
-    mqtt = new MqttClient(settingsManager->getSettings());
+    mqtt = new MqttClient(settingsManager->getSettings(), nullptr, nullptr);
 
     lastWork = millis();
     LOGGER.info("all done");

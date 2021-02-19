@@ -59,6 +59,21 @@ struct GlobalSettings {
      * Unique, in home, deviceName
      */
     char mqttDeviceName[32];
+
+    /**
+     * topic for reporting state
+     */
+    char deviceStateOutgoingTopicPrefix[32];
+
+    /**
+     *
+     */
+    char deviceIHaveBornTopic[64];
+
+    /**
+     *
+     */
+    char deviceIncomingCommandTopicPrefix[32];
 };
 
 #endif //EFLAME328_SETTINGS_H

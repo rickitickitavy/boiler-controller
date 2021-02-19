@@ -13,12 +13,17 @@
             var mqttPort = document.getElementById("mqttPort").value;
             var mqttDeviceName = document.getElementById("mqttDeviceName").value;
             var mqttReconnectIntervalMs = document.getElementById("mqttReconnectIntervalMs").value;
+            var deviceIHaveBornTopic = document.getElementById("deviceIHaveBornTopic").value;
+            var deviceStateOutgoingTopicPrefix = document.getElementById("deviceStateOutgoingTopicPrefix").value;
+            var deviceIncomingCommandTopicPrefix = document.getElementById("deviceIncomingCommandTopicPrefix").value;
 
-            var saveNetworkSettings = function(){
+            var saveNetworkSettings = function () {
                 $.ajax({
                     url: "/settingsApi",
                     method: "POST",
-                    data: "operation=write&parameter=wifi&network>ssid=" + wiFiSsId + "&network>password=" + wiFiPassword,
+                    data: "operation=write&parameter=wifi"
+                        + "&network>ssid=" + wiFiSsId
+                            + "&network>password=" + wiFiPassword,
                     success: function (response) {
                         window.location = "/";
                     }.bind(this),
@@ -35,15 +40,18 @@
                 data: "operation=write&parameter=mqtt>server=" + mqttServer
                 + "|mqtt>port=" + mqttPort
                 + "|mqtt>deviceName=" + mqttDeviceName
-                + "|mqtt>reconnectIntervalMs=" + mqttReconnectIntervalMs,
+                + "|mqtt>reconnectIntervalMs=" + mqttReconnectIntervalMs
+                + "|device>iHaveBornTopic=" + deviceIHaveBornTopic
+                + "|device>stateOutgoingTopicPrefix=" + deviceStateOutgoingTopicPrefix
+                + "|device>incomingCommandTopicPrefix=" + deviceIncomingCommandTopicPrefix,
                 success: function (response) {
-                    if (response != undefined){
+                    if (response != undefined) {
 
                     }
                     saveNetworkSettings();
                 }.bind(this),
                 error: function (error) {
-                    if (error.status == 200){
+                    if (error.status == 200) {
                         saveNetworkSettings();
                     } else {
                         alert(error.statusText);
@@ -104,9 +112,30 @@
             </div>
         </div>
 
+        <div class="form-inputField-container">
+            <div class="formParamCaption">The name of the topic to which to report of ready</div>
+            <div class="formParamValue">
+                <input id="deviceIHaveBornTopic" class="formStringParamValue" value="%device>iHaveBornTopic%">
+            </div>
+        </div>
+
+        <div class="form-inputField-container">
+            <div class="formParamCaption">The name of the topic to which to report state</div>
+            <div class="formParamValue">
+                <input id="deviceStateOutgoingTopicPrefix" class="formStringParamValue" value="%device>stateOutgoingTopicPrefix%"> / %mqtt>deviceName%
+            </div>
+        </div>
+
+        <div class="form-inputField-container">
+            <div class="formParamCaption">The name of the topic from which will receive commands</div>
+            <div class="formParamValue">
+                <input id="deviceIncomingCommandTopicPrefix" class="formStringParamValue" value="%device>incomingCommandTopicPrefix%"> / %mqtt>deviceName%
+            </div>
+        </div>
+
         <div class="form-bottom">
-            <button class="toolButton" onclick="saveSystemSettings()">Сохранить</button>
-            <button class="toolButton" onclick="window.location='/'">Отмена</button>
+            <button class="toolButton" onclick="saveSystemSettings()">Save</button>
+            <button class="toolButton" onclick="window.location='/'">Revert</button>
         </div>
     </div>
 

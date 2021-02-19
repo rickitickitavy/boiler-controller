@@ -23,7 +23,3 @@
 #define WIFI_DEFAULT_SID "baseWiFi"
 #define WIFI_DEFAULT_HOST_NAME "base"
 #define WIFI_DEFAULT_PASSWORD "00000000"
-
-
-#define LOGIN_TOPIC "login"
-#define INCOME_COMMAND_TOPIC "cmdin"

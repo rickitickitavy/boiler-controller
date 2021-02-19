@@ -38,6 +38,15 @@ SettingsManager::SettingsManager(){
         memset(settings.mqttDeviceName, 0, 7);
         memcpy(settings.mqttDeviceName, String("device").c_str(), 6);
 
+        memset(settings.deviceStateOutgoingTopicPrefix, 0, 6);
+        memcpy(settings.deviceStateOutgoingTopicPrefix, String("state").c_str(), 5);
+
+        memset(settings.deviceStateOutgoingTopicPrefix, 0, 8);
+        memcpy(settings.deviceStateOutgoingTopicPrefix, String("command").c_str(), 7);
+
+        memset(settings.deviceIHaveBornTopic, 0, 12);
+        memcpy(settings.deviceIHaveBornTopic, String("deviceReady").c_str(), 11);
+
         saveSetting(true);
         LOGGER.warning("Settings has never been initialized");
     } else {
@@ -138,5 +147,9 @@ void SettingsManager::logSettings() {
     LOGGER.info("      port: " + String(settings.mqttPort));
     LOGGER.info("      reconIntervalMs: " + String(settings.mqttReconnectIntervalMs));
     LOGGER.info("      device name: " + String(settings.mqttDeviceName));
+    LOGGER.info("   device: " + String(settings.mqttDeviceName));
+    LOGGER.info("      have born topic: " + String(settings.deviceIHaveBornTopic));
+    LOGGER.info("      outgoing topic prefix: " + String(settings.deviceStateOutgoingTopicPrefix));
+    LOGGER.info("      in command topic prefix: " + String(settings.deviceIncomingCommandTopicPrefix));
 }
 //--------------------------------------------------------------------

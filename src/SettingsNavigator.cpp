@@ -49,6 +49,18 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
                                                                            31,
                                                                            (void *) &settings->mqttDeviceName[0],
                                                                            (void *) &settings->mqttDeviceName[0]);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("device>stateOutgoingTopicPrefix", STRING, 5,
+                                                                           31,
+                                                                           (void *) &settings->deviceStateOutgoingTopicPrefix[0],
+                                                                           (void *) &settings->deviceStateOutgoingTopicPrefix[0]);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("device>iHaveBornTopic", STRING, 5,
+                                                                           63,
+                                                                           (void *) &settings->deviceIHaveBornTopic[0],
+                                                                           (void *) &settings->deviceIHaveBornTopic[0]);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("device>incomingCommandTopicPrefix", STRING, 5,
+                                                                           31,
+                                                                           (void *) &settings->deviceIncomingCommandTopicPrefix[0],
+                                                                           (void *) &settings->deviceIncomingCommandTopicPrefix[0]);
 //    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("network>ipAddress", IPv4, 7,
 //                                                                           15,
 //                                                                           (void *) &settings->network.ipAddress[0],
