@@ -16,6 +16,7 @@
             var deviceIHaveBornTopic = document.getElementById("deviceIHaveBornTopic").value;
             var deviceStateOutgoingTopicPrefix = document.getElementById("deviceStateOutgoingTopicPrefix").value;
             var deviceIncomingCommandTopicPrefix = document.getElementById("deviceIncomingCommandTopicPrefix").value;
+            var mqttServerBornTopic = document.getElementById("mqttServerBornTopic").value;
 
             var saveNetworkSettings = function () {
                 $.ajax({
@@ -41,6 +42,7 @@
                 + "|mqtt>port=" + mqttPort
                 + "|mqtt>deviceName=" + mqttDeviceName
                 + "|mqtt>reconnectIntervalMs=" + mqttReconnectIntervalMs
+                + "|mqtt>serverBornTopic=" + mqttServerBornTopic
                 + "|device>iHaveBornTopic=" + deviceIHaveBornTopic
                 + "|device>stateOutgoingTopicPrefix=" + deviceStateOutgoingTopicPrefix
                 + "|device>incomingCommandTopicPrefix=" + deviceIncomingCommandTopicPrefix,
@@ -130,6 +132,13 @@
             <div class="formParamCaption">The name of the topic from which will receive commands</div>
             <div class="formParamValue">
                 <input id="deviceIncomingCommandTopicPrefix" class="formStringParamValue" value="%device>incomingCommandTopicPrefix%"> / %mqtt>deviceName%
+            </div>
+        </div>
+
+        <div class="form-inputField-container">
+            <div class="formParamCaption">The topic to which server will reports it has born</div>
+            <div class="formParamValue">
+                <input id="mqttServerBornTopic" class="formStringParamValue" value="%mqtt>ServerBornTopic%"> / %mqtt>deviceName%
             </div>
         </div>
 

@@ -7,7 +7,10 @@
 #include "MqttClient.h"
 #include "Switcher.h"
 
+//#include <ESP8266WiFi.h>
+
 long lastWork;
+long lastWorkA;
 
 SettingsManager *settingsManager;
 WiFiController *wiFiController;
@@ -15,7 +18,8 @@ MqttClient *mqtt;
 Switcher *switcher;
 
 void setup(){
-#ifdef CON_DEBUG
+//WiFi.begin("TP-LINK_B1C6", "15121820");
+    #ifdef CON_DEBUG
     Serial.begin(74880);
     Serial.println("---");
 
@@ -32,6 +36,7 @@ void setup(){
     mqtt = new MqttClient(settingsManager->getSettings());
 
     lastWork = millis();
+    lastWorkA = millis();
 
     LOGGER.info("start device");
 
@@ -45,4 +50,10 @@ void loop(){
     ArduinoOTA.handle();
     mqtt->dispatch();
     switcher->dispatch();
+//    if (millis() > 12000){
+//        if (millis() - lastWorkA > 300){
+//            lastWorkA = millis();
+//            LOGGER.info(String(digitalRead(0)));
+//        }
+//    }
 }

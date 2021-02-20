@@ -38,14 +38,19 @@ SettingsManager::SettingsManager(){
         memset(settings.mqttDeviceName, 0, 7);
         memcpy(settings.mqttDeviceName, String("device").c_str(), 6);
 
-        memset(settings.deviceStateOutgoingTopicPrefix, 0, 6);
         memcpy(settings.deviceStateOutgoingTopicPrefix, String("state").c_str(), 5);
+        settings.deviceStateOutgoingTopicPrefix[5] = 0;
 
-        memset(settings.deviceStateOutgoingTopicPrefix, 0, 8);
-        memcpy(settings.deviceStateOutgoingTopicPrefix, String("command").c_str(), 7);
+        memcpy(settings.deviceIncomingCommandTopicPrefix, String("command").c_str(), 7);
+        settings.deviceIncomingCommandTopicPrefix[7] = 0;
 
-        memset(settings.deviceIHaveBornTopic, 0, 12);
         memcpy(settings.deviceIHaveBornTopic, String("deviceReady").c_str(), 11);
+        settings.deviceIHaveBornTopic[11] = 0;
+
+        memcpy(settings.mqttServerBornTopic, String("homeassistant/status").c_str(), 20);
+        settings.mqttServerBornTopic[20] = 0;
+
+        logSettings();
 
         saveSetting(true);
         LOGGER.warning("Settings has never been initialized");

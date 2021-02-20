@@ -5,7 +5,7 @@
 #define GLOBAL_SETTINGS_MARKER_0 0x32
 #define GLOBAL_SETTINGS_MARKER_1 0x32
 #define GLOBAL_SETTINGS_MARKER_2 0x33
-#define GLOBAL_SETTINGS_MARKER_3 0x38
+#define GLOBAL_SETTINGS_MARKER_3 0x31
 
 #define MAX_PROFILE_COUNTER 10
 #define SYSTEM_PROFILE_COUNTER 5
@@ -75,6 +75,10 @@ struct GlobalSettings {
      */
     char deviceIncomingCommandTopicPrefix[32];
 
+    /**
+     *
+     */
+    char mqttServerBornTopic[64];
 };
 
 #endif //EFLAME328_SETTINGS_H

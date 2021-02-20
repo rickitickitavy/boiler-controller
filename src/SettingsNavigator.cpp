@@ -49,6 +49,10 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
                                                                            31,
                                                                            (void *) &settings->mqttDeviceName[0],
                                                                            (void *) &settings->mqttDeviceName[0]);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("mqtt>serverBornTopic", STRING, 2,
+                                                                           63,
+                                                                           (void *) &settings->mqttServerBornTopic[0],
+                                                                           (void *) &settings->mqttServerBornTopic[0]);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("device>stateOutgoingTopicPrefix", STRING, 5,
                                                                            31,
                                                                            (void *) &settings->deviceStateOutgoingTopicPrefix[0],

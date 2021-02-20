@@ -15,6 +15,7 @@ class Switcher {
 private:
     bool state;
     long lastTimeOfStateHasBeenChanged;
+    long lastTimeOfScanState;
     GlobalSettings *settings;
     MqttClient *mqttClient;
     bool controlPinLevel;
@@ -22,6 +23,8 @@ private:
     static Switcher *instance;
 
     void checkState();
+
+    void reportStateToServer();
 public:
     Switcher(GlobalSettings *settings, MqttClient *mqttClient);
 

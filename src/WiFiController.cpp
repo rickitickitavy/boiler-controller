@@ -66,6 +66,11 @@ void WiFiController::init() {
 
             LOGGER.error("Not connected. " + getTextErrorStatus() + ". Switching to AP mode...");
 
+            wdt_reset();
+
+            WiFi.mode(WIFI_OFF);
+            delay(300);
+
             WiFi.hostname(String(settings->mqttDeviceName));
             wifi_station_set_hostname(settings->mqttDeviceName);
 
@@ -79,7 +84,7 @@ void WiFiController::init() {
 //            MDNS.begin(String(settings->mqttDeviceName));
 //            MDNS.addService("http", "tcp", 80);
 //            delay(20);
-            LOGGER.info("    switching to AP mode...");
+            LOGGER.info("    switched to AP mode. '" + String(settings->mqttDeviceName) + "-WiFi'. password '00000000'");
 
 
         } else {
