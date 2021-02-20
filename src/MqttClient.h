@@ -4,7 +4,7 @@
 
 #ifndef BASE_ESP8266_MQTT_MQTTCLIENT_H
 #define BASE_ESP8266_MQTT_MQTTCLIENT_H
-#define CONNECTED_CALLBACK std::function<void(void)>
+#define MQTT_CONNECTED_CALLBACK std::function<void(void)>
 #define MQTT_MESSAGE_CALLBACK std::function<void(char*, uint8_t*, unsigned int)>
 
 #include "../lib/mqtt/PubSubClient.h"
@@ -20,11 +20,11 @@ private:
     PubSubClient *client;
     GlobalSettings *settings;
 
-    CONNECTED_CALLBACK connectedCallback;
+    MQTT_CONNECTED_CALLBACK connectedCallback;
 
     long lastReconnectTime;
     long lastCheckTime;
-    static void callback(char* topic, byte* payload, unsigned int length);
+    static void defaultMsgCallback(char *topic, byte *payload, unsigned int length);
 
     void reconnect();
 
@@ -32,7 +32,17 @@ private:
 
 public:
 
-    MqttClient(GlobalSettings *settings, CONNECTED_CALLBACK connectedCallback, MQTT_MESSAGE_CALLBACK messageCallback);
+    MqttClient(GlobalSettings *settings);
+
+    void setConnectedCallback(MQTT_CONNECTED_CALLBACK connectedCallback);
+
+    void setMessageCallback(MQTT_MESSAGE_CALLBACK messageCallback);
+
+    bool sendToStateTopic(byte *payload, int len);
+
+    bool sendToStateTopic(String payload);
+
+    bool sendToStateTopic(const char *payload);
 
     void dispatch();
 };

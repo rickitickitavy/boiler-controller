@@ -5,12 +5,14 @@
 #include <ArduinoOTA.h>
 #include "WiFiController.h"
 #include "MqttClient.h"
+#include "Switcher.h"
 
 long lastWork;
 
 SettingsManager *settingsManager;
 WiFiController *wiFiController;
 MqttClient *mqtt;
+Switcher *switcher;
 
 void setup(){
 #ifdef CON_DEBUG
@@ -27,9 +29,14 @@ void setup(){
 
     wiFiController = new WiFiController(settingsManager);
 
-    mqtt = new MqttClient(settingsManager->getSettings(), nullptr, nullptr);
+    mqtt = new MqttClient(settingsManager->getSettings());
 
     lastWork = millis();
+
+    LOGGER.info("start device");
+
+    switcher = new Switcher(settingsManager->getSettings(), mqtt);
+
     LOGGER.info("all done");
 }
 
@@ -37,4 +44,5 @@ void setup(){
 void loop(){
     ArduinoOTA.handle();
     mqtt->dispatch();
+    switcher->dispatch();
 }
