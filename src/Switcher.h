@@ -7,6 +7,7 @@
 
 #define HI_LEVEL_VALUE 600
 #define ANTI_BUZZLE_INTERVAL_MS 800
+#define STATUS_PIN_READ A0
 
 #include "MqttClient.h"
 

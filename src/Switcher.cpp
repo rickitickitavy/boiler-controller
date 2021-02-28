@@ -23,7 +23,7 @@ Switcher::Switcher(GlobalSettings *settings, MqttClient *mqttClient) {
 
     pinMode(13, OUTPUT);
     digitalWrite(13, 0);
-    pinMode(12, INPUT);
+    pinMode(A0, INPUT);
     controlPinLevel = false;
 }
 
@@ -33,8 +33,9 @@ void Switcher::checkState() {
         if ((lastTimeOfStateHasBeenChanged == 0)
             || ((millis() - lastTimeOfStateHasBeenChanged) > ANTI_BUZZLE_INTERVAL_MS)) {
             lastTimeOfScanState = millis();
-//            int analog = analogRead(A0);
-            int analog = digitalRead(12) ? 1024 : 0;
+            int analog = analogRead(A0);
+            delay(30);
+//            int analog = digitalRead(12) ? 1024 : 0;
             bool newState = (analog >= HI_LEVEL_VALUE);
             if ((lastTimeOfStateHasBeenChanged == 0) || (newState != state)) {
                 LOGGER.info("   state changed to " + String(newState));
@@ -47,6 +48,7 @@ void Switcher::checkState() {
 }
 
 void Switcher::reportStateToServer() {
+    LOGGER.info("   sending state to server...");
     mqttClient->sendToStateTopic(state ? "ON" : "OFF");
 }
 
@@ -58,29 +60,35 @@ void Switcher::messageReceived(char *topic, uint8_t *payload, unsigned int lengt
     LOGGER.info("Message arrived to switcher");
     LOGGER.info(topic);
 
-    char *data = (char *) malloc(length + 1);
-    memcpy(data, payload, length);
-    data[length] = 0;
-    String text = String(data);
+    String topicStr = String(topic);
+    if (topicStr == String(instance->settings->mqttServerBornTopic)) {
+        LOGGER.info("   server online");
+        instance->reportStateToServer();
+    } else {
+        char *data = (char *) malloc(length + 1);
+        memcpy(data, payload, length);
+        data[length] = 0;
+        String text = String(data);
 
-    if (text == "ON") {
-        if (!instance->state) {
-            instance->controlPinLevel = !instance->controlPinLevel;
-            LOGGER.info("turning ON. New control = " + String(instance->controlPinLevel));
-            digitalWrite(13, instance->controlPinLevel);
+        if (text == "ON") {
+            if (!instance->state) {
+                instance->controlPinLevel = !instance->controlPinLevel;
+                LOGGER.info("turning ON. New control = " + String(instance->controlPinLevel));
+                digitalWrite(13, instance->controlPinLevel);
+            }
+            instance->reportStateToServer();
+        } else if (text == "OFF") {
+            if (instance->state) {
+                instance->controlPinLevel = !instance->controlPinLevel;
+                LOGGER.info("turning OFF. New control = " + String(instance->controlPinLevel));
+                digitalWrite(13, instance->controlPinLevel);
+            }
+            instance->reportStateToServer();
         }
-        instance->reportStateToServer();
-    } else if (text == "OFF") {
-        if (instance->state) {
-            instance->controlPinLevel = !instance->controlPinLevel;
-            LOGGER.info("turning OFF. New control = " + String(instance->controlPinLevel));
-            digitalWrite(13, instance->controlPinLevel);
-        }
-        instance->reportStateToServer();
+
+        free(data);
+        LOGGER.info(text);
     }
-
-    free(data);
-    LOGGER.info(text);
 }
 
 

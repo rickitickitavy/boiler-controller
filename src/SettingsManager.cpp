@@ -156,5 +156,6 @@ void SettingsManager::logSettings() {
     LOGGER.info("      have born topic: " + String(settings.deviceIHaveBornTopic));
     LOGGER.info("      outgoing topic prefix: " + String(settings.deviceStateOutgoingTopicPrefix));
     LOGGER.info("      in command topic prefix: " + String(settings.deviceIncomingCommandTopicPrefix));
+    LOGGER.info("      server has born topic: " + String(settings.mqttServerBornTopic));
 }
 //--------------------------------------------------------------------

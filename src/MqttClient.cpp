@@ -41,19 +41,25 @@ void MqttClient::reconnect() {
         // Attempt to connect
         String deviceInputTopic = String(settings->deviceIncomingCommandTopicPrefix) + "/" +  String(settings->mqttDeviceName);
         if (client->connect(settings->mqttDeviceName)) {
-            LOGGER.info("   MQTT connected. Subscribing to '" + deviceInputTopic + "'");
             // Once connected, publish an announcement...
             if (this->connectedCallback  != nullptr){
                 this->connectedCallback();
             }
-            client->publish(settings->deviceIHaveBornTopic, settings->mqttDeviceName);
-            // ... and resubscribe
+            LOGGER.info("   MQTT connected. Subscribing to '" + deviceInputTopic + "'");
             LOGGER.info(client->subscribe(deviceInputTopic.c_str())
                         ? "   subscribed "
                         : "   NOT subscribed");
+            LOGGER.info("   MQTT connected. Subscribing to '" + String(settings->mqttServerBornTopic) + "'");
+            LOGGER.info(client->subscribe(settings->mqttServerBornTopic)
+                        ? "   subscribed "
+                        : "   NOT subscribed");
+            LOGGER.info("   sending 'have born' message...");
+            client->publish(settings->deviceIHaveBornTopic, settings->mqttDeviceName);
+            // ... and resubscribe
         } else {
             LOGGER.error("connection failed, state=" + String(client->state()));
         }
+        LOGGER.info("   mqtt done");
     }
 }
 //-------------------------------------------------------------

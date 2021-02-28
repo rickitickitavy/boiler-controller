@@ -7,24 +7,43 @@
 #include "MqttClient.h"
 #include "Switcher.h"
 
-//#include <ESP8266WiFi.h>
+#include <ESP8266WiFi.h>
 
-long lastWork;
-long lastWorkA;
 
 SettingsManager *settingsManager;
 WiFiController *wiFiController;
 MqttClient *mqtt;
 Switcher *switcher;
 
-void setup(){
-//WiFi.begin("TP-LINK_B1C6", "15121820");
-    #ifdef CON_DEBUG
+//bool a0Started;
+//long startedAt;
+//long lastWorkA;
+
+void setup() {
+#ifdef CON_DEBUG
     Serial.begin(74880);
     Serial.println("---");
 
     LOGGER.info("Started UART at 921600");
 #endif
+
+//    a0Started = false;
+//    WiFi.begin("TP-LINK_B1C6", "15121820");
+//    startedAt = millis();
+//    while (!WiFi.isConnected() && (millis() - startedAt < 10000)) {
+//        delay(20);
+//    }
+//
+//    if (!WiFi.isConnected()) {
+//        LOGGER.info("Not connected: rebooting...");
+//        delay(500);
+//        ESP.restart();
+//    }
+//    LOGGER.info("Connected.");
+//    LOGGER.info(WiFi.localIP().toString());
+//    lastWorkA = millis();
+//    pinMode(A0, INPUT);
+
     LOGGER.info("Starting...");
 
     ArduinoOTA.begin(true);
@@ -35,9 +54,6 @@ void setup(){
 
     mqtt = new MqttClient(settingsManager->getSettings());
 
-    lastWork = millis();
-    lastWorkA = millis();
-
     LOGGER.info("start device");
 
     switcher = new Switcher(settingsManager->getSettings(), mqtt);
@@ -46,14 +62,17 @@ void setup(){
 }
 
 
-void loop(){
+void loop() {
     ArduinoOTA.handle();
     mqtt->dispatch();
     switcher->dispatch();
-//    if (millis() > 12000){
-//        if (millis() - lastWorkA > 300){
-//            lastWorkA = millis();
-//            LOGGER.info(String(digitalRead(0)));
+//    if (millis() > 19000) {
+//        if (!a0Started) {
+//            a0Started = true;
+//            LOGGER.info("A0 started");
 //        }
+//            if (analogRead(A0) > 0){
+//             delay(10);
+//            }
 //    }
 }
