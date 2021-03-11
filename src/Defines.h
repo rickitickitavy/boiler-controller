@@ -13,7 +13,8 @@
 /**
  * Уровень логирования
  */
-#define LOG_LEVEL LOG_LEVEL_INFO
+//#define LOG_LEVEL LOG_LEVEL_INFO
+#define LOG_LEVEL LOG_LEVEL_DEBUG
 
 #define CON_DEBUG
 
