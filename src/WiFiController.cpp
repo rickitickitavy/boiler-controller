@@ -81,20 +81,18 @@ void WiFiController::init() {
             delay(20);
             WiFi.softAPConfig(ipAddress, ipAddress, IPAddress(255, 255, 255, 0));
             delay(20);
-//            MDNS.begin(String(settings->mqttDeviceName));
-//            MDNS.addService("http", "tcp", 80);
-//            delay(20);
-            LOGGER.info("    switched to AP mode. '" + String(settings->mqttDeviceName) + "-WiFi'. password '00000000'");
-
-
+            MDNS.begin(String(settings->mqttDeviceName));
+            MDNS.addService("http", "tcp", 80);
+            delay(400);
+            LOGGER.info("    switched to AP mode. '" + String(settings->mqttDeviceName) + "-WiFi'. password '00000000' (local IP " + WiFi.softAPIP().toString() + ")");
         } else {
             Serial.println("Connected to router.");
             Serial.println("local IP " + WiFi.localIP().toString());
 //        WiFi.hostname(settings->network.hostName);
 //        wifi_station_set_hostname(settings->network.hostName);
 
-//        MDNS.begin(String(&settings->network.hostName[0]));
-//        MDNS.addService("http", "tcp", 80);
+        MDNS.begin(String(&settings->network.hostName[0]));
+        MDNS.addService("http", "tcp", 80);
 
         }
 

@@ -74,14 +74,14 @@ void Switcher::messageReceived(char *topic, uint8_t *payload, unsigned int lengt
             if (!instance->state) {
                 instance->controlPinLevel = !instance->controlPinLevel;
                 LOGGER.info("turning ON. New control = " + String(instance->controlPinLevel));
-                digitalWrite(13, instance->controlPinLevel);
+                digitalWrite(13, instance->controlPinLevel ? HIGH : LOW);
             }
             instance->reportStateToServer();
         } else if (text == "OFF") {
             if (instance->state) {
                 instance->controlPinLevel = !instance->controlPinLevel;
                 LOGGER.info("turning OFF. New control = " + String(instance->controlPinLevel));
-                digitalWrite(13, instance->controlPinLevel);
+                digitalWrite(13, instance->controlPinLevel ? HIGH : LOW);
             }
             instance->reportStateToServer();
         }

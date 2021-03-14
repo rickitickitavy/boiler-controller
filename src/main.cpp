@@ -20,6 +20,7 @@ Switcher *switcher;
 //long lastWorkA;
 
 void setup() {
+    pinMode(13, OUTPUT);
 #ifdef CON_DEBUG
     Serial.begin(74880);
     Serial.println("---");
@@ -63,6 +64,11 @@ void setup() {
 
 
 void loop() {
+//    digitalWrite(13, LOW);
+//    delay(200);
+//    digitalWrite(13, HIGH);
+//    delay(200);
+
     ArduinoOTA.handle();
     mqtt->dispatch();
     switcher->dispatch();
