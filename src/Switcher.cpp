@@ -21,8 +21,8 @@ Switcher::Switcher(GlobalSettings *settings, MqttClient *mqttClient) {
     state = 100;
     checkState();
 
-    pinMode(13, OUTPUT);
-    digitalWrite(13, 0);
+    pinMode(SWITCHER_PIN, OUTPUT);
+    digitalWrite(SWITCHER_PIN, 0);
     pinMode(A0, INPUT);
     controlPinLevel = false;
 }
@@ -74,14 +74,14 @@ void Switcher::messageReceived(char *topic, uint8_t *payload, unsigned int lengt
             if (!instance->state) {
                 instance->controlPinLevel = !instance->controlPinLevel;
                 LOGGER.info("turning ON. New control = " + String(instance->controlPinLevel));
-                digitalWrite(13, instance->controlPinLevel ? HIGH : LOW);
+                digitalWrite(SWITCHER_PIN, instance->controlPinLevel ? HIGH : LOW);
             }
             instance->reportStateToServer();
         } else if (text == "OFF") {
             if (instance->state) {
                 instance->controlPinLevel = !instance->controlPinLevel;
                 LOGGER.info("turning OFF. New control = " + String(instance->controlPinLevel));
-                digitalWrite(13, instance->controlPinLevel ? HIGH : LOW);
+                digitalWrite(SWITCHER_PIN, instance->controlPinLevel ? HIGH : LOW);
             }
             instance->reportStateToServer();
         }
