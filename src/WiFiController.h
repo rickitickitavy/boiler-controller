@@ -11,15 +11,23 @@
 
 class WiFiController {
 private:
-    SettingsManager* settingsManager;
-    WebServerController* serverController;
+    SettingsManager *settingsManager;
+    WebServerController *serverController;
+    long lastConnectedTime;
 
     void init();
 
     String getTextErrorStatus();
+
+    void tryToConnect();
+
 public:
-    WiFiController(SettingsManager* settingsManager);
+    WiFiController(SettingsManager *settingsManager);
+
+    void checkConnection();
+
+    bool isClientConnected();
 };
 
-extern WiFiController* wiFiController;
+extern WiFiController *wiFiController;
 #endif //EFLAMEESP8266_WIFICONTROLLER_H

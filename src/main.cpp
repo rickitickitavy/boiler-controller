@@ -72,6 +72,7 @@ void loop() {
     ArduinoOTA.handle();
     mqtt->dispatch();
     switcher->dispatch();
+    wiFiController->checkConnection();
 //    if (millis() > 19000) {
 //        if (!a0Started) {
 //            a0Started = true;

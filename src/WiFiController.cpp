@@ -11,44 +11,40 @@
 
 WiFiController::WiFiController(SettingsManager *settingsManager) {
     this->settingsManager = settingsManager;
+    this->lastConnectedTime = 10000;
     init();
 }
 
 String WiFiController::getTextErrorStatus() {
     station_status_t status = wifi_station_get_connect_status();
 
-    switch(status) {
+    switch (status) {
         case STATION_GOT_IP:
-            return "   STATION_GOT_IP";
+            return " STATION_GOT_IP";
         case STATION_NO_AP_FOUND:
-            return"   STATION_NO_AP_FOUND";
+            return " STATION_NO_AP_FOUND";
         case STATION_CONNECT_FAIL:
-            return"   STATION_CONNECT_FAIL";
+            return " STATION_CONNECT_FAIL";
         case STATION_WRONG_PASSWORD:
-            return"   STATION_WRONG_PASSWORD";
+            return " STATION_WRONG_PASSWORD";
         case STATION_IDLE:
-            return"   STATION_IDLE";
+            return " STATION_IDLE";
         default:
-            return"   STATION_DISCONNECTED";
+            return " STATION_DISCONNECTED";
     }
 }
 
 void WiFiController::init() {
     GlobalSettings *settings = settingsManager->getSettings();
 
-    LOGGER.info("WiFi is persistent: " + String(WiFi.getPersistent()) + "\r\n");
-
     if ((WiFi.hostname() != String(settings->network.hostName))
         || (WiFi.softAPSSID() != settings->network.ssid)
         || (WiFi.softAPPSK() != String(settings->network.password))
-            || (WiFi.getMode() != WIFI_STA)) {
+        || (WiFi.getMode() != WIFI_STA)) {
 
         LOGGER.info("Configuring WiFi...");
 
         wdt_reset();
-
-        WiFi.mode(WIFI_OFF);
-        delay(300);
 
         WiFi.hostname(String(settings->mqttDeviceName));
         wifi_station_set_hostname(settings->mqttDeviceName);
@@ -84,15 +80,16 @@ void WiFiController::init() {
             MDNS.begin(String(settings->mqttDeviceName));
             MDNS.addService("http", "tcp", 80);
             delay(400);
-            LOGGER.info("    switched to AP mode. '" + String(settings->mqttDeviceName) + "-WiFi'. password '00000000' (local IP " + WiFi.softAPIP().toString() + ")");
+            LOGGER.info("    switched to AP mode. '" + String(settings->mqttDeviceName) +
+                        "-WiFi'. password '00000000' (local IP " + WiFi.softAPIP().toString() + ")");
         } else {
             Serial.println("Connected to router.");
             Serial.println("local IP " + WiFi.localIP().toString());
 //        WiFi.hostname(settings->network.hostName);
 //        wifi_station_set_hostname(settings->network.hostName);
 
-        MDNS.begin(String(&settings->network.hostName[0]));
-        MDNS.addService("http", "tcp", 80);
+            MDNS.begin(String(&settings->network.hostName[0]));
+            MDNS.addService("http", "tcp", 80);
 
         }
 
@@ -101,5 +98,26 @@ void WiFiController::init() {
 
         LOGGER.info("WiFi current state: " + String(WiFi.getMode()));
 
+    }
+}
+
+bool WiFiController::isClientConnected() {
+    struct station_info *stat_info;
+    stat_info = wifi_softap_get_station_info();
+    return stat_info != NULL;
+}
+
+void WiFiController::checkConnection() {
+    if (millis() - lastConnectedTime > 40000) {
+        if (!WiFi.isConnected() && !isClientConnected()) {
+            LOGGER.warning("trying to reconnect to AP");
+
+            ESP.restart();
+
+            this->lastConnectedTime = millis();
+
+        } else {
+            this->lastConnectedTime = millis();
+        }
     }
 }

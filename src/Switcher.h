@@ -9,6 +9,7 @@
 #define ANTI_BUZZLE_INTERVAL_MS 800
 #define STATUS_PIN_READ A0
 #define SWITCHER_PIN 13
+#define SWITCHER_PWM_PIN 14
 
 #include "MqttClient.h"
 

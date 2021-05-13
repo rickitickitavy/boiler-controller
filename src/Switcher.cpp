@@ -21,6 +21,9 @@ Switcher::Switcher(GlobalSettings *settings, MqttClient *mqttClient) {
     state = 100;
     checkState();
 
+    pinMode(SWITCHER_PWM_PIN, OUTPUT);
+    analogWrite(SWITCHER_PWM_PIN, 90);
+
     pinMode(SWITCHER_PIN, OUTPUT);
     digitalWrite(SWITCHER_PIN, 0);
     pinMode(A0, INPUT);
