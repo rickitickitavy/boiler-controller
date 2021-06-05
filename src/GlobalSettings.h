@@ -10,6 +10,9 @@
 #define MAX_PROFILE_COUNTER 10
 #define SYSTEM_PROFILE_COUNTER 5
 
+enum DeviceClass{
+    RELAY_SWITCHER, SIMMISTOR_SWITCHER, DIMMER,
+};
 
 struct NetworkSettings {
     /**
@@ -79,6 +82,49 @@ struct GlobalSettings {
      *
      */
     char mqttServerBornTopic[64];
+
+    /**
+     *
+     */
+    char mqttInputToolTopic[32];
+
+    /**
+     *
+     */
+    char mqttOutputToolTopic[32];
+
+
+    /**
+     * Device type.
+     */
+    DeviceClass deviceClass;
+
+    /**
+     * ON or OFF must be
+     */
+    bool defaultSwitcherState;
+
+    /**
+     * pin for control 220V relay or channel 1 for simistor switcher
+     */
+    char switch1Pin;
+
+    /**
+     * pin for control channel2 for simistor relay
+     */
+    char switch2Pin;
+
+    /**
+     * flag that point is state of switcher must be retrieved from A0 pin
+     */
+    bool statefull;
+
+    /**
+     * value for DIMMER device (1024 is MAX)
+     */
+    int dimmerPwmValue;
+
+
 };
 
 #endif //EFLAME328_SETTINGS_H

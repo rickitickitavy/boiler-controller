@@ -50,6 +50,8 @@ SettingsManager::SettingsManager(){
         memcpy(settings.mqttServerBornTopic, String("homeassistant/status").c_str(), 20);
         settings.mqttServerBornTopic[20] = 0;
 
+        upgradeToCurrent();
+
         logSettings();
 
         saveSetting(true);
@@ -61,6 +63,7 @@ SettingsManager::SettingsManager(){
 
             LOGGER.warning("Upgrade settings to version " + String(GLOBAL_CURRENT_SETTINGS_VERSION));
 
+            upgradeToCurrent();
 
             settings.version = GLOBAL_CURRENT_SETTINGS_VERSION;
             LOGGER.warning(" Upgrade settings finished");
@@ -158,4 +161,27 @@ void SettingsManager::logSettings() {
     LOGGER.info("      in command topic prefix: " + String(settings.deviceIncomingCommandTopicPrefix));
     LOGGER.info("      server has born topic: " + String(settings.mqttServerBornTopic));
 }
+//--------------------------------------------------------------------
+
+void SettingsManager::upgradeToCurrent(){
+    if (settings.version < 2){
+        LOGGER.warning("upgrade settings to version2");
+
+        memset(&settings.mqttInputToolTopic, 0, 32);
+        memset(&settings.mqttOutputToolTopic, 0, 32);
+
+        settings.deviceClass = RELAY_SWITCHER;
+
+        settings.switch1Pin = 13;
+        settings.switch2Pin = 0;
+        settings.defaultSwitcherState = false;
+        settings.statefull = true;
+        settings.dimmerPwmValue = 50;
+
+        settings.version = 2;
+    } else {
+
+    }
+}
+
 //--------------------------------------------------------------------
