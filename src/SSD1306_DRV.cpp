@@ -100,8 +100,7 @@ void SSD1306_DRV::clearDisplay()
 {
   unsigned char i,j;
   sendCommand(SSD1306_Display_Off_Cmd);     //display off
-  for(j=0;j<8;j++)
-  {
+  for(j=0;j<8;j++) {
     setTextXY(j,0);
     {
       for(i=0;i<16;i++)  //clear all columns
@@ -147,6 +146,8 @@ bool SSD1306_DRV::putChar(unsigned char ch)
     }
 
      Wire.endTransmission();                    // stop I2C transmission
+
+    return true;
 }
 
 void SSD1306_DRV::putString(const char *string)

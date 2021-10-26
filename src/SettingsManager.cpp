@@ -31,8 +31,8 @@ SettingsManager::SettingsManager(){
         resetWiFi();
 
         settings.mqttPort = 1883;
-        memset(settings.mqttServer, 0, 12);
-        memcpy(settings.mqttServer, String("192.168.2.2").c_str(), 11);
+        memset(settings.mqttServer, 0, 13);
+        memcpy(settings.mqttServer, String("192.168.4.20").c_str(), 12);
         settings.mqttReconnectIntervalMs = 1000;
 
         memset(settings.mqttDeviceName, 0, 7);
@@ -41,7 +41,7 @@ SettingsManager::SettingsManager(){
         memcpy(settings.deviceStateOutgoingTopicPrefix, String("state").c_str(), 5);
         settings.deviceStateOutgoingTopicPrefix[5] = 0;
 
-        memcpy(settings.deviceIncomingCommandTopicPrefix, String("command").c_str(), 7);
+        memcpy(settings.deviceIncomingCommandTopicPrefix, String("commands").c_str(), 8);
         settings.deviceIncomingCommandTopicPrefix[7] = 0;
 
         memcpy(settings.deviceIHaveBornTopic, String("deviceReady").c_str(), 11);

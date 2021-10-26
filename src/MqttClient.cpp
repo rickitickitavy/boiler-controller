@@ -100,6 +100,9 @@ bool MqttClient::sendToStateTopic(byte *payload, int len) {
     if (client->connected()){
         String outTopic = String(settings->deviceStateOutgoingTopicPrefix) + "/" + String(settings->mqttDeviceName);
         client->publish(outTopic.c_str(), payload, len);
+        return true;
+    } else {
+        return false;
     }
 }
 //-------------------------------------------------------------
