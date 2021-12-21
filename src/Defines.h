@@ -10,6 +10,8 @@
 #define LOG_LEVEL_ERROR 4
 #define LOG_LEVEL_NOTHING 5
 
+#define ONE_WIRE_PIN 2
+
 /**
  * Уровень логирования
  */

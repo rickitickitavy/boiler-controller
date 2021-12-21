@@ -6,6 +6,7 @@
 #include "WiFiController.h"
 #include "MqttClient.h"
 #include "Switcher.h"
+#include "DS18x20Hub.h"
 
 #include <ESP8266WiFi.h>
 
@@ -14,6 +15,7 @@ SettingsManager *settingsManager;
 WiFiController *wiFiController;
 MqttClient *mqtt;
 Switcher *switcher;
+DS18x20Hub *ds18x20Hub;
 
 //bool a0Started;
 //long startedAt;
@@ -58,6 +60,9 @@ void setup() {
     LOGGER.info("start device");
 
     switcher = new Switcher(settingsManager->getSettings(), mqtt);
+
+    ds18x20Hub = new DS18x20Hub(ONE_WIRE_PIN);
+
 
     LOGGER.info("all done");
 }
