@@ -47,13 +47,13 @@ void setup() {
 
     LOGGER.info("Starting...");
 
-    ArduinoOTA.begin(true);
-
     settingsManager = new SettingsManager();
 
     wiFiController = new WiFiController(settingsManager);
 
     mqtt = new MqttClient(settingsManager->getSettings());
+
+    ArduinoOTA.begin(true);
 
     LOGGER.info("start device");
 
