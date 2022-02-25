@@ -6,7 +6,7 @@
 #include "WiFiController.h"
 #include "MqttClient.h"
 #include "Switcher.h"
-#include "DS18x20Hub.h"
+#include "DallasTemperature.h"
 
 #include <ESP8266WiFi.h>
 
@@ -15,7 +15,11 @@ SettingsManager *settingsManager;
 WiFiController *wiFiController;
 MqttClient *mqtt;
 Switcher *switcher;
-DS18x20Hub *ds18x20Hub;
+OneWire *oneWire;
+DallasTemperature *dallasTemperature;
+bool termoSensorExists;
+long lastTempRead = 0;
+uint8_t *sensorAddr = (uint8_t *) malloc(10);
 
 //bool a0Started;
 //long startedAt;
@@ -29,23 +33,6 @@ void setup() {
 
     LOGGER.info("Started UART at 921600");
 #endif
-
-//    a0Started = false;
-//    WiFi.begin("TP-LINK_B1C6", "15121820");
-//    startedAt = millis();
-//    while (!WiFi.isConnected() && (millis() - startedAt < 10000)) {
-//        delay(20);
-//    }
-//
-//    if (!WiFi.isConnected()) {
-//        LOGGER.info("Not connected: rebooting...");
-//        delay(500);
-//        ESP.restart();
-//    }
-//    LOGGER.info("Connected.");
-//    LOGGER.info(WiFi.localIP().toString());
-//    lastWorkA = millis();
-//    pinMode(A0, INPUT);
 
     LOGGER.info("Starting...");
 
@@ -61,30 +48,40 @@ void setup() {
 
     switcher = new Switcher(settingsManager->getSettings(), mqtt);
 
-    ds18x20Hub = new DS18x20Hub(ONE_WIRE_PIN);
+    LOGGER.info("starting DS18D20...");
 
+    oneWire = new OneWire(ONE_WIRE_PIN);
+    dallasTemperature = new DallasTemperature(oneWire);
+
+    dallasTemperature->begin();
+    termoSensorExists = dallasTemperature->getDS18Count() > 0;
+
+    if (termoSensorExists) {
+        LOGGER.info("   temperature sensor found");
+        dallasTemperature->getAddress(sensorAddr, 0);
+        dallasTemperature->setResolution(12);
+    } else {
+        LOGGER.info("   temperature sensor NOT found");
+    }
 
     LOGGER.info("all done");
 }
 
 
 void loop() {
-//    digitalWrite(13, LOW);
-//    delay(200);
-//    digitalWrite(13, HIGH);
-//    delay(200);
-
     ArduinoOTA.handle();
     mqtt->dispatch();
     switcher->dispatch();
     wiFiController->checkConnection();
-//    if (millis() > 19000) {
-//        if (!a0Started) {
-//            a0Started = true;
-//            LOGGER.info("A0 started");
-//        }
-//            if (analogRead(A0) > 0){
-//             delay(10);
-//            }
-//    }
+
+    if (termoSensorExists && (lastTempRead == 0 || ((millis() - lastTempRead) > 60000))) {
+        lastTempRead = millis();
+        dallasTemperature->requestTemperatures();
+        float tempr = dallasTemperature->getTempC(sensorAddr);
+        if (tempr != -127) {
+            mqtt->sendToCustomTopic("sensor0", String(tempr));
+        }
+        LOGGER.info(String(tempr));
+    }
+
 }

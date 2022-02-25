@@ -42,6 +42,8 @@ public:
 
     bool sendToStateTopic(String payload);
 
+    bool sendToCustomTopic(String topic, String payload);
+
     bool sendToStateTopic(const char *payload);
 
     void dispatch();
