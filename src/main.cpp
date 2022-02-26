@@ -17,18 +17,19 @@ MqttClient *mqtt;
 Switcher *switcher;
 OneWire *oneWire;
 DallasTemperature *dallasTemperature;
-bool termoSensorExists;
 long lastTempRead = 0;
-uint8_t *sensorAddr = (uint8_t *) malloc(10);
+
+int sensors_count;
+uint8_t *sensorAddr = (uint8_t *) malloc(200);
 
 //bool a0Started;
 //long startedAt;
 //long lastWorkA;
 
 void setup() {
-    pinMode(13, OUTPUT);
+ //   pinMode(13, OUTPUT);
 #ifdef CON_DEBUG
-    Serial.begin(74880);
+    Serial.begin(115200);
     Serial.println("---");
 
     LOGGER.info("Started UART at 921600");
@@ -54,13 +55,14 @@ void setup() {
     dallasTemperature = new DallasTemperature(oneWire);
 
     dallasTemperature->begin();
-    termoSensorExists = dallasTemperature->getDS18Count() > 0;
+    sensors_count = dallasTemperature->getDS18Count();
+    for (int termo_index = 0; termo_index < sensors_count; termo_index++){
+        LOGGER.info("   temperature sensor " + String(termo_index) + " found");
+        dallasTemperature->getAddress(&sensorAddr[termo_index * 10], termo_index);
+    }
+    dallasTemperature->setResolution(12);
 
-    if (termoSensorExists) {
-        LOGGER.info("   temperature sensor found");
-        dallasTemperature->getAddress(sensorAddr, 0);
-        dallasTemperature->setResolution(12);
-    } else {
+    if (!sensors_count){
         LOGGER.info("   temperature sensor NOT found");
     }
 
@@ -74,14 +76,15 @@ void loop() {
     switcher->dispatch();
     wiFiController->checkConnection();
 
-    if (termoSensorExists && (lastTempRead == 0 || ((millis() - lastTempRead) > 60000))) {
+    if (sensors_count && (lastTempRead == 0 || ((millis() - lastTempRead) > 500))) {
         lastTempRead = millis();
-        dallasTemperature->requestTemperatures();
-        float tempr = dallasTemperature->getTempC(sensorAddr);
-        if (tempr != -127) {
-            mqtt->sendToCustomTopic("sensor0", String(tempr));
+        for (int index = 0; index < sensors_count; index++){
+            dallasTemperature->requestTemperatures();
+            float tempr = dallasTemperature->getTempC(&sensorAddr[index * 10]);
+            if (tempr != -127) {
+               mqtt->sendToCustomTopic("sensor" + String(index), String(tempr));
+            }
+            LOGGER.info(String(index) + " = " + String(tempr));
         }
-        LOGGER.info(String(tempr));
     }
-
 }
