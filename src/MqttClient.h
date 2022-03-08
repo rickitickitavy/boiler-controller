@@ -40,7 +40,7 @@ public:
 
     bool sendToStateTopic(byte *payload, int len);
 
-    bool sendToStateTopic(String payload);
+    bool sendToStateTopic(int index, String payload);
 
     bool sendToCustomTopic(String topic, String payload);
 

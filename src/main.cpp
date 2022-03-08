@@ -5,16 +5,15 @@
 #include <ArduinoOTA.h>
 #include "WiFiController.h"
 #include "MqttClient.h"
-#include "Switcher.h"
+#include "SwitcherX4.h"
 #include "DallasTemperature.h"
-
 #include <ESP8266WiFi.h>
 
 
 SettingsManager *settingsManager;
 WiFiController *wiFiController;
 MqttClient *mqtt;
-Switcher *switcher;
+SwitcherX4 *switcher;
 OneWire *oneWire;
 DallasTemperature *dallasTemperature;
 long lastTempRead = 0;
@@ -22,12 +21,7 @@ long lastTempRead = 0;
 int sensors_count;
 uint8_t *sensorAddr = (uint8_t *) malloc(200);
 
-//bool a0Started;
-//long startedAt;
-//long lastWorkA;
-
 void setup() {
- //   pinMode(13, OUTPUT);
 #ifdef CON_DEBUG
     Serial.begin(115200);
     Serial.println("---");
@@ -47,7 +41,7 @@ void setup() {
 
     LOGGER.info("start device");
 
-    switcher = new Switcher(settingsManager->getSettings(), mqtt);
+    switcher = new SwitcherX4(settingsManager->getSettings(), mqtt);
 
     LOGGER.info("starting DS18D20...");
 
@@ -69,14 +63,12 @@ void setup() {
     LOGGER.info("all done");
 }
 
-
-void loop() {
+void loop(){
     ArduinoOTA.handle();
     mqtt->dispatch();
-    switcher->dispatch();
     wiFiController->checkConnection();
 
-    if (sensors_count && (lastTempRead == 0 || ((millis() - lastTempRead) > 500))) {
+    if (sensors_count && (lastTempRead == 0 || ((millis() - lastTempRead) > 30000))) {
         lastTempRead = millis();
         for (int index = 0; index < sensors_count; index++){
             dallasTemperature->requestTemperatures();

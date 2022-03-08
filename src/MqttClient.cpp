@@ -39,16 +39,20 @@ void MqttClient::reconnect() {
     if (!client->connected()) {
         LOGGER.info("Attempting MQTT connection...");
         // Attempt to connect
-        String deviceInputTopic = String(settings->deviceIncomingCommandTopicPrefix) + "/" +  String(settings->mqttDeviceName);
         if (client->connect(settings->mqttDeviceName)) {
             // Once connected, publish an announcement...
             if (this->connectedCallback  != nullptr){
                 this->connectedCallback();
             }
-            LOGGER.info("   MQTT connected. Subscribing to '" + deviceInputTopic + "'");
-            LOGGER.info(client->subscribe(deviceInputTopic.c_str())
-                        ? "   subscribed "
-                        : "   NOT subscribed");
+
+            for (int index = 0; index < 4; index++){
+                String deviceInputTopic = String(settings->deviceIncomingCommandTopicPrefix) + String(index) + "/" +  String(settings->mqttDeviceName);
+                LOGGER.info("   MQTT connected. Subscribing to '" + deviceInputTopic + "'");
+                LOGGER.info(client->subscribe((deviceInputTopic).c_str())
+                            ? "   subscribed "
+                            : "   NOT subscribed");
+            }
+
             LOGGER.info("   MQTT connected. Subscribing to '" + String(settings->mqttServerBornTopic) + "'");
             LOGGER.info(client->subscribe(settings->mqttServerBornTopic)
                         ? "   subscribed "
@@ -107,11 +111,11 @@ bool MqttClient::sendToStateTopic(byte *payload, int len) {
 }
 //-------------------------------------------------------------
 
-bool MqttClient::sendToStateTopic(String payload) {
+bool MqttClient::sendToStateTopic(int index, String payload) {
     lastCheckTime = 0;
     checkConnection();
     if (client->connected()){
-        String outTopic = String(settings->deviceStateOutgoingTopicPrefix) + "/" + String(settings->mqttDeviceName);
+        String outTopic = String(settings->deviceStateOutgoingTopicPrefix) + String(index) + "/" + String(settings->mqttDeviceName);
         client->publish(outTopic.c_str(), payload.c_str());
         return true;
     }

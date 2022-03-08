@@ -36,7 +36,7 @@ SettingsManager::SettingsManager(){
         settings.mqttReconnectIntervalMs = 1000;
 
         memset(settings.mqttDeviceName, 0, 7);
-        memcpy(settings.mqttDeviceName, String("device").c_str(), 6);
+        memcpy(settings.mqttDeviceName, String("heater").c_str(), 6);
 
         memcpy(settings.deviceStateOutgoingTopicPrefix, String("state").c_str(), 5);
         settings.deviceStateOutgoingTopicPrefix[5] = 0;
