@@ -2,17 +2,13 @@
 #define EFLAME328_GLOBALSETTINGS_H
 
 #define GLOBAL_CURRENT_SETTINGS_VERSION 1
-#define GLOBAL_SETTINGS_MARKER_0 0x34
+#define GLOBAL_SETTINGS_MARKER_0 0x31
 #define GLOBAL_SETTINGS_MARKER_1 0x32
 #define GLOBAL_SETTINGS_MARKER_2 0x33
 #define GLOBAL_SETTINGS_MARKER_3 0x31
 
-#define MAX_PROFILE_COUNTER 10
-#define SYSTEM_PROFILE_COUNTER 5
-
-enum DeviceClass{
-    RELAY_SWITCHER, SIMMISTOR_SWITCHER, DIMMER,
-};
+#define MAX_SENSORS_COUNT 20
+#define SENSORS_ADDR_SIZE 8
 
 struct NetworkSettings {
     /**
@@ -93,36 +89,22 @@ struct GlobalSettings {
      */
     char mqttOutputToolTopic[32];
 
-
-    /**
-     * Device type.
-     */
-    DeviceClass deviceClass;
-
     /**
      * ON or OFF must be
      */
     bool defaultSwitcherState;
 
     /**
-     * pin for control 220V relay or channel 1 for simistor switcher
-     */
-    char switch1Pin;
-
-    /**
-     * pin for control channel2 for simistor relay
-     */
-    char switch2Pin;
-
-    /**
-     * flag that point is state of switcher must be retrieved from A0 pin
-     */
-    bool statefull;
-
-    /**
      * value for DIMMER device (1024 is MAX)
      */
     int dimmerPwmValue;
+
+    int scan_sensors_integrval_ms;
+
+    /**
+     * sensor addresses
+     */
+    char ds18D20Addresses[SENSORS_ADDR_SIZE * MAX_SENSORS_COUNT];
 
 
 };

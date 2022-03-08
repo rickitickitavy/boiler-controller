@@ -25,13 +25,13 @@ Logger::Logger() {
     SPIFFS.begin();
 
     // Пробуем загрузить предыдущий лог
-    File oldLogFile = SPIFFS.open("/log", "r");
-    if (oldLogFile) {
-        logLen = oldLogFile.size();
-        oldLogFile.readBytes(&logData[0], oldLogFile.size() > LOGGER_SIZE ? LOGGER_SIZE : oldLogFile.size());
-        logData[logLen] = 0;
-        oldLogFile.close();
-    }
+//    File oldLogFile = SPIFFS.open("/log", "r");
+//    if (oldLogFile) {
+//        logLen = oldLogFile.size();
+//        oldLogFile.readBytes(&logData[0], oldLogFile.size() > LOGGER_SIZE ? LOGGER_SIZE : oldLogFile.size());
+//        logData[logLen] = 0;
+//        oldLogFile.close();
+//    }
 }
 //------------------------------------------------------------------------------
 
@@ -122,10 +122,10 @@ void Logger::saveLogFile() {
     File logFile = SPIFFS.open("/log", "w");
     if (logFile) {
         println("saving log");
-        logFile.truncate(0);
-        logFile.write(&logData[0], logLen);
-        logFile.flush();
-        logFile.close();
+//        logFile.truncate(0);
+//        logFile.write(&logData[0], logLen);
+//        logFile.flush();
+//        logFile.close();
         println("log saved to /log");
     }
 

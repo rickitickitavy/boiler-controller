@@ -74,30 +74,22 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
                                                                            31,
                                                                            (void *) &settings->mqttOutputToolTopic[0],
                                                                            (void *) &settings->mqttOutputToolTopic[0]);
-    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("device>deviceClass", UCHAR, 0,
-                                                                           4,
-                                                                           (void *) &settings->deviceClass,
-                                                                           (void *) &settings->deviceClass);
-    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("device>switch1Pin", UCHAR, 0,
-                                                                           16,
-                                                                           (void *) &settings->switch1Pin,
-                                                                           (void *) &settings->switch1Pin);
-    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("device>switch2Pin", UCHAR, 0,
-                                                                           16,
-                                                                           (void *) &settings->switch2Pin,
-                                                                           (void *) &settings->switch2Pin);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("device>defaultSwitcherState", UCHAR, 0,
                                                                            255,
                                                                            (void *) &settings->defaultSwitcherState,
                                                                            (void *) &settings->defaultSwitcherState);
-    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("device>statefull", UCHAR, 0,
-                                                                           255,
-                                                                           (void *) &settings->statefull,
-                                                                           (void *) &settings->statefull);
+//    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("device>statefull", UCHAR, 0,
+//                                                                           255,
+//                                                                           (void *) &settings->statefull,
+//                                                                           (void *) &settings->statefull);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("device>dimmerPwmValue", INTEGER, 0,
                                                                            1024,
                                                                            (void *) &settings->dimmerPwmValue,
                                                                            (void *) &settings->dimmerPwmValue);
+//    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("device>dimmerPwmValue", INTEGER, 0,
+//                                                                           1024,
+//                                                                           (void *) &settings->dimmerPwmValue,
+//                                                                           (void *) &settings->dimmerPwmValue);
 //    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("network>ipAddress", IPv4, 7,
 //                                                                           15,
 //                                                                           (void *) &settings->network.ipAddress[0],

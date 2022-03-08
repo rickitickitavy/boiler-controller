@@ -25,11 +25,6 @@ private:
      */
     void readSettings();
 
-    /**
-     *
-     */
-    void upgradeToCurrent();
-
 public:
     SettingsManager();
 

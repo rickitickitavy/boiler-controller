@@ -7,6 +7,8 @@
 #include "MqttClient.h"
 #include "SwitcherX4.h"
 #include "DallasTemperature.h"
+#include "Converter.h"
+#include "SensorController.h"
 #include <ESP8266WiFi.h>
 
 
@@ -14,12 +16,11 @@ SettingsManager *settingsManager;
 WiFiController *wiFiController;
 MqttClient *mqtt;
 SwitcherX4 *switcher;
-OneWire *oneWire;
-DallasTemperature *dallasTemperature;
+SensorController *sensorController;
 long lastTempRead = 0;
 
-int sensors_count;
-uint8_t *sensorAddr = (uint8_t *) malloc(200);
+
+
 
 void setup() {
 #ifdef CON_DEBUG
@@ -33,6 +34,8 @@ void setup() {
 
     settingsManager = new SettingsManager();
 
+    sensorController = new SensorController(ONE_WIRE_PIN, settingsManager);
+
     wiFiController = new WiFiController(settingsManager);
 
     mqtt = new MqttClient(settingsManager->getSettings());
@@ -45,38 +48,25 @@ void setup() {
 
     LOGGER.info("starting DS18D20...");
 
-    oneWire = new OneWire(ONE_WIRE_PIN);
-    dallasTemperature = new DallasTemperature(oneWire);
-
-    dallasTemperature->begin();
-    sensors_count = dallasTemperature->getDS18Count();
-    for (int termo_index = 0; termo_index < sensors_count; termo_index++){
-        LOGGER.info("   temperature sensor " + String(termo_index) + " found");
-        dallasTemperature->getAddress(&sensorAddr[termo_index * 10], termo_index);
-    }
-    dallasTemperature->setResolution(12);
-
-    if (!sensors_count){
-        LOGGER.info("   temperature sensor NOT found");
-    }
-
     LOGGER.info("all done");
 }
 
-void loop(){
+void loop() {
     ArduinoOTA.handle();
     mqtt->dispatch();
     wiFiController->checkConnection();
 
-    if (sensors_count && (lastTempRead == 0 || ((millis() - lastTempRead) > 30000))) {
-        lastTempRead = millis();
-        for (int index = 0; index < sensors_count; index++){
-            dallasTemperature->requestTemperatures();
-            float tempr = dallasTemperature->getTempC(&sensorAddr[index * 10]);
-            if (tempr != -127) {
-               mqtt->sendToCustomTopic("sensor" + String(index), String(tempr));
+    sensorController->handle();
+
+    if (sensorController->data_ready){
+        sensorController->data_ready = false;
+        for (int index = 0; index < MAX_SENSORS_COUNT; index++){
+            if (sensorController->sensor_data[index].data_ready){
+                sensorController->sensor_data[index].data_ready = false;
+                mqtt->sendToCustomTopic("sensor" + String(index), String(sensorController->sensor_data[index].value));
+                LOGGER.info(String(index) + " = " + String(sensorController->sensor_data[index].value));
             }
-            LOGGER.info(String(index) + " = " + String(tempr));
         }
     }
+
 }

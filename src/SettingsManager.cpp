@@ -11,6 +11,10 @@ SettingsManager::SettingsManager(){
     EEPROM.begin(4096);
     LOGGER.info("Load settings...");
     readSettings();
+    LOGGER.info("b0 = " + String((byte)settings.initMarker[0]));
+    LOGGER.info("b1 = " + String((byte)settings.initMarker[1]));
+    LOGGER.info("b2 = " + String((byte)settings.initMarker[2]));
+    LOGGER.info("b3 = " + String((byte)settings.initMarker[3]));
     navigator = new SettingsNavigator(this);
 
     if ((settings.initMarker[0] != GLOBAL_SETTINGS_MARKER_0)
@@ -18,6 +22,7 @@ SettingsManager::SettingsManager(){
         || (settings.initMarker[2] != GLOBAL_SETTINGS_MARKER_2)
         || (settings.initMarker[3] != GLOBAL_SETTINGS_MARKER_3)) {
         // настройки не инициализированы
+
         settings.initMarker[0] = GLOBAL_SETTINGS_MARKER_0;
         settings.initMarker[1] = GLOBAL_SETTINGS_MARKER_1;
         settings.initMarker[2] = GLOBAL_SETTINGS_MARKER_2;
@@ -35,8 +40,8 @@ SettingsManager::SettingsManager(){
         memcpy(settings.mqttServer, String("192.168.4.20").c_str(), 12);
         settings.mqttReconnectIntervalMs = 1000;
 
-        memset(settings.mqttDeviceName, 0, 7);
-        memcpy(settings.mqttDeviceName, String("heater").c_str(), 6);
+        memset(settings.mqttDeviceName, 0, 8);
+        memcpy(settings.mqttDeviceName, String("heater2").c_str(), 7);
 
         memcpy(settings.deviceStateOutgoingTopicPrefix, String("state").c_str(), 5);
         settings.deviceStateOutgoingTopicPrefix[5] = 0;
@@ -50,27 +55,22 @@ SettingsManager::SettingsManager(){
         memcpy(settings.mqttServerBornTopic, String("homeassistant/status").c_str(), 20);
         settings.mqttServerBornTopic[20] = 0;
 
-        upgradeToCurrent();
+        memset(&settings.mqttInputToolTopic, 0, 32);
+        memset(&settings.mqttOutputToolTopic, 0, 32);
+
+        settings.defaultSwitcherState = false;
+        settings.dimmerPwmValue = 50;
+
+        memset(settings.ds18D20Addresses, 0, sizeof(settings.ds18D20Addresses));
+
+        settings.version = 2;
+        settings.scan_sensors_integrval_ms = 3000;
 
         logSettings();
 
         saveSetting(true);
         LOGGER.warning("Settings has never been initialized");
-    } else {
-
-        LOGGER.info("Settings loaded. Version " + String(settings.version));
-        if (settings.version != GLOBAL_CURRENT_SETTINGS_VERSION) {
-
-            LOGGER.warning("Upgrade settings to version " + String(GLOBAL_CURRENT_SETTINGS_VERSION));
-
-            upgradeToCurrent();
-
-            settings.version = GLOBAL_CURRENT_SETTINGS_VERSION;
-            LOGGER.warning(" Upgrade settings finished");
-            saveSetting(false);
-        }
     }
-
 
     logSettings();
 };
@@ -163,25 +163,5 @@ void SettingsManager::logSettings() {
 }
 //--------------------------------------------------------------------
 
-void SettingsManager::upgradeToCurrent(){
-    if (settings.version < 2){
-        LOGGER.warning("upgrade settings to version2");
-
-        memset(&settings.mqttInputToolTopic, 0, 32);
-        memset(&settings.mqttOutputToolTopic, 0, 32);
-
-        settings.deviceClass = RELAY_SWITCHER;
-
-        settings.switch1Pin = 13;
-        settings.switch2Pin = 0;
-        settings.defaultSwitcherState = false;
-        settings.statefull = true;
-        settings.dimmerPwmValue = 50;
-
-        settings.version = 2;
-    } else {
-
-    }
-}
 
 //--------------------------------------------------------------------
