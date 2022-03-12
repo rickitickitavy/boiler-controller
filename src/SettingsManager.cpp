@@ -172,8 +172,13 @@ void SettingsManager::logSettings() {
     LOGGER.info("         output flow: " + String(buffer));
     Converter::bytesToAsciiHex(buffer, (uint8_t*)&settings.ds18D20Addresses[SENSORS_ADDR_SIZE * 2], SENSORS_ADDR_SIZE);
     LOGGER.info("         input flow: " + String(buffer));
-
-
+    LOGGER.info("      termoaccumulator: ");
+    Converter::bytesToAsciiHex(buffer, (uint8_t*)&settings.ds18D20Addresses[SENSORS_ADDR_SIZE * 3], SENSORS_ADDR_SIZE);
+    LOGGER.info("         top: " + String(buffer));
+    Converter::bytesToAsciiHex(buffer, (uint8_t*)&settings.ds18D20Addresses[SENSORS_ADDR_SIZE * 4], SENSORS_ADDR_SIZE);
+    LOGGER.info("         middle: " + String(buffer));
+    Converter::bytesToAsciiHex(buffer, (uint8_t*)&settings.ds18D20Addresses[SENSORS_ADDR_SIZE * 5], SENSORS_ADDR_SIZE);
+    LOGGER.info("         bottom: " + String(buffer));
 }
 //--------------------------------------------------------------------
 

@@ -27,6 +27,9 @@
             prepareDropDownList("sensors>heater>core");
             prepareDropDownList("sensors>heater>output_flow");
             prepareDropDownList("sensors>heater>input_flow");
+            prepareDropDownList("sensors>termoaccumulator>top");
+            prepareDropDownList("sensors>termoaccumulator>middle");
+            prepareDropDownList("sensors>termoaccumulator>bottom");
         }
 
         function saveSystemSettings() {
@@ -43,6 +46,10 @@
             const sensorHeaterCore = document.getElementById("sensors>heater>core").value;
             const sensorHeaterOutputFlow = document.getElementById("sensors>heater>output_flow").value;
             const sensorHeaterInputFlow = document.getElementById("sensors>heater>input_flow").value;
+
+            const sensorTermoaccumulatorTop = document.getElementById("sensors>termoaccumulator>top").value;
+            const sensorTermoaccumulatorMiddle = document.getElementById("sensors>termoaccumulator>middle").value;
+            const sensorTermoaccumulatorBootom = document.getElementById("sensors>termoaccumulator>bottom").value;
 
             var saveNetworkSettings = function () {
                 $.ajax({
@@ -74,7 +81,11 @@
                 + "|device>incomingCommandTopicPrefix=" + deviceIncomingCommandTopicPrefix
                 + "|sensors>heater>core=" + sensorHeaterCore
                 + "|sensors>heater>output_flow=" + sensorHeaterOutputFlow
-                + "|sensors>heater>input_flow=" + sensorHeaterInputFlow,
+                + "|sensors>heater>input_flow=" + sensorHeaterInputFlow
+
+                + "|sensors>termoaccumulator>top=" + sensorTermoaccumulatorTop
+                + "|sensors>termoaccumulator>middle=" + sensorTermoaccumulatorMiddle
+                + "|sensors>termoaccumulator>bottom=" + sensorTermoaccumulatorBootom,
                 success: function (response) {
                     if (response != undefined) {
 
@@ -193,6 +204,33 @@
             <div class="formParamCaption">Termosensor of heater input flow</div>
             <div class="formParamValue">
                 <select id="sensors>heater>input_flow" name="sensors>heater>input_flow" class="formStringParamValue" title="%sensors>heater>input_flow%">
+                    %sensors>list%
+                </select>
+            </div>
+        </div>
+
+        <div class="form-inputField-container">
+            <div class="formParamCaption">Termosensor of termoaccumulator top</div>
+            <div class="formParamValue">
+                <select id="sensors>termoaccumulator>top" name="sensors>termoaccumulator>top" class="formStringParamValue" title="%sensors>termoaccumulator>top%">
+                    %sensors>list%
+                </select>
+            </div>
+        </div>
+
+        <div class="form-inputField-container">
+            <div class="formParamCaption">Termosensor of termoaccumulator middle</div>
+            <div class="formParamValue">
+                <select id="sensors>termoaccumulator>middle" name="sensors>termoaccumulator>middle" class="formStringParamValue" title="%sensors>termoaccumulator>middle%">
+                    %sensors>list%
+                </select>
+            </div>
+        </div>
+
+        <div class="form-inputField-container">
+            <div class="formParamCaption">Termosensor of termoaccumulator bottom</div>
+            <div class="formParamValue">
+                <select id="sensors>termoaccumulator>bottom" name="sensors>termoaccumulator>bottom" class="formStringParamValue" title="%sensors>termoaccumulator>bottom%">
                     %sensors>list%
                 </select>
             </div>

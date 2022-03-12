@@ -100,6 +100,16 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>heater>input_flow", SENSORS_ADDR_SIZE,
                                                                            (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 2],
                                                                            (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 2]);
+
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>termoaccumulator>top", SENSORS_ADDR_SIZE,
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 3],
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 3]);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>termoaccumulator>middle", SENSORS_ADDR_SIZE,
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 4],
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 4]);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>termoaccumulator>bottom", SENSORS_ADDR_SIZE,
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 5],
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 5]);
 //
 }
 //--------------------------------------------------------------------
