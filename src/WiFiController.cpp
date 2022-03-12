@@ -37,7 +37,7 @@ String WiFiController::getTextErrorStatus() {
 void WiFiController::init() {
     GlobalSettings *settings = settingsManager->getSettings();
 
-    if ((WiFi.hostname() != String(settings->network.hostName))
+    if ((WiFi.hostname() != String(settings->mqttDeviceName))
         || (WiFi.softAPSSID() != settings->network.ssid)
         || (WiFi.softAPPSK() != String(settings->network.password))
         || (WiFi.getMode() != WIFI_STA)) {
@@ -88,7 +88,7 @@ void WiFiController::init() {
 //        WiFi.hostname(settings->network.hostName);
 //        wifi_station_set_hostname(settings->network.hostName);
 
-            MDNS.begin(String(&settings->network.hostName[0]));
+            MDNS.begin(String(&settings->mqttDeviceName[0]));
             MDNS.addService("http", "tcp", 80);
 
         }

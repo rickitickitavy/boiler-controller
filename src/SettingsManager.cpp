@@ -1,5 +1,6 @@
 #include "SettingsNavigator.h"//
 #include "Logger.h"
+#include "Converter.h"
 // Created by dsporykhin on 23.04.20.
 //
 
@@ -135,7 +136,7 @@ void SettingsManager::resetWiFi() {
     temp.toCharArray(&settings.network.password[0], sizeof(settings.network.password));
 
     temp = WIFI_DEFAULT_HOST_NAME;
-    temp.toCharArray(&settings.network.hostName[0], sizeof(settings.network.hostName));
+    temp.toCharArray(&settings.mqttDeviceName[0], sizeof(settings.mqttDeviceName));
 }
 //--------------------------------------------------------------------
 
@@ -149,7 +150,7 @@ void SettingsManager::logSettings() {
     LOGGER.info("   wifw:");
     LOGGER.info("      SSID: " + String(settings.network.ssid));
     LOGGER.info("      password: " + String(settings.network.password));
-    LOGGER.info("      host: " + String(settings.network.hostName));
+    LOGGER.info("      host: " + String(settings.mqttDeviceName));
     LOGGER.info("   mqtt:");
     LOGGER.info("      server: " + String(settings.mqttServer));
     LOGGER.info("      port: " + String(settings.mqttPort));
@@ -160,6 +161,19 @@ void SettingsManager::logSettings() {
     LOGGER.info("      outgoing topic prefix: " + String(settings.deviceStateOutgoingTopicPrefix));
     LOGGER.info("      in command topic prefix: " + String(settings.deviceIncomingCommandTopicPrefix));
     LOGGER.info("      server has born topic: " + String(settings.mqttServerBornTopic));
+
+    LOGGER.info("   sensors: ");
+    LOGGER.info("      heater: ");
+
+    char buffer[SENSORS_ADDR_SIZE * 2 + 1];
+    Converter::bytesToAsciiHex(buffer, (uint8_t*)&settings.ds18D20Addresses[SENSORS_ADDR_SIZE * 0], SENSORS_ADDR_SIZE);
+    LOGGER.info("         core: " + String(buffer));
+    Converter::bytesToAsciiHex(buffer, (uint8_t*)&settings.ds18D20Addresses[SENSORS_ADDR_SIZE * 1], SENSORS_ADDR_SIZE);
+    LOGGER.info("         output flow: " + String(buffer));
+    Converter::bytesToAsciiHex(buffer, (uint8_t*)&settings.ds18D20Addresses[SENSORS_ADDR_SIZE * 2], SENSORS_ADDR_SIZE);
+    LOGGER.info("         input flow: " + String(buffer));
+
+
 }
 //--------------------------------------------------------------------
 

@@ -36,6 +36,8 @@ void setup() {
 
     sensorController = new SensorController(ONE_WIRE_PIN, settingsManager);
 
+    settingsManager->getNavigator()->setSensorList(sensorController->buildSensorsList());
+
     wiFiController = new WiFiController(settingsManager);
 
     mqtt = new MqttClient(settingsManager->getSettings());

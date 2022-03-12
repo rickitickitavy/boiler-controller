@@ -29,11 +29,14 @@ private:
 
 public:
     bool data_ready;
+    uint8_t found_sensors_addr[SENSORS_ADDR_SIZE * MAX_SENSORS_COUNT];
+    int found_sensors_count;
     SensorData sensor_data[MAX_SENSORS_COUNT];
 
     SensorController(int one_wire_pin, SettingsManager *settingsManager);
     void handle();
     bool isHasSensors();
+    String buildSensorsList();
 };
 
 

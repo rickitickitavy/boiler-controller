@@ -6,6 +6,29 @@
     <link rel="stylesheet" type="text/css" href="css/all.css"/>
     <script src="js/jq/jquery-3.4.1.js"></script>
     <script language="JavaScript">
+
+        function prepareDropDownList(dropDownName){
+            const dropDownElement = document.getElementById(dropDownName);
+            if (dropDownElement != undefined){
+                const curValue = dropDownElement.title;
+                dropDownElement.value = curValue;
+//                var searchChild = dropDownElement.firstElementChild;
+//                while (searchChild != null){
+//                    if (searchChild.value == curValue){
+//                        searchChild.selected = true;
+//                        dropDownElement.value = curValue;
+//                        return;
+//                    }
+//                }
+            }
+        }
+
+        function loaded() {
+            prepareDropDownList("sensors>heater>core");
+            prepareDropDownList("sensors>heater>output_flow");
+            prepareDropDownList("sensors>heater>input_flow");
+        }
+
         function saveSystemSettings() {
             var wiFiSsId = document.getElementById("wiFiSSID").value;
             var wiFiPassword = document.getElementById("wiFiPassword").value;
@@ -17,6 +40,9 @@
             var deviceStateOutgoingTopicPrefix = document.getElementById("deviceStateOutgoingTopicPrefix").value;
             var deviceIncomingCommandTopicPrefix = document.getElementById("deviceIncomingCommandTopicPrefix").value;
             var mqttServerBornTopic = document.getElementById("mqttServerBornTopic").value;
+            const sensorHeaterCore = document.getElementById("sensors>heater>core").value;
+            const sensorHeaterOutputFlow = document.getElementById("sensors>heater>output_flow").value;
+            const sensorHeaterInputFlow = document.getElementById("sensors>heater>input_flow").value;
 
             var saveNetworkSettings = function () {
                 $.ajax({
@@ -45,7 +71,10 @@
                 + "|mqtt>serverBornTopic=" + mqttServerBornTopic
                 + "|device>iHaveBornTopic=" + deviceIHaveBornTopic
                 + "|device>stateOutgoingTopicPrefix=" + deviceStateOutgoingTopicPrefix
-                + "|device>incomingCommandTopicPrefix=" + deviceIncomingCommandTopicPrefix,
+                + "|device>incomingCommandTopicPrefix=" + deviceIncomingCommandTopicPrefix
+                + "|sensors>heater>core=" + sensorHeaterCore
+                + "|sensors>heater>output_flow=" + sensorHeaterOutputFlow
+                + "|sensors>heater>input_flow=" + sensorHeaterInputFlow,
                 success: function (response) {
                     if (response != undefined) {
 
@@ -64,7 +93,7 @@
         }
     </script>
 </head>
-<body>
+<body onload="loaded();">
 <div class="formBase form-flex-vertical-container">
 
     <div class="formHeader">
@@ -139,6 +168,33 @@
             <div class="formParamCaption">The topic to which server will reports it has born</div>
             <div class="formParamValue">
                 <input id="mqttServerBornTopic" class="formStringParamValue" value="%mqtt>serverBornTopic%">
+            </div>
+        </div>
+
+        <div class="form-inputField-container">
+            <div class="formParamCaption">Termosensor of heater core</div>
+            <div class="formParamValue">
+                <select id="sensors>heater>core" name="sensors>heater>core" class="formStringParamValue" title="%sensors>heater>core%">
+                    %sensors>list%
+                </select>
+            </div>
+        </div>
+
+        <div class="form-inputField-container">
+            <div class="formParamCaption">Termosensor of heater output flow</div>
+            <div class="formParamValue">
+                <select id="sensors>heater>output_flow" name="sensors>heater>output_flow" class="formStringParamValue" title="%sensors>heater>output_flow%">
+                    %sensors>list%
+                </select>
+            </div>
+        </div>
+
+        <div class="form-inputField-container">
+            <div class="formParamCaption">Termosensor of heater input flow</div>
+            <div class="formParamValue">
+                <select id="sensors>heater>input_flow" name="sensors>heater>input_flow" class="formStringParamValue" title="%sensors>heater>input_flow%">
+                    %sensors>list%
+                </select>
             </div>
         </div>
 

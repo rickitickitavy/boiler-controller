@@ -22,6 +22,7 @@ private:
     GlobalSettings *settings;
     ParamDescriptor *paramDescriptors[50];
     int activeParamDescriptors = 0;
+    char *sensorsList;
 
     String saveSettingByName(String paramName, String value);
 
@@ -52,6 +53,8 @@ public:
      * @return
      */
     String saveSettingsByNames(String *params, int paramsCount);
+
+    void setSensorList(String sensorsList);
 
 };
 

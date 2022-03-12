@@ -2,7 +2,7 @@
 #define EFLAME328_GLOBALSETTINGS_H
 
 #define GLOBAL_CURRENT_SETTINGS_VERSION 1
-#define GLOBAL_SETTINGS_MARKER_0 0x31
+#define GLOBAL_SETTINGS_MARKER_0 0x32
 #define GLOBAL_SETTINGS_MARKER_1 0x32
 #define GLOBAL_SETTINGS_MARKER_2 0x33
 #define GLOBAL_SETTINGS_MARKER_3 0x31
@@ -16,11 +16,6 @@ struct NetworkSettings {
   */
     char ssid[64];
     char password[64];
-
-    /**
-     * Имя станции светильника в сети
-     */
-    char hostName[64];
 };
 
 struct GlobalSettings {

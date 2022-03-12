@@ -63,7 +63,6 @@ void WebServerController::settingsApiProcessor(AsyncWebServerRequest *request) {
 
             String wifiSSID = request->arg("network>ssid");
             String wifiPassword = request->arg("network>password");
-            String wifiHostName = request->arg("network>hostName");
             String mqttServer = request->arg("mqtt>server");
             String mqttPort = request->arg("mqtt>port");
             String mqttDeviceName = request->arg("mqtt>deviceName");
@@ -82,8 +81,6 @@ void WebServerController::settingsApiProcessor(AsyncWebServerRequest *request) {
                 wifiSSID.toCharArray(&networkSettings.ssid[0], sizeof(networkSettings.ssid));
                 wifiPassword.toCharArray(&networkSettings.password[0],
                                          sizeof(networkSettings.password));
-                wifiHostName.toCharArray(&networkSettings.hostName[0],
-                                         sizeof(networkSettings.hostName));
                 request->send(200, TEXT_PLAN, OK_RESPONSE);
 
                 settingsManager->getNavigator()->saveNetworkSettingsAndRestart(&networkSettings);
@@ -94,6 +91,8 @@ void WebServerController::settingsApiProcessor(AsyncWebServerRequest *request) {
             LOGGER.error(message);
             request->send(200, TEXT_PLAN, message);
         }
+    } else if (parameter == "DS18D20_LIST") {
+
     } else {
         if (operation == PARAMETER_OPERATION_READ) {
             String message = settingsManager->getNavigator()->getSettingByName(parameter);

@@ -10,7 +10,7 @@
 
 
 enum ParamType{
-    INTEGER, FLOAT, BOOLEAN, STRING, UCHAR, IPv4
+    INTEGER, FLOAT, BOOLEAN, STRING, UCHAR, IPv4, HEX_BYTES
 }
 ;
 
@@ -21,6 +21,7 @@ public:
     float minValue;
     float maxValue;
     int arraySize;
+    int byte_data_length;
     void *valueReferenceForRead;
     void *valueReferenceForWrite;
 
@@ -31,6 +32,9 @@ public:
                     void *valueReferenceForRead, void *valueReferenceForWrite);
 
     ParamDescriptor(String paramName, ParamType paramType, float minValue, float maxValue, int arraySize,
+                    void *valueReferenceForRead, void *valueReferenceForWrite);
+
+    ParamDescriptor(String paramName, int byte_data_length,
                     void *valueReferenceForRead, void *valueReferenceForWrite);
 };
 

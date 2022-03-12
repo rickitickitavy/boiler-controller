@@ -67,7 +67,6 @@ public:
      */
     GlobalSettings* getSettings();
 
-
     void logSettings();
 };
 

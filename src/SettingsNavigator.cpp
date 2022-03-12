@@ -5,6 +5,7 @@
 #include <IPAddress.h>
 #include "SettingsNavigator.h"
 #include "Logger.h"
+#include "Converter.h"
 
 SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
     this->settingsManager = settingsManager;
@@ -30,12 +31,8 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
                                                                            63,
                                                                            (void *) &settings->network.password[0],
                                                                            (void *) &settings->network.password[0]);
-    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("network>hostName", STRING, 5,
-                                                                           63,
-                                                                           (void *) &settings->network.hostName[0],
-                                                                           (void *) &settings->network.hostName[0]);
 
-    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("mqtt>server", STRING, 5,
+   this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("mqtt>server", STRING, 5,
                                                                            63,
                                                                            (void *) &settings->mqttServer[0],
                                                                            (void *) &settings->mqttServer[0]);
@@ -94,7 +91,16 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
 //                                                                           15,
 //                                                                           (void *) &settings->network.ipAddress[0],
 //                                                                           (void *) &settings->network.ipAddress[0]);
-
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>heater>core", SENSORS_ADDR_SIZE,
+                                                                           (void *) &settings->ds18D20Addresses[0],
+                                                                           (void *) &settings->ds18D20Addresses[0]);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>heater>output_flow", SENSORS_ADDR_SIZE,
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 1],
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 1]);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>heater>input_flow", SENSORS_ADDR_SIZE,
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 2],
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 2]);
+//
 }
 //--------------------------------------------------------------------
 
@@ -149,8 +155,13 @@ String SettingsNavigator::getSettingByName(String origParamName) {
                            ? (showMin ? String((unsigned char)paramDescriptors[descriptorIndex]->minValue) : String(
                                     (unsigned char)paramDescriptors[descriptorIndex]->maxValue))
                            : ipAsString;
+                } else if (paramDescriptors[descriptorIndex]->paramType == HEX_BYTES) {
+                    // the maximum length of hex string we will made
+                    char buffer[257];
+                    Converter::bytesToAsciiHex(buffer, (uint8_t*)paramDescriptors[descriptorIndex]->valueReferenceForRead, paramDescriptors[descriptorIndex]->byte_data_length);
+                    return String(buffer);
                 }
-            } else {
+            }  else {
                 //  array
                 String paramNameTitle = paramName;
                 paramNameTitle.replace('>', '_');
@@ -191,8 +202,7 @@ String SettingsNavigator::getSettingByName(String origParamName) {
 void SettingsNavigator::saveNetworkSettingsAndRestart(NetworkSettings *networkSettings) {
     LOGGER.warning("Saving new network settings:\r\n"
                            "        SSID: " + String(networkSettings->ssid) + "\r\n"
-                           "    password: " + String(networkSettings->password) + "\r\n"
-                           "   host name: " + String(networkSettings->hostName));
+                           "    password: " + String(networkSettings->password));
 
     memcpy(&settings->network, networkSettings, sizeof(NetworkSettings));
 
@@ -243,6 +253,17 @@ String SettingsNavigator::saveSettingsByNames(String *params, int paramsCount) {
 }
 //--------------------------------------------------------------------
 
+void SettingsNavigator::setSensorList(String sensorsList){
+    this->sensorsList = (char*)malloc(sensorsList.length() + 1);
+    memcpy(this->sensorsList, sensorsList.c_str(), sensorsList.length());
+    this->sensorsList[sensorsList.length()] = 0;
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>list", STRING, 0,
+                                                                           0,
+                                                                           (void *) this->sensorsList,
+                                                                           (void *) this->sensorsList);
+}
+//--------------------------------------------------------------------
+
 String SettingsNavigator::saveSettingByName(String paramName, String value) {
     for (int descriptorIndex = 0; descriptorIndex < activeParamDescriptors; descriptorIndex++) {
         if (paramDescriptors[descriptorIndex]->paramName == paramName) {
@@ -279,6 +300,21 @@ String SettingsNavigator::saveSettingByName(String paramName, String value) {
                         memset(paramDescriptors[descriptorIndex]->valueReferenceForWrite, 0, valLen+1);
                         memcpy(paramDescriptors[descriptorIndex]->valueReferenceForWrite, value.c_str(), valLen);
                     }
+                } else if (paramDescriptors[descriptorIndex]->paramType == HEX_BYTES) {
+                    // the maximum length of hex string we will made
+                    if ((value.length() >> 1) != paramDescriptors[descriptorIndex]->byte_data_length)
+                        return "Length of \"" + paramName + "\" is " + String(value.length())
+                               + " but must be " + String(paramDescriptors[descriptorIndex]->byte_data_length);
+
+                    uint8_t buffer[128];
+                    if (!Converter::asciiHexToBytes(&buffer[0], value.c_str(),
+                                                    paramDescriptors[descriptorIndex]->byte_data_length))
+                        return "Failed to convert " + value + " to bytes";
+
+                    memcpy(paramDescriptors[descriptorIndex]->valueReferenceForWrite, buffer,
+                           paramDescriptors[descriptorIndex]->byte_data_length);
+                } else {
+                    return "Unsupported data format " + String(paramDescriptors[descriptorIndex]->paramType);
                 }
             } else {
                 // массив
