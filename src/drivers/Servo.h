@@ -1,0 +1,41 @@
+//
+// Created by dsporykhin on 25.03.22.
+//
+
+#ifndef BASE_ESP8266_MQTT_SERVO_H
+#define BASE_ESP8266_MQTT_SERVO_H
+#define PWM_FREQUENCY 100.0
+
+
+#include <cstdint>
+#include "PwmPCA9685Driver.h"
+
+class Servo {
+private:
+    PwmPCA9685Driver *pwmDriver;
+    uint8_t channel;
+    int position;
+    double angle_grad;
+    double ticks_per_grad;
+    double min_pulse_ticks;
+    int min_pulse_length_us;
+    int max_pulse_length_us;
+    int rotation_grad;
+
+    void calc_ticks_per_grad();
+public:
+    Servo(PwmPCA9685Driver *driver, uint8_t channel);
+    Servo* setAngle(double angle);
+    Servo* set_min_pulse_length_us(int min_pulse_length_us);
+    Servo* set_max_pulse_length_us(int max_pulse_length_us);
+    Servo* set_rotation_grad(int rotation_grad);
+
+    Servo* set_angle(double angle_grad);
+    double get_angle_grad();
+
+
+
+};
+
+
+#endif //BASE_ESP8266_MQTT_SERVO_H

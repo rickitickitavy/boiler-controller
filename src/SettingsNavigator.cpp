@@ -5,6 +5,7 @@
 #include <IPAddress.h>
 #include "SettingsNavigator.h"
 #include "Logger.h"
+#include "Converter.h"
 
 SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
     this->settingsManager = settingsManager;
@@ -30,12 +31,8 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
                                                                            63,
                                                                            (void *) &settings->network.password[0],
                                                                            (void *) &settings->network.password[0]);
-    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("network>hostName", STRING, 5,
-                                                                           63,
-                                                                           (void *) &settings->network.hostName[0],
-                                                                           (void *) &settings->network.hostName[0]);
 
-    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("mqtt>server", STRING, 5,
+   this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("mqtt>server", STRING, 5,
                                                                            63,
                                                                            (void *) &settings->mqttServer[0],
                                                                            (void *) &settings->mqttServer[0]);
@@ -94,8 +91,67 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
 //                                                                           15,
 //                                                                           (void *) &settings->network.ipAddress[0],
 //                                                                           (void *) &settings->network.ipAddress[0]);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>heater>core", SENSORS_ADDR_SIZE,
+                                                                           (void *) &settings->ds18D20Addresses[0],
+                                                                           (void *) &settings->ds18D20Addresses[0]);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>heater>output_flow", SENSORS_ADDR_SIZE,
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 1],
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 1]);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>heater>input_flow", SENSORS_ADDR_SIZE,
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 2],
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 2]);
 
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>termoaccumulator>top", SENSORS_ADDR_SIZE,
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 3],
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 3]);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>termoaccumulator>middle_hi", SENSORS_ADDR_SIZE,
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 4],
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 4]);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>termoaccumulator>middle_low", SENSORS_ADDR_SIZE,
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 5],
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 5]);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>termoaccumulator>bottom", SENSORS_ADDR_SIZE,
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 6],
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 6]);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>forward>temperature", SENSORS_ADDR_SIZE,
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 7],
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 7]);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>back>contour1", SENSORS_ADDR_SIZE,
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 8],
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 8]);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>back>contour2", SENSORS_ADDR_SIZE,
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 9],
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 9]);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>back>contour3", SENSORS_ADDR_SIZE,
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 10],
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 10]);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>scan_integrval_ms", INTEGER, 3000,
+                                                                           120000,
+                                                                           (void *) &settings->scan_sensors_integrval_ms,
+                                                                           (void *) &settings->scan_sensors_integrval_ms);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("control>servo>pwm_controller_address", UCHAR, 1,
+                                                                           127,
+                                                                           (void *) &settings->pwm_controller_address,
+                                                                           (void *) &settings->pwm_controller_address);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("control>servo>smoke_pipe_control_channel_id", UCHAR, 0,
+                                                                           15,
+                                                                           (void *) &settings->smoke_pipe_control_channel_id,
+                                                                           (void *) &settings->smoke_pipe_control_channel_id);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("control>servo>oxygen_door_control_channel_id", UCHAR, 0,
+                                                                           15,
+                                                                           (void *) &settings->oxygen_door_control_channel_id,
+                                                                           (void *) &settings->oxygen_door_control_channel_id);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("control>servo>upper_door_control_channel_id", UCHAR, 0,
+                                                                           15,
+                                                                           (void *) &settings->upper_door_control_channel_id,
+                                                                           (void *) &settings->upper_door_control_channel_id);
+//
 }
+//--------------------------------------------------------------------
+void SettingsNavigator::addParamDescriptor(ParamDescriptor *descriptor){
+    this->paramDescriptors[activeParamDescriptors++] = descriptor;
+}
+
 //--------------------------------------------------------------------
 
 String SettingsNavigator::getSettingByName(String origParamName) {
@@ -122,7 +178,13 @@ String SettingsNavigator::getSettingByName(String origParamName) {
                            ? (showMin || showMinR ? String((int) paramDescriptors[descriptorIndex]->minValue) : String(
                                     (int) paramDescriptors[descriptorIndex]->maxValue))
                            : String(*(int *) paramDescriptors[descriptorIndex]->valueReferenceForRead);
-                } else if (paramDescriptors[descriptorIndex]->paramType == FLOAT) {
+                } else if (paramDescriptors[descriptorIndex]->paramType == BOOLEAN) {
+//                    LOGGER.info("PTR = " +  String((int)(paramDescriptors[descriptorIndex]->valueReferenceForRead)));
+//                    uint8_t _data = *(bool*)paramDescriptors[descriptorIndex]->valueReferenceForRead;
+//                    LOGGER.info("DATA = " +  String(_data));
+
+                    return *(bool *) paramDescriptors[descriptorIndex]->valueReferenceForRead ? "true" : "false";
+                }else if (paramDescriptors[descriptorIndex]->paramType == FLOAT) {
                     return showMin || showMax
                            ? (showMin ? String(paramDescriptors[descriptorIndex]->minValue) : String(
                                     paramDescriptors[descriptorIndex]->maxValue))
@@ -149,8 +211,13 @@ String SettingsNavigator::getSettingByName(String origParamName) {
                            ? (showMin ? String((unsigned char)paramDescriptors[descriptorIndex]->minValue) : String(
                                     (unsigned char)paramDescriptors[descriptorIndex]->maxValue))
                            : ipAsString;
+                } else if (paramDescriptors[descriptorIndex]->paramType == HEX_BYTES) {
+                    // the maximum length of hex string we will made
+                    char buffer[257];
+                    Converter::bytesToAsciiHex(buffer, (uint8_t*)paramDescriptors[descriptorIndex]->valueReferenceForRead, paramDescriptors[descriptorIndex]->byte_data_length);
+                    return String(buffer);
                 }
-            } else {
+            }  else {
                 //  array
                 String paramNameTitle = paramName;
                 paramNameTitle.replace('>', '_');
@@ -191,8 +258,7 @@ String SettingsNavigator::getSettingByName(String origParamName) {
 void SettingsNavigator::saveNetworkSettingsAndRestart(NetworkSettings *networkSettings) {
     LOGGER.warning("Saving new network settings:\r\n"
                            "        SSID: " + String(networkSettings->ssid) + "\r\n"
-                           "    password: " + String(networkSettings->password) + "\r\n"
-                           "   host name: " + String(networkSettings->hostName));
+                           "    password: " + String(networkSettings->password));
 
     memcpy(&settings->network, networkSettings, sizeof(NetworkSettings));
 
@@ -243,6 +309,17 @@ String SettingsNavigator::saveSettingsByNames(String *params, int paramsCount) {
 }
 //--------------------------------------------------------------------
 
+void SettingsNavigator::setSensorList(String sensorsList){
+    this->sensorsList = (char*)malloc(sensorsList.length() + 1);
+    memcpy(this->sensorsList, sensorsList.c_str(), sensorsList.length());
+    this->sensorsList[sensorsList.length()] = 0;
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>list", STRING, 0,
+                                                                           0,
+                                                                           (void *) this->sensorsList,
+                                                                           (void *) this->sensorsList);
+}
+//--------------------------------------------------------------------
+
 String SettingsNavigator::saveSettingByName(String paramName, String value) {
     for (int descriptorIndex = 0; descriptorIndex < activeParamDescriptors; descriptorIndex++) {
         if (paramDescriptors[descriptorIndex]->paramName == paramName) {
@@ -257,6 +334,16 @@ String SettingsNavigator::saveSettingByName(String paramName, String value) {
                                + String(paramDescriptors[descriptorIndex]->maxValue);
                     } else {
                         *((int *) paramDescriptors[descriptorIndex]->valueReferenceForWrite) = intValue;
+                    }
+                } else if (paramDescriptors[descriptorIndex]->paramType == UCHAR) {
+                    uint8_t ucharValue = value.toInt();
+                    if ((ucharValue < paramDescriptors[descriptorIndex]->minValue)
+                        || (ucharValue > paramDescriptors[descriptorIndex]->maxValue)) {
+                        return "Value of \"" + paramName + "\" is not in diapason from "
+                               + String(paramDescriptors[descriptorIndex]->minValue) + " to "
+                               + String(paramDescriptors[descriptorIndex]->maxValue);
+                    } else {
+                        *((uint8_t *) paramDescriptors[descriptorIndex]->valueReferenceForWrite) = ucharValue;
                     }
                 } else if (paramDescriptors[descriptorIndex]->paramType == FLOAT) {
                     float floatValue = value.toFloat();
@@ -279,6 +366,21 @@ String SettingsNavigator::saveSettingByName(String paramName, String value) {
                         memset(paramDescriptors[descriptorIndex]->valueReferenceForWrite, 0, valLen+1);
                         memcpy(paramDescriptors[descriptorIndex]->valueReferenceForWrite, value.c_str(), valLen);
                     }
+                } else if (paramDescriptors[descriptorIndex]->paramType == HEX_BYTES) {
+                    // the maximum length of hex string we will made
+                    if ((value.length() >> 1) != paramDescriptors[descriptorIndex]->byte_data_length)
+                        return "Length of \"" + paramName + "\" is " + String(value.length())
+                               + " but must be " + String(paramDescriptors[descriptorIndex]->byte_data_length);
+
+                    uint8_t buffer[128];
+                    if (!Converter::asciiHexToBytes(&buffer[0], value.c_str(),
+                                                    paramDescriptors[descriptorIndex]->byte_data_length))
+                        return "Failed to convert " + value + " to bytes";
+
+                    memcpy(paramDescriptors[descriptorIndex]->valueReferenceForWrite, buffer,
+                           paramDescriptors[descriptorIndex]->byte_data_length);
+                } else {
+                    return "Unsupported data format " + String(paramDescriptors[descriptorIndex]->paramType);
                 }
             } else {
                 // массив

@@ -12,6 +12,8 @@ class Converter {
 private:
     static const char encodeTable[];
 public:
+    static bool asciiHexDigitToInt4(uint8_t &dst, const char *src);
+    static bool asciiHexToBytes(uint8_t *dst, const char *src, int byte_data_len);
     static void byteToAsciiHex(char *buf, uint8_t src);
     static void bytesToAsciiHex(char *buf, uint8_t* src, int src_size);
 };

@@ -2,7 +2,7 @@
 #define EFLAME328_GLOBALSETTINGS_H
 
 #define GLOBAL_CURRENT_SETTINGS_VERSION 1
-#define GLOBAL_SETTINGS_MARKER_0 0x31
+#define GLOBAL_SETTINGS_MARKER_0 0x32
 #define GLOBAL_SETTINGS_MARKER_1 0x32
 #define GLOBAL_SETTINGS_MARKER_2 0x33
 #define GLOBAL_SETTINGS_MARKER_3 0x31
@@ -16,11 +16,6 @@ struct NetworkSettings {
   */
     char ssid[64];
     char password[64];
-
-    /**
-     * Имя станции светильника в сети
-     */
-    char hostName[64];
 };
 
 struct GlobalSettings {
@@ -106,6 +101,25 @@ struct GlobalSettings {
      */
     char ds18D20Addresses[SENSORS_ADDR_SIZE * MAX_SENSORS_COUNT];
 
+    /**
+     * I2C PWM controller address. default 0x40 or 0x60
+     */
+    uint8_t  pwm_controller_address;
+
+    /**
+     * PWM channel for control servo of smoke door
+     */
+    uint8_t smoke_pipe_control_channel_id;
+
+    /**
+     * PWM channel for control servo of oxygen flow door
+     */
+    uint8_t oxygen_door_control_channel_id;
+
+    /**
+     * PWM channel for control servo of upper oxygen flow door
+     */
+    uint8_t upper_door_control_channel_id;
 
 };
 
