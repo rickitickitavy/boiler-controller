@@ -101,6 +101,25 @@ struct GlobalSettings {
      */
     char ds18D20Addresses[SENSORS_ADDR_SIZE * MAX_SENSORS_COUNT];
 
+    /**
+     * I2C PWM controller address. default 0x40 or 0x60
+     */
+    uint8_t  pwm_controller_address;
+
+    /**
+     * PWM channel for control servo of smoke door
+     */
+    uint8_t smoke_pipe_control_channel_id;
+
+    /**
+     * PWM channel for control servo of oxygen flow door
+     */
+    uint8_t oxygen_door_control_channel_id;
+
+    /**
+     * PWM channel for control servo of upper oxygen flow door
+     */
+    uint8_t upper_door_control_channel_id;
 
 };
 

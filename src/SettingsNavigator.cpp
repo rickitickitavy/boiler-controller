@@ -104,14 +104,54 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>termoaccumulator>top", SENSORS_ADDR_SIZE,
                                                                            (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 3],
                                                                            (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 3]);
-    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>termoaccumulator>middle", SENSORS_ADDR_SIZE,
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>termoaccumulator>middle_hi", SENSORS_ADDR_SIZE,
                                                                            (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 4],
                                                                            (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 4]);
-    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>termoaccumulator>bottom", SENSORS_ADDR_SIZE,
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>termoaccumulator>middle_low", SENSORS_ADDR_SIZE,
                                                                            (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 5],
                                                                            (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 5]);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>termoaccumulator>bottom", SENSORS_ADDR_SIZE,
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 6],
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 6]);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>forward>temperature", SENSORS_ADDR_SIZE,
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 7],
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 7]);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>back>contour1", SENSORS_ADDR_SIZE,
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 8],
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 8]);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>back>contour2", SENSORS_ADDR_SIZE,
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 9],
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 9]);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>back>contour3", SENSORS_ADDR_SIZE,
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 10],
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 10]);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>scan_integrval_ms", INTEGER, 3000,
+                                                                           120000,
+                                                                           (void *) &settings->scan_sensors_integrval_ms,
+                                                                           (void *) &settings->scan_sensors_integrval_ms);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("control>servo>pwm_controller_address", UCHAR, 1,
+                                                                           127,
+                                                                           (void *) &settings->pwm_controller_address,
+                                                                           (void *) &settings->pwm_controller_address);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("control>servo>smoke_pipe_control_channel_id", UCHAR, 0,
+                                                                           15,
+                                                                           (void *) &settings->smoke_pipe_control_channel_id,
+                                                                           (void *) &settings->smoke_pipe_control_channel_id);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("control>servo>oxygen_door_control_channel_id", UCHAR, 0,
+                                                                           15,
+                                                                           (void *) &settings->oxygen_door_control_channel_id,
+                                                                           (void *) &settings->oxygen_door_control_channel_id);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("control>servo>upper_door_control_channel_id", UCHAR, 0,
+                                                                           15,
+                                                                           (void *) &settings->upper_door_control_channel_id,
+                                                                           (void *) &settings->upper_door_control_channel_id);
 //
 }
+//--------------------------------------------------------------------
+void SettingsNavigator::addParamDescriptor(ParamDescriptor *descriptor){
+    this->paramDescriptors[activeParamDescriptors++] = descriptor;
+}
+
 //--------------------------------------------------------------------
 
 String SettingsNavigator::getSettingByName(String origParamName) {
@@ -138,7 +178,13 @@ String SettingsNavigator::getSettingByName(String origParamName) {
                            ? (showMin || showMinR ? String((int) paramDescriptors[descriptorIndex]->minValue) : String(
                                     (int) paramDescriptors[descriptorIndex]->maxValue))
                            : String(*(int *) paramDescriptors[descriptorIndex]->valueReferenceForRead);
-                } else if (paramDescriptors[descriptorIndex]->paramType == FLOAT) {
+                } else if (paramDescriptors[descriptorIndex]->paramType == BOOLEAN) {
+//                    LOGGER.info("PTR = " +  String((int)(paramDescriptors[descriptorIndex]->valueReferenceForRead)));
+//                    uint8_t _data = *(bool*)paramDescriptors[descriptorIndex]->valueReferenceForRead;
+//                    LOGGER.info("DATA = " +  String(_data));
+
+                    return *(bool *) paramDescriptors[descriptorIndex]->valueReferenceForRead ? "true" : "false";
+                }else if (paramDescriptors[descriptorIndex]->paramType == FLOAT) {
                     return showMin || showMax
                            ? (showMin ? String(paramDescriptors[descriptorIndex]->minValue) : String(
                                     paramDescriptors[descriptorIndex]->maxValue))
@@ -288,6 +334,16 @@ String SettingsNavigator::saveSettingByName(String paramName, String value) {
                                + String(paramDescriptors[descriptorIndex]->maxValue);
                     } else {
                         *((int *) paramDescriptors[descriptorIndex]->valueReferenceForWrite) = intValue;
+                    }
+                } else if (paramDescriptors[descriptorIndex]->paramType == UCHAR) {
+                    uint8_t ucharValue = value.toInt();
+                    if ((ucharValue < paramDescriptors[descriptorIndex]->minValue)
+                        || (ucharValue > paramDescriptors[descriptorIndex]->maxValue)) {
+                        return "Value of \"" + paramName + "\" is not in diapason from "
+                               + String(paramDescriptors[descriptorIndex]->minValue) + " to "
+                               + String(paramDescriptors[descriptorIndex]->maxValue);
+                    } else {
+                        *((uint8_t *) paramDescriptors[descriptorIndex]->valueReferenceForWrite) = ucharValue;
                     }
                 } else if (paramDescriptors[descriptorIndex]->paramType == FLOAT) {
                     float floatValue = value.toFloat();

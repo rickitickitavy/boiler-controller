@@ -20,7 +20,7 @@ class SettingsNavigator {
 private:
     SettingsManager *settingsManager;
     GlobalSettings *settings;
-    ParamDescriptor *paramDescriptors[70];
+    ParamDescriptor *paramDescriptors[100];
     int activeParamDescriptors = 0;
     char *sensorsList;
 
@@ -30,8 +30,9 @@ private:
 public:
     SettingsNavigator(SettingsManager *settingsManager);
 
-
     GlobalSettings tempSettings;
+
+    void addParamDescriptor(ParamDescriptor *descriptor);
 
     /**
      * Сохранить новые сетевые настройки и перезагрузиться с ними
