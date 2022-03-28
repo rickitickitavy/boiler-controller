@@ -3,6 +3,7 @@
 //
 
 #include "WebServerController.h"
+#include "SPIFFS.h"
 #include "Defines.h"
 #include "Logger.h"
 

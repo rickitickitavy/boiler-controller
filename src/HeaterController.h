@@ -6,16 +6,14 @@
 #define BASE_ESP8266_MQTT_HEATERCONTROLLER_H
 
 
-#include <drivers/PwmPCA9685Driver.h>
 #include <cstdint>
-#include "drivers/Servo.h"
+#include "lib/servo/Servo.h"
 #include "GlobalSettings.h"
 #include "SensorController.h"
 
 class HeaterController {
 private:
     GlobalSettings *settings;
-    PwmPCA9685Driver *pwmDriver;
     SensorController *sensorController;
 
     Servo *smoke_pipe_control;
@@ -24,7 +22,6 @@ private:
 
 public:
     HeaterController(GlobalSettings *settings,
-                     PwmPCA9685Driver *pwmDriver,
                      SensorController *sensorController);
 };
 

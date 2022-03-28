@@ -5,14 +5,12 @@
 #include "Servo.h"
 
 
-Servo::Servo(PwmPCA9685Driver *driver, uint8_t channel){
-    this->pwmDriver = driver;
+Servo::Servo(uint8_t channel){
     this->channel = channel;
     min_pulse_length_us = 800;
     max_pulse_length_us = 2000;
     rotation_grad = 180;
     calc_ticks_per_grad();
-    driver->setPwmFrequency(PWM_FREQUENCY);
 }
 
 void Servo::calc_ticks_per_grad(){

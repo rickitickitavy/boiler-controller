@@ -27,8 +27,6 @@ public:
 
     Logger();
 
-    void add(char *msg);
-
     /**
      * debug
      */

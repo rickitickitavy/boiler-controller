@@ -32,7 +32,7 @@ AsyncStaticWebHandler::AsyncStaticWebHandler(const char* uri, FS& fs, const char
   // However - if it does not end with '/' we, can't assume a file, path can still be a directory.
   _isDir = _path[_path.length()-1] == '/';
 
-  // Remove the trailing '/' so we can handle default file
+  // Remove the trailing '/' so we can dispatch default file
   // Notice that root will be "" not "/"
   if (_uri[_uri.length()-1] == '/') _uri = _uri.substring(0, _uri.length()-1);
   if (_path[_path.length()-1] == '/') _path = _path.substring(0, _path.length()-1);
@@ -116,7 +116,7 @@ bool AsyncStaticWebHandler::_getFile(AsyncWebServerRequest *request)
   if (!canSkipFileCheck && _fileExists(request, path))
     return true;
 
-  // Can't handle if not default file
+  // Can't dispatch if not default file
   if (_default_file.length() == 0)
     return false;
 

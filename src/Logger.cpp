@@ -19,19 +19,6 @@ Logger::Logger() {
     Serial.begin(921600);
     Serial.println("---");
 #endif
-    SPIFFSConfig cfg;
-    cfg.setAutoFormat(false);
-    SPIFFS.setConfig(cfg);
-    SPIFFS.begin();
-
-    // Пробуем загрузить предыдущий лог
-//    File oldLogFile = SPIFFS.open("/log", "r");
-//    if (oldLogFile) {
-//        logLen = oldLogFile.size();
-//        oldLogFile.readBytes(&logData[0], oldLogFile.size() > LOGGER_SIZE ? LOGGER_SIZE : oldLogFile.size());
-//        logData[logLen] = 0;
-//        oldLogFile.close();
-//    }
 }
 //------------------------------------------------------------------------------
 
@@ -94,41 +81,7 @@ void Logger::info(String msg) {
 }
 //------------------------------------------------------------------------------
 
-void Logger::add(char *msg) {
-    return ;
-    String temp = String(msg);
-    temp.replace("\r\n", "<br>");
-
-    msg = &temp[0];
-    int32_t msgLen = strlen(msg);
-    if ((msgLen + NEW_LINE_PART_LEN + logLen) > LOGGER_SIZE) {
-        int8_t startCopyPos = msgLen + NEW_LINE_PART_LEN + logLen - LOGGER_SIZE;
-        memmove(logData, logData + startCopyPos, LOGGER_SIZE - startCopyPos);
-        logLen = LOGGER_SIZE - msgLen - NEW_LINE_PART_LEN;
-    }
-    int32_t posToInsert = logLen;
-    logLen = logLen + msgLen + NEW_LINE_PART_LEN;
-    memmove(logData + posToInsert, msg, msgLen);
-    logData[logLen - 4] = '<';
-    logData[logLen - 3] = 'b';
-    logData[logLen - 2] = 'r';
-    logData[logLen - 1] = '>';
-}
-//------------------------------------------------------------------------------
-
 void Logger::saveLogFile() {
-    // Пробуем сохранить лог
-    println("Tryin to save log");
-    File logFile = SPIFFS.open("/log", "w");
-    if (logFile) {
-        println("saving log");
-//        logFile.truncate(0);
-//        logFile.write(&logData[0], logLen);
-//        logFile.flush();
-//        logFile.close();
-        println("log saved to /log");
-    }
-
 }
 
 //------------------------------------------------------------------------------

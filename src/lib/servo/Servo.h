@@ -8,11 +8,9 @@
 
 
 #include <cstdint>
-#include "PwmPCA9685Driver.h"
 
 class Servo {
 private:
-    PwmPCA9685Driver *pwmDriver;
     uint8_t channel;
     int position;
     double angle_grad;
@@ -24,7 +22,7 @@ private:
 
     void calc_ticks_per_grad();
 public:
-    Servo(PwmPCA9685Driver *driver, uint8_t channel);
+    Servo(uint8_t channel);
     Servo* setAngle(double angle);
     Servo* set_min_pulse_length_us(int min_pulse_length_us);
     Servo* set_max_pulse_length_us(int max_pulse_length_us);
@@ -32,9 +30,6 @@ public:
 
     Servo* set_angle(double angle_grad);
     double get_angle_grad();
-
-
-
 };
 
 

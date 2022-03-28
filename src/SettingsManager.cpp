@@ -1,11 +1,13 @@
 #include "SettingsNavigator.h"//
 #include "Logger.h"
 #include "Converter.h"
+#include "../../../../../.platformio/packages/framework-arduinoespressif8266/cores/esp8266/Esp.h"
 // Created by dsporykhin on 23.04.20.
 //
 
 #include <EEPROM.h>
 #include <FS.h>
+#include <SPIFFS.h>
 
 SettingsManager::SettingsManager(){
 
@@ -92,7 +94,6 @@ void SettingsManager::readSettings(GlobalSettings* settings) {
     for (int i = 0; i < sizeof(GlobalSettings); i++) {
         bufPtr[i] = EEPROM.read(i);
         if ((i % 100) == 0) {
-            wdt_reset();
         }
     }
     LOGGER.info("Settings read");
@@ -115,10 +116,8 @@ void SettingsManager::saveSetting(GlobalSettings* settingsToSave, bool restart) 
     char *dataPtr = (char *) settingsToSave;
     for (int addr = 0; addr < sizeof(GlobalSettings); addr++) {
         EEPROM.write(addr, dataPtr[addr]);
-        wdt_reset();
     }
     EEPROM.commit();
-    wdt_reset();
     LOGGER.info("saved");
 
     delay(20);

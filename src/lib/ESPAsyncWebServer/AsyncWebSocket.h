@@ -23,13 +23,13 @@
 
 #include <Arduino.h>
 #ifdef ESP32
-#include <AsyncTCP.h>
+#include <lib/AsyncTCP/AsyncTCP.h>
 #define WS_MAX_QUEUED_MESSAGES 32
 #else
 #include <ESPAsyncTCP.h>
 #define WS_MAX_QUEUED_MESSAGES 8
 #endif
-#include <ESPAsyncWebServer.h>
+#include <lib/ESPAsyncWebServer/ESPAsyncWebServer.h>
 
 #include "AsyncWebSynchronization.h"
 

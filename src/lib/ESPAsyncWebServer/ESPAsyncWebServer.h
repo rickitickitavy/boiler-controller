@@ -30,7 +30,7 @@
 
 #ifdef ESP32
 #include <WiFi.h>
-#include <AsyncTCP.h>
+#include <lib/AsyncTCP/AsyncTCP.h>
 #elif defined(ESP8266)
 #include <ESP8266WiFi.h>
 #include <ESPAsyncTCP.h>
@@ -297,7 +297,7 @@ bool ON_STA_FILTER(AsyncWebServerRequest *request);
 bool ON_AP_FILTER(AsyncWebServerRequest *request);
 
 /*
- * REWRITE :: One instance can be handle any Request (done by the Server)
+ * REWRITE :: One instance can be dispatch any Request (done by the Server)
  * */
 
 class AsyncWebRewrite {
@@ -428,8 +428,8 @@ class AsyncWebServer {
     AsyncStaticWebHandler& serveStatic(const char* uri, fs::FS& fs, const char* path, const char* cache_control = NULL);
 
     void onNotFound(ArRequestHandlerFunction fn);  //called when handler is not assigned
-    void onFileUpload(ArUploadHandlerFunction fn); //handle file uploads
-    void onRequestBody(ArBodyHandlerFunction fn); //handle posts with plain body content (JSON often transmitted this way as a request)
+    void onFileUpload(ArUploadHandlerFunction fn); //dispatch file uploads
+    void onRequestBody(ArBodyHandlerFunction fn); //dispatch posts with plain body content (JSON often transmitted this way as a request)
 
     void reset(); //remove all writers and handlers, with onNotFound/onFileUpload/onRequestBody 
   

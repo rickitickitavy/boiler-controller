@@ -7,10 +7,9 @@
 #define MQTT_CONNECTED_CALLBACK std::function<void(void)>
 #define MQTT_MESSAGE_CALLBACK std::function<void(char*, uint8_t*, unsigned int)>
 
-#include "../lib/mqtt/PubSubClient.h"
-#include "../lib/ESPAsyncWebServer/ESPAsyncWebServer.h"
+#include "lib/mqtt/PubSubClient.h"
+#include "lib/ESPAsyncWebServer/ESPAsyncWebServer.h"
 #include "GlobalSettings.h"
-#include <ESP8266WiFi.h>
 
 class MqttClient {
 private:

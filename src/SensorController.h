@@ -6,7 +6,8 @@
 #define BASE_ESP8266_MQTT_SENSORCONTROLLER_H
 
 
-#include "DallasTemperature.h"
+#include <lib/oneWire/OneWire.h>
+#include "lib/dallasSensors/DallasTemperature.h"
 #include "SettingsManager.h"
 
 struct SensorData{

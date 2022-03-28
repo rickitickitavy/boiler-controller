@@ -40,6 +40,7 @@
 
 #include "Wire.h"
 #include "fonts/font_8x8.h"
+#include "../../../../../../../.platformio/packages/toolchain-xtensa/xtensa-lx106-elf/include/c++/10.3.0/cstdint"
 //#include "fonts/font5x7.h"
 
 #define SSD1306_Max_X                 127    //128 Pixels

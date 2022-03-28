@@ -17,15 +17,15 @@ private:
 
     void init();
 
-    String getTextErrorStatus();
+//    String getTextErrorStatus();
 
-    void tryToConnect();
+//    void tryToConnect();
 
 public:
     WiFiController(SettingsManager *settingsManager);
 
     void checkConnection();
-
+    void setApMode(IPAddress *ipAddress);
     bool isClientConnected();
 };
 
