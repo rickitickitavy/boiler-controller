@@ -4,7 +4,7 @@
 
 #ifndef BASE_ESP8266_MQTT_SERVO_H
 #define BASE_ESP8266_MQTT_SERVO_H
-#define PWM_FREQUENCY 100.0
+#define PWM_FREQUENCY 50.0
 
 
 #include <cstdint>
@@ -12,6 +12,7 @@
 class Servo {
 private:
     uint8_t channel;
+    uint8_t pin;
     int position;
     double angle_grad;
     double ticks_per_grad;
@@ -22,7 +23,7 @@ private:
 
     void calc_ticks_per_grad();
 public:
-    Servo(uint8_t channel);
+    Servo(uint8_t pin, uint8_t channel);
     Servo* setAngle(double angle);
     Servo* set_min_pulse_length_us(int min_pulse_length_us);
     Servo* set_max_pulse_length_us(int max_pulse_length_us);
