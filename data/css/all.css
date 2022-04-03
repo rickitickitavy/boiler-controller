@@ -1,7 +1,7 @@
 html, body {
     width: 100%;
     height: 100%;
-    background-color: lightgrey;
+    background-color: #eeeeee;
     margin: 0;
     padding: 0;
 }
@@ -21,13 +21,14 @@ html, body {
 }
 
 .formHeader2 {
-    font-size: 14mm;
+    font-size: 12mm;
     color: #290682;
     height: 20mm;
     display: block;
     align-items: left;
     text-align: left;
-    background-color: gray;
+    padding-left: 5em;
+    /*background-color: gray;*/
 }
 
 .formParamCaption {
@@ -73,7 +74,7 @@ html, body {
 }
 
 .formStringParamValue{
-    width: 120mm;
+    width: 100%;
     font-size: 9mm;
 
 }
@@ -101,7 +102,7 @@ html, body {
 
 .form-inputField-container {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     width: 100%;
     padding-bottom: 5mm;
 }
@@ -111,6 +112,17 @@ html, body {
     flex-direction: row;
     width: 100%;
     padding-bottom: 5mm;
+}
+
+.form-section{
+    display: flex;
+    flex-direction: column;
+    width: 90%;
+    border: solid #cccccc 1px;
+    border-radius: 3px;
+    box-shadow: 4px 4px 4px #848484;
+    margin: 45px;
+    padding: 10px;
 }
 
 .matrix-part{

@@ -7,9 +7,9 @@
     <script src="js/jq/jquery-3.4.1.js"></script>
     <script language="JavaScript">
 
-        function prepareDropDownList(dropDownName){
+        function prepareDropDownList(dropDownName) {
             const dropDownElement = document.getElementById(dropDownName);
-            if (dropDownElement != undefined){
+            if (dropDownElement != undefined) {
                 const curValue = dropDownElement.title;
                 dropDownElement.value = curValue;
             }
@@ -29,7 +29,7 @@
             prepareDropDownList("sensors>back>contour2");
             prepareDropDownList("sensors>back>contour3");
 
-            if (!%control>servo>pwm_controller_initialized%) {
+            if (! % control > servo > pwm_controller_initialized %) {
                 const input = document.getElementById("control>servo>pwm_controller_address");
                 input.style.backgroundColor = "red";
             }
@@ -71,8 +71,8 @@
                     url: "/settingsApi",
                     method: "POST",
                     data: "operation=write&parameter=wifi"
-                        + "&network>ssid=" + wiFiSsId
-                            + "&network>password=" + wiFiPassword,
+                    + "&network>ssid=" + wiFiSsId
+                    + "&network>password=" + wiFiPassword,
                     success: function (response) {
                         window.location = "/";
                     }.bind(this),
@@ -137,208 +137,239 @@
         Heater settings
     </div>
 
+
     <div class="form-flex-vertical-container">
-        <div class="form-inputField-container">
-            <div class="formParamCaption">WiFi SSID</div>
-            <div class="formParamValue">
-                <input id="wiFiSSID" class="formStringParamValue" value="%network>ssid%">
+        <div class="form-section">
+            <div class="formHeader2">WiFi</div>
+            <div class="form-inputField-container">
+                <div class="formParamCaption">WiFi SSID</div>
+                <div class="formParamValue">
+                    <input id="wiFiSSID" class="formStringParamValue" value="%network>ssid%">
+                </div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">WiFi password</div>
+                <div class="formParamValue">
+                    <input id="wiFiPassword" class="formStringParamValue" value="%network>password%">
+                </div>
+            </div>
+
+        </div>
+
+        <div class="form-section">
+            <div class="formHeader2">Mqtt</div>
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Mqtt server</div>
+                <div class="formParamValue">
+                    <input id="mqttServer" class="formStringParamValue" value="%mqtt>server%">
+                </div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Mqtt port</div>
+                <div class="formParamValue">
+                    <input id="mqttPort" class="formStringParamValue" value="%mqtt>port%">
+                </div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Unique device name</div>
+                <div class="formParamValue">
+                    <input id="mqttDeviceName" class="formStringParamValue" value="%mqtt>deviceName%">
+                </div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Mqtt reconnect interval (Ms)</div>
+                <div class="formParamValue">
+                    <input id="mqttReconnectIntervalMs" class="formStringParamValue" value="%mqtt>reconnectIntervalMs%">
+                </div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">The name of the topic to which to report of ready</div>
+                <div class="formParamValue">
+                    <input id="deviceIHaveBornTopic" class="formStringParamValue" value="%device>iHaveBornTopic%">
+                </div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">The name of the topic to which to report state</div>
+                <div class="formParamValue">
+                    <input id="deviceStateOutgoingTopicPrefix" class="formStringParamValue"
+                           value="%device>stateOutgoingTopicPrefix%"> / %mqtt>deviceName%
+                </div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">The name of the topic from which will receive commands</div>
+                <div class="formParamValue">
+                    <input id="deviceIncomingCommandTopicPrefix" class="formStringParamValue"
+                           value="%device>incomingCommandTopicPrefix%"> / %mqtt>deviceName%
+                </div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">The topic to which server will reports it has born</div>
+                <div class="formParamValue">
+                    <input id="mqttServerBornTopic" class="formStringParamValue" value="%mqtt>serverBornTopic%">
+                </div>
             </div>
         </div>
 
-        <div class="form-inputField-container">
-            <div class="formParamCaption">WiFi password</div>
-            <div class="formParamValue">
-                <input id="wiFiPassword" class="formStringParamValue" value="%network>password%">
+        <div class="form-section">
+            <div class="formHeader2">Thermal sensors</div>
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Sensors scan interval ms</div>
+                <div class="formParamValue">
+                    <input id="sensors>scan_integrval_ms" class="formStringParamValue"
+                           value="%sensors>scan_integrval_ms%">
+                </div>
             </div>
-        </div>
 
-        <div class="form-inputField-container">
-            <div class="formParamCaption">Mqtt server</div>
-            <div class="formParamValue">
-                <input id="mqttServer" class="formStringParamValue" value="%mqtt>server%">
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Termosensor of heater core</div>
+                <div class="formParamValue">
+                    <select id="sensors>heater>core" name="sensors>heater>core" class="formStringParamValue"
+                            title="%sensors>heater>core%">
+                        %sensors>list%
+                    </select>
+                </div>
             </div>
-        </div>
 
-        <div class="form-inputField-container">
-            <div class="formParamCaption">Mqtt port</div>
-            <div class="formParamValue">
-                <input id="mqttPort" class="formStringParamValue" value="%mqtt>port%">
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Termosensor of heater output flow</div>
+                <div class="formParamValue">
+                    <select id="sensors>heater>output_flow" name="sensors>heater>output_flow"
+                            class="formStringParamValue"
+                            title="%sensors>heater>output_flow%">
+                        %sensors>list%
+                    </select>
+                </div>
             </div>
-        </div>
 
-        <div class="form-inputField-container">
-            <div class="formParamCaption">Unique device name</div>
-            <div class="formParamValue">
-                <input id="mqttDeviceName" class="formStringParamValue" value="%mqtt>deviceName%">
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Termosensor of heater input flow</div>
+                <div class="formParamValue">
+                    <select id="sensors>heater>input_flow" name="sensors>heater>input_flow" class="formStringParamValue"
+                            title="%sensors>heater>input_flow%">
+                        %sensors>list%
+                    </select>
+                </div>
             </div>
-        </div>
 
-        <div class="form-inputField-container">
-            <div class="formParamCaption">Mqtt reconnect interval (Ms)</div>
-            <div class="formParamValue">
-                <input id="mqttReconnectIntervalMs" class="formStringParamValue" value="%mqtt>reconnectIntervalMs%">
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Termosensor of termoaccumulator top</div>
+                <div class="formParamValue">
+                    <select id="sensors>termoaccumulator>top" name="sensors>termoaccumulator>top"
+                            class="formStringParamValue" title="%sensors>termoaccumulator>top%">
+                        %sensors>list%
+                    </select>
+                </div>
             </div>
-        </div>
 
-        <div class="form-inputField-container">
-            <div class="formParamCaption">The name of the topic to which to report of ready</div>
-            <div class="formParamValue">
-                <input id="deviceIHaveBornTopic" class="formStringParamValue" value="%device>iHaveBornTopic%">
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Termosensor of termoaccumulator middle higher</div>
+                <div class="formParamValue">
+                    <select id="sensors>termoaccumulator>middle_hi" name="sensors>termoaccumulator>middle_hi"
+                            class="formStringParamValue" title="%sensors>termoaccumulator>middle_hi%">
+                        %sensors>list%
+                    </select>
+                </div>
             </div>
-        </div>
 
-        <div class="form-inputField-container">
-            <div class="formParamCaption">The name of the topic to which to report state</div>
-            <div class="formParamValue">
-                <input id="deviceStateOutgoingTopicPrefix" class="formStringParamValue" value="%device>stateOutgoingTopicPrefix%"> / %mqtt>deviceName%
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Termosensor of termoaccumulator middle lower</div>
+                <div class="formParamValue">
+                    <select id="sensors>termoaccumulator>middle_low" name="sensors>termoaccumulator>middle_low"
+                            class="formStringParamValue" title="%sensors>termoaccumulator>middle_low%">
+                        %sensors>list%
+                    </select>
+                </div>
             </div>
-        </div>
 
-        <div class="form-inputField-container">
-            <div class="formParamCaption">The name of the topic from which will receive commands</div>
-            <div class="formParamValue">
-                <input id="deviceIncomingCommandTopicPrefix" class="formStringParamValue" value="%device>incomingCommandTopicPrefix%"> / %mqtt>deviceName%
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Termosensor of termoaccumulator bottom</div>
+                <div class="formParamValue">
+                    <select id="sensors>termoaccumulator>bottom" name="sensors>termoaccumulator>bottom"
+                            class="formStringParamValue" title="%sensors>termoaccumulator>bottom%">
+                        %sensors>list%
+                    </select>
+                </div>
             </div>
-        </div>
 
-        <div class="form-inputField-container">
-            <div class="formParamCaption">The topic to which server will reports it has born</div>
-            <div class="formParamValue">
-                <input id="mqttServerBornTopic" class="formStringParamValue" value="%mqtt>serverBornTopic%">
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Termosensor of forward flow to all contours</div>
+                <div class="formParamValue">
+                    <select id="sensors>forward>temperature" name="sensors>forward>temperature"
+                            class="formStringParamValue"
+                            title="%sensors>forward>temperature%">
+                        %sensors>list%
+                    </select>
+                </div>
             </div>
-        </div>
 
-        <div class="form-inputField-container">
-            <div class="formParamCaption">Sensors scan interval ms</div>
-            <div class="formParamValue">
-                <input id="sensors>scan_integrval_ms" class="formStringParamValue" value="%sensors>scan_integrval_ms%">
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Termosensor of back flow from contour 1</div>
+                <div class="formParamValue">
+                    <select id="sensors>back>contour1" name="sensors>back>contour1" class="formStringParamValue"
+                            title="%sensors>back>contour1%">
+                        %sensors>list%
+                    </select>
+                </div>
             </div>
-        </div>
 
-        <div class="form-inputField-container">
-            <div class="formParamCaption">Termosensor of heater core</div>
-            <div class="formParamValue">
-                <select id="sensors>heater>core" name="sensors>heater>core" class="formStringParamValue" title="%sensors>heater>core%">
-                    %sensors>list%
-                </select>
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Termosensor of back flow from contour 2</div>
+                <div class="formParamValue">
+                    <select id="sensors>back>contour2" name="sensors>back>contour2" class="formStringParamValue"
+                            title="%sensors>back>contour2%">
+                        %sensors>list%
+                    </select>
+                </div>
             </div>
-        </div>
 
-        <div class="form-inputField-container">
-            <div class="formParamCaption">Termosensor of heater output flow</div>
-            <div class="formParamValue">
-                <select id="sensors>heater>output_flow" name="sensors>heater>output_flow" class="formStringParamValue" title="%sensors>heater>output_flow%">
-                    %sensors>list%
-                </select>
-            </div>
-        </div>
-
-        <div class="form-inputField-container">
-            <div class="formParamCaption">Termosensor of heater input flow</div>
-            <div class="formParamValue">
-                <select id="sensors>heater>input_flow" name="sensors>heater>input_flow" class="formStringParamValue" title="%sensors>heater>input_flow%">
-                    %sensors>list%
-                </select>
-            </div>
-        </div>
-
-        <div class="form-inputField-container">
-            <div class="formParamCaption">Termosensor of termoaccumulator top</div>
-            <div class="formParamValue">
-                <select id="sensors>termoaccumulator>top" name="sensors>termoaccumulator>top" class="formStringParamValue" title="%sensors>termoaccumulator>top%">
-                    %sensors>list%
-                </select>
-            </div>
-        </div>
-
-        <div class="form-inputField-container">
-            <div class="formParamCaption">Termosensor of termoaccumulator middle higher </div>
-            <div class="formParamValue">
-                <select id="sensors>termoaccumulator>middle_hi" name="sensors>termoaccumulator>middle_hi" class="formStringParamValue" title="%sensors>termoaccumulator>middle_hi%">
-                    %sensors>list%
-                </select>
-            </div>
-        </div>
-
-        <div class="form-inputField-container">
-            <div class="formParamCaption">Termosensor of termoaccumulator middle lower</div>
-            <div class="formParamValue">
-                <select id="sensors>termoaccumulator>middle_low" name="sensors>termoaccumulator>middle_low" class="formStringParamValue" title="%sensors>termoaccumulator>middle_low%">
-                    %sensors>list%
-                </select>
-            </div>
-        </div>
-
-        <div class="form-inputField-container">
-            <div class="formParamCaption">Termosensor of termoaccumulator bottom</div>
-            <div class="formParamValue">
-                <select id="sensors>termoaccumulator>bottom" name="sensors>termoaccumulator>bottom" class="formStringParamValue" title="%sensors>termoaccumulator>bottom%">
-                    %sensors>list%
-                </select>
-            </div>
-        </div>
-
-        <div class="form-inputField-container">
-            <div class="formParamCaption">Termosensor of forward flow to all contours</div>
-            <div class="formParamValue">
-                <select id="sensors>forward>temperature" name="sensors>forward>temperature" class="formStringParamValue" title="%sensors>forward>temperature%">
-                    %sensors>list%
-                </select>
-            </div>
-        </div>
-
-        <div class="form-inputField-container">
-            <div class="formParamCaption">Termosensor of back flow from contour 1</div>
-            <div class="formParamValue">
-                <select id="sensors>back>contour1" name="sensors>back>contour1" class="formStringParamValue" title="%sensors>back>contour1%">
-                    %sensors>list%
-                </select>
-            </div>
-        </div>
-
-        <div class="form-inputField-container">
-            <div class="formParamCaption">Termosensor of back flow from contour 2</div>
-            <div class="formParamValue">
-                <select id="sensors>back>contour2" name="sensors>back>contour2" class="formStringParamValue" title="%sensors>back>contour2%">
-                    %sensors>list%
-                </select>
-            </div>
-        </div>
-
-        <div class="form-inputField-container">
-            <div class="formParamCaption">Termosensor of back flow from contour 3</div>
-            <div class="formParamValue">
-                <select id="sensors>back>contour3" name="sensors>back>contour3" class="formStringParamValue" title="%sensors>back>contour3%">
-                    %sensors>list%
-                </select>
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Termosensor of back flow from contour 3</div>
+                <div class="formParamValue">
+                    <select id="sensors>back>contour3" name="sensors>back>contour3" class="formStringParamValue"
+                            title="%sensors>back>contour3%">
+                        %sensors>list%
+                    </select>
+                </div>
             </div>
         </div>
 
         <div class="form-inputField-container">
             <div class="formParamCaption">I2C PWM controller address</div>
             <div class="formParamValue">
-                <input id="control>servo>pwm_controller_address" class="formStringParamValue" value="%control>servo>pwm_controller_address%">
+                <input id="control>servo>pwm_controller_address" class="formStringParamValue"
+                       value="%control>servo>pwm_controller_address%">
             </div>
         </div>
 
         <div class="form-inputField-container">
-            <div class="formParamCaption">PWM channel for servo of smoke-pipe door </div>
+            <div class="formParamCaption">PWM channel for servo of smoke-pipe door</div>
             <div class="formParamValue">
-                <input id="control>servo>smoke_pipe_control_channel_id" class="formStringParamValue" value="%control>servo>smoke_pipe_control_channel_id%">
+                <input id="control>servo>smoke_pipe_control_channel_id" class="formStringParamValue"
+                       value="%control>servo>smoke_pipe_control_channel_id%">
             </div>
         </div>
 
         <div class="form-inputField-container">
-            <div class="formParamCaption">PWM channel for servo of oxygen door </div>
+            <div class="formParamCaption">PWM channel for servo of oxygen door</div>
             <div class="formParamValue">
-                <input id="control>servo>oxygen_door_control_channel_id" class="formStringParamValue" value="%control>servo>oxygen_door_control_channel_id%">
+                <input id="control>servo>oxygen_door_control_channel_id" class="formStringParamValue"
+                       value="%control>servo>oxygen_door_control_channel_id%">
             </div>
         </div>
 
         <div class="form-inputField-container">
-            <div class="formParamCaption">PWM channel for servo of upper door </div>
+            <div class="formParamCaption">PWM channel for servo of upper door</div>
             <div class="formParamValue">
-                <input id="control>servo>upper_door_control_channel_id" class="formStringParamValue" value="%control>servo>upper_door_control_channel_id%">
+                <input id="control>servo>upper_door_control_channel_id" class="formStringParamValue"
+                       value="%control>servo>upper_door_control_channel_id%">
             </div>
         </div>
 

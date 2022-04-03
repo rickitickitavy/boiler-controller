@@ -34,6 +34,7 @@ void setup() {
 
     settingsManager = new SettingsManager();
 
+    LOGGER.info("starting DS18D20...");
     sensorController = new SensorController(ONE_WIRE_PIN, settingsManager);
     settingsManager->getNavigator()->setSensorList(sensorController->buildSensorsList());
 
@@ -46,16 +47,14 @@ void setup() {
 
     mqtt = new MqttClient(settingsManager->getSettings());
 
+    LOGGER.info("starting OTA");
     ArduinoOTA.begin();
 
     LOGGER.info("start device");
-
     switcher = new SwitcherX4(settingsManager->getSettings(), mqtt);
 
-    LOGGER.info("starting DS18D20...");
 
     LOGGER.info("all done");
-
 }
 
 void loop() {
@@ -77,4 +76,3 @@ void loop() {
     }
 
 }
-// 1073674992
