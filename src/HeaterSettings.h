@@ -12,8 +12,15 @@ struct PidSettings{
     double i;
     double d;
     double max_i;
-    double min_absolute_output_value;
-    double output_dynamic_diapason;
+    /**
+     * minimum of output value of PID
+     */
+    double min_absolute_output_value_prcnt;
+
+    /**
+     * diapason of vales of PID output
+     */
+    double output_dynamic_diapason_prcnt;
 };
 
 struct VolumeCapacitiesSetting{
@@ -35,7 +42,7 @@ struct VolumeCapacitiesSetting{
     /**
      * pipes volume in litters
      */
-    int pipes_ltr;
+    int pipes_and_radiators_ltr;
 };
 
 /**
@@ -58,12 +65,13 @@ struct TwoPumpsSettings{
     /**
      * switch on second pump on temperature between input flow and core reaches this value
      */
-    float start_delta_temperature_between_core_and_input;
+    float start_on_delta_temperature_between_core_and_input;
 
     /**
      * switch off second pump on temperature between input flow and core drops yo this value
      */
-    float stop_delta_temperature_between_core_and_input;
+    float stop_on_delta_temperature_between_core_and_input;
+
 };
 
 struct TemperatureSettings{
@@ -89,8 +97,8 @@ struct TemperatureSettings{
 };
 
 struct ServoHardwareSettings{
-    float min_impulse_length;
-    float max_impulseLength;
+    int min_impulse_length_us;
+    int max_impulseLength_us;
     float total_degrees;
 
     int working_min_available_angle;
@@ -105,13 +113,18 @@ struct ServosHardwareSettings{
 
 struct HeaterSettings{
 
-    long pid_interval_ms;
+    long scan_interval_ms;
+
+    /**
+     * Start first pump when core temperature starts rising and reaches this value
+     */
+    float start_burn_cycle_on_temperature_up_to;
 
     VolumeCapacitiesSetting capacities_setting;
 
     PidSettings oxygen_pid;
 
-    TwoPumpsSettings twoPumpsSettings;
+    TwoPumpsSettings two_pumps_settings;
 
     ServosHardwareSettings servos_hardware_settings;
 };

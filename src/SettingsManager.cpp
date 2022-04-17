@@ -66,12 +66,12 @@ SettingsManager::SettingsManager(){
 
         memset(settings.ds18D20Addresses, 0, sizeof(settings.ds18D20Addresses));
 
-        settings.pwm_controller_address = 0x60;
+//        settings.pwm_controller_address = 0x60;
 
 
 
         settings.version = 2;
-        settings.scan_sensors_integrval_ms = 3000;
+        settings.send_sensors_data_to_mqtt_interval_ms = 3000;
 
         logSettings();
 
@@ -183,12 +183,12 @@ void SettingsManager::logSettings() {
     Converter::bytesToAsciiHex(buffer, (uint8_t*)&settings.ds18D20Addresses[SENSORS_ADDR_SIZE * 5], SENSORS_ADDR_SIZE);
     LOGGER.info("         bottom: " + String(buffer));
 
-    LOGGER.info("   controllers:");
-    LOGGER.info("      PWM I2C controller addr: " + String(settings.pwm_controller_address));
-    LOGGER.info("   servos:");
-    LOGGER.info("      smoke door: " + String(settings.smoke_pipe_control_channel_id));
-    LOGGER.info("      oxygen door: " + String(settings.oxygen_door_control_channel_id));
-    LOGGER.info("      upper door: " + String(settings.upper_door_control_channel_id));
+//    LOGGER.info("   controllers:");
+//    LOGGER.info("      PWM I2C controller addr: " + String(settings.pwm_controller_address));
+//    LOGGER.info("   servos:");
+//    LOGGER.info("      smoke door: " + String(settings.smoke_pipe_control_channel_id));
+//    LOGGER.info("      oxygen door: " + String(settings.oxygen_door_control_channel_id));
+//    LOGGER.info("      upper door: " + String(settings.upper_door_control_channel_id));
 }
 //--------------------------------------------------------------------
 

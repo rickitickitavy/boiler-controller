@@ -341,35 +341,84 @@
             </div>
         </div>
 
-        <div class="form-inputField-container">
-            <div class="formParamCaption">I2C PWM controller address</div>
-            <div class="formParamValue">
-                <input id="control>servo>pwm_controller_address" class="formStringParamValue"
-                       value="%control>servo>pwm_controller_address%">
+        <div class="form-section">
+            <div class="formHeader2">Water capacities in liters</div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Heater core volume (from %heater>capacities>heater_core_ltr#minR% to
+                    %heater>capacities>heater_core_ltr#maxR%)
+                </div>
+                <div class="formParamValue">
+                    <input id="heater>capacities>heater_core_ltr" class="formStringParamValue"
+                           value="%heater>capacities>heater_core_ltr%">
+                </div>
             </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Accumulator volume (from %heater>capacities>accumulator_ltr#minR% to
+                    %heater>capacities>accumulator_ltr#maxR%)
+                </div>
+                <div class="formParamValue">
+                    <input id="heater>capacities>accumulator_ltr" class="formStringParamValue"
+                           value="%heater>capacities>accumulator_ltr%">
+                </div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Boiler volume (from %heater>capacities>boiler_ltr#minR% to
+                    %heater>capacities>boiler_ltr#maxR%)
+                </div>
+                <div class="formParamValue">
+                    <input id="heater>capacities>boiler_ltr" class="formStringParamValue"
+                           value="%heater>capacities>boiler_ltr%">
+                </div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Pipes and radiators_ltr volume (from
+                    %heater>capacities>pipes_and_radiators_ltr#minR% to
+                    %heater>capacities>pipes_and_radiators_ltr#maxR%)
+                </div>
+                <div class="formParamValue">
+                    <input id="heater>capacities>pipes_and_radiators_ltr" class="formStringParamValue"
+                           value="%heater>capacities>pipes_and_radiators_ltr%">
+                </div>
+            </div>
+
         </div>
 
-        <div class="form-inputField-container">
-            <div class="formParamCaption">PWM channel for servo of smoke-pipe door</div>
-            <div class="formParamValue">
-                <input id="control>servo>smoke_pipe_control_channel_id" class="formStringParamValue"
-                       value="%control>servo>smoke_pipe_control_channel_id%">
-            </div>
-        </div>
+        <div class="form-section">
+            <div class="formHeader2">Heater control settings</div>
 
-        <div class="form-inputField-container">
-            <div class="formParamCaption">PWM channel for servo of oxygen door</div>
-            <div class="formParamValue">
-                <input id="control>servo>oxygen_door_control_channel_id" class="formStringParamValue"
-                       value="%control>servo>oxygen_door_control_channel_id%">
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Read sensors interval in seconds (from %heater>scan_interval_ms#minR% to %heater>scan_interval_ms#maxR%)</div>
+                <div class="formParamValue">
+                    <input id="heater>scan_interval_ms" class="formStringParamValue"
+                           value="%heater>scan_interval_ms%">
+                </div>
             </div>
-        </div>
 
-        <div class="form-inputField-container">
-            <div class="formParamCaption">PWM channel for servo of upper door</div>
-            <div class="formParamValue">
-                <input id="control>servo>upper_door_control_channel_id" class="formStringParamValue"
-                       value="%control>servo>upper_door_control_channel_id%">
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Detect burn cycle if temp up to (from %heater>start_burn_cycle_on_temper_up_to#minR% to %heater>start_burn_cycle_on_temper_up_to#maxR%)</div>
+                <div class="formParamValue">
+                    <input id="heater>start_burn_cycle_on_temper_up_to" class="formStringParamValue"
+                           value="%heater>start_burn_cycle_on_temper_up_to%">
+                </div>
+            </div>
+
+            <br>
+
+            <div class="form-section">
+                <div class="formHeader2">Two pumps support</div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Enabled</div>
+                    <div class="formParamValue">
+                        <input id="heater>two_pumps>enabled" type="checkbox" class="formStringParamValue"
+                               value="%heater>two_pumps>enabled%">
+                    </div>
+                </div>
             </div>
         </div>
 

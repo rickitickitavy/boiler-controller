@@ -4,7 +4,7 @@
 #include "HeaterSettings.h"
 
 #define GLOBAL_CURRENT_SETTINGS_VERSION 1
-#define GLOBAL_SETTINGS_MARKER_0 0x32
+#define GLOBAL_SETTINGS_MARKER_0 0x30
 #define GLOBAL_SETTINGS_MARKER_1 0x32
 #define GLOBAL_SETTINGS_MARKER_2 0x33
 #define GLOBAL_SETTINGS_MARKER_3 0x31
@@ -96,13 +96,12 @@ struct GlobalSettings {
      */
     int dimmerPwmValue;
 
-    int scan_sensors_integrval_ms;
+    int send_sensors_data_to_mqtt_interval_ms;
 
     /**
      * sensor addresses
      */
     char ds18D20Addresses[SENSORS_ADDR_SIZE * MAX_SENSORS_COUNT];
-
 
     /**
      * All settings, acceptable for working warmer

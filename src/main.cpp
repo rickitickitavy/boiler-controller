@@ -3,6 +3,7 @@
 //
 #include <Wire.h>
 #include <HardwareSerial.h>
+#include <SPIFFS.h>
 #include "Logger.h"
 #include "SettingsManager.h"
 #include "ArduinoOTA.h"
@@ -27,9 +28,8 @@ void setup() {
     Serial.begin(115200);
     Serial.println("---");
 
-    LOGGER.info("Started UART at 921600");
+    LOGGER.info("Started UART at 115200");
 #endif
-
     LOGGER.info("Starting...");
 
     settingsManager = new SettingsManager();
@@ -42,6 +42,10 @@ void setup() {
     Wire.setClock(400000);
 
     heaterController = new HeaterController(settingsManager->getSettings(), sensorController);
+
+    if (!SPIFFS.begin(false)) {
+        LOGGER.error(" Mount Failed");
+    }
 
     wiFiController = new WiFiController(settingsManager);
 
@@ -59,10 +63,10 @@ void setup() {
 
 void loop() {
     ArduinoOTA.handle();
-    mqtt->dispatch();
+//    mqtt->dispatch();
     wiFiController->checkConnection();
 
-    sensorController->handle();
+//    sensorController->handle();
 
     if (sensorController->data_ready) {
         sensorController->data_ready = false;

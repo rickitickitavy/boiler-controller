@@ -29,10 +29,10 @@ WebServerController::WebServerController(SettingsManager *settingsManager) {
         request->send(SPIFFS, "/index.html", String(), false, systemSettingsProcessor);
     });
 
-    webServer->on("/log", HTTP_GET, [](AsyncWebServerRequest *request) {
-        request->send(200, "text/html", &LOGGER.logData[0]);
-    });
-
+//    webServer->on("/log", HTTP_GET, [](AsyncWebServerRequest *request) {
+//        request->send(200, "text/html", &LOGGER.logData[0]);
+//    });
+//
     webServer->on("/settingsApi", HTTP_GET, settingsApiProcessor);
     webServer->on("/settingsApi", HTTP_POST, settingsApiProcessor);
 
@@ -154,7 +154,7 @@ void WebServerController::loadFileByUrl(AsyncWebServerRequest *request) {
 
         LOGGER.error("url not found: \"" + request->url() + "\"");
 
-        request->send(404, TEXT_PLAN, "not found");
+        request->send(404, TEXT_PLAN, "not found for this");
     } else {
         testFile.close();
 

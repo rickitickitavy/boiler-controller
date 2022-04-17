@@ -11,18 +11,6 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
     this->settingsManager = settingsManager;
     this->settings = settingsManager->getSettings();
 
-//    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("flame>shutdownAfterSec", INTEGER, 5, 78600,
-//                                                                           (void *) &settings->activeProfile.flameSettings.shutdownAfterSec,
-//                                                                           (void *) &tempProfile.flameSettings.shutdownAfterSec);
-//    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("flame>brightnessCoefficientPrct", FLOAT, 0,
-//                                                                           100,
-//                                                                           (void *) &settings->activeProfile.flameSettings.brightnessCoefficientPrct,
-//                                                                           (void *) &tempProfile.flameSettings.brightnessCoefficientPrct);
-
-//    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("network>wifiMode", UCHAR, 0,
-//                                                                           10,
-//                                                                           (void *) &settings->network.wifiMode,
-//                                                                           (void *) &settings->network.wifiMode);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("network>ssid", STRING, 5,
                                                                            63,
                                                                            (void *) &settings->network.ssid[0],
@@ -75,22 +63,10 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
                                                                            255,
                                                                            (void *) &settings->defaultSwitcherState,
                                                                            (void *) &settings->defaultSwitcherState);
-//    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("device>statefull", UCHAR, 0,
-//                                                                           255,
-//                                                                           (void *) &settings->statefull,
-//                                                                           (void *) &settings->statefull);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("device>dimmerPwmValue", INTEGER, 0,
                                                                            1024,
                                                                            (void *) &settings->dimmerPwmValue,
                                                                            (void *) &settings->dimmerPwmValue);
-//    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("device>dimmerPwmValue", INTEGER, 0,
-//                                                                           1024,
-//                                                                           (void *) &settings->dimmerPwmValue,
-//                                                                           (void *) &settings->dimmerPwmValue);
-//    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("network>ipAddress", IPv4, 7,
-//                                                                           15,
-//                                                                           (void *) &settings->network.ipAddress[0],
-//                                                                           (void *) &settings->network.ipAddress[0]);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>heater>core", SENSORS_ADDR_SIZE,
                                                                            (void *) &settings->ds18D20Addresses[0],
                                                                            (void *) &settings->ds18D20Addresses[0]);
@@ -125,26 +101,152 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>back>contour3", SENSORS_ADDR_SIZE,
                                                                            (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 10],
                                                                            (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 10]);
-    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>scan_integrval_ms", INTEGER, 3000,
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>send_sensors_data_to_mqtt_interval_ms", INTEGER, 3000,
                                                                            120000,
-                                                                           (void *) &settings->scan_sensors_integrval_ms,
-                                                                           (void *) &settings->scan_sensors_integrval_ms);
-    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("control>servo>pwm_controller_address", UCHAR, 1,
-                                                                           127,
-                                                                           (void *) &settings->pwm_controller_address,
-                                                                           (void *) &settings->pwm_controller_address);
-    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("control>servo>smoke_pipe_control_channel_id", UCHAR, 0,
-                                                                           15,
-                                                                           (void *) &settings->smoke_pipe_control_channel_id,
-                                                                           (void *) &settings->smoke_pipe_control_channel_id);
-    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("control>servo>oxygen_door_control_channel_id", UCHAR, 0,
-                                                                           15,
-                                                                           (void *) &settings->oxygen_door_control_channel_id,
-                                                                           (void *) &settings->oxygen_door_control_channel_id);
-    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("control>servo>upper_door_control_channel_id", UCHAR, 0,
-                                                                           15,
-                                                                           (void *) &settings->upper_door_control_channel_id,
-                                                                           (void *) &settings->upper_door_control_channel_id);
+                                                                           (void *) &settings->send_sensors_data_to_mqtt_interval_ms,
+                                                                           (void *) &settings->send_sensors_data_to_mqtt_interval_ms);
+
+
+    // ================= ALL HEATER SETTINGS
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>scan_interval_ms", INTEGER, 1000,
+                                                                           120000,
+                                                                           (void *) &settings->heaterSettings.scan_interval_ms,
+                                                                           (void *) &settings->heaterSettings.scan_interval_ms);
+
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>start_burn_cycle_on_temper_up_to", FLOAT, 40,
+                                                                           60,
+                                                                           (void *) &settings->heaterSettings.start_burn_cycle_on_temperature_up_to,
+                                                                           (void *) &settings->heaterSettings.start_burn_cycle_on_temperature_up_to);
+
+    // volume capacities
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>capacities>heater_core_ltr", INTEGER, 1,
+                                                                           150,
+                                                                           (void *) &settings->heaterSettings.capacities_setting.heater_core_ltr,
+                                                                           (void *) &settings->heaterSettings.capacities_setting.heater_core_ltr);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>capacities>accumulator_ltr", INTEGER, 0,
+                                                                           3000,
+                                                                           (void *) &settings->heaterSettings.capacities_setting.accumulator_ltr,
+                                                                           (void *) &settings->heaterSettings.capacities_setting.accumulator_ltr);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>capacities>boiler_ltr", INTEGER, 1,
+                                                                           500,
+                                                                           (void *) &settings->heaterSettings.capacities_setting.boiler_ltr,
+                                                                           (void *) &settings->heaterSettings.capacities_setting.boiler_ltr);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>capacities>pipes_and_radiators_ltr", INTEGER, 1,
+                                                                           1000,
+                                                                           (void *) &settings->heaterSettings.capacities_setting.pipes_and_radiators_ltr,
+                                                                           (void *) &settings->heaterSettings.capacities_setting.pipes_and_radiators_ltr);
+
+    // PID
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>pid>p", FLOAT, 0.001,
+                                                                           1000,
+                                                                           (void *) &settings->heaterSettings.oxygen_pid.p,
+                                                                           (void *) &settings->heaterSettings.oxygen_pid.p);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>pid>i", FLOAT, 0.001,
+                                                                           1000,
+                                                                           (void *) &settings->heaterSettings.oxygen_pid.i,
+                                                                           (void *) &settings->heaterSettings.oxygen_pid.i);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>pid>d", FLOAT, 0.001,
+                                                                           1000,
+                                                                           (void *) &settings->heaterSettings.oxygen_pid.d,
+                                                                           (void *) &settings->heaterSettings.oxygen_pid.d);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>pid>max_i", FLOAT, 0.001,
+                                                                           1000,
+                                                                           (void *) &settings->heaterSettings.oxygen_pid.max_i,
+                                                                           (void *) &settings->heaterSettings.oxygen_pid.max_i);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>pid>min_absolute_output_value_prcnt", FLOAT, 0.001,
+                                                                           100,
+                                                                           (void *) &settings->heaterSettings.oxygen_pid.min_absolute_output_value_prcnt,
+                                                                           (void *) &settings->heaterSettings.oxygen_pid.min_absolute_output_value_prcnt);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>pid>output_dynamic_diapason_prcnt", FLOAT, 0.001,
+                                                                           100,
+                                                                           (void *) &settings->heaterSettings.oxygen_pid.output_dynamic_diapason_prcnt,
+                                                                           (void *) &settings->heaterSettings.oxygen_pid.output_dynamic_diapason_prcnt);
+    // two pumps
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>two_pumps>enabled", BOOLEAN, 0,
+                                                                           1,
+                                                                           (void *) &settings->heaterSettings.two_pumps_settings.enabled,
+                                                                           (void *) &settings->heaterSettings.two_pumps_settings.enabled);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>two_pumps>start_on_delta_btw_core_and_input", FLOAT, 10,
+                                                                           40,
+                                                                           (void *) &settings->heaterSettings.two_pumps_settings.start_on_delta_temperature_between_core_and_input,
+                                                                           (void *) &settings->heaterSettings.two_pumps_settings.start_on_delta_temperature_between_core_and_input);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>two_pumps>stop_on_delta_btw_core_and_input", FLOAT, 7,
+                                                                           37,
+                                                                           (void *) &settings->heaterSettings.two_pumps_settings.stop_on_delta_temperature_between_core_and_input,
+                                                                           (void *) &settings->heaterSettings.two_pumps_settings.stop_on_delta_temperature_between_core_and_input);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>two_pumps>start_on_delta_btw_input_and_output", FLOAT, 10,
+                                                                           25,
+                                                                           (void *) &settings->heaterSettings.two_pumps_settings.start_on_delta_temperature_between_input_and_output,
+                                                                           (void *) &settings->heaterSettings.two_pumps_settings.start_on_delta_temperature_between_input_and_output);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>two_pumps>stop_on_delta_btw_input_and_output", FLOAT, 7,
+                                                                           22,
+                                                                           (void *) &settings->heaterSettings.two_pumps_settings.stop_on_delta_temperature_between_input_and_output,
+                                                                           (void *) &settings->heaterSettings.two_pumps_settings.stop_on_delta_temperature_between_input_and_output);
+
+    // *************** SERVOS
+    // oxygen
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>servos_hardware>oxygen>min_impulse_length_us", INTEGER, 600,
+                                                                           1200,
+                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.oxygen_servo_settings.min_impulse_length_us,
+                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.oxygen_servo_settings.min_impulse_length_us);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>servos_hardware>oxygen>max_impulseLength_us", INTEGER, 1200,
+                                                                           3600,
+                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.oxygen_servo_settings.max_impulseLength_us,
+                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.oxygen_servo_settings.max_impulseLength_us);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>servos_hardware>oxygen>total_degrees", FLOAT, 90,
+                                                                           360,
+                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.oxygen_servo_settings.total_degrees,
+                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.oxygen_servo_settings.total_degrees);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>servos_hardware>oxygen>working_min_available_angle", INTEGER, 0,
+                                                                           180,
+                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.oxygen_servo_settings.working_min_available_angle,
+                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.oxygen_servo_settings.working_min_available_angle);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>servos_hardware>oxygen>working_max_available_degrees", INTEGER, 1,
+                                                                           360,
+                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.oxygen_servo_settings.working_max_available_degrees,
+                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.oxygen_servo_settings.working_max_available_degrees);
+    // smoke
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>servos_hardware>smoke>min_impulse_length_us", INTEGER, 600,
+                                                                           1200,
+                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.smoke_servo_settings.min_impulse_length_us,
+                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.smoke_servo_settings.min_impulse_length_us);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>servos_hardware>smoke>max_impulseLength_us", INTEGER, 1200,
+                                                                           3600,
+                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.smoke_servo_settings.max_impulseLength_us,
+                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.smoke_servo_settings.max_impulseLength_us);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>servos_hardware>smoke>total_degrees", FLOAT, 90,
+                                                                           360,
+                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.smoke_servo_settings.total_degrees,
+                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.smoke_servo_settings.total_degrees);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>servos_hardware>smoke>working_min_available_angle", INTEGER, 0,
+                                                                           180,
+                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.smoke_servo_settings.working_min_available_angle,
+                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.smoke_servo_settings.working_min_available_angle);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>servos_hardware>smoke>working_max_available_degrees", INTEGER, 1,
+                                                                           360,
+                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.smoke_servo_settings.working_max_available_degrees,
+                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.smoke_servo_settings.working_max_available_degrees);
+    // upper
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>servos_hardware>upper_door>min_impulse_length_us", INTEGER, 600,
+                                                                           1200,
+                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.upper_door_servo_settings.min_impulse_length_us,
+                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.upper_door_servo_settings.min_impulse_length_us);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>servos_hardware>upper_door>max_impulseLength_us", INTEGER, 1200,
+                                                                           3600,
+                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.upper_door_servo_settings.max_impulseLength_us,
+                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.upper_door_servo_settings.max_impulseLength_us);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>servos_hardware>upper_door>total_degrees", FLOAT, 90,
+                                                                           360,
+                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.upper_door_servo_settings.total_degrees,
+                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.upper_door_servo_settings.total_degrees);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>servos_hardware>upper_door>working_min_available_angle", INTEGER, 0,
+                                                                           180,
+                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.upper_door_servo_settings.working_min_available_angle,
+                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.upper_door_servo_settings.working_min_available_angle);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>servos_hardware>upper_door>working_max_available_degrees", INTEGER, 1,
+                                                                           360,
+                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.upper_door_servo_settings.working_max_available_degrees,
+                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.upper_door_servo_settings.working_max_available_degrees);
 //
 }
 //--------------------------------------------------------------------
