@@ -69,7 +69,7 @@
  *      d_value
  *      max_i_value
  *      min_output_value_prcnt   - максимум значения,
- *      maximum_output_value_prcnt     - диапазон изменения выходного значения
+ *      max_output_value_prcnt     - диапазон изменения выходного значения
  *
  *    smoke_pid_settings
  *      p_value
@@ -77,7 +77,7 @@
  *      d_value
  *      max_i_value
  *      min_output_value_prcnt   - максимум значения,
- *      maximum_output_value_prcnt     - диапазон изменения выходного значения
+ *      max_output_value_prcnt     - диапазон изменения выходного значения
  *
  *
  * ==== Conversions

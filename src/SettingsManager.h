@@ -25,6 +25,8 @@ private:
      */
     void readSettings();
 
+    void initServoConfig(ServoHardwareSettings *servoHardwareSettings);
+
 public:
     SettingsManager();
 

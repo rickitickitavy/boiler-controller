@@ -8,19 +8,21 @@
 #endif //BASE_ESP8266_MQTT_HEATERSETTINGS_H
 
 struct PidSettings{
-    double p;
-    double i;
-    double d;
-    double max_i;
+    float p;
+    float i;
+    float d;
+    float max_i;
     /**
      * minimum of output value of PID
      */
-    double min_output_value_prcnt;
+    float min_output_value_prcnt;
 
     /**
      * diapason of vales of PID output
      */
-    double maximum_output_value_prcnt;
+    float max_output_value_prcnt;
+
+    float start_pid_on_temperature_up_to;
 };
 
 struct VolumeCapacitiesSetting{
@@ -94,6 +96,12 @@ struct TemperatureSettings{
      * expected temperature of the thermal accumulator
      */
     float thermal_accumulator_target;
+
+    /**
+     * Start first pump when core temperature starts rising and reaches this value
+     */
+    float start_burn_cycle_on_temperature_up_to;
+
 };
 
 struct ServoHardwareSettings{
@@ -115,11 +123,6 @@ struct HeaterSettings{
 
     long scan_interval_ms;
 
-    /**
-     * Start first pump when core temperature starts rising and reaches this value
-     */
-    float start_burn_cycle_on_temperature_up_to;
-
     VolumeCapacitiesSetting capacities_setting;
 
     PidSettings oxygen_pid;
@@ -127,4 +130,6 @@ struct HeaterSettings{
     TwoPumpsSettings two_pumps_settings;
 
     ServosHardwareSettings servos_hardware_settings;
+
+    TemperatureSettings temperatureSettings;
 };

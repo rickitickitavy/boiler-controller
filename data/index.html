@@ -362,129 +362,133 @@
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Pipes and radiators_ltr volume (from
-                    %heater>capacities>pipes_and_radiators_ltr#minR% to
-                    %heater>capacities>pipes_and_radiators_ltr#maxR%)
-                </div>
-                <div class="formParamValue">
-                    <input id="heater>capacities>pipes_and_radiators_ltr" class="formStringParamValue"
-                           value="%heater>capacities>pipes_and_radiators_ltr%">
-                </div>
+                <div class="formParamCaption">Pipes and radiators_ltr volume (from %heater>capacities>pipes_and_radiators_ltr#minR% to %heater>capacities>pipes_and_radiators_ltr#maxR%)</div>
+                <div class="formParamValue"><input id="heater>capacities>pipes_and_radiators_ltr" class="formStringParamValue" value="%heater>capacities>pipes_and_radiators_ltr%"></div>
             </div>
 
         </div>
 
         <div class="form-section">
-            <div class="formHeader2">Heater control settings</div>
+            <div class="formHeader2">Temperatures </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Read sensors interval in seconds (from %heater>scan_interval_ms#minR% to
-                    %heater>scan_interval_ms#maxR%)
-                </div>
-                <div class="formParamValue">
-                    <input id="heater>scan_interval_ms" class="formStringParamValue"
-                           value="%heater>scan_interval_ms%">
-                </div>
+                <div class="formParamCaption">Detect burn cycle if temp up to (from %heater>temperature>start_burn_on_temp_up_to#minR% to %heater>temperature>start_burn_on_temp_up_to#maxR%)</div>
+                <div class="formParamValue"><input id="heater>temperature>start_burn_on_temp_up_to" class="formStringParamValue" value="%heater>temperature>start_burn_on_temp_up_to%"></div>
             </div>
-
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Detect burn cycle if temp up to (from
-                    %heater>start_burn_cycle_on_temper_up_to#minR% to %heater>start_burn_cycle_on_temper_up_to#maxR%)
+                <div class="formParamCaption">Temperature on which need refuel (from %heater>temperature>core_low#minR% to %heater>temperature>core_low#maxR%)</div>
+                <div class="formParamValue"><input id="heater>temperature>core_low" class="formStringParamValue" value="%heater>temperature>core_low%"></div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Target heater core temperature (from %heater>temperature>core_target#minR% to %heater>temperature>core_target#maxR%)</div>
+                <div class="formParamValue"><input id="heater>temperature>core_target" class="formStringParamValue" value="%heater>temperature>core_target%"></div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Critical heater core temperature (from %heater>temperature>core_critical#minR% to %heater>temperature>core_critical#maxR%)</div>
+                <div class="formParamValue"><input id="heater>temperature>core_critical" class="formStringParamValue" value="%heater>temperature>core_critical%"></div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Burn cycle starts if temperature, after smothed down, ups to (from %heater>temperature>term_accumulator_target#minR% to %heater>temperature>term_accumulator_target#maxR%)</div>
+                <div class="formParamValue"><input id="heater>temperature>term_accumulator_target" class="formStringParamValue" value="%heater>temperature>term_accumulator_target%"></div>
+            </div>
+
+        </div>
+
+
+        <div class="form-section">
+            <div class="formHeader2">Two pumps support</div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Enabled</div>
+                <div class="formParamValue">
+                    <input id="heater>2pumps>enabled" type="checkbox" class="formStringParamValue"
+                           value="%heater>2pumps>enabled%">
+                </div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Start 2-nd pump if difference between temperature of core and input flow up to (from %heater>2pumps>start_on_delta_btw_core_input#minR% to %heater>2pumps>start_on_delta_btw_core_input#maxR%)
                 </div>
                 <div class="formParamValue">
-                    <input id="heater>start_burn_cycle_on_temper_up_to" class="formStringParamValue"
-                           value="%heater>start_burn_cycle_on_temper_up_to%">
+                    <input id="heater>2pumps>start_on_delta_btw_core_input" class="formStringParamValue"
+                           value="%heater>2pumps>start_on_delta_btw_core_input%">
                 </div>
             </div>
 
-            <br>
-
-            <div class="form-section">
-                <div class="formHeader2">Two pumps support</div>
-
-                <div class="form-inputField-container">
-                    <div class="formParamCaption">Enabled</div>
-                    <div class="formParamValue">
-                        <input id="heater>2pumps>enabled" type="checkbox" class="formStringParamValue"
-                               value="%heater>2pumps>enabled%">
-                    </div>
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Stop 2-nd pump if difference between temperature of core and input flow
+                    DOWN to (from %heater>2pumps>stop_on_delta_btw_core_input#minR% to
+                    %heater>2pumps>stop_on_delta_btw_core_input#maxR%)
                 </div>
-
-                <div class="form-inputField-container">
-                    <div class="formParamCaption">Start 2-nd pump if difference between temperature of core and input flow up to (from %heater>2pumps>start_on_delta_btw_core_input#minR% to %heater>2pumps>start_on_delta_btw_core_input#maxR%)
-                    </div>
-                    <div class="formParamValue">
-                        <input id="heater>2pumps>start_on_delta_btw_core_input" class="formStringParamValue"
-                               value="%heater>2pumps>start_on_delta_btw_core_input%">
-                    </div>
-                </div>
-
-                <div class="form-inputField-container">
-                    <div class="formParamCaption">Stop 2-nd pump if difference between temperature of core and input flow
-                        DOWN to (from %heater>2pumps>stop_on_delta_btw_core_input#minR% to
-                        %heater>2pumps>stop_on_delta_btw_core_input#maxR%)
-                    </div>
-                    <div class="formParamValue">
-                        <input id="heater>2pumps>stop_on_delta_btw_core_input" class="formStringParamValue"
-                               value="%heater>2pumps>stop_on_delta_btw_core_input%">
-                    </div>
-                </div>
-
-                <div class="form-inputField-container">
-                    <div class="formParamCaption">Start 2-nd pump if difference between temperature of input and output flows UP to (from %heater>2pumps>start_on_delta_btw_in_and_out#minR% to %heater>2pumps>start_on_delta_btw_in_and_out#maxR%)
-                    </div>
-                    <div class="formParamValue">
-                        <input id="heater>2pumps>start_on_delta_btw_input_output" class="formStringParamValue"
-                               value="%heater>2pumps>start_on_delta_btw_in_and_out%">
-                    </div>
-                </div>
-
-                <div class="form-inputField-container">
-                    <div class="formParamCaption">Stop 2-nd pump if difference between temperature of input and output flows DOWN to (from %heater>2pumps>stop_on_delta_btw_in_and_out#minR% to %heater>2pumps>stop_on_delta_btw_in_and_out#maxR%)
-                    </div>
-                    <div class="formParamValue">
-                        <input id="heater>2pumps>stop_on_delta_btw_input_output" class="formStringParamValue"
-                               value="%heater>2pumps>stop_on_delta_btw_in_and_out%">
-                    </div>
+                <div class="formParamValue">
+                    <input id="heater>2pumps>stop_on_delta_btw_core_input" class="formStringParamValue"
+                           value="%heater>2pumps>stop_on_delta_btw_core_input%">
                 </div>
             </div>
 
-            <div class="form-section">
-                <div class="formHeader2">PID of oxygen door</div>
-
-                <div class="form-inputField-container">
-                    <div class="formParamCaption">P coef (from %heater>pid>p#minR% to %heater>pid>p#maxR%)</div>
-                    <div class="formParamValue"><input id="heater>pid>p" class="formStringParamValue" value="%heater>pid>p%"></div>
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Start 2-nd pump if difference between temperature of input and output flows UP to (from %heater>2pumps>start_on_delta_btw_in_and_out#minR% to %heater>2pumps>start_on_delta_btw_in_and_out#maxR%)
                 </div>
-
-                <div class="form-inputField-container">
-                    <div class="formParamCaption">I coef (from %heater>pid>i#minR% to %heater>pid>i#maxR%)</div>
-                    <div class="formParamValue"><input id="heater>pid>i" class="formStringParamValue" value="%heater>pid>i%"></div>
+                <div class="formParamValue">
+                    <input id="heater>2pumps>start_on_delta_btw_input_output" class="formStringParamValue"
+                           value="%heater>2pumps>start_on_delta_btw_in_and_out%">
                 </div>
+            </div>
 
-                <div class="form-inputField-container">
-                    <div class="formParamCaption">D coef (from %heater>pid>d#minR% to %heater>pid>d#maxR%)</div>
-                    <div class="formParamValue"><input id="heater>pid>d" class="formStringParamValue" value="%heater>pid>d%"></div>
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Stop 2-nd pump if difference between temperature of input and output flows DOWN to (from %heater>2pumps>stop_on_delta_btw_in_and_out#minR% to %heater>2pumps>stop_on_delta_btw_in_and_out#maxR%)
                 </div>
-
-                <div class="form-inputField-container">
-                    <div class="formParamCaption">Maximum I value (from %heater>pid>max_i#minR% to %heater>pid>max_i#maxR%)</div>
-                    <div class="formParamValue"><input id="heater>pid>max_i" class="formStringParamValue" value="%heater>pid>max_i%"></div>
+                <div class="formParamValue">
+                    <input id="heater>2pumps>stop_on_delta_btw_input_output" class="formStringParamValue"
+                           value="%heater>2pumps>stop_on_delta_btw_in_and_out%">
                 </div>
-
-                <div class="form-inputField-container">
-                    <div class="formParamCaption">Minimum output value percents (from %heater>pid>min_output_value_prcnt#minR% to %heater>pid>min_output_value_prcnt#maxR%)</div>
-                    <div class="formParamValue"><input id="heater>pid>min_output_value_prcnt" class="formStringParamValue" value="%heater>pid>min_output_value_prcnt%"></div>
-                </div>
-
-                <div class="form-inputField-container">
-                    <div class="formParamCaption">Maximum output value percents (from %heater>pid>max_output_value_prcnt#minR% to %heater>pid>max_output_value_prcnt#maxR%)</div>
-                    <div class="formParamValue"><input id="heater>pid>max_output_value_prcnt" class="formStringParamValue" value="%heater>pid>max_output_value_prcnt%"></div>
-                </div>
-
             </div>
         </div>
+
+        <div class="form-section">
+            <div class="formHeader2">PID of oxygen door</div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Read sensors interval in seconds (from %heater>scan_interval_ms#minR% to %heater>scan_interval_ms#maxR%)</div>
+                <div class="formParamValue"><input id="heater>scan_interval_ms" class="formStringParamValue" value="%heater>scan_interval_ms%"></div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">P coef (from %heater>pid>p#minR% to %heater>pid>p#maxR%)</div>
+                <div class="formParamValue"><input id="heater>pid>p" class="formStringParamValue" value="%heater>pid>p%"></div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">I coef (from %heater>pid>i#minR% to %heater>pid>i#maxR%)</div>
+                <div class="formParamValue"><input id="heater>pid>i" class="formStringParamValue" value="%heater>pid>i%"></div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">D coef (from %heater>pid>d#minR% to %heater>pid>d#maxR%)</div>
+                <div class="formParamValue"><input id="heater>pid>d" class="formStringParamValue" value="%heater>pid>d%"></div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Maximum I value (from %heater>pid>max_i#minR% to %heater>pid>max_i#maxR%)</div>
+                <div class="formParamValue"><input id="heater>pid>max_i" class="formStringParamValue" value="%heater>pid>max_i%"></div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Minimum output value percents (from %heater>pid>min_output_value_prcnt#minR% to %heater>pid>min_output_value_prcnt#maxR%)</div>
+                <div class="formParamValue"><input id="heater>pid>min_output_value_prcnt" class="formStringParamValue" value="%heater>pid>min_output_value_prcnt%"></div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Maximum output value percents (from %heater>pid>max_output_value_prcnt#minR% to %heater>pid>max_output_value_prcnt#maxR%)</div>
+                <div class="formParamValue"><input id="heater>pid>max_output_value_prcnt" class="formStringParamValue" value="%heater>pid>max_output_value_prcnt%"></div>
+            </div>
+
+        </div>
+
 
         <div class="form-section">
             <div class="formHeader2">Servos settings</div>

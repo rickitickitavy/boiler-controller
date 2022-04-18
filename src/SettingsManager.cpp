@@ -66,8 +66,36 @@ SettingsManager::SettingsManager(){
 
         memset(settings.ds18D20Addresses, 0, sizeof(settings.ds18D20Addresses));
 
-//        settings.pwm_controller_address = 0x60;
+        initServoConfig(&settings.heaterSettings.servos_hardware_settings.oxygen_servo_settings);
+        initServoConfig(&settings.heaterSettings.servos_hardware_settings.smoke_servo_settings);
+        initServoConfig(&settings.heaterSettings.servos_hardware_settings.upper_door_servo_settings);
 
+        settings.heaterSettings.capacities_setting.boiler_ltr = 200;
+        settings.heaterSettings.capacities_setting.heater_core_ltr = 50;
+        settings.heaterSettings.capacities_setting.accumulator_ltr = 1000;
+        settings.heaterSettings.capacities_setting.pipes_and_radiators_ltr = 100;
+
+        settings.heaterSettings.scan_interval_ms = 3000;
+
+        settings.heaterSettings.two_pumps_settings.enabled = true;
+        settings.heaterSettings.two_pumps_settings.start_on_delta_temperature_between_input_and_output = 18;
+        settings.heaterSettings.two_pumps_settings.stop_on_delta_temperature_between_input_and_output = 10;
+        settings.heaterSettings.two_pumps_settings.start_on_delta_temperature_between_core_and_input = 28;
+        settings.heaterSettings.two_pumps_settings.stop_on_delta_temperature_between_core_and_input = 20;
+
+        settings.heaterSettings.temperatureSettings.start_burn_cycle_on_temperature_up_to = 70;
+        settings.heaterSettings.temperatureSettings.core_low = 70;
+        settings.heaterSettings.temperatureSettings.core_target = 92;
+        settings.heaterSettings.temperatureSettings.core_critical = 98;
+        settings.heaterSettings.temperatureSettings.start_burn_cycle_on_temperature_up_to = 70;
+
+        settings.heaterSettings.oxygen_pid.p = 1;
+        settings.heaterSettings.oxygen_pid.i = 0.01;
+        settings.heaterSettings.oxygen_pid.d = 100;
+        settings.heaterSettings.oxygen_pid.max_i = 15;
+        settings.heaterSettings.oxygen_pid.start_pid_on_temperature_up_to = 60;
+        settings.heaterSettings.oxygen_pid.min_output_value_prcnt = 0;
+        settings.heaterSettings.oxygen_pid.max_output_value_prcnt = 100;
 
 
         settings.version = 2;
@@ -107,6 +135,15 @@ void SettingsManager::readSettings() {
 
 void SettingsManager::saveSetting(bool restart) {
     saveSetting(&settings, restart);
+}
+//--------------------------------------------------------------------
+
+void SettingsManager::initServoConfig(ServoHardwareSettings *servoHardwareSettings){
+    servoHardwareSettings->total_degrees = 180;
+    servoHardwareSettings->min_impulse_length_us = 800;
+    servoHardwareSettings->max_impulse_length_us = 2000;
+    servoHardwareSettings->working_min_angle = 0;
+    servoHardwareSettings->working_max_degrees = 35;
 }
 //--------------------------------------------------------------------
 

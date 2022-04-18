@@ -113,11 +113,6 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
                                                                            (void *) &settings->heaterSettings.scan_interval_ms,
                                                                            (void *) &settings->heaterSettings.scan_interval_ms);
 
-    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>start_burn_cycle_on_temper_up_to", FLOAT, 40,
-                                                                           60,
-                                                                           (void *) &settings->heaterSettings.start_burn_cycle_on_temperature_up_to,
-                                                                           (void *) &settings->heaterSettings.start_burn_cycle_on_temperature_up_to);
-
     // volume capacities
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>capacities>heater_core_ltr", INTEGER, 1,
                                                                            150,
@@ -159,8 +154,8 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
                                                                            (void *) &settings->heaterSettings.oxygen_pid.min_output_value_prcnt);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>pid>max_output_value_prcnt", FLOAT, 0.001,
                                                                            100,
-                                                                           (void *) &settings->heaterSettings.oxygen_pid.maximum_output_value_prcnt,
-                                                                           (void *) &settings->heaterSettings.oxygen_pid.maximum_output_value_prcnt);
+                                                                           (void *) &settings->heaterSettings.oxygen_pid.max_output_value_prcnt,
+                                                                           (void *) &settings->heaterSettings.oxygen_pid.max_output_value_prcnt);
     // two pumps
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>2pumps>enabled", BOOLEAN, 0,
                                                                            1,
@@ -247,7 +242,29 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
                                                                            360,
                                                                            (void *) &settings->heaterSettings.servos_hardware_settings.upper_door_servo_settings.working_max_degrees,
                                                                            (void *) &settings->heaterSettings.servos_hardware_settings.upper_door_servo_settings.working_max_degrees);
-//
+    // Temperature settings
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>temperature>core_low", FLOAT, 50,
+                                                                           90,
+                                                                           (void *) &settings->heaterSettings.temperatureSettings.core_low,
+                                                                           (void *) &settings->heaterSettings.temperatureSettings.core_low);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>temperature>core_target", FLOAT, 70,
+                                                                           93,
+                                                                           (void *) &settings->heaterSettings.temperatureSettings.core_target,
+                                                                           (void *) &settings->heaterSettings.temperatureSettings.core_target);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>temperature>core_critical", FLOAT, 90,
+                                                                           98,
+                                                                           (void *) &settings->heaterSettings.temperatureSettings.core_critical,
+                                                                           (void *) &settings->heaterSettings.temperatureSettings.core_critical);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>temperature>term_accumulator_target", FLOAT, 70,
+                                                                           90,
+                                                                           (void *) &settings->heaterSettings.temperatureSettings.thermal_accumulator_target,
+                                                                           (void *) &settings->heaterSettings.temperatureSettings.thermal_accumulator_target);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>temperature>start_burn_on_temp_up_to", FLOAT, 40,
+                                                                           60,
+                                                                           (void *) &settings->heaterSettings.temperatureSettings.start_burn_cycle_on_temperature_up_to,
+                                                                           (void *) &settings->heaterSettings.temperatureSettings.start_burn_cycle_on_temperature_up_to);
+
+
 }
 //--------------------------------------------------------------------
 void SettingsNavigator::addParamDescriptor(ParamDescriptor *descriptor){
