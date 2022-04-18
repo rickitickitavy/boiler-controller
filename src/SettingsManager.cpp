@@ -87,7 +87,7 @@ SettingsManager::SettingsManager(){
         settings.heaterSettings.temperatureSettings.core_low = 70;
         settings.heaterSettings.temperatureSettings.core_target = 92;
         settings.heaterSettings.temperatureSettings.core_critical = 98;
-        settings.heaterSettings.temperatureSettings.start_burn_cycle_on_temperature_up_to = 70;
+        settings.heaterSettings.temperatureSettings.thermal_accumulator_target = 85;
 
         settings.heaterSettings.oxygen_pid.p = 1;
         settings.heaterSettings.oxygen_pid.i = 0.01;
