@@ -15,12 +15,12 @@ struct PidSettings{
     /**
      * minimum of output value of PID
      */
-    double min_absolute_output_value_prcnt;
+    double min_output_value_prcnt;
 
     /**
      * diapason of vales of PID output
      */
-    double output_dynamic_diapason_prcnt;
+    double maximum_output_value_prcnt;
 };
 
 struct VolumeCapacitiesSetting{
@@ -98,11 +98,11 @@ struct TemperatureSettings{
 
 struct ServoHardwareSettings{
     int min_impulse_length_us;
-    int max_impulseLength_us;
+    int max_impulse_length_us;
     float total_degrees;
 
-    int working_min_available_angle;
-    int working_max_available_degrees;
+    int working_min_angle;
+    int working_max_degrees;
 };
 
 struct ServosHardwareSettings{

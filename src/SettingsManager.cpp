@@ -71,7 +71,7 @@ SettingsManager::SettingsManager(){
 
 
         settings.version = 2;
-        settings.send_sensors_data_to_mqtt_interval_ms = 3000;
+        settings.send_data_to_mqtt_interval_ms = 3000;
 
         logSettings();
 

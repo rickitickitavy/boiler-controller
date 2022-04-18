@@ -12,18 +12,18 @@ html, body {
 }
 
 .formHeader {
-    font-size: 20mm;
+    font-size: 12mm;
     color: #290682;
-    height: 30mm;
+    height: 20mm;
     display: block;
     align-items: center;
     text-align: center;
 }
 
 .formHeader2 {
-    font-size: 12mm;
+    font-size: 8mm;
     color: #290682;
-    height: 20mm;
+    height: 11mm;
     display: block;
     align-items: left;
     text-align: left;
@@ -34,22 +34,23 @@ html, body {
 .formParamCaption {
     width: 100%;
     text-align: left;
-    font-size: 8mm;
+    font-size: 5mm;
     padding-left: 5mm;
     background-color: white;
 }
 
 .formParamValue{
     width: 100%;
-    padding-left: 30mm;
+    padding-left: 6mm;
+    padding-right: 6mm;
     background-color: lightgrey;
-    font-size: 10mm;
+    font-size: 5mm;
 }
 
 .formParamValueProfileContainer{
     width: 100%;
     background-color: lightgrey;
-    font-size: 10mm;
+    font-size: 8mm;
 }
 
 .formParamValueSlider{
@@ -75,7 +76,7 @@ html, body {
 
 .formStringParamValue{
     width: 100%;
-    font-size: 9mm;
+    font-size: 5mm;
 
 }
 
@@ -104,7 +105,7 @@ html, body {
     display: flex;
     flex-direction: row;
     width: 100%;
-    padding-bottom: 5mm;
+    padding-bottom: 2mm;
 }
 
 .form-flex-horizontal-container{
@@ -117,11 +118,11 @@ html, body {
 .form-section{
     display: flex;
     flex-direction: column;
-    width: 90%;
+    width: 96%;
     border: solid #cccccc 1px;
     border-radius: 3px;
     box-shadow: 4px 4px 4px #848484;
-    margin: 45px;
+    margin: 24px;
     padding: 10px;
 }
 
@@ -162,7 +163,7 @@ html, body {
 .toolButton{
     float: left;
     margin-right: 10mm;
-    font-size: 12mm;
+    font-size: 10mm;
 }
 
 .miniButtonIcon {

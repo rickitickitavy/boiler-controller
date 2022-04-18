@@ -93,7 +93,7 @@ bool SensorController::isHasSensors() {
 }
 
 void SensorController::handle() {
-    if ( hasSensors && (last_time_sensors_read == 0 || ((millis() - last_time_sensors_read) > settingsManager->getSettings()->send_sensors_data_to_mqtt_interval_ms))) {
+    if ( hasSensors && (last_time_sensors_read == 0 || ((millis() - last_time_sensors_read) > settingsManager->getSettings()->send_data_to_mqtt_interval_ms))) {
         last_time_sensors_read = millis();
         dallasTemperature->requestTemperatures();
         for (int index = 0; index < MAX_SENSORS_COUNT; index++) {

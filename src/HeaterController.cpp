@@ -68,16 +68,16 @@
  *      i_value
  *      d_value
  *      max_i_value
- *      min_absolute_output_value_prcnt   - максимум значения,
- *      output_dynamic_diapason_prcnt     - диапазон изменения выходного значения
+ *      min_output_value_prcnt   - максимум значения,
+ *      maximum_output_value_prcnt     - диапазон изменения выходного значения
  *
  *    smoke_pid_settings
  *      p_value
  *      i_value
  *      d_value
  *      max_i_value
- *      min_absolute_output_value_prcnt   - максимум значения,
- *      output_dynamic_diapason_prcnt     - диапазон изменения выходного значения
+ *      min_output_value_prcnt   - максимум значения,
+ *      maximum_output_value_prcnt     - диапазон изменения выходного значения
  *
  *
  * ==== Conversions

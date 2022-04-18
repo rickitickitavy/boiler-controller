@@ -96,7 +96,7 @@ struct GlobalSettings {
      */
     int dimmerPwmValue;
 
-    int send_sensors_data_to_mqtt_interval_ms;
+    int send_data_to_mqtt_interval_ms;
 
     /**
      * sensor addresses

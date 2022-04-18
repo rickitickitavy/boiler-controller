@@ -7,6 +7,23 @@
     <script src="js/jq/jquery-3.4.1.js"></script>
     <script language="JavaScript">
 
+        var changedFields = new Array();
+        var wifiChanged = false;
+
+        function fieldChanged(event) {
+            var field = event.target;
+
+            if (changedFields.filter(function (element) {
+                    return element.alt == field.alt;
+                }).length == 0) {
+                if (field.id == "wiFiSSID" || field.id == "wiFiPassword")
+                    wifiChanged = true;
+                else
+                    changedFields.push(field);
+            }
+            document.getElementById("saveButton").disabled = false;
+        }
+
         function prepareDropDownList(dropDownName) {
             const dropDownElement = document.getElementById(dropDownName);
             if (dropDownElement != undefined) {
@@ -29,42 +46,28 @@
             prepareDropDownList("sensors>back>contour2");
             prepareDropDownList("sensors>back>contour3");
 
-            if (! % control > servo > pwm_controller_initialized %) {
-                const input = document.getElementById("control>servo>pwm_controller_address");
-                input.style.backgroundColor = "red";
+            var inputs = document.getElementsByTagName("input");
+            for (var inputIndex = 0; inputIndex < inputs.length; inputIndex++) {
+                var input = inputs[inputIndex];
+                input.onchange = fieldChanged;
             }
+//            if (! % control > servo > pwm_controller_initialized %) {
+//                const input = document.getElementById("control>servo>pwm_controller_address");
+//                input.style.backgroundColor = "red";
+//            }
         }
 
         function saveSystemSettings() {
             var wiFiSsId = document.getElementById("wiFiSSID").value;
             var wiFiPassword = document.getElementById("wiFiPassword").value;
-            var mqttServer = document.getElementById("mqttServer").value;
-            var mqttPort = document.getElementById("mqttPort").value;
-            var mqttDeviceName = document.getElementById("mqttDeviceName").value;
-            var mqttReconnectIntervalMs = document.getElementById("mqttReconnectIntervalMs").value;
-            var deviceIHaveBornTopic = document.getElementById("deviceIHaveBornTopic").value;
-            var deviceStateOutgoingTopicPrefix = document.getElementById("deviceStateOutgoingTopicPrefix").value;
-            var deviceIncomingCommandTopicPrefix = document.getElementById("deviceIncomingCommandTopicPrefix").value;
-            var mqttServerBornTopic = document.getElementById("mqttServerBornTopic").value;
-            var sensorsScanIntegrvalMs = document.getElementById("sensors>scan_integrval_ms").value;
-            const sensorHeaterCore = document.getElementById("sensors>heater>core").value;
-            const sensorHeaterOutputFlow = document.getElementById("sensors>heater>output_flow").value;
-            const sensorHeaterInputFlow = document.getElementById("sensors>heater>input_flow").value;
 
-            const sensorTermoaccumulatorTop = document.getElementById("sensors>termoaccumulator>top").value;
-            const sensorTermoaccumulatorMiddleHi = document.getElementById("sensors>termoaccumulator>middle_hi").value;
-            const sensorTermoaccumulatorMiddleLow = document.getElementById("sensors>termoaccumulator>middle_low").value;
-            const sensorTermoaccumulatorBootom = document.getElementById("sensors>termoaccumulator>bottom").value;
+            var requestText = "";
+            changedFields.forEach(function (field) {
+                if (requestText == "")
+                    requestText += "|";
 
-            const sensorsForwardTemperature = document.getElementById("sensors>forward>temperature").value;
-            const sensorBackContour1 = document.getElementById("sensors>back>contour1").value;
-            const sensorBackContour2 = document.getElementById("sensors>back>contour2").value;
-            const sensorBackContour3 = document.getElementById("sensors>back>contour3").value;
-
-            const controlServoPwmControllerAddress = document.getElementById("control>servo>pwm_controller_address").value;
-            const controlServoSmokePipeControlChannelId = document.getElementById("control>servo>smoke_pipe_control_channel_id").value;
-            const controlServoOxygenDoorControlChannelId = document.getElementById("control>servo>oxygen_door_control_channel_id").value;
-            const controlServoUpperDoorControlChannelId = document.getElementById("control>servo>upper_door_control_channel_id").value;
+                requestText += field.id + "=" + field.value;
+            }.bind(this));
 
             var saveNetworkSettings = function () {
                 $.ajax({
@@ -83,50 +86,31 @@
                 });
             }.bind(this);
 
-            $.ajax({
-                url: "/settingsApi",
-                method: "POST",
-                data: "operation=write&parameter=mqtt>server=" + mqttServer
-                + "|mqtt>port=" + mqttPort
-                + "|mqtt>deviceName=" + mqttDeviceName
-                + "|mqtt>reconnectIntervalMs=" + mqttReconnectIntervalMs
-                + "|mqtt>serverBornTopic=" + mqttServerBornTopic
-                + "|device>iHaveBornTopic=" + deviceIHaveBornTopic
-                + "|device>stateOutgoingTopicPrefix=" + deviceStateOutgoingTopicPrefix
-                + "|device>incomingCommandTopicPrefix=" + deviceIncomingCommandTopicPrefix
-                + "|sensors>heater>core=" + sensorHeaterCore
-                + "|sensors>heater>output_flow=" + sensorHeaterOutputFlow
-                + "|sensors>heater>input_flow=" + sensorHeaterInputFlow
+            if (changedFields.length > 0)
+                $.ajax({
+                    url: "/settingsApi",
+                    method: "POST",
+                    data: "operation=write&parameter=" + requestText,
+                    success: function (response) {
+                        if (response != undefined) {
 
-                + "|sensors>termoaccumulator>top=" + sensorTermoaccumulatorTop
-                + "|sensors>scan_integrval_ms=" + sensorsScanIntegrvalMs
-                + "|sensors>termoaccumulator>middle_hi=" + sensorTermoaccumulatorMiddleHi
-                + "|sensors>termoaccumulator>middle_low=" + sensorTermoaccumulatorMiddleLow
-                + "|sensors>termoaccumulator>bottom=" + sensorTermoaccumulatorBootom
-                + "|sensors>back>contour1=" + sensorBackContour1
-                + "|sensors>back>contour2=" + sensorBackContour2
-                + "|sensors>back>contour3=" + sensorBackContour3
-                + "|sensors>forward>temperature=" + sensorsForwardTemperature
+                        }
+                        if (wifiChanged)
+                            saveNetworkSettings();
+                    }.bind(this),
+                    error: function (error) {
+                        if (error.status == 200) {
+                            if (wifiChanged)
+                                saveNetworkSettings();
+                        } else {
+                            alert(error.statusText);
+                        }
+                    }.bind(this),
+                    dataType: "json"
+                });
+            else if (wifiChanged)
+                saveNetworkSettings();
 
-                + "|control>servo>pwm_controller_address=" + controlServoPwmControllerAddress
-                + "|control>servo>smoke_pipe_control_channel_id=" + controlServoSmokePipeControlChannelId
-                + "|control>servo>oxygen_door_control_channel_id=" + controlServoOxygenDoorControlChannelId
-                + "|control>servo>upper_door_control_channel_id=" + controlServoUpperDoorControlChannelId,
-                success: function (response) {
-                    if (response != undefined) {
-
-                    }
-                    saveNetworkSettings();
-                }.bind(this),
-                error: function (error) {
-                    if (error.status == 200) {
-                        saveNetworkSettings();
-                    } else {
-                        alert(error.statusText);
-                    }
-                }.bind(this),
-                dataType: "json"
-            });
         }
     </script>
 </head>
@@ -162,42 +146,43 @@
             <div class="form-inputField-container">
                 <div class="formParamCaption">Mqtt server</div>
                 <div class="formParamValue">
-                    <input id="mqttServer" class="formStringParamValue" value="%mqtt>server%">
+                    <input id="mqtt>server" class="formStringParamValue" value="%mqtt>server%">
                 </div>
             </div>
 
             <div class="form-inputField-container">
                 <div class="formParamCaption">Mqtt port</div>
                 <div class="formParamValue">
-                    <input id="mqttPort" class="formStringParamValue" value="%mqtt>port%">
+                    <input id="mqtt>port" class="formStringParamValue" value="%mqtt>port%">
                 </div>
             </div>
 
             <div class="form-inputField-container">
                 <div class="formParamCaption">Unique device name</div>
                 <div class="formParamValue">
-                    <input id="mqttDeviceName" class="formStringParamValue" value="%mqtt>deviceName%">
+                    <input id="mqtt>deviceName" class="formStringParamValue" value="%mqtt>deviceName%">
                 </div>
             </div>
 
             <div class="form-inputField-container">
                 <div class="formParamCaption">Mqtt reconnect interval (Ms)</div>
                 <div class="formParamValue">
-                    <input id="mqttReconnectIntervalMs" class="formStringParamValue" value="%mqtt>reconnectIntervalMs%">
+                    <input id="mqtt>reconnectIntervalMs" class="formStringParamValue"
+                           value="%mqtt>reconnectIntervalMs%">
                 </div>
             </div>
 
             <div class="form-inputField-container">
                 <div class="formParamCaption">The name of the topic to which to report of ready</div>
                 <div class="formParamValue">
-                    <input id="deviceIHaveBornTopic" class="formStringParamValue" value="%device>iHaveBornTopic%">
+                    <input id="device>iHaveBornTopic" class="formStringParamValue" value="%device>iHaveBornTopic%">
                 </div>
             </div>
 
             <div class="form-inputField-container">
                 <div class="formParamCaption">The name of the topic to which to report state</div>
                 <div class="formParamValue">
-                    <input id="deviceStateOutgoingTopicPrefix" class="formStringParamValue"
+                    <input id="device>stateOutgoingTopicPrefix" class="formStringParamValue"
                            value="%device>stateOutgoingTopicPrefix%"> / %mqtt>deviceName%
                 </div>
             </div>
@@ -205,7 +190,7 @@
             <div class="form-inputField-container">
                 <div class="formParamCaption">The name of the topic from which will receive commands</div>
                 <div class="formParamValue">
-                    <input id="deviceIncomingCommandTopicPrefix" class="formStringParamValue"
+                    <input id="device>incomingCommandTopicPrefix" class="formStringParamValue"
                            value="%device>incomingCommandTopicPrefix%"> / %mqtt>deviceName%
                 </div>
             </div>
@@ -213,7 +198,7 @@
             <div class="form-inputField-container">
                 <div class="formParamCaption">The topic to which server will reports it has born</div>
                 <div class="formParamValue">
-                    <input id="mqttServerBornTopic" class="formStringParamValue" value="%mqtt>serverBornTopic%">
+                    <input id="mqtt>serverBornTopic" class="formStringParamValue" value="%mqtt>serverBornTopic%">
                 </div>
             </div>
         </div>
@@ -221,10 +206,12 @@
         <div class="form-section">
             <div class="formHeader2">Thermal sensors</div>
             <div class="form-inputField-container">
-                <div class="formParamCaption">Sensors scan interval ms</div>
+                <div class="formParamCaption">Sensors send to mqtt interval ms (from
+                    %sensors>send_data_to_mqtt_interval_ms#minR% to %sensors>send_data_to_mqtt_interval_ms#maxR%)
+                </div>
                 <div class="formParamValue">
-                    <input id="sensors>scan_integrval_ms" class="formStringParamValue"
-                           value="%sensors>scan_integrval_ms%">
+                    <input id="sensors>send_data_to_mqtt_interval_ms" class="formStringParamValue"
+                           value="%sensors>send_data_to_mqtt_interval_ms%">
                 </div>
             </div>
 
@@ -391,7 +378,9 @@
             <div class="formHeader2">Heater control settings</div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Read sensors interval in seconds (from %heater>scan_interval_ms#minR% to %heater>scan_interval_ms#maxR%)</div>
+                <div class="formParamCaption">Read sensors interval in seconds (from %heater>scan_interval_ms#minR% to
+                    %heater>scan_interval_ms#maxR%)
+                </div>
                 <div class="formParamValue">
                     <input id="heater>scan_interval_ms" class="formStringParamValue"
                            value="%heater>scan_interval_ms%">
@@ -400,7 +389,9 @@
 
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Detect burn cycle if temp up to (from %heater>start_burn_cycle_on_temper_up_to#minR% to %heater>start_burn_cycle_on_temper_up_to#maxR%)</div>
+                <div class="formParamCaption">Detect burn cycle if temp up to (from
+                    %heater>start_burn_cycle_on_temper_up_to#minR% to %heater>start_burn_cycle_on_temper_up_to#maxR%)
+                </div>
                 <div class="formParamValue">
                     <input id="heater>start_burn_cycle_on_temper_up_to" class="formStringParamValue"
                            value="%heater>start_burn_cycle_on_temper_up_to%">
@@ -415,15 +406,178 @@
                 <div class="form-inputField-container">
                     <div class="formParamCaption">Enabled</div>
                     <div class="formParamValue">
-                        <input id="heater>two_pumps>enabled" type="checkbox" class="formStringParamValue"
-                               value="%heater>two_pumps>enabled%">
+                        <input id="heater>2pumps>enabled" type="checkbox" class="formStringParamValue"
+                               value="%heater>2pumps>enabled%">
                     </div>
                 </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Start 2-nd pump if difference between temperature of core and input flow up to (from %heater>2pumps>start_on_delta_btw_core_input#minR% to %heater>2pumps>start_on_delta_btw_core_input#maxR%)
+                    </div>
+                    <div class="formParamValue">
+                        <input id="heater>2pumps>start_on_delta_btw_core_input" class="formStringParamValue"
+                               value="%heater>2pumps>start_on_delta_btw_core_input%">
+                    </div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Stop 2-nd pump if difference between temperature of core and input flow
+                        DOWN to (from %heater>2pumps>stop_on_delta_btw_core_input#minR% to
+                        %heater>2pumps>stop_on_delta_btw_core_input#maxR%)
+                    </div>
+                    <div class="formParamValue">
+                        <input id="heater>2pumps>stop_on_delta_btw_core_input" class="formStringParamValue"
+                               value="%heater>2pumps>stop_on_delta_btw_core_input%">
+                    </div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Start 2-nd pump if difference between temperature of input and output flows UP to (from %heater>2pumps>start_on_delta_btw_in_and_out#minR% to %heater>2pumps>start_on_delta_btw_in_and_out#maxR%)
+                    </div>
+                    <div class="formParamValue">
+                        <input id="heater>2pumps>start_on_delta_btw_input_output" class="formStringParamValue"
+                               value="%heater>2pumps>start_on_delta_btw_in_and_out%">
+                    </div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Stop 2-nd pump if difference between temperature of input and output flows DOWN to (from %heater>2pumps>stop_on_delta_btw_in_and_out#minR% to %heater>2pumps>stop_on_delta_btw_in_and_out#maxR%)
+                    </div>
+                    <div class="formParamValue">
+                        <input id="heater>2pumps>stop_on_delta_btw_input_output" class="formStringParamValue"
+                               value="%heater>2pumps>stop_on_delta_btw_in_and_out%">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="formHeader2">PID of oxygen door</div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">P coef (from %heater>pid>p#minR% to %heater>pid>p#maxR%)</div>
+                    <div class="formParamValue"><input id="heater>pid>p" class="formStringParamValue" value="%heater>pid>p%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">I coef (from %heater>pid>i#minR% to %heater>pid>i#maxR%)</div>
+                    <div class="formParamValue"><input id="heater>pid>i" class="formStringParamValue" value="%heater>pid>i%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">D coef (from %heater>pid>d#minR% to %heater>pid>d#maxR%)</div>
+                    <div class="formParamValue"><input id="heater>pid>d" class="formStringParamValue" value="%heater>pid>d%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Maximum I value (from %heater>pid>max_i#minR% to %heater>pid>max_i#maxR%)</div>
+                    <div class="formParamValue"><input id="heater>pid>max_i" class="formStringParamValue" value="%heater>pid>max_i%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Minimum output value percents (from %heater>pid>min_output_value_prcnt#minR% to %heater>pid>min_output_value_prcnt#maxR%)</div>
+                    <div class="formParamValue"><input id="heater>pid>min_output_value_prcnt" class="formStringParamValue" value="%heater>pid>min_output_value_prcnt%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Maximum output value percents (from %heater>pid>max_output_value_prcnt#minR% to %heater>pid>max_output_value_prcnt#maxR%)</div>
+                    <div class="formParamValue"><input id="heater>pid>max_output_value_prcnt" class="formStringParamValue" value="%heater>pid>max_output_value_prcnt%"></div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="form-section">
+            <div class="formHeader2">Servos settings</div>
+
+            <div class="form-section">
+                <div class="formHeader2">Smoke door</div>
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Impulse length for 0 degrees mcSec (from %heater>servos>smoke>min_impulse_length_us#minR% to %heater>servos>smoke>min_impulse_length_us#maxR%)</div>
+                    <div class="formParamValue"><input id="heater>servos>smoke>min_impulse_length_us" class="formStringParamValue" value="%heater>servos>smoke>min_impulse_length_us%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Impulse length for maximum degrees mcSec (from %heater>servos>smoke>max_impulse_length_us#minR% to %heater>servos>smoke>max_impulse_length_us#maxR%)</div>
+                    <div class="formParamValue"><input id="heater>servos>smoke>max_impulse_length_us" class="formStringParamValue" value="%heater>servos>smoke>max_impulse_length_us%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Servo rotation degrees (from %heater>servos>smoke>total_degrees#minR% to %heater>servos>smoke>total_degrees#maxR%)</div>
+                    <div class="formParamValue"><input id="heater>servos>smoke>total_degrees" class="formStringParamValue" value="%heater>servos>smoke>total_degrees%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Minimum working angle degrees (from %heater>servos>smoke>working_min_angle#minR% to %heater>servos>smoke>working_min_angle#maxR%)</div>
+                    <div class="formParamValue"><input id="heater>servos>smoke>working_min_angle" class="formStringParamValue" value="%heater>servos>smoke>working_min_angle%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Maximum working angle degrees (from %heater>servos>smoke>working_max_degrees#minR% to %heater>servos>smoke>working_max_degrees#maxR%)</div>
+                    <div class="formParamValue"><input id="heater>servos>smoke>working_max_degrees" class="formStringParamValue" value="%heater>servos>smoke>working_max_degrees%"></div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="formHeader2">Oxygen door</div>
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Impulse length for 0 degrees mcSec (from %heater>servos>oxygen>min_impulse_length_us#minR% to %heater>servos>oxygen>min_impulse_length_us#maxR%)</div>
+                    <div class="formParamValue"><input id="heater>servos>oxygen>min_impulse_length_us" class="formStringParamValue" value="%heater>servos>oxygen>min_impulse_length_us%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Impulse length for maximum degrees mcSec (from %heater>servos>oxygen>max_impulse_length_us#minR% to %heater>servos>oxygen>max_impulse_length_us#maxR%)</div>
+                    <div class="formParamValue"><input id="heater>servos>oxygen>max_impulse_length_us" class="formStringParamValue" value="%heater>servos>oxygen>max_impulse_length_us%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Servo rotation degrees (from %heater>servos>oxygen>total_degrees#minR% to %heater>servos>oxygen>total_degrees#maxR%)</div>
+                    <div class="formParamValue"><input id="heater>servos>oxygen>total_degrees" class="formStringParamValue" value="%heater>servos>oxygen>total_degrees%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Minimum working angle degrees (from %heater>servos>oxygen>working_min_angle#minR% to %heater>servos>oxygen>working_min_angle#maxR%)</div>
+                    <div class="formParamValue"><input id="heater>servos>oxygen>working_min_angle" class="formStringParamValue" value="%heater>servos>oxygen>working_min_angle%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Maximum working angle degrees (from %heater>servos>oxygen>working_max_degrees#minR% to %heater>servos>oxygen>working_max_degrees#maxR%)</div>
+                    <div class="formParamValue"><input id="heater>servos>oxygen>working_max_degrees" class="formStringParamValue" value="%heater>servos>oxygen>working_max_degrees%"></div>
+                </div>
+
+            </div>
+
+            <div class="form-section">
+                <div class="formHeader2">Upper oxygen door</div>
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Impulse length for 0 degrees mcSec (from %heater>servos>upper>min_impulse_length_us#minR% to %heater>servos>upper>min_impulse_length_us#maxR%)</div>
+                    <div class="formParamValue"><input id="heater>servos>upper>min_impulse_length_us" class="formStringParamValue" value="%heater>servos>upper>min_impulse_length_us%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Impulse length for maximum degrees mcSec (from %heater>servos>upper>max_impulse_length_us#minR% to %heater>servos>upper>max_impulse_length_us#maxR%)</div>
+                    <div class="formParamValue"><input id="heater>servos>upper>max_impulse_length_us" class="formStringParamValue" value="%heater>servos>upper>max_impulse_length_us%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Servo rotation degrees (from %heater>servos>upper>total_degrees#minR% to %heater>servos>upper>total_degrees#maxR%)</div>
+                    <div class="formParamValue"><input id="heater>servos>upper>total_degrees" class="formStringParamValue" value="%heater>servos>upper>total_degrees%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Minimum working angle degrees (from %heater>servos>upper>working_min_angle#minR% to %heater>servos>upper>working_min_angle#maxR%)</div>
+                    <div class="formParamValue"><input id="heater>servos>upper>working_min_angle" class="formStringParamValue" value="%heater>servos>upper>working_min_angle%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Maximum working angle degrees (from %heater>servos>upper>working_max_degrees#minR% to %heater>servos>upper>working_max_degrees#maxR%)</div>
+                    <div class="formParamValue"><input id="heater>servos>upper>working_max_degrees" class="formStringParamValue" value="%heater>servos>upper>working_max_degrees%"></div>
+                </div>
+
             </div>
         </div>
 
         <div class="form-bottom">
-            <button class="toolButton" onclick="saveSystemSettings()">Save</button>
+            <button id="saveButton" class="toolButton" onclick="saveSystemSettings()">Save</button>
             <button class="toolButton" onclick="window.location='/'">Revert</button>
         </div>
     </div>
