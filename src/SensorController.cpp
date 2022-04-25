@@ -5,7 +5,7 @@
 #include "SensorController.h"
 #include "Converter.h"
 
-SensorController::SensorController(int one_wire_pin, SettingsManager *settingsManager){
+SensorController::SensorController(int one_wire_pin, SettingsManager *settingsManager) {
 
     this->settingsManager = settingsManager;
     this->last_time_sensors_read = 0;
@@ -39,7 +39,8 @@ SensorController::SensorController(int one_wire_pin, SettingsManager *settingsMa
 
         bool sensorsConfigured = false;
         for (int search_index = 0; search_index < MAX_SENSORS_COUNT; search_index++)
-            if (hasData(&settingsManager->getSettings()->ds18D20Addresses[search_index * SENSORS_ADDR_SIZE], SENSORS_ADDR_SIZE)) {
+            if (hasData(&settingsManager->getSettings()->ds18D20Addresses[search_index * SENSORS_ADDR_SIZE],
+                        SENSORS_ADDR_SIZE)) {
                 Converter::bytesToAsciiHex(
                         addr_ascii_hex_buffer,
                         (uint8_t *) &settingsManager->getSettings()->ds18D20Addresses[search_index * SENSORS_ADDR_SIZE],
@@ -77,9 +78,10 @@ String SensorController::buildSensorsList() {
     String const option_tag_middle = "\">";
     String const option_tag_end = "</option>\r\n";
     String const option_no_sensor_value = "0000000000000000";
-    String result = option_tag_start + option_no_sensor_value + option_tag_middle + option_no_sensor_value + option_tag_end;
+    String result =
+            option_tag_start + option_no_sensor_value + option_tag_middle + option_no_sensor_value + option_tag_end;
     char buffer[SENSORS_ADDR_SIZE * 2 + 1];
-    for (int index = 0; index < found_sensors_count; index++){
+    for (int index = 0; index < found_sensors_count; index++) {
         Converter::bytesToAsciiHex(buffer, &found_sensors_addr[index * SENSORS_ADDR_SIZE], SENSORS_ADDR_SIZE);
         String address = String(buffer);
         result += option_tag_start + address + option_tag_middle + address + option_tag_end;
@@ -93,22 +95,27 @@ bool SensorController::isHasSensors() {
 }
 
 void SensorController::handle() {
-    if ( hasSensors && (last_time_sensors_read == 0 || ((millis() - last_time_sensors_read) > settingsManager->getSettings()->send_data_to_mqtt_interval_ms))) {
+    if (hasSensors && (last_time_sensors_read == 0 || ((millis() - last_time_sensors_read) >
+                                                       settingsManager->getSettings()->send_data_to_mqtt_interval_ms))) {
         last_time_sensors_read = millis();
-        dallasTemperature->requestTemperatures();
-        for (int index = 0; index < MAX_SENSORS_COUNT; index++) {
-            sensor_data[index].data_ready = false;
-            if (hasData(&settingsManager->getSettings()->ds18D20Addresses[index * SENSORS_ADDR_SIZE], SENSORS_ADDR_SIZE)) {
-                float tempr = dallasTemperature->getTempC(
-                        (uint8_t *) &settingsManager->getSettings()->ds18D20Addresses[index * SENSORS_ADDR_SIZE]);
-                if (tempr != -127) {
-                    sensor_data[index].value = tempr;
-                    sensor_data[index].last_time_read = last_time_sensors_read;
-                    sensor_data[index].data_ready = true;
-                }
-            }
-        }
-        data_ready = true;
+        fire();
     }
 
+}
+
+void SensorController::fire() {
+    dallasTemperature->requestTemperatures();
+    for (int index = 0; index < MAX_SENSORS_COUNT; index++) {
+        sensor_data[index].data_ready = false;
+        if (hasData(&settingsManager->getSettings()->ds18D20Addresses[index * SENSORS_ADDR_SIZE], SENSORS_ADDR_SIZE)) {
+            float tempr = dallasTemperature->getTempC(
+                    (uint8_t *) &settingsManager->getSettings()->ds18D20Addresses[index * SENSORS_ADDR_SIZE]);
+            if (tempr != -127) {
+                sensor_data[index].value = tempr;
+                sensor_data[index].last_time_read = last_time_sensors_read;
+                sensor_data[index].data_ready = true;
+            }
+        }
+    }
+    data_ready = true;
 }

@@ -10,8 +10,12 @@
 struct PidSettings{
     float p;
     float i;
+
     float d;
+    float d_sma;
+
     float max_i;
+    float min_i;
     /**
      * minimum of output value of PID
      */
@@ -85,7 +89,7 @@ struct TemperatureSettings{
     /**
      * the working core temperature
      */
-    float core_target;
+    double core_target;
 
     /**
      * temperature at which to inform to refuel warmer

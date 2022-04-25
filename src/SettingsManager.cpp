@@ -91,8 +91,10 @@ SettingsManager::SettingsManager(){
 
         settings.heaterSettings.oxygen_pid.p = 1;
         settings.heaterSettings.oxygen_pid.i = 0.01;
-        settings.heaterSettings.oxygen_pid.d = 100;
-        settings.heaterSettings.oxygen_pid.max_i = 15;
+        settings.heaterSettings.oxygen_pid.d = 10;
+        settings.heaterSettings.oxygen_pid.d_sma = 25;
+        settings.heaterSettings.oxygen_pid.max_i = 90;
+        settings.heaterSettings.oxygen_pid.max_i = -90;
         settings.heaterSettings.oxygen_pid.start_pid_on_temperature_up_to = 60;
         settings.heaterSettings.oxygen_pid.min_output_value_prcnt = 0;
         settings.heaterSettings.oxygen_pid.max_output_value_prcnt = 100;

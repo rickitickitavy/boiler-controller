@@ -144,8 +144,16 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
                                                                            1000,
                                                                            (void *) &settings->heaterSettings.oxygen_pid.d,
                                                                            (void *) &settings->heaterSettings.oxygen_pid.d);
-    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>pid>max_i", FLOAT, 0.001,
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>pid>d_sma", FLOAT, 1,
+                                                                           500,
+                                                                           (void *) &settings->heaterSettings.oxygen_pid.d_sma,
+                                                                           (void *) &settings->heaterSettings.oxygen_pid.d_sma);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>pid>max_i", FLOAT, 0,
                                                                            1000,
+                                                                           (void *) &settings->heaterSettings.oxygen_pid.max_i,
+                                                                           (void *) &settings->heaterSettings.oxygen_pid.max_i);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>pid>min_i", FLOAT, -1000,
+                                                                           0,
                                                                            (void *) &settings->heaterSettings.oxygen_pid.max_i,
                                                                            (void *) &settings->heaterSettings.oxygen_pid.max_i);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>pid>min_output_value_prcnt", FLOAT, 0.001,

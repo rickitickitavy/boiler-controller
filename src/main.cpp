@@ -63,7 +63,7 @@ void setup() {
 
 void loop() {
     ArduinoOTA.handle();
-//    mqtt->dispatch();
+    mqtt->dispatch();
     wiFiController->checkConnection();
 
 //    sensorController->handle();

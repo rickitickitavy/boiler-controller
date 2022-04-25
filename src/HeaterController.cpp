@@ -139,12 +139,40 @@
 */
 
 
- HeaterController::HeaterController(GlobalSettings *settings,
-                                   SensorController *sensorController){
+HeaterController::HeaterController(GlobalSettings *settings, SensorController *sensorController,
+                                   SettingsNavigator *settingsNavigator) {
     this->settings = settings;
     this->sensorController = sensorController;
+    this->settingsNavigator = settingsNavigator;
 
     smoke_pipe_control = new Servo(SMOKE_SERVO_PIN, 0);
     oxygen_door_control = new Servo(OXYGEN_SERVO_PIN, 1);
     upper_door_control = new Servo(UPPER_SERVO_PIN, 2);
+
+    oxygen_pid = new PID(settingsNavigator, &settings->heaterSettings.oxygen_pid, sensorController, CORE_SENSOR_INDEX, &settings->heaterSettings.temperatureSettings.core_target);
+
+    last_cycle_time = 0;
+
+}
+
+void HeaterController::handle() {
+    if (sensorController->isHasSensors() && (last_cycle_time == 0 || ((millis() - last_cycle_time) >
+                                                                      settings->heaterSettings.scan_interval_ms))) {
+        last_cycle_time = millis();
+        sensorController->fire();
+
+        double oxygen_door_value;
+
+        if (sensorController->sensor_data[CORE_SENSOR_INDEX].value
+            >= settings->heaterSettings.oxygen_pid.start_pid_on_temperature_up_to){
+            // oxygen PID is active
+            oxygen_pid->handle();
+            oxygen_door_value = oxygen_pid->getValuePrcnt();
+        } else
+            oxygen_pid->hold();
+
+        // if temperature less than less temperature then switch
+
+    }
+
 }

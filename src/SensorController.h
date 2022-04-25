@@ -36,6 +36,7 @@ public:
 
     SensorController(int one_wire_pin, SettingsManager *settingsManager);
     void handle();
+    void fire();
     bool isHasSensors();
     String buildSensorsList();
 };
