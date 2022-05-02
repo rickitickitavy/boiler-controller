@@ -24,6 +24,9 @@ long lastTempRead = 0;
 
 
 void setup() {
+//    byte i;
+//    byte addr[8];
+
 #ifdef CON_DEBUG
     Serial.begin(115200);
     Serial.println("---");
@@ -32,6 +35,29 @@ void setup() {
 #endif
     LOGGER.info("Starting...");
 
+//    delay (1000);
+//
+//    OneWire *ow = new OneWire(14);
+//    ow->reset_search();
+//    delay(250);
+//
+//    if (!ow->search(addr, true)) {
+//        Serial.println(" No more addresses.");
+//        Serial.println();
+//    } else {
+//        Serial.println(" Found devices.");
+//        for (i = 0; i < 8; i++) {
+//            Serial.write(' ');
+//            Serial.print(addr[i], HEX);
+//        }
+//    }
+//    ow->reset_search();
+//    delay(250);
+//    ow->depower();
+//
+//    delay (1000);
+//    ESP.restart();
+//
     settingsManager = new SettingsManager();
 
     LOGGER.info("starting DS18D20...");
@@ -41,7 +67,7 @@ void setup() {
     Wire.begin(4, 5);
     Wire.setClock(400000);
 
-    heaterController = new HeaterController(settingsManager->getSettings(), sensorController);
+    heaterController = new HeaterController(settingsManager->getSettings(), sensorController, settingsManager->getNavigator());
 
     if (!SPIFFS.begin(false)) {
         LOGGER.error(" Mount Failed");
