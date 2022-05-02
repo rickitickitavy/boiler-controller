@@ -2,6 +2,7 @@
 // Created by dsporykhin on 19.04.20.
 //
 
+#include <SD.h>
 #include "WebServerController.h"
 #include "SPIFFS.h"
 #include "Defines.h"
@@ -149,29 +150,33 @@ void WebServerController::loadFileByUrl(AsyncWebServerRequest *request) {
     String url = request->url();
     String mime;
 
-    File testFile = SPIFFS.open(request->url(), "r");
-    if (!testFile) {
+    FS *fs;
 
-        LOGGER.error("url not found: \"" + request->url() + "\"");
+    if (!SPIFFS.exists(request->url())) {
 
-        request->send(404, TEXT_PLAN, "not found for this");
+        if (!LOGGER.isSdPresents() || !SD.exists(request->url())) {
+            LOGGER.error("url not found: \"" + request->url() + "\"");
+
+            request->send(404, TEXT_PLAN, "not found for this");
+            return;
+        } else
+            fs = &SD;
+    } else
+        fs = &SPIFFS;
+
+    if (url.endsWith(".html")) {
+        mime = "text/html";
+    } else if (url.endsWith(".css")) {
+        mime = "text/css";
+    } else if (url.endsWith(".js")) {
+        mime = "text/js";
+    } else if (url.endsWith(".jpg")) {
+        mime = "image/jpeg";
     } else {
-        testFile.close();
-
-        if (url.endsWith(".html")) {
-            mime = "text/html";
-        } else if (url.endsWith(".css")) {
-            mime = "text/css";
-        } else if (url.endsWith(".js")) {
-            mime = "text/js";
-        } else if (url.endsWith(".jpg")) {
-            mime = "image/jpeg";
-        } else {
-            mime = TEXT_PLAN;
-        }
-
-        request->send(SPIFFS, url, mime);
+        mime = TEXT_PLAN;
     }
+
+    request->send(*fs, url, mime);
 }
 //----------------------------------------------------------------------
 

@@ -10,19 +10,36 @@
 
 #include <Arduino.h>
 #include "Defines.h"
+#include <FS.h>
 
 #define LOGGER_SIZE 100
+#define LOG_CAT_NAME "/logs"
+#define LOG_FILE_NAME "/logs/console_output.html"
 
 class Logger {
 private:
+    File log_file;
+
     void print(String msg);
 
     void println(String msg);
 
-public:
-    char logData[LOGGER_SIZE + 1];
-    int logLen = 0;
+    void initSD();
 
+    void addToFile(const char *msg);
+
+    void flush();
+
+    bool sd_presents;
+
+    String spanStart = "<span style=\"color: ";
+    String spanEnd = "</span>";
+    String br = "</br>";
+
+    int collected_lines;
+    long last_flushed_time;
+
+public:
     char logLevel = LOG_LEVEL;
 
     Logger();
@@ -42,14 +59,9 @@ public:
 
     void detailDebug(String msg);
 
-    void saveLogFile();
+    void handle();
 
-    static void handleLog();
-
-private:
-    String spanStart = "<span style=\"color: ";
-    String spanEnd = "</span>";
-
+    bool isSdPresents();
 };
 
 extern Logger LOGGER;

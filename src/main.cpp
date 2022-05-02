@@ -4,6 +4,7 @@
 #include <Wire.h>
 #include <HardwareSerial.h>
 #include <SPIFFS.h>
+#include <SD.h>
 #include "Logger.h"
 #include "SettingsManager.h"
 #include "ArduinoOTA.h"
@@ -21,7 +22,7 @@ SensorController *sensorController;
 HeaterController *heaterController;
 bool pwm_ready;
 long lastTempRead = 0;
-
+bool sd_present;
 
 void setup() {
 //    byte i;
@@ -58,6 +59,7 @@ void setup() {
 //    delay (1000);
 //    ESP.restart();
 //
+
     settingsManager = new SettingsManager();
 
     LOGGER.info("starting DS18D20...");
@@ -91,8 +93,7 @@ void loop() {
     ArduinoOTA.handle();
     mqtt->dispatch();
     wiFiController->checkConnection();
-
-//    sensorController->handle();
+    LOGGER.handle();
 
     if (sensorController->data_ready) {
         sensorController->data_ready = false;

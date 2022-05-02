@@ -162,7 +162,6 @@ void SettingsManager::saveSetting(GlobalSettings* settingsToSave, bool restart) 
     delay(20);
     if (restart) {
         LOGGER.warning("RESTARTING...");
-        LOGGER.saveLogFile();
         SPIFFS.end();
         ESP.restart();
     }
