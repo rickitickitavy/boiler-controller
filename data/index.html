@@ -369,6 +369,50 @@
         </div>
 
         <div class="form-section">
+            <div class="formHeader2">Telemetry logging</div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Telemetry data catalog (max %telemetry>catalog_name#maxR%)
+                </div>
+                <div class="formParamValue">
+                    <input id="telemetry>catalog_name" class="formStringParamValue"
+                           value="%telemetry>catalog_name%">
+                </div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Maximum file size in bytes (from %telemetry>max_file_size#minR% to
+                    %telemetry>max_file_size#maxR%)
+                </div>
+                <div class="formParamValue">
+                    <input id="telemetry>max_file_size" class="formStringParamValue"
+                           value="%telemetry>max_file_size%">
+                </div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Interval between flushing data to the disk in ms (from %telemetry>flush_interval_ms#minR% to
+                    %telemetry>flush_interval_ms#maxR%)
+                </div>
+                <div class="formParamValue">
+                    <input id="telemetry>flush_interval_ms" class="formStringParamValue"
+                           value="%telemetry>flush_interval_ms%">
+                </div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Interval in records between flushing data to the disk(from %telemetry>flush_inteval_records#minR% to
+                    %telemetry>flush_inteval_records#maxR%)
+                </div>
+                <div class="formParamValue">
+                    <input id="telemetry>flush_inteval_records" class="formStringParamValue"
+                           value="%telemetry>flush_inteval_records%">
+                </div>
+            </div>
+
+        </div>
+
+        <div class="form-section">
             <div class="formHeader2">Temperatures </div>
 
             <div class="form-inputField-container">

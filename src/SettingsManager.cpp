@@ -103,6 +103,11 @@ SettingsManager::SettingsManager(){
         settings.version = 2;
         settings.send_data_to_mqtt_interval_ms = 3000;
 
+        memcpy(settings.telemetrySettings.catName, "telemetry\0", 10);
+        settings.telemetrySettings.flush_interval_ms = 240000;
+        settings.telemetrySettings.flush_inteval_records = 40;
+        settings.telemetrySettings.max_file_size_bytes = 1024 * 1024;
+
         logSettings();
 
         saveSetting(true);

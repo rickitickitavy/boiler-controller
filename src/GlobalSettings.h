@@ -20,6 +20,13 @@ struct NetworkSettings {
     char password[64];
 };
 
+struct TelemetrySettings{
+    char catName[64];
+    int flush_interval_ms;
+    int flush_inteval_records;
+    int max_file_size_bytes;
+};
+
 struct GlobalSettings {
     /**
      * Признак, что настройки записаны, а не пустое пространство. Маркеом является определенныя последовательность
@@ -107,6 +114,11 @@ struct GlobalSettings {
      * All settings, acceptable for working warmer
      */
     HeaterSettings heaterSettings;
+
+    /**
+     * Telemetry settings
+     */
+    TelemetrySettings telemetrySettings;
 
 };
 

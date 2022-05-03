@@ -271,6 +271,22 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
                                                                            60,
                                                                            (void *) &settings->heaterSettings.temperatureSettings.start_burn_cycle_on_temperature_up_to,
                                                                            (void *) &settings->heaterSettings.temperatureSettings.start_burn_cycle_on_temperature_up_to);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("telemetry>catalog_name", STRING, 3,
+                                                                           63,
+                                                                           (void *) &settings->telemetrySettings.catName[0],
+                                                                           (void *) &settings->telemetrySettings.catName[0]);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("telemetry>max_file_size", INTEGER, 10240,
+                                                                           8192*1024,
+                                                                           (void *) &settings->telemetrySettings.max_file_size_bytes,
+                                                                           (void *) &settings->telemetrySettings.max_file_size_bytes);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("telemetry>flush_interval_ms", INTEGER, 10000,
+                                                                           3600000,
+                                                                           (void *) &settings->telemetrySettings.flush_interval_ms,
+                                                                           (void *) &settings->telemetrySettings.flush_interval_ms);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("telemetry>flush_inteval_records", INTEGER, 1,
+                                                                           1000,
+                                                                           (void *) &settings->telemetrySettings.flush_inteval_records,
+                                                                           (void *) &settings->telemetrySettings.flush_inteval_records);
 
 
 }
