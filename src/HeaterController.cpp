@@ -358,7 +358,8 @@ void HeaterController::enterTo_FINAL_COOLING_mode() {
     resetDEMA();
 
     // stop all pumps
-
+    uint8_t active_pumps = pumpsController->setOnPumpsCount(0);
+    LOGGER.info("pumps count = " + String(active_pumps));
 
     // close upper door
     // close oxygen door
