@@ -89,6 +89,18 @@ SettingsManager::SettingsManager(){
         settings.heaterSettings.temperatureSettings.core_critical = 98;
         settings.heaterSettings.temperatureSettings.thermal_accumulator_target = 85;
 
+        // TODO
+        settings.heaterSettings.temperatureSettings.core_temp_diff_EMA = 6;
+        // TODO
+        settings.heaterSettings.warmingSettings.warming_to_cooling_DiffEMA = 0;
+        // TODO
+        settings.heaterSettings.warmingSettings.go_to_cooling_mode_if_DEMA_less_tan_0_more_than_sec = 180;
+        // TODO
+        settings.heaterSettings.finalCoolingSettings.cooling_to_standBy_temperature = 0;
+        // TODO
+        settings.heaterSettings.finalCoolingSettings.go_to_stanby_mode_if_DEMA_less_tan_0_more_than_sec = 2400;
+
+
         settings.heaterSettings.oxygen_pid.p = 1;
         settings.heaterSettings.oxygen_pid.i = 0.01;
         settings.heaterSettings.oxygen_pid.d = 10;

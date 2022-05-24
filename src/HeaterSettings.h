@@ -7,7 +7,7 @@
 
 #endif //BASE_ESP8266_MQTT_HEATERSETTINGS_H
 
-struct PidSettings{
+struct PidSettings {
     float p;
     float i;
 
@@ -29,7 +29,7 @@ struct PidSettings{
     float start_pid_on_temperature_up_to;
 };
 
-struct VolumeCapacitiesSetting{
+struct VolumeCapacitiesSetting {
     /**
      * thermoaccumulator volume in litters
      */
@@ -54,7 +54,7 @@ struct VolumeCapacitiesSetting{
 /**
  * Config for working with two warmers pumps
  */
-struct TwoPumpsSettings{
+struct TwoPumpsSettings {
 
     bool enabled;
 
@@ -80,7 +80,31 @@ struct TwoPumpsSettings{
 
 };
 
-struct TemperatureSettings{
+struct WarmingSettings {
+   /**
+    * Value of EMA difference of core temperatures to go from the warming mode to the final cooling mode
+    */
+    float warming_to_cooling_DiffEMA;
+
+    /**
+     * how long must takes cooling for enter to FINAL COOLING mode
+     */
+    int go_to_cooling_mode_if_DEMA_less_tan_0_more_than_sec;
+};
+
+struct FinalCoolingSettings {
+   /**
+    * Core temperatures at which you need to switch to STAND_BY mode
+    */
+    float cooling_to_standBy_temperature;
+
+    /**
+     * how long must takes cooling for enter to STANDBY mode
+     */
+    int go_to_stanby_mode_if_DEMA_less_tan_0_more_than_sec;
+};
+
+struct TemperatureSettings {
     /**
      * core critical temperature after reaching turn on alarm if all action to prevent it completed
      */
@@ -106,9 +130,14 @@ struct TemperatureSettings{
      */
     float start_burn_cycle_on_temperature_up_to;
 
+    /**
+     * SMA for difference of core temperature
+     */
+    float core_temp_diff_EMA;
+
 };
 
-struct ServoHardwareSettings{
+struct ServoHardwareSettings {
     int min_impulse_length_us;
     int max_impulse_length_us;
     float total_degrees;
@@ -117,13 +146,13 @@ struct ServoHardwareSettings{
     int working_max_degrees;
 };
 
-struct ServosHardwareSettings{
+struct ServosHardwareSettings {
     ServoHardwareSettings oxygen_servo_settings;
     ServoHardwareSettings smoke_servo_settings;
     ServoHardwareSettings upper_door_servo_settings;
 };
 
-struct HeaterSettings{
+struct HeaterSettings {
 
     long scan_interval_ms;
 
@@ -136,4 +165,8 @@ struct HeaterSettings{
     ServosHardwareSettings servos_hardware_settings;
 
     TemperatureSettings temperatureSettings;
+
+    WarmingSettings warmingSettings;
+
+    FinalCoolingSettings finalCoolingSettings;
 };

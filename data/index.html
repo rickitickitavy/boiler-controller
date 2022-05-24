@@ -42,9 +42,7 @@
             prepareDropDownList("sensors>termoaccumulator>bottom");
 
             prepareDropDownList("sensors>forward>temperature");
-            prepareDropDownList("sensors>back>contour1");
-            prepareDropDownList("sensors>back>contour2");
-            prepareDropDownList("sensors>back>contour3");
+            prepareDropDownList("sensors>backward>temperature");
 
             var inputs = document.getElementsByTagName("input");
             for (var inputIndex = 0; inputIndex < inputs.length; inputIndex++) {
@@ -300,32 +298,13 @@
             <div class="form-inputField-container">
                 <div class="formParamCaption">Termosensor of back flow from contour 1</div>
                 <div class="formParamValue">
-                    <select id="sensors>back>contour1" name="sensors>back>contour1" class="formStringParamValue"
-                            title="%sensors>back>contour1%">
+                    <select id="sensors>backward>temperature" name="sensors>back>contour1" class="formStringParamValue"
+                            title="%sensors>backward>temperature%">
                         %sensors>list%
                     </select>
                 </div>
             </div>
 
-            <div class="form-inputField-container">
-                <div class="formParamCaption">Termosensor of back flow from contour 2</div>
-                <div class="formParamValue">
-                    <select id="sensors>back>contour2" name="sensors>back>contour2" class="formStringParamValue"
-                            title="%sensors>back>contour2%">
-                        %sensors>list%
-                    </select>
-                </div>
-            </div>
-
-            <div class="form-inputField-container">
-                <div class="formParamCaption">Termosensor of back flow from contour 3</div>
-                <div class="formParamValue">
-                    <select id="sensors>back>contour3" name="sensors>back>contour3" class="formStringParamValue"
-                            title="%sensors>back>contour3%">
-                        %sensors>list%
-                    </select>
-                </div>
-            </div>
         </div>
 
         <div class="form-section">

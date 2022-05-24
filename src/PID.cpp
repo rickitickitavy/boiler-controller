@@ -12,7 +12,7 @@ PID::PID(SettingsNavigator *settingsNavigator, PidSettings *settings, SensorCont
     this->sensor_index = sensor_index;
     this->target_value = target_value;
 
-    i_value = 0;
+    i_sum = 0;
     prior_value = 0;
 }
 
@@ -24,18 +24,18 @@ void PID::handle() {
         prior_value = value;
     on_hold = false;
 
-    double d = settings->d * (value - prior_value);
+    d = settings->d * (value - prior_value);
 
-    double p = settings->p * *target_value;
+    p = settings->p * *target_value;
 
-    i_value += settings->i * (*target_value - value);
-    if (i_value > settings->max_i)
-        i_value = settings->max_i;
-    else if (i_value < settings->min_i)
-        i_value = settings->min_i;
+    i_sum += settings->i * (*target_value - value);
+    if (i_sum > settings->max_i)
+        i_sum = settings->max_i;
+    else if (i_sum < settings->min_i)
+        i_sum = settings->min_i;
 
     prior_value = (prior_value * (settings->d_sma - 1) + value) / settings->d_sma;
-    output_raw_value = p + d + i_value;
+    output_raw_value = p + d + i_sum;
 
     // calc scale
     double scaler = p + settings->max_i - settings->min_i; // min_i always is less or equal zero
@@ -58,4 +58,13 @@ double PID::getValuePrcnt() {
 
 void PID::hold() {
     on_hold = true;
+}
+
+void PID::fillPID(float &p, float &i, float &i_sum, float &d, bool &on_hold, float &prior_value) {
+    p = (float)this->p;
+    i = (float)this->i;
+    i_sum = (float)this-> i_sum;
+    d = (float)this->d;
+    on_hold = this->on_hold;
+    prior_value = (float)this->prior_value;
 }

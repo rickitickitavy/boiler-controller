@@ -10,15 +10,17 @@ Telemetry::Telemetry(GlobalSettings *settings) {
     this->settings = settings;
 
     LOGGER.info("Telemetry starting...");
-    index_ofnext = 0;
-    mask_for_index = 2 ^ TELEMETRY_BITS_FOR_BUFFER_SIZE - 1;
-    data = (TelemetryDataRecord *) malloc(2 ^ TELEMETRY_BITS_FOR_BUFFER_SIZE * sizeof(TelemetryDataRecord));
+    index_of_next = 0;
+    mask_for_index = (1 << TELEMETRY_BITS_FOR_BUFFER_SIZE) - 1;
+    data = (TelemetryDataRecord *) malloc((1 << TELEMETRY_BITS_FOR_BUFFER_SIZE - 1) * sizeof(TelemetryDataRecord));
 
+    char _cat_name[128];
+    sprintf(_cat_name, "/%s", settings->telemetrySettings.catName);
 
     if (LOGGER.isSdPresents()) {
-        if (!SD.exists(settings->telemetrySettings.catName)) {
+        if (!SD.exists(_cat_name)) {
             LOGGER.info("Creating catalog for storing data...");
-            if (!SD.mkdir(settings->telemetrySettings.catName))
+            if (!SD.mkdir(_cat_name))
                 LOGGER.error("Error creating catalog  for telemetry");
             else
                 LOGGER.error("Catalog for telemetry created");
@@ -27,27 +29,35 @@ Telemetry::Telemetry(GlobalSettings *settings) {
         file_name = (char *) malloc(strlen(settings->telemetrySettings.catName)
                                     + strlen(TELEMETRY_FILE_NAME)
                                     + 3);
-        file_name[0] = '/';
-        file_name[1] = 0;
-        strcat(file_name, settings->telemetrySettings.catName);
-        strcat(file_name, "/");
-        strcat(file_name, TELEMETRY_FILE_NAME);
+        sprintf(file_name, "/%s/%s", settings->telemetrySettings.catName, TELEMETRY_FILE_NAME);
+
         LOGGER.info(file_name);
+
+        last_flush_time = millis();
+        stored_records_from_last_flush = 0;
+
+        openDataFile();
     } else {
         file_store_active = false;
     }
+
+    last_save_time_ms = millis();
+    save_buffer = (char *) malloc(1024);
+    sprintf(save_buffer, "mask %x", mask_for_index);
+    LOGGER.info(save_buffer);
+
 }
 
 void Telemetry::flushDataFile() {
-    if (file_store_active) {
-        data_file.flush();
-        data_file.close();
-    }
+    data_file.flush();
+    data_file.close();
 }
 
 void Telemetry::openDataFile() {
-    data_file = SD.open(TELEMETRY_FILE_NAME);
-    if (data_file.size() > settings->telemetrySettings.max_file_size_bytes) {
+    data_file = SD.open(file_name, FILE_APPEND);
+    // check for file needs to be move to archive
+    size_t f_size = data_file.size();
+    if ((f_size < 1000000000) && (f_size > settings->telemetrySettings.max_file_size_bytes)) {
         // rename current file to archive
         data_file.close();
 
@@ -58,20 +68,62 @@ void Telemetry::openDataFile() {
                                                 + strlen(_long_buf)
                                                 + strlen(TELEMETRY_FILE_NAME)
                                                 + 4);
-        sprintf(_arch_file_name, "/%s/%s-%s"
-                , settings->telemetrySettings.catName
-        , _long_buf
-        , TELEMETRY_FILE_NAME);
+        sprintf(_arch_file_name, "/%s/%s-%s", settings->telemetrySettings.catName, _long_buf, TELEMETRY_FILE_NAME);
         LOGGER.info(_arch_file_name);
-        if (!SD.rename(file_name,_arch_file_name))
+        if (!SD.rename(file_name, _arch_file_name))
             LOGGER.error("error move telemetry file to archive");
-        else
+        else {
             LOGGER.info("telemetry file moved to archive");
+            data_file = SD.open(file_name, FILE_APPEND);
+        }
+    }
+
+    if (data_file) {
+        file_store_active = true;
+        stored_records_from_last_flush = 0;
+        last_flush_time = millis();
+    }
+}
+
+void Telemetry::handleFlush() {
+    if ((((millis() - last_flush_time) > settings->telemetrySettings.flush_interval_ms) &
+         (stored_records_from_last_flush > 0))
+        || (stored_records_from_last_flush > settings->telemetrySettings.flush_inteval_records)) {
+        LOGGER.info("Telemetry flushing...");
+        flushDataFile();
+        openDataFile();
     }
 }
 
 bool Telemetry::addData(TelemetryDataRecord *dataRecord) {
-    memcpy(&data[index_ofnext++ & mask_for_index], dataRecord, sizeof(TelemetryDataRecord));
-
+    dataRecord->date_time_ms = millis();
+    dataRecord->interval_ms = dataRecord->date_time_ms - last_save_time_ms;
+    last_save_time_ms = dataRecord->date_time_ms;
+    memcpy(&data[index_of_next++ & mask_for_index], dataRecord, sizeof(TelemetryDataRecord));
+    if (file_store_active) {
+        sprintf(save_buffer, "%d;%o;%f;%f;%f;%f;%f;%f;%f;%f;%f;%f;%o;%f;%f;%f;%f;%f;%f;%f;%f;%f;%d;%d;%d;%f\r\n",
+                dataRecord->date_time_ms, dataRecord->interval_ms,
+                dataRecord->core_temp, dataRecord->input_temp, dataRecord->output_temp,
+                dataRecord->accumulator_bottom_temp, dataRecord->accumulator_lower_temp,
+                dataRecord->accumulator_higher_temp, dataRecord->accumulator_top_temp,
+                dataRecord->forwar_flow_temp,
+                dataRecord->backward_flow_temp, dataRecord->avarage_backward_flow,
+                dataRecord->pid_on_hold ? 1 : 0,
+                dataRecord->pid_d, dataRecord->pid_prior_value, dataRecord->pid_i, dataRecord->pid_i_sum,
+                dataRecord->pid_p, dataRecord->pid_output,
+                dataRecord->oxygen_door_position, dataRecord->smoke_door_position,
+                dataRecord->upper_door_position,
+                dataRecord->pump_1_state, dataRecord->pump_2_state,
+                dataRecord->heaterMode,
+                dataRecord->core_SMA_diff_tempr);
+        if (!data_file.write((uint8_t *) save_buffer, strlen(save_buffer))) {
+            LOGGER.error("Error writing to telemetry file");
+            return true;
+        } else {
+            stored_records_from_last_flush++;
+            handleFlush();
+            return true;
+        }
+    }
 }
 

@@ -32,12 +32,17 @@ private:
 
     bool sd_presents;
 
+    void getTime();
+
     String spanStart = "<span style=\"color: ";
     String spanEnd = "</span>";
     String br = "</br>";
 
     int collected_lines;
     long last_flushed_time;
+
+    char *datetime_buffer;
+    char *mini_datetime_buffer;
 
 public:
     char logLevel = LOG_LEVEL;

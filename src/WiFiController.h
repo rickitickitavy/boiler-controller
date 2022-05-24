@@ -2,6 +2,7 @@
 // Created by dsporykhin on 19.04.20.
 //
 
+#include <lib/NTPClient/NTPClient.h>
 #include "WebServerController.h"
 #include "SettingsManager.h"
 
@@ -21,6 +22,12 @@ private:
 
 //    void tryToConnect();
 
+    void initNTP();
+
+    WiFiUDP *ntpUDP;
+public:
+    NTPClient *timeClient;
+    
 public:
     WiFiController(SettingsManager *settingsManager);
 

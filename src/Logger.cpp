@@ -22,6 +22,8 @@ Logger::Logger() {
 #endif
     last_flushed_time = 0;
     collected_lines = LOGGER_SIZE;
+    datetime_buffer = (char*)malloc(150);
+    mini_datetime_buffer = (char*)malloc(48);
     initSD();
 }
 //------------------------------------------------------------------------------
@@ -70,8 +72,7 @@ void Logger::flush() {
 
 
 void Logger::addToFile(const char *msg) {
-    int wrote = log_file.write((uint8_t *) msg, strlen(msg));
-    if (wrote == 0) {
+    if (!log_file.write((uint8_t *) msg, strlen(msg))) {
         Serial.println("ERROR!!! - error write to log file");
     } else {
         if (!--collected_lines)
@@ -89,7 +90,6 @@ void Logger::add(String msg) {
     if (sd_presents) {
         addToFile(msg.c_str());
     }
-//    add((char *) &msg[0]);
 }
 //------------------------------------------------------------------------------
 
@@ -107,48 +107,67 @@ void Logger::print(String msg) {
 }
 //------------------------------------------------------------------------------
 
+void Logger::getTime() {
+    tm localtm;
+    if (getLocalTime(&localtm, 0)) {
+        sprintf(mini_datetime_buffer, "%04d-%02d-%02d %02d:%02d:%02d "
+                , localtm.tm_year + 1900, localtm.tm_mon, localtm.tm_mday
+                , localtm.tm_hour, localtm.tm_min, localtm.tm_sec);
+        sprintf(datetime_buffer, "<span style=\"color: gray\">%s</span> ", mini_datetime_buffer);
+    } else {
+        datetime_buffer[0] = 0;
+        mini_datetime_buffer[0] = 0;
+    }
+
+}
+
 void Logger::error(String msg) {
     if (logLevel <= LOG_LEVEL_ERROR) {
-        println("ERROR: " + msg);
-        add(spanStart + "red\"><b>ERROR</b>: " + msg + spanEnd + br);
+        getTime();
+        println(String(mini_datetime_buffer) + "ERROR: " + msg);
+        add(String(datetime_buffer) + spanStart + "red\"><b>ERROR</b>: " + spanEnd + msg + br);
     }
 }
 //------------------------------------------------------------------------------
 
 void Logger::warning(String msg) {
     if (logLevel <= LOG_LEVEL_WARNING) {
-        println("WARNING: " + msg);
-        add(spanStart + "orange\"><b>WARNING</b>: " + msg + spanEnd + br);
+        getTime();
+        println(String(mini_datetime_buffer) + "WARNING: " + msg);
+        add(String(datetime_buffer) + spanStart + "orange\"><b>WARNING</b>: " + spanEnd + msg + br);
     }
 }
 //------------------------------------------------------------------------------
 
 void Logger::debug(String msg) {
     if (logLevel <= LOG_LEVEL_DEBUG) {
-        println("DEBUG: " + msg);
-        add(spanStart + "darkGray\"><b>DEBUG</b>: " + msg + spanEnd + br);
+        getTime();
+        println(String(mini_datetime_buffer) + "DEBUG: " + msg);
+        add(String(datetime_buffer) + spanStart + "darkGray\"><b>DEBUG</b>: " + spanEnd + msg + br);
     }
 }
 //------------------------------------------------------------------------------
 
 void Logger::detailDebug(String msg) {
     if (logLevel <= LOG_LEVEL_DETAIL_DEBUG) {
-        println("DEBUG: " + msg);
-        add(spanStart + "darkGray\"><b>DEBUG</b>: " + msg + spanEnd + br);
+        getTime();
+        println(String(mini_datetime_buffer) + "DEBUG: " + msg);
+        add(String(datetime_buffer) + spanStart + "darkGray\"><b>DEBUG</b>: " + spanEnd + msg + br);
     }
 }
 //------------------------------------------------------------------------------
 
 void Logger::info(String msg) {
     if (logLevel <= LOG_LEVEL_INFO) {
-        println("INFO: " + msg);
-        add(spanStart + "black\"><b>INFO</b>: " + msg + spanEnd + br);
+        getTime();
+        println(String(mini_datetime_buffer) + "INFO: " + msg);
+        add(String(datetime_buffer) + spanStart + "black\"><b>INFO</b>: " + spanEnd + msg  + br);
     }
 }
 //------------------------------------------------------------------------------
 
 void Logger::handle() {
-    if ((millis() - last_flushed_time > 20000) && LOGGER_SIZE != collected_lines)
+    if ((millis() - last_flushed_time > 30000) && LOGGER_SIZE != collected_lines)
         flush();
 }
 //------------------------------------------------------------------------------

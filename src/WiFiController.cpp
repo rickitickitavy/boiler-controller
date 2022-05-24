@@ -4,9 +4,6 @@
 
 #include <ESPmDNS.h>
 #include "WiFiController.h"
-#include "Defines.h"
-#include "Logger.h"
-
 
 WiFiController::WiFiController(SettingsManager *settingsManager) {
     this->settingsManager = settingsManager;
@@ -14,8 +11,54 @@ WiFiController::WiFiController(SettingsManager *settingsManager) {
     init();
 }
 
+void WiFiController::initNTP() {
+    char *date_str = (char *) malloc(1024);
 
-void WiFiController::setApMode(IPAddress *ipAddress){
+    time_t _time = time(0);
+    tm *localtm = localtime(&_time);
+
+    sprintf(date_str, "Date time before %s", asctime(localtm));
+    LOGGER.info(date_str);
+
+    ntpUDP = new WiFiUDP();
+    timeClient = new NTPClient(*ntpUDP);
+
+    timeClient->begin();
+    timeClient->setTimeOffset(3600 * 3);
+    timeClient->setUpdateInterval(1800000);
+
+    long started_at = millis();
+    while (!timeClient->update() && ((millis() - started_at) < 20000)) {
+        timeClient->forceUpdate();
+    }
+
+    if (timeClient->update()) {
+        LOGGER.info("Data is " + timeClient->getFormattedDate());
+        LOGGER.info("Time is " + timeClient->getFormattedTime());
+
+
+        char *date_str = (char *) malloc(1024);
+        _time = timeClient->getEpochTime();
+        localtm = localtime(&_time);
+
+        sprintf(date_str, "Set time as %s", asctime(localtm));
+        LOGGER.info(date_str);
+
+        struct timeval now = {.tv_sec = _time};
+        settimeofday(&now, NULL);
+
+        if (getLocalTime(localtm, 0)) {
+            sprintf(date_str, "current date and time is %s (millis is %i)", asctime(localtm), millis());
+            LOGGER.info(date_str);
+        }
+
+    } else
+        LOGGER.error("Failed to get current date and time");
+
+    free(date_str);
+}
+
+void WiFiController::setApMode(IPAddress *ipAddress) {
     WiFi.softAPsetHostname(settingsManager->getSettings()->mqttDeviceName);
     WiFi.mode(WIFI_AP);
     WiFi.softAP(settingsManager->getSettings()->mqttDeviceName, "00000000", 1, 0, 8);
@@ -23,32 +66,12 @@ void WiFiController::setApMode(IPAddress *ipAddress){
     WiFi.softAPConfig(*ipAddress, *ipAddress, IPAddress(255, 255, 255, 0));
 }
 
-
-//String WiFiController::getTextErrorStatus() {
-//    station_status_t status = wifi_station_get_connect_status();
-//
-//    switch (status) {
-//        case STATION_GOT_IP:
-//            return " STATION_GOT_IP";
-//        case STATION_NO_AP_FOUND:
-//            return " STATION_NO_AP_FOUND";
-//        case STATION_CONNECT_FAIL:
-//            return " STATION_CONNECT_FAIL";
-//        case STATION_WRONG_PASSWORD:
-//            return " STATION_WRONG_PASSWORD";
-//        case STATION_IDLE:
-//            return " STATION_IDLE";
-//        default:
-//            return " STATION_DISCONNECTED";
-//    }
-//}
-
 void WiFiController::init() {
     GlobalSettings *settings = settingsManager->getSettings();
 
     if ((!WiFi.hostname(settings->mqttDeviceName))
         || (WiFi.softAPSSID() != settings->network.ssid)
-//        || (WiFi.softAPPSK() != String(settings->network.password))
+        //        || (WiFi.softAPPSK() != String(settings->network.password))
         || (WiFi.getMode() != WIFI_STA)) {
 
         LOGGER.info("Configuring WiFi...");
@@ -93,6 +116,9 @@ void WiFiController::init() {
 
             MDNS.begin(&settings->mqttDeviceName[0]);
             MDNS.addService("http", "tcp", 80);
+
+            LOGGER.info("Getting real date and time from NTP");
+            initNTP();
 
         }
 

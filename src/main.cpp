@@ -95,6 +95,8 @@ void loop() {
     wiFiController->checkConnection();
     LOGGER.handle();
 
+    heaterController->handle();
+
     if (sensorController->data_ready) {
         sensorController->data_ready = false;
         for (int index = 0; index < MAX_SENSORS_COUNT; index++) {
