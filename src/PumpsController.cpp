@@ -69,3 +69,7 @@ int PumpsController::setOnPumpsCount(uint8_t onPumpsCount) {
     // return count of working pumps
     return (((uint8_t)pump1->isOn()) & 01) + (((uint8_t)pump1->isOn()) & 01);
 }
+
+int PumpsController::getOnPumpsCount() {
+    return (pump1->isOn() ? 1 : 0) + (pump2->isOn() ? 1 : 0);
+}

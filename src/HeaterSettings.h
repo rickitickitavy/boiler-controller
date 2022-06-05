@@ -78,6 +78,26 @@ struct TwoPumpsSettings {
      */
     float stop_on_delta_temperature_between_core_and_input;
 
+    /**
+     * weather flow sensor installed and connected or now
+     */
+    bool flow_senser_installed;
+
+    /**
+     * how many litters flows through sensor to raise one tick. in litters
+     */
+    float volume_per_one_sensors_tick_litters;
+
+    /**
+     * will be used if flow sensor is absent
+     */
+    float first_pump_flow_litters_per_minute;
+
+    /**
+     * will be used if flow sensor is absent
+     */
+    float second_pump_flow_litters_per_minute;
+
 };
 
 struct WarmingSettings {
@@ -111,6 +131,11 @@ struct TemperatureSettings {
     float core_critical;
 
     /**
+     * core overheat temperature after reaching action to fast cooling
+     */
+    float core_overheat;
+
+    /**
      * the working core temperature
      */
     double core_target;
@@ -131,9 +156,19 @@ struct TemperatureSettings {
     float start_burn_cycle_on_temperature_up_to;
 
     /**
-     * SMA for difference of core temperature
+     * EMA for difference of core temperature
      */
     float core_temp_diff_EMA;
+
+    /**
+     * DEMA for difference of core power
+     */
+    float core_power_diff_EMA;
+
+    /**
+     * EMA for core power
+     */
+    float core_power_EMA;
 
 };
 
@@ -143,7 +178,7 @@ struct ServoHardwareSettings {
     float total_degrees;
 
     int working_min_angle;
-    int working_max_degrees;
+    int working_max_angle;
 };
 
 struct ServosHardwareSettings {

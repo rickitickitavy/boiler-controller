@@ -82,13 +82,27 @@ SettingsManager::SettingsManager(){
         settings.heaterSettings.two_pumps_settings.stop_on_delta_temperature_between_input_and_output = 10;
         settings.heaterSettings.two_pumps_settings.start_on_delta_temperature_between_core_and_input = 28;
         settings.heaterSettings.two_pumps_settings.stop_on_delta_temperature_between_core_and_input = 20;
+        //TODO
+        settings.heaterSettings.two_pumps_settings.flow_senser_installed = false;
+        //TODO
+        settings.heaterSettings.two_pumps_settings.first_pump_flow_litters_per_minute = 12;
+        //TODO
+        settings.heaterSettings.two_pumps_settings.second_pump_flow_litters_per_minute = 12;
+        //TODO
+        settings.heaterSettings.two_pumps_settings.volume_per_one_sensors_tick_litters = 0.055;
 
         settings.heaterSettings.temperatureSettings.start_burn_cycle_on_temperature_up_to = 70;
         settings.heaterSettings.temperatureSettings.core_low = 70;
-        settings.heaterSettings.temperatureSettings.core_target = 92;
-        settings.heaterSettings.temperatureSettings.core_critical = 98;
+        settings.heaterSettings.temperatureSettings.core_target = 90;
+        settings.heaterSettings.temperatureSettings.core_critical = 99;
         settings.heaterSettings.temperatureSettings.thermal_accumulator_target = 85;
+        //TODO
+        settings.heaterSettings.temperatureSettings.core_overheat = 96;
 
+        // TODO
+        settings.heaterSettings.temperatureSettings.core_power_EMA = 6;
+        // TODO
+        settings.heaterSettings.temperatureSettings.core_power_diff_EMA = 6;
         // TODO
         settings.heaterSettings.temperatureSettings.core_temp_diff_EMA = 6;
         // TODO
@@ -162,7 +176,7 @@ void SettingsManager::initServoConfig(ServoHardwareSettings *servoHardwareSettin
     servoHardwareSettings->min_impulse_length_us = 800;
     servoHardwareSettings->max_impulse_length_us = 2000;
     servoHardwareSettings->working_min_angle = 0;
-    servoHardwareSettings->working_max_degrees = 35;
+    servoHardwareSettings->working_max_angle = 35;
 }
 //--------------------------------------------------------------------
 

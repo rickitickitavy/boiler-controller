@@ -204,10 +204,10 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
                                                                            180,
                                                                            (void *) &settings->heaterSettings.servos_hardware_settings.oxygen_servo_settings.working_min_angle,
                                                                            (void *) &settings->heaterSettings.servos_hardware_settings.oxygen_servo_settings.working_min_angle);
-    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>servos>oxygen>working_max_degrees", INTEGER, 1,
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>servos>oxygen>working_max_angle", INTEGER, 1,
                                                                            360,
-                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.oxygen_servo_settings.working_max_degrees,
-                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.oxygen_servo_settings.working_max_degrees);
+                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.oxygen_servo_settings.working_max_angle,
+                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.oxygen_servo_settings.working_max_angle);
     // smoke
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>servos>smoke>min_impulse_length_us", INTEGER, 600,
                                                                            1200,
@@ -225,10 +225,10 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
                                                                            180,
                                                                            (void *) &settings->heaterSettings.servos_hardware_settings.smoke_servo_settings.working_min_angle,
                                                                            (void *) &settings->heaterSettings.servos_hardware_settings.smoke_servo_settings.working_min_angle);
-    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>servos>smoke>working_max_degrees", INTEGER, 1,
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>servos>smoke>working_max_angle", INTEGER, 1,
                                                                            360,
-                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.smoke_servo_settings.working_max_degrees,
-                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.smoke_servo_settings.working_max_degrees);
+                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.smoke_servo_settings.working_max_angle,
+                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.smoke_servo_settings.working_max_angle);
     // upper
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>servos>upper>min_impulse_length_us", INTEGER, 600,
                                                                            1200,
@@ -246,10 +246,10 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
                                                                            180,
                                                                            (void *) &settings->heaterSettings.servos_hardware_settings.upper_door_servo_settings.working_min_angle,
                                                                            (void *) &settings->heaterSettings.servos_hardware_settings.upper_door_servo_settings.working_min_angle);
-    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>servos>upper>working_max_degrees", INTEGER, 1,
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>servos>upper>working_max_angle", INTEGER, 1,
                                                                            360,
-                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.upper_door_servo_settings.working_max_degrees,
-                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.upper_door_servo_settings.working_max_degrees);
+                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.upper_door_servo_settings.working_max_angle,
+                                                                           (void *) &settings->heaterSettings.servos_hardware_settings.upper_door_servo_settings.working_max_angle);
     // Temperature settings
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>temperature>core_low", FLOAT, 50,
                                                                            90,

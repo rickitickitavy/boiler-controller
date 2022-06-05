@@ -101,13 +101,14 @@ bool Telemetry::addData(TelemetryDataRecord *dataRecord) {
     last_save_time_ms = dataRecord->date_time_ms;
     memcpy(&data[index_of_next++ & mask_for_index], dataRecord, sizeof(TelemetryDataRecord));
     if (file_store_active) {
-        sprintf(save_buffer, "%d;%o;%f;%f;%f;%f;%f;%f;%f;%f;%f;%f;%o;%f;%f;%f;%f;%f;%f;%f;%f;%f;%d;%d;%d;%f\r\n",
+        sprintf(save_buffer, "%d;%o;%f;%f;%f;%f;%f;%f;%f;%f;%f;%f;%f;%f;%f;%o;%f;%f;%f;%f;%f;%f;%f;%f;%f;%d;%d;%d;%f\r\n",
                 dataRecord->date_time_ms, dataRecord->interval_ms,
                 dataRecord->core_temp, dataRecord->input_temp, dataRecord->output_temp,
                 dataRecord->accumulator_bottom_temp, dataRecord->accumulator_lower_temp,
                 dataRecord->accumulator_higher_temp, dataRecord->accumulator_top_temp,
                 dataRecord->forwar_flow_temp,
                 dataRecord->backward_flow_temp, dataRecord->avarage_backward_flow,
+                dataRecord->core_flow, dataRecord->core_power, dataRecord->core_EMA_power,
                 dataRecord->pid_on_hold ? 1 : 0,
                 dataRecord->pid_d, dataRecord->pid_prior_value, dataRecord->pid_i, dataRecord->pid_i_sum,
                 dataRecord->pid_p, dataRecord->pid_output,

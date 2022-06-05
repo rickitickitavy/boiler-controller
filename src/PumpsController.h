@@ -23,6 +23,8 @@ public:
     PumpsController(HeaterSettings *heaterSettings);
 
     int setOnPumpsCount(uint8_t onPumpsCount);
+
+    int getOnPumpsCount();
 };
 
 

@@ -14,6 +14,7 @@
 #include "Telemetry.h"
 #include "PumpController.h"
 #include "PumpsController.h"
+#include "ServoController.h"
 
 
 #define MODE_WARMING_TIME_TO_WAIT_FOR_REACHED_PID_MODE_SEC 1200
@@ -56,20 +57,26 @@ private:
     SettingsNavigator *settingsNavigator;
     Telemetry *telemetry;
 
-    Servo *smoke_pipe_control;
-    Servo *oxygen_door_control;
-    Servo *upper_door_control;
+    ServoController *smoke_pipe_control;
+    ServoController *oxygen_door_control;
+    ServoController *upper_door_control;
 
     PumpsController *pumpsController;
 
-    float smoke_door_position;
-    float oxygen_door_position;
-    float upper_door_position;
-
     PID *oxygen_pid;
     long last_cycle_time;
+    long last_cycle_length;
     double previous_core_temperature;
     double core_DEMA_temperature;
+
+    double previous_core_power;
+    double current_core_power;
+    double core_EMA_power;
+    double core_DEMA_power;
+
+    double core_flow;
+    long flow_ticks;
+
 
     HeaterMode mode;
 
@@ -77,9 +84,11 @@ private:
     long DiffEMA_rose_above_zero_at;
 
     /**
-     * check if DEMA is less than 0 and, if it is true, fixing current time
+     * calc core flow, core_DEMA_temperature, current_core_power, core_DEMA_power, core_EMA_power,
+     * DiffEMA_down_bellow_zero_at, DiffEMA_rose_above_zero_at
+     *
      */
-    void handleDEMA();
+    void calcMainCoreCharacteristics();
 
     /**
      * returns time in seconds of how long DEMA is less than zero
@@ -96,7 +105,12 @@ private:
     /**
      * reset al timers to zero
      */
-    void resetDEMA();
+    void resetDEMAtimers();
+
+    bool two_pump_active_delta_core_output;
+    bool two_pump_active_delta_core_input;
+    void handleTwoPumps();
+    void handlePumps();
 
     void handleModes();
 
@@ -113,8 +127,12 @@ private:
     void enterTo_FINAL_COOLING_mode();
 
     void handle_DOOR_OPENED_mode();
+
     void handle_OVERHEATED_mode();
+    void enterTo_OVERHEATED_mode();
+
     void handle_CRITICAL_mode();
+    void enterTo_CRITICAL_mode();
 
     void collectTelemetry();
 

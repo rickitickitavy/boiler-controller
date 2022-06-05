@@ -23,7 +23,12 @@ struct TelemetryDataRecord{
     float accumulator_top_temp;
     float forwar_flow_temp;
     float backward_flow_temp;
+
     float avarage_backward_flow;
+    float core_flow;
+
+    float core_power;
+    float core_EMA_power;
 
     bool pid_on_hold;
     float pid_d;
