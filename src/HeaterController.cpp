@@ -156,8 +156,8 @@ HeaterController::HeaterController(GlobalSettings *settings, SensorController *s
     pinMode(EMERGENCY_VALVE_PIN, OUTPUT);
     digitalWrite(EMERGENCY_VALVE_PIN, LOW);
 
-    oxygen_pid = new PID(settingsNavigator, &heaterSettings->oxygen_pid, sensorController, CORE_SENSOR_INDEX,
-                         &heaterSettings->temperatureSettings.core_target);
+//    oxygen_pid = new PID(settingsNavigator, &heaterSettings->oxygen_pid, sensorController, CORE_SENSOR_INDEX,
+//                         &heaterSettings->temperatureSettings.core_target);
 
     last_cycle_time = 0;
 
@@ -198,9 +198,9 @@ void HeaterController::collectTelemetry() {
     dataRecord.core_EMA_power = (float) core_EMA_power;
     dataRecord.core_flow = (float) core_flow;
 
-    oxygen_pid->fillPID(dataRecord.pid_p, dataRecord.pid_i, dataRecord.pid_i_sum, dataRecord.pid_d,
-                        dataRecord.pid_on_hold, dataRecord.pid_prior_value);
-    dataRecord.pid_output = (float) oxygen_pid->getRawValue();
+//    oxygen_pid->fillPID(dataRecord.pid_p, dataRecord.pid_i, dataRecord.pid_i_sum, dataRecord.pid_d,
+//                        dataRecord.pid_on_hold, dataRecord.pid_prior_value);
+//    dataRecord.pid_output = (float) oxygen_pid->getRawValue();
 
     dataRecord.smoke_door_position = (float) smoke_pipe_control->getAngleGrad();
     dataRecord.upper_door_position = (float) upper_door_control->getAngleGrad();

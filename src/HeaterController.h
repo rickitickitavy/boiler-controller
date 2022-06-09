@@ -63,7 +63,7 @@ private:
 
     PumpsController *pumpsController;
 
-    PID *oxygen_pid;
+//    PID *oxygen_pid;
     long last_cycle_time;
     long last_cycle_length;
     double previous_core_temperature;

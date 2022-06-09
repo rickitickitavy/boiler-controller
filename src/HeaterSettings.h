@@ -5,7 +5,6 @@
 #ifndef BASE_ESP8266_MQTT_HEATERSETTINGS_H
 #define BASE_ESP8266_MQTT_HEATERSETTINGS_H
 
-#endif //BASE_ESP8266_MQTT_HEATERSETTINGS_H
 
 struct PidSettings {
     float p;
@@ -205,3 +204,5 @@ struct HeaterSettings {
 
     FinalCoolingSettings finalCoolingSettings;
 };
+
+#endif //BASE_ESP8266_MQTT_HEATERSETTINGS_H
