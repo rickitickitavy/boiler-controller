@@ -24,8 +24,6 @@ struct PidSettings {
      * diapason of vales of PID output
      */
     float max_output_value_prcnt;
-
-    float start_pid_on_temperature_up_to;
 };
 
 struct VolumeCapacitiesSetting {
@@ -123,6 +121,30 @@ struct FinalCoolingSettings {
     int go_to_stanby_mode_if_DEMA_less_tan_0_more_than_sec;
 };
 
+struct StadbyCoolingSettings {
+    /**
+     * Start first pump when core temperature starts rising and reaches this value
+     */
+    // TODO rename in interface
+    float start_warming_cycle_on_power;
+
+    /**
+     * min_delta_btw_core_input_to_start_pump
+     */
+    float min_delta_btw_core_and_input_to_start_pumps;
+
+    /**
+     *
+     */
+    float start_pumps_temperature;
+
+    /**
+     * when core cooled by this value pumps will be stopped
+     */
+    float delta_btw_start_and_core_to_stop_pumps;
+
+};
+
 struct TemperatureSettings {
     /**
      * core critical temperature after reaching turn on alarm if all action to prevent it completed
@@ -150,9 +172,9 @@ struct TemperatureSettings {
     float thermal_accumulator_target;
 
     /**
-     * Start first pump when core temperature starts rising and reaches this value
+     * Temperature to start PID mode
      */
-    float start_burn_cycle_on_temperature_up_to;
+    float start_pid_temperature;
 
     /**
      * EMA for difference of core temperature
@@ -168,7 +190,6 @@ struct TemperatureSettings {
      * EMA for core power
      */
     float core_power_EMA;
-
 };
 
 struct ServoHardwareSettings {
@@ -203,6 +224,8 @@ struct HeaterSettings {
     WarmingSettings warmingSettings;
 
     FinalCoolingSettings finalCoolingSettings;
+
+    StadbyCoolingSettings stadbyCoolingSettings;
 };
 
 #endif //BASE_ESP8266_MQTT_HEATERSETTINGS_H

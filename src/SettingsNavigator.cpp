@@ -68,33 +68,33 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
                                                                            (void *) &settings->dimmerPwmValue,
                                                                            (void *) &settings->dimmerPwmValue);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>heater>core", SENSORS_ADDR_SIZE,
-                                                                           (void *) &settings->ds18D20Addresses[CORE_SENSOR_INDEX],
-                                                                           (void *) &settings->ds18D20Addresses[CORE_SENSOR_INDEX]);
+                                                                           (void *) &settings->ds18D20Addresses[T_SENS_INDEX_CORE],
+                                                                           (void *) &settings->ds18D20Addresses[T_SENS_INDEX_CORE]);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>heater>output_flow", SENSORS_ADDR_SIZE,
-                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * OUTPUT_FLOW_SENSOR_INDEX],
-                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * OUTPUT_FLOW_SENSOR_INDEX]);
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * T_SENS_INDEX_OUTPUT_FLOW],
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * T_SENS_INDEX_OUTPUT_FLOW]);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>heater>input_flow", SENSORS_ADDR_SIZE,
-                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * INPUT_FLOW_SENSOR_INDEX],
-                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * INPUT_FLOW_SENSOR_INDEX]);
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * T_SENS_INDEX_INPUT_FLOW],
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * T_SENS_INDEX_INPUT_FLOW]);
 
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>termoaccumulator>top", SENSORS_ADDR_SIZE,
-                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * ACC_TOP_SENSOR_INDEX],
-                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * ACC_TOP_SENSOR_INDEX]);
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * T_SENS_INDEX_ACC_TOP],
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * T_SENS_INDEX_ACC_TOP]);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>termoaccumulator>middle_hi", SENSORS_ADDR_SIZE,
-                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * ACC_MID_HI_SENSOR_INDEX],
-                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * ACC_MID_HI_SENSOR_INDEX]);
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * T_SENS_INDEX_ACC_MID_HI],
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * T_SENS_INDEX_ACC_MID_HI]);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>termoaccumulator>middle_low", SENSORS_ADDR_SIZE,
-                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * ACC_MID_LO_SENSOR_INDEX],
-                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * ACC_MID_LO_SENSOR_INDEX]);
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * T_SENS_INDEX_ACC_MID_LO],
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * T_SENS_INDEX_ACC_MID_LO]);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>termoaccumulator>bottom", SENSORS_ADDR_SIZE,
-                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * ACC_BOTTOM_SENSOR_INDEX],
-                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * ACC_BOTTOM_SENSOR_INDEX]);
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * T_SENS_INDEX_ACC_BOTTOM],
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * T_SENS_INDEX_ACC_BOTTOM]);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>forward>temperature", SENSORS_ADDR_SIZE,
-                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * FORWARD_FLOW_SENSOR_INDEX],
-                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * FORWARD_FLOW_SENSOR_INDEX]);
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * T_SENS_INDEX_FORWARD_FLOW],
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * T_SENS_INDEX_FORWARD_FLOW]);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>backward>temperature", SENSORS_ADDR_SIZE,
-                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * BACKWARD_FLOW_SENSOR_INDEX],
-                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * BACKWARD_FLOW_SENSOR_INDEX]);
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * T_SENS_INDEX_BACKWARD_FLOW],
+                                                                           (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * T_SENS_INDEX_BACKWARD_FLOW]);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>back>contour2", SENSORS_ADDR_SIZE,
                                                                            (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 9],
                                                                            (void *) &settings->ds18D20Addresses[SENSORS_ADDR_SIZE * 9]);
@@ -267,10 +267,11 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
                                                                            90,
                                                                            (void *) &settings->heaterSettings.temperatureSettings.thermal_accumulator_target,
                                                                            (void *) &settings->heaterSettings.temperatureSettings.thermal_accumulator_target);
-    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>temperature>start_burn_on_temp_up_to", FLOAT, 40,
-                                                                           60,
-                                                                           (void *) &settings->heaterSettings.temperatureSettings.start_burn_cycle_on_temperature_up_to,
-                                                                           (void *) &settings->heaterSettings.temperatureSettings.start_burn_cycle_on_temperature_up_to);
+    // TODO naming
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>temperature>start_warm_on_power", FLOAT, 200,
+                                                                           7000,
+                                                                           (void *) &settings->heaterSettings.stadbyCoolingSettings.start_warming_cycle_on_power,
+                                                                           (void *) &settings->heaterSettings.temperatureSettings.start_pid_temperature);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("telemetry>catalog_name", STRING, 3,
                                                                            63,
                                                                            (void *) &settings->telemetrySettings.catName[0],

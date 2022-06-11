@@ -91,13 +91,24 @@ SettingsManager::SettingsManager(){
         //TODO
         settings.heaterSettings.two_pumps_settings.volume_per_one_sensors_tick_litters = 0.055;
 
-        settings.heaterSettings.temperatureSettings.start_burn_cycle_on_temperature_up_to = 70;
+        // TODO
+        settings.heaterSettings.stadbyCoolingSettings.start_warming_cycle_on_power = 1000;
+        //TODO
+        settings.heaterSettings.stadbyCoolingSettings.min_delta_btw_core_and_input_to_start_pumps = 10;
+        //TODO
+        settings.heaterSettings.stadbyCoolingSettings.start_pumps_temperature = 90;
+        //TODO
+        settings.heaterSettings.stadbyCoolingSettings.delta_btw_start_and_core_to_stop_pumps = 5;
+
         settings.heaterSettings.temperatureSettings.core_low = 70;
         settings.heaterSettings.temperatureSettings.core_target = 90;
         settings.heaterSettings.temperatureSettings.core_critical = 99;
         settings.heaterSettings.temperatureSettings.thermal_accumulator_target = 85;
         //TODO
         settings.heaterSettings.temperatureSettings.core_overheat = 96;
+
+        //TODO
+        settings.heaterSettings.temperatureSettings.start_pid_temperature = 60;
 
         // TODO
         settings.heaterSettings.temperatureSettings.core_power_EMA = 6;
@@ -121,7 +132,6 @@ SettingsManager::SettingsManager(){
         settings.heaterSettings.oxygen_pid.d_sma = 25;
         settings.heaterSettings.oxygen_pid.max_i = 90;
         settings.heaterSettings.oxygen_pid.max_i = -90;
-        settings.heaterSettings.oxygen_pid.start_pid_on_temperature_up_to = 60;
         settings.heaterSettings.oxygen_pid.min_output_value_prcnt = 0;
         settings.heaterSettings.oxygen_pid.max_output_value_prcnt = 100;
 

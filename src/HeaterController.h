@@ -77,6 +77,7 @@ private:
     double core_flow;
     long flow_ticks;
 
+    bool standby_cooling_active;
 
     HeaterMode mode;
 
