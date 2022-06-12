@@ -271,7 +271,7 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>temperature>start_warm_on_power", FLOAT, 200,
                                                                            7000,
                                                                            (void *) &settings->heaterSettings.stadbyCoolingSettings.start_warming_cycle_on_power,
-                                                                           (void *) &settings->heaterSettings.temperatureSettings.start_pid_temperature);
+                                                                           (void *) &settings->heaterSettings.warmingSettings.start_pid_temperature);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("telemetry>catalog_name", STRING, 3,
                                                                            63,
                                                                            (void *) &settings->telemetrySettings.catName[0],

@@ -330,7 +330,7 @@ void HeaterController::handleModes() {
             break;
         default:
             LOGGER.warning("");
-            enterTo_STAND_BY_mode();
+            switchTo_STAND_BY_mode();
             break;
     }
 
@@ -351,12 +351,14 @@ void HeaterController::handle() {
 
         handleModes();
 
+        handlePumps();
+
         collectTelemetry();
     }
 }
 //-------------------------------------------------------------------
 
-void HeaterController::enterTo_STAND_BY_mode() {
+void HeaterController::switchTo_STAND_BY_mode() {
     LOGGER.info("Entered to STAND_BY mode");
     mode = HeaterMode::STAND_BY;
     resetDEMAtimers();
@@ -383,43 +385,43 @@ void HeaterController::handle_STAND_BY_mode() {
     else
         // if power > burn power -  start warming mode
     if (core_EMA_power > heaterSettings->stadbyCoolingSettings.start_warming_cycle_on_power)
-        enterTo_WARMING_mode();
+        switchTo_WARMING_mode();
     else {
+    }
+}
+//-------------------------------------------------------------------
+
+void HeaterController::handlePumps() {
+    if ((mode == STAND_BY) || (mode == FINAL_COOLING)) {
+        // cooling only
         // if tempr > pid_on tempr then core need to be cooled
         bool _cooling_expected = sensorController->sensor_data[T_SENS_INDEX_CORE].value >=
-                                 heaterSettings->stadbyCoolingSettings.start_pumps_temperature;
+                                 heaterSettings->coolingByPumpsSettings.start_pumps_temperature;
 
         // if cooling expected then check for input flow temperature is less than core for XX or more degrees
         if (_cooling_expected)
             _cooling_expected = (sensorController->sensor_data[T_SENS_INDEX_CORE].value -
                                  sensorController->sensor_data[T_SENS_INDEX_INPUT_FLOW].value) >=
-                                heaterSettings->stadbyCoolingSettings.min_delta_btw_core_and_input_to_start_pumps;
+                                heaterSettings->coolingByPumpsSettings.min_delta_btw_core_and_input_to_start_pumps;
 
         // it is already on check that temp
         if (_cooling_expected)
             _cooling_expected = !standby_cooling_active ||
                                 (standby_cooling_active
-                                 && ((heaterSettings->stadbyCoolingSettings.start_pumps_temperature
+                                 && ((heaterSettings->coolingByPumpsSettings.start_pumps_temperature
                                       - sensorController->sensor_data[T_SENS_INDEX_CORE].value) <
-                                     heaterSettings->stadbyCoolingSettings.delta_btw_start_and_core_to_stop_pumps));
+                                     heaterSettings->coolingByPumpsSettings.delta_btw_start_and_core_to_stop_pumps));
 
         if (_cooling_expected) {
             if (!standby_cooling_active) {
                 standby_cooling_active = true;
                 pumpsController->setOnPumpsCount(2);
             }
-        } else
-        if (standby_cooling_active){
+        } else if (standby_cooling_active) {
             standby_cooling_active = false;
             pumpsController->setOnPumpsCount(0);
         }
-    }
-
-}
-//-------------------------------------------------------------------
-
-void HeaterController::handlePumps() {
-    if (heaterSettings->two_pumps_settings.enabled) {
+    } else if (heaterSettings->two_pumps_settings.enabled) {
         if (!two_pump_active_delta_core_input && !two_pump_active_delta_core_output) {
             // only one pump now active. Check if you need
             if (two_pump_active_delta_core_output)
@@ -443,9 +445,11 @@ void HeaterController::handlePumps() {
 /**
  * initiate WARMING mode
  */
-void HeaterController::enterTo_WARMING_mode() {
+void HeaterController::switchTo_WARMING_mode() {
     LOGGER.info("Entered to WARMING mode");
     mode = HeaterMode::WARMING;
+    entered_to_warming_mode_at = millis();
+    pumpsController->setOnPumpsCount(2);
     resetDEMAtimers();
 }
 //-------------------------------------------------------------------
@@ -454,31 +458,27 @@ void HeaterController::enterTo_WARMING_mode() {
  * handling WARMING mode
  */
 void HeaterController::handle_WARMING_mode() {
-    // check if necessary to go to the FINAL COOLING mode
-    // check if no warming. (DiffEMA is less than given value)
-    if ((core_DEMA_temperature < heaterSettings->warmingSettings.warming_to_cooling_DiffEMA)
-        // and DEMA is less than 0 more than given time
-        && (getTimeDEMABellowZeroSec() >
-            heaterSettings->warmingSettings.go_to_cooling_mode_if_DEMA_less_tan_0_more_than_sec)) {
-        // yes. it is.
-        enterTo_FINAL_COOLING_mode();
-    } else
-        // check for PID mode
-    if ((core_DEMA_temperature > 0)
-        && (sensorController->sensor_data[T_SENS_INDEX_CORE].value >
-            heaterSettings->temperatureSettings.start_pid_temperature)) {
-        enterTo_PID_mode();
-    } else {
-        // process
-
+    // check if power reached target power to switch to PID mode
+    if ((core_EMA_power >= heaterSettings->warmingSettings.target_power_to_switch_to_the_PID_mode)
+        || (sensorController->sensor_data[T_SENS_INDEX_CORE].value >
+            heaterSettings->warmingSettings.start_pid_temperature))
+        switchTo_PID_mode();
+    else
+        // check if time to reach target power is up
+    if ((millis() - entered_to_warming_mode_at) / 1000 > heaterSettings->warmingSettings.time_to_reach_target_power_sec)
+        switchTo_FINAL_COOLING_mode();
+    else {
+        // process. if needed
     }
 }
 //-------------------------------------------------------------------
 
-void HeaterController::enterTo_FINAL_COOLING_mode() {
+void HeaterController::switchTo_FINAL_COOLING_mode() {
     LOGGER.info("Entered to FINAL COOLING mode");
     mode = HeaterMode::FINAL_COOLING;
     resetDEMAtimers();
+
+    final_cooling_power_low_at = 0;
 
     // stop all pumps
     uint8_t active_pumps = pumpsController->setOnPumpsCount(0);
@@ -496,24 +496,27 @@ void HeaterController::enterTo_FINAL_COOLING_mode() {
 //-------------------------------------------------------------------
 
 void HeaterController::handle_FINAL_COOLING_mode() {
-    // check if heater is cooling and
-    if ((core_DEMA_temperature < heaterSettings->finalCoolingSettings.cooling_to_standBy_temperature)
-        && (getTimeDEMABellowZeroSec() >
-            heaterSettings->finalCoolingSettings.go_to_stanby_mode_if_DEMA_less_tan_0_more_than_sec)) {
-        enterTo_STAND_BY_mode();
-    } else
-        //  check if core is warming
-        // TODO cooling algorithm
-    if (true) {
-
+    // check if power EMA down bellow power switching from the standby mode to the warming mode
+    if (core_EMA_power < heaterSettings->stadbyCoolingSettings.start_warming_cycle_on_power) {
+        if (!final_cooling_power_low_at)
+            final_cooling_power_low_at = millis();
+        else if (((millis() - final_cooling_power_low_at) / 1000
+                  < heaterSettings->finalCoolingSettings.delay_to_swirtch_to_standby_mode_sec)
+                 && (sensorController->sensor_data[T_SENS_INDEX_CORE].value
+                     <= heaterSettings->finalCoolingSettings.max_temperature_to_switch_to_standBy))
+            switchTo_STAND_BY_mode();
     } else {
-        // process
-        // TODO
+        final_cooling_power_low_at = 0;
+        // check for power up to power_to_switch_to_warming_mode. If it is true - switch to the warming mode
+        if (core_EMA_power >= heaterSettings->finalCoolingSettings.power_to_switch_to_warming_mode)
+            switchTo_WARMING_mode();
     }
+    // process
+    // TODO
 }
 //-------------------------------------------------------------------
 
-void HeaterController::enterTo_PID_mode() {
+void HeaterController::switchTo_PID_mode() {
     LOGGER.info("Entered to PID mode");
     mode = HeaterMode::PID;
     resetDEMAtimers();
@@ -561,7 +564,7 @@ void HeaterController::handle_OVERHEATED_mode() {
         // handle for PID mode
     if (sensorController->sensor_data[T_SENS_INDEX_CORE].value
         < heaterSettings->temperatureSettings.core_overheat)
-        enterTo_PID_mode();
+        switchTo_PID_mode();
 }
 //-------------------------------------------------------------------
 
@@ -603,26 +606,5 @@ void HeaterController::handle_DOOR_OPENED_mode() {
 }
 //-------------------------------------------------------------------
 //-------------------------------------------------------------------
-
-/**
- * rule by pumps
- */
-void HeaterController::handleTwoPumps() {
-    switch (mode) {
-        case STAND_BY :
-            break;
-        case WARMING:
-        case PID:
-            handlePumps();
-            break;
-        case FINAL_COOLING:
-            break;
-        case CRITICAL:
-        case OVERHEATED:
-        default:
-            pumpsController->setOnPumpsCount(2);
-            break;
-    }
-}
 //-------------------------------------------------------------------
 

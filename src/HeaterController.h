@@ -110,22 +110,23 @@ private:
 
     bool two_pump_active_delta_core_output;
     bool two_pump_active_delta_core_input;
-    void handleTwoPumps();
     void handlePumps();
 
     void handleModes();
 
     void handle_STAND_BY_mode();
-    void enterTo_STAND_BY_mode();
+    void switchTo_STAND_BY_mode();
 
-    void enterTo_WARMING_mode();
+    long entered_to_warming_mode_at;
+    void switchTo_WARMING_mode();
     void handle_WARMING_mode();
 
     void handle_PID_mode();
-    void enterTo_PID_mode();
+    void switchTo_PID_mode();
 
+    long final_cooling_power_low_at;
     void handle_FINAL_COOLING_mode();
-    void enterTo_FINAL_COOLING_mode();
+    void switchTo_FINAL_COOLING_mode();
 
     void handle_DOOR_OPENED_mode();
 
@@ -136,7 +137,6 @@ private:
     void enterTo_CRITICAL_mode();
 
     void collectTelemetry();
-
 
 public:
     HeaterController(GlobalSettings *settings,

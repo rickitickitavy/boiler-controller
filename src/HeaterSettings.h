@@ -48,6 +48,25 @@ struct VolumeCapacitiesSetting {
     int pipes_and_radiators_ltr;
 };
 
+struct CoolingByPumpsSettings{
+    /**
+     * min_delta_btw_core_input_to_start_pump
+    */
+    float min_delta_btw_core_and_input_to_start_pumps;
+
+    /**
+     *
+     */
+    float start_pumps_temperature;
+
+    /**
+     * when core cooled by this value pumps will be stopped
+     */
+    float delta_btw_start_and_core_to_stop_pumps;
+
+
+};
+
 /**
  * Config for working with two warmers pumps
  */
@@ -98,27 +117,40 @@ struct TwoPumpsSettings {
 };
 
 struct WarmingSettings {
-   /**
-    * Value of EMA difference of core temperatures to go from the warming mode to the final cooling mode
-    */
-    float warming_to_cooling_DiffEMA;
+    /**
+     * Value of EMA power to switch to the PID mode. or temperature reaches start_pid_temperature
+     */
+    float target_power_to_switch_to_the_PID_mode;
 
     /**
-     * how long must takes cooling for enter to FINAL COOLING mode
+     * Temperature to start PID mode. or power reaches target_power_to_switch_to_the_PID_mode
+    */
+    float start_pid_temperature;
+
+
+    /**
+     * how long must takes warming for switch to PID mode. If warming takes more time then you must
+     * switch to the final cooling mode
      */
-    int go_to_cooling_mode_if_DEMA_less_tan_0_more_than_sec;
+    int time_to_reach_target_power_sec;
 };
 
 struct FinalCoolingSettings {
-   /**
-    * Core temperatures at which you need to switch to STAND_BY mode
-    */
-    float cooling_to_standBy_temperature;
+    /**
+     * Core temperatures at which you need to switch to STAND_BY mode
+     */
+    float max_temperature_to_switch_to_standBy;
 
     /**
-     * how long must takes cooling for enter to STANDBY mode
+     * how long time power must be less than standby_mode.start_warming_cycle_on_power
+     * to switch to the STANDBY mode
      */
-    int go_to_stanby_mode_if_DEMA_less_tan_0_more_than_sec;
+    int delay_to_swirtch_to_standby_mode_sec;
+
+    /**
+     *  switch to warming mode when power reaches this value
+     */
+    float power_to_switch_to_warming_mode;
 };
 
 struct StadbyCoolingSettings {
@@ -127,21 +159,6 @@ struct StadbyCoolingSettings {
      */
     // TODO rename in interface
     float start_warming_cycle_on_power;
-
-    /**
-     * min_delta_btw_core_input_to_start_pump
-     */
-    float min_delta_btw_core_and_input_to_start_pumps;
-
-    /**
-     *
-     */
-    float start_pumps_temperature;
-
-    /**
-     * when core cooled by this value pumps will be stopped
-     */
-    float delta_btw_start_and_core_to_stop_pumps;
 
 };
 
@@ -170,11 +187,6 @@ struct TemperatureSettings {
      * expected temperature of the thermal accumulator
      */
     float thermal_accumulator_target;
-
-    /**
-     * Temperature to start PID mode
-     */
-    float start_pid_temperature;
 
     /**
      * EMA for difference of core temperature
@@ -226,6 +238,8 @@ struct HeaterSettings {
     FinalCoolingSettings finalCoolingSettings;
 
     StadbyCoolingSettings stadbyCoolingSettings;
+
+    CoolingByPumpsSettings coolingByPumpsSettings;
 };
 
 #endif //BASE_ESP8266_MQTT_HEATERSETTINGS_H

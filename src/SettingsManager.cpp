@@ -93,12 +93,13 @@ SettingsManager::SettingsManager(){
 
         // TODO
         settings.heaterSettings.stadbyCoolingSettings.start_warming_cycle_on_power = 1000;
+
         //TODO
-        settings.heaterSettings.stadbyCoolingSettings.min_delta_btw_core_and_input_to_start_pumps = 10;
+        settings.heaterSettings.coolingByPumpsSettings.min_delta_btw_core_and_input_to_start_pumps = 10;
         //TODO
-        settings.heaterSettings.stadbyCoolingSettings.start_pumps_temperature = 90;
+        settings.heaterSettings.coolingByPumpsSettings.start_pumps_temperature = 90;
         //TODO
-        settings.heaterSettings.stadbyCoolingSettings.delta_btw_start_and_core_to_stop_pumps = 5;
+        settings.heaterSettings.coolingByPumpsSettings.delta_btw_start_and_core_to_stop_pumps = 5;
 
         settings.heaterSettings.temperatureSettings.core_low = 70;
         settings.heaterSettings.temperatureSettings.core_target = 90;
@@ -107,23 +108,26 @@ SettingsManager::SettingsManager(){
         //TODO
         settings.heaterSettings.temperatureSettings.core_overheat = 96;
 
-        //TODO
-        settings.heaterSettings.temperatureSettings.start_pid_temperature = 60;
-
         // TODO
         settings.heaterSettings.temperatureSettings.core_power_EMA = 6;
         // TODO
         settings.heaterSettings.temperatureSettings.core_power_diff_EMA = 6;
         // TODO
         settings.heaterSettings.temperatureSettings.core_temp_diff_EMA = 6;
+
         // TODO
-        settings.heaterSettings.warmingSettings.warming_to_cooling_DiffEMA = 0;
+        settings.heaterSettings.warmingSettings.time_to_reach_target_power_sec = 1800;
+        //TODO
+        settings.heaterSettings.warmingSettings.start_pid_temperature = 70;
         // TODO
-        settings.heaterSettings.warmingSettings.go_to_cooling_mode_if_DEMA_less_tan_0_more_than_sec = 180;
+        settings.heaterSettings.warmingSettings.target_power_to_switch_to_the_PID_mode = 5000;
+
         // TODO
-        settings.heaterSettings.finalCoolingSettings.cooling_to_standBy_temperature = 0;
+        settings.heaterSettings.finalCoolingSettings.max_temperature_to_switch_to_standBy = 0;
         // TODO
-        settings.heaterSettings.finalCoolingSettings.go_to_stanby_mode_if_DEMA_less_tan_0_more_than_sec = 2400;
+        settings.heaterSettings.finalCoolingSettings.delay_to_swirtch_to_standby_mode_sec = 300;
+        // TODO
+        settings.heaterSettings.finalCoolingSettings.power_to_switch_to_warming_mode = 5000;
 
 
         settings.heaterSettings.oxygen_pid.p = 1;
