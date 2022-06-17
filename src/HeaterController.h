@@ -10,11 +10,13 @@
 #include "lib/servo/Servo.h"
 #include "GlobalSettings.h"
 #include "SensorController.h"
-#include "PID.h"
+#include "PidRegulator.h"
 #include "Telemetry.h"
 #include "PumpController.h"
 #include "PumpsController.h"
 #include "ServoController.h"
+#include "MainCoreParams.h"
+#include "DoorsController.h"
 
 
 #define MODE_WARMING_TIME_TO_WAIT_FOR_REACHED_PID_MODE_SEC 1200
@@ -57,22 +59,18 @@ private:
     SettingsNavigator *settingsNavigator;
     Telemetry *telemetry;
 
-    ServoController *smoke_pipe_control;
-    ServoController *oxygen_door_control;
-    ServoController *upper_door_control;
+    DoorsController *doorsController;
 
     PumpsController *pumpsController;
 
-//    PID *oxygen_pid;
+    PidRegulator *pidRegulator;
     long last_cycle_time;
     long last_cycle_length;
     double previous_core_temperature;
-    double core_DEMA_temperature;
+
+    MainCoreParams mainCoreParams;
 
     double previous_core_power;
-    double current_core_power;
-    double core_EMA_power;
-    double core_DEMA_power;
 
     double core_flow;
     long flow_ticks;
@@ -81,8 +79,6 @@ private:
 
     HeaterMode mode;
 
-    long DiffEMA_down_bellow_zero_at;
-    long DiffEMA_rose_above_zero_at;
 
     /**
      * calc core flow, core_DEMA_temperature, current_core_power, core_DEMA_power, core_EMA_power,
@@ -131,10 +127,10 @@ private:
     void handle_DOOR_OPENED_mode();
 
     void handle_OVERHEATED_mode();
-    void enterTo_OVERHEATED_mode();
+    void switchTo_OVERHEATED_mode();
 
     void handle_CRITICAL_mode();
-    void enterTo_CRITICAL_mode();
+    void switchTo_CRITICAL_mode();
 
     void collectTelemetry();
 

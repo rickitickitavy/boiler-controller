@@ -39,7 +39,7 @@
 #define OXYGEN_SERVO_PIN 26
 #define UPPER_SERVO_PIN 27
 
-#define EMERGENCY_VALVE_PIN 14
+#define EMERGENCY_VALVE_PIN 0
 
 #define PUMP_1_PIN 13
 #define PUMP_2_PIN 12

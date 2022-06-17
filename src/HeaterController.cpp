@@ -146,39 +146,43 @@ HeaterController::HeaterController(GlobalSettings *settings, SensorController *s
     this->sensorController = sensorController;
     this->settingsNavigator = settingsNavigator;
 
-    smoke_pipe_control = new ServoController(SMOKE_SERVO_PIN, 0,
-                                             &heaterSettings->servos_hardware_settings.smoke_servo_settings);
-    oxygen_door_control = new ServoController(OXYGEN_SERVO_PIN, 1,
-                                              &heaterSettings->servos_hardware_settings.oxygen_servo_settings);
-    upper_door_control = new ServoController(UPPER_SERVO_PIN, 2,
-                                             &heaterSettings->servos_hardware_settings.upper_door_servo_settings);
+    if (EMERGENCY_VALVE_PIN) {
+        pinMode(EMERGENCY_VALVE_PIN, OUTPUT);
+        digitalWrite(EMERGENCY_VALVE_PIN, LOW);
+    }
 
-    pinMode(EMERGENCY_VALVE_PIN, OUTPUT);
-    digitalWrite(EMERGENCY_VALVE_PIN, LOW);
+    LOGGER.info("--- 1");
+    doorsController = new DoorsController(&heaterSettings->servos_hardware_settings);
+    LOGGER.info("--- 2");
 
-//    oxygen_pid = new PID(settingsNavigator, &heaterSettings->oxygen_pid, sensorController, CORE_SENSOR_INDEX,
-//                         &heaterSettings->temperatureSettings.core_target);
+    pidRegulator = new PidRegulator(heaterSettings, sensorController, &mainCoreParams);
+    LOGGER.info("--- 3");
 
     last_cycle_time = 0;
 
     pumpsController = new PumpsController(heaterSettings);
+    LOGGER.info("--- 4");
 
     telemetry = new Telemetry(settings);
+    LOGGER.info("--- 5");
 
     previous_core_temperature = 0;
-    core_DEMA_temperature = 0;
+    mainCoreParams.core_DEMA_temperature = 0;
+    LOGGER.info("--- 6");
 
     resetDEMAtimers();
+    LOGGER.info("--- 7");
 
     two_pump_active_delta_core_input = false;
     two_pump_active_delta_core_output = false;
 
     flow_ticks = 0;
+    LOGGER.info("--- 8");
 }
 
 void HeaterController::resetDEMAtimers() {
-    DiffEMA_rose_above_zero_at = 0;
-    DiffEMA_down_bellow_zero_at = 0;
+    mainCoreParams.DiffEMA_rose_above_zero_at = 0;
+    mainCoreParams.DiffEMA_down_bellow_zero_at = 0;
 }
 
 void HeaterController::collectTelemetry() {
@@ -194,19 +198,19 @@ void HeaterController::collectTelemetry() {
     dataRecord.backward_flow_temp = (float) sensorController->sensor_data[T_SENS_INDEX_BACKWARD_FLOW].value;
 
     dataRecord.avarage_backward_flow = 0;
-    dataRecord.core_power = (float) current_core_power;
-    dataRecord.core_EMA_power = (float) core_EMA_power;
+    dataRecord.core_power = (float) mainCoreParams.current_core_power;
+    dataRecord.core_EMA_power = (float) mainCoreParams.core_EMA_power;
     dataRecord.core_flow = (float) core_flow;
 
-//    oxygen_pid->fillPID(dataRecord.pid_p, dataRecord.pid_i, dataRecord.pid_i_sum, dataRecord.pid_d,
-//                        dataRecord.pid_on_hold, dataRecord.pid_prior_value);
-//    dataRecord.pid_output = (float) oxygen_pid->getRawValue();
+    pidRegulator->fillPID(dataRecord.pid_p, dataRecord.pid_i, dataRecord.pid_i_sum, dataRecord.pid_d,
+                          dataRecord.pid_on_hold, dataRecord.pid_prior_value);
+    dataRecord.pid_output = (float) pidRegulator->getRawValue();
 
-    dataRecord.smoke_door_position = (float) smoke_pipe_control->getAngleGrad();
-    dataRecord.upper_door_position = (float) upper_door_control->getAngleGrad();
-    dataRecord.oxygen_door_position = (float) oxygen_door_control->getAngleGrad();
+    dataRecord.smoke_door_position = (float) doorsController->getSmokePipeValue();
+    dataRecord.upper_door_position = (float) doorsController->getUpperDoorValue();
+    dataRecord.oxygen_door_position = (float) doorsController->getOxygenDoorValue();
     dataRecord.heaterMode = mode;
-    dataRecord.core_SMA_diff_tempr = (float) core_DEMA_temperature;
+    dataRecord.core_SMA_diff_tempr = (float) mainCoreParams.core_DEMA_temperature;
     dataRecord.pump_1_state = pumpsController->pump1->getStateName();
     dataRecord.pump_2_state = pumpsController->pump2 ? pumpsController->pump2->getStateName() : (uint8_t) -1;
     telemetry->addData(&dataRecord);
@@ -237,8 +241,8 @@ void HeaterController::calcMainCoreCharacteristics() {
     else {
         double _delta_core_temperature =
                 sensorController->sensor_data[T_SENS_INDEX_CORE].value - previous_core_temperature;
-        core_DEMA_temperature =
-                core_DEMA_temperature * (heaterSettings->temperatureSettings.core_temp_diff_EMA - 1) /
+        mainCoreParams.core_DEMA_temperature =
+                mainCoreParams.core_DEMA_temperature * (heaterSettings->temperatureSettings.core_temp_diff_EMA - 1) /
                 heaterSettings->temperatureSettings.core_temp_diff_EMA
                 + (_delta_core_temperature) /
                   heaterSettings->temperatureSettings.core_temp_diff_EMA;
@@ -247,93 +251,97 @@ void HeaterController::calcMainCoreCharacteristics() {
         // calc core power
         if (!pumpsController->getOnPumpsCount()) {
             // all pumps turned off. Calc power as temperature change for core and core volume
-            current_core_power = _delta_core_temperature * heaterSettings->capacities_setting.heater_core_ltr *
-                                 WATER_ENERGY_PER_LTR_PER_GRAD;
+            mainCoreParams.current_core_power =
+                    _delta_core_temperature * heaterSettings->capacities_setting.heater_core_ltr *
+                    WATER_ENERGY_PER_LTR_PER_GRAD;
         } else {
             // calc power using flow and delta between temperatures of input and output flows
-            current_core_power = (sensorController->sensor_data[T_SENS_INDEX_OUTPUT_FLOW].value -
-                                  sensorController->sensor_data[T_SENS_INDEX_INPUT_FLOW].value)
-                                 * WATER_ENERGY_PER_LTR_PER_GRAD * core_flow;
+            mainCoreParams.current_core_power = (sensorController->sensor_data[T_SENS_INDEX_OUTPUT_FLOW].value -
+                                                 sensorController->sensor_data[T_SENS_INDEX_INPUT_FLOW].value)
+                                                * WATER_ENERGY_PER_LTR_PER_GRAD * core_flow;
         }
 
         // calc DEMA POWER
         if (previous_core_power) {
-            core_DEMA_power =
-                    core_DEMA_power * (heaterSettings->temperatureSettings.core_power_diff_EMA - 1) /
+            mainCoreParams.core_DEMA_power =
+                    mainCoreParams.core_DEMA_power * (heaterSettings->temperatureSettings.core_power_diff_EMA - 1) /
                     heaterSettings->temperatureSettings.core_power_diff_EMA
-                    + (current_core_power - previous_core_power) /
+                    + (mainCoreParams.current_core_power - previous_core_power) /
                       heaterSettings->temperatureSettings.core_power_diff_EMA;
         }
-        previous_core_power = current_core_power;
+        previous_core_power = mainCoreParams.current_core_power;
 
         // calc EMA POWER
-        core_EMA_power =
-                core_EMA_power * (heaterSettings->temperatureSettings.core_power_EMA - 1) /
+        mainCoreParams.core_EMA_power =
+                mainCoreParams.core_EMA_power * (heaterSettings->temperatureSettings.core_power_EMA - 1) /
                 heaterSettings->temperatureSettings.core_power_EMA
-                + current_core_power /
+                + mainCoreParams.current_core_power /
                   heaterSettings->temperatureSettings.core_power_EMA;
     }
 
     // DEMA down bellow zero. Fix time or do nothing
-    if (core_DEMA_temperature < 0) {
-        if (!DiffEMA_down_bellow_zero_at)
-            DiffEMA_down_bellow_zero_at = millis();
+    if (mainCoreParams.core_DEMA_temperature < 0) {
+        if (!mainCoreParams.DiffEMA_down_bellow_zero_at)
+            mainCoreParams.DiffEMA_down_bellow_zero_at = millis();
     } else
         // clear time
-        DiffEMA_down_bellow_zero_at = 0;
+        mainCoreParams.DiffEMA_down_bellow_zero_at = 0;
 
     // DEMA rose  above zero. Fix time or do nothing
-    if (core_DEMA_temperature >= 0) {
-        if (!DiffEMA_rose_above_zero_at)
-            DiffEMA_rose_above_zero_at = millis();
+    if (mainCoreParams.core_DEMA_temperature >= 0) {
+        if (!mainCoreParams.DiffEMA_rose_above_zero_at)
+            mainCoreParams.DiffEMA_rose_above_zero_at = millis();
     } else
         // clear time
-        DiffEMA_rose_above_zero_at = 0;
+        mainCoreParams.DiffEMA_rose_above_zero_at = 0;
 
 }
 //-------------------------------------------------------------------
 
 long HeaterController::getTimeDEMABellowZeroSec() {
-    return DiffEMA_down_bellow_zero_at
-           ? (millis() - DiffEMA_down_bellow_zero_at) / 1000
+    return mainCoreParams.DiffEMA_down_bellow_zero_at
+           ? (millis() - mainCoreParams.DiffEMA_down_bellow_zero_at) / 1000
            : 0;
 }
 //-------------------------------------------------------------------
 
 long HeaterController::getTimeDEMAAboveZeroSec() {
 
-    return DiffEMA_rose_above_zero_at
-           ? (millis() - DiffEMA_rose_above_zero_at) / 1000
+    return mainCoreParams.DiffEMA_rose_above_zero_at
+           ? (millis() - mainCoreParams.DiffEMA_rose_above_zero_at) / 1000
            : 0;
 }
 //-------------------------------------------------------------------
 
 void HeaterController::handleModes() {
-    switch (mode & !DOOR_OPENED) {
-        case STAND_BY:
-            handle_STAND_BY_mode();
-            break;
-        case WARMING:
-            handle_WARMING_mode();
-            break;
-        case FINAL_COOLING:
-            handle_FINAL_COOLING_mode();
-            break;
-        case PID:
-            handle_PID_mode();
-            break;
-        case OVERHEATED:
-            handle_OVERHEATED_mode();
-            break;
-        case CRITICAL:
-            handle_CRITICAL_mode();
-            break;
-        default:
-            LOGGER.warning("");
-            switchTo_STAND_BY_mode();
-            break;
-    }
-
+    // hardcoded failsafe
+    if (sensorController->sensor_data[T_SENS_INDEX_CORE].value >= 98)
+        switchTo_OVERHEATED_mode();
+    else
+        switch (mode & !DOOR_OPENED) {
+            case STAND_BY:
+                handle_STAND_BY_mode();
+                break;
+            case WARMING:
+                handle_WARMING_mode();
+                break;
+            case FINAL_COOLING:
+                handle_FINAL_COOLING_mode();
+                break;
+            case PID:
+                handle_PID_mode();
+                break;
+            case OVERHEATED:
+                handle_OVERHEATED_mode();
+                break;
+            case CRITICAL:
+                handle_CRITICAL_mode();
+                break;
+            default:
+                LOGGER.warning("");
+                switchTo_STAND_BY_mode();
+                break;
+        }
 }
 //-------------------------------------------------------------------
 
@@ -368,9 +376,9 @@ void HeaterController::switchTo_STAND_BY_mode() {
     standby_cooling_active = false;
 
     // close two doors and open smoke
-    oxygen_door_control->setAnglePercentage(0);
-    upper_door_control->setAnglePercentage(0);
-    smoke_pipe_control->setAnglePercentage(66);
+    doorsController->setOxygenDoorValue(0);
+    doorsController->setUpperDoorValue(0);
+    doorsController->setSmokePipeValue(66);
 }
 //-------------------------------------------------------------------
 
@@ -381,10 +389,10 @@ void HeaterController::handle_STAND_BY_mode() {
     // if tempr > overheat - go to overheatmode
     if (sensorController->sensor_data[T_SENS_INDEX_CORE].value >=
         heaterSettings->temperatureSettings.core_overheat)
-        enterTo_OVERHEATED_mode();
+        switchTo_OVERHEATED_mode();
     else
         // if power > burn power -  start warming mode
-    if (core_EMA_power > heaterSettings->stadbyCoolingSettings.start_warming_cycle_on_power)
+    if (mainCoreParams.core_EMA_power > heaterSettings->stadbyCoolingSettings.start_warming_cycle_on_power)
         switchTo_WARMING_mode();
     else {
     }
@@ -434,8 +442,6 @@ void HeaterController::handlePumps() {
             two_pump_active_delta_core_input = (sensorController->sensor_data[T_SENS_INDEX_OUTPUT_FLOW].value
                                                 - sensorController->sensor_data[T_SENS_INDEX_INPUT_FLOW].value) >=
                                                heaterSettings->two_pumps_settings.start_on_delta_temperature_between_input_and_output;
-
-
         }
     } else if (!pumpsController->getOnPumpsCount())
         pumpsController->setOnPumpsCount(1);
@@ -459,7 +465,7 @@ void HeaterController::switchTo_WARMING_mode() {
  */
 void HeaterController::handle_WARMING_mode() {
     // check if power reached target power to switch to PID mode
-    if ((core_EMA_power >= heaterSettings->warmingSettings.target_power_to_switch_to_the_PID_mode)
+    if ((mainCoreParams.core_EMA_power >= heaterSettings->warmingSettings.target_power_to_switch_to_the_PID_mode)
         || (sensorController->sensor_data[T_SENS_INDEX_CORE].value >
             heaterSettings->warmingSettings.start_pid_temperature))
         switchTo_PID_mode();
@@ -485,19 +491,19 @@ void HeaterController::switchTo_FINAL_COOLING_mode() {
     LOGGER.info("pumps count = " + String(active_pumps));
 
     // close upper door
-    upper_door_control->setAnglePercentage(0);
+    doorsController->setUpperDoorValue(0);
 
     // close oxygen door
-    oxygen_door_control->setAnglePercentage(0);
+    doorsController->setOxygenDoorValue(0);
 
     // open smoke door
-    smoke_pipe_control->setAnglePercentage(66);
+    doorsController->setSmokePipeValue(66);
 }
 //-------------------------------------------------------------------
 
 void HeaterController::handle_FINAL_COOLING_mode() {
     // check if power EMA down bellow power switching from the standby mode to the warming mode
-    if (core_EMA_power < heaterSettings->stadbyCoolingSettings.start_warming_cycle_on_power) {
+    if (mainCoreParams.core_EMA_power < heaterSettings->stadbyCoolingSettings.start_warming_cycle_on_power) {
         if (!final_cooling_power_low_at)
             final_cooling_power_low_at = millis();
         else if (((millis() - final_cooling_power_low_at) / 1000
@@ -508,7 +514,7 @@ void HeaterController::handle_FINAL_COOLING_mode() {
     } else {
         final_cooling_power_low_at = 0;
         // check for power up to power_to_switch_to_warming_mode. If it is true - switch to the warming mode
-        if (core_EMA_power >= heaterSettings->finalCoolingSettings.power_to_switch_to_warming_mode)
+        if (mainCoreParams.core_EMA_power >= heaterSettings->finalCoolingSettings.power_to_switch_to_warming_mode)
             switchTo_WARMING_mode();
     }
     // process
@@ -527,26 +533,30 @@ void HeaterController::handle_PID_mode() {
     // check for overheat mode
     if (sensorController->sensor_data[T_SENS_INDEX_CORE].value
         >= heaterSettings->temperatureSettings.core_overheat)
-        enterTo_OVERHEATED_mode();
-        // check for final cooling mode
+        switchTo_OVERHEATED_mode();
+        // check for back to warming mode
+    else if (mainCoreParams.core_EMA_power < heaterSettings->warmingSettings.target_power_to_switch_to_the_PID_mode)
+        switchTo_WARMING_mode();
     else {
+        pidRegulator->handle();
+        doorsController->setOxygenDoorValue(pidRegulator->getValuePrcnt());
         // TODO
         // process
     }
 }
 //-------------------------------------------------------------------
 
-void HeaterController::enterTo_OVERHEATED_mode() {
+void HeaterController::switchTo_OVERHEATED_mode() {
     LOGGER.info("Entered to OVERHEATED mode");
     mode = HeaterMode::OVERHEATED;
     // open smoke door
-    smoke_pipe_control->setAnglePercentage(100);
+    doorsController->setSmokePipeValue(100);
 
     // open upper door
-    upper_door_control->setAnglePercentage(100);
+    doorsController->setUpperDoorValue(100);
 
     // oxygen door
-    oxygen_door_control->setAnglePercentage(0);
+    doorsController->setOxygenDoorValue(0);
 
     // on two pumps
     pumpsController->setOnPumpsCount(2);
@@ -559,7 +569,7 @@ void HeaterController::handle_OVERHEATED_mode() {
     // check for critical
     if (sensorController->sensor_data[T_SENS_INDEX_CORE].value
         >= heaterSettings->temperatureSettings.core_critical)
-        enterTo_CRITICAL_mode();
+        switchTo_CRITICAL_mode();
     else
         // handle for PID mode
     if (sensorController->sensor_data[T_SENS_INDEX_CORE].value
@@ -568,17 +578,17 @@ void HeaterController::handle_OVERHEATED_mode() {
 }
 //-------------------------------------------------------------------
 
-void HeaterController::enterTo_CRITICAL_mode() {
+void HeaterController::switchTo_CRITICAL_mode() {
     LOGGER.info("Entered to CRITICAL mode");
     mode = HeaterMode::CRITICAL;
     // open smoke door
-    smoke_pipe_control->setAnglePercentage(100);
+    doorsController->setSmokePipeValue(100);
 
     // open upper door
-    upper_door_control->setAnglePercentage(100);
+    doorsController->setUpperDoorValue(100);
 
     // oxygen door
-    oxygen_door_control->setAnglePercentage(0);
+    doorsController->setOxygenDoorValue(0);
 
     // on two pumps
     pumpsController->setOnPumpsCount(2);
@@ -596,7 +606,7 @@ void HeaterController::handle_CRITICAL_mode() {
     if (sensorController->sensor_data[T_SENS_INDEX_CORE].value
         < heaterSettings->temperatureSettings.core_critical) {
         digitalWrite(EMERGENCY_VALVE_PIN, LOW);
-        enterTo_OVERHEATED_mode();
+        switchTo_OVERHEATED_mode();
     }
 }
 //-------------------------------------------------------------------

@@ -7,10 +7,11 @@
 
 
 #include "GlobalSettings.h"
-#include "SettingsNavigator.h"
 #include "SensorController.h"
+#include "MainCoreParams.h"
+#include "ServoController.h"
 
-class PID {
+class PidRegulator {
 private:
     double i_sum;
     double prior_value;
@@ -21,21 +22,16 @@ private:
 
     boolean on_hold;
 
-    int sensor_index;
-    double *target_value;
-
-    PidSettings *settings;
-    SettingsNavigator *settingsNavigator;
+    HeaterSettings *settings;
     SensorController *sensorController;
-
+    MainCoreParams *mainCoreParams;
 public:
-    PID(SettingsNavigator *settingsNavigator
-            , PidSettings *settings
-            , SensorController *sensorController
-            , int sensor_index
-            , double *target_value);
+    PidRegulator(HeaterSettings *settings, SensorController *sensorController, MainCoreParams *mainCoreParams);
+
     void handle();
+
     double getRawValue();
+
     double getValuePrcnt();
 
     void fillPID(float &p, float &i, float &i_sum, float &d, bool &on_hold, float &prior_value);

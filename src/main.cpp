@@ -66,11 +66,14 @@ void setup() {
     sensorController = new SensorController(ONE_WIRE_PIN, settingsManager);
     settingsManager->getNavigator()->setSensorList(sensorController->buildSensorsList());
 
+    LOGGER.error("Starting I2C");
     Wire.begin(4, 5);
     Wire.setClock(400000);
 
+    LOGGER.error("Starting heater controller...");
     heaterController = new HeaterController(settingsManager->getSettings(), sensorController, settingsManager->getNavigator());
 
+    LOGGER.error("Mounting SD...");
     if (!SPIFFS.begin(false)) {
         LOGGER.error(" Mount Failed");
     }
