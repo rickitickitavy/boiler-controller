@@ -40,7 +40,7 @@ SettingsManager::SettingsManager(){
 
         settings.mqttPort = 1883;
         memset(settings.mqttServer, 0, 13);
-        memcpy(settings.mqttServer, String("192.168.4.20").c_str(), 12);
+        memcpy(settings.mqttServer, String("192.168.4.254").c_str(), 13);
         settings.mqttReconnectIntervalMs = 1000;
 
         memset(settings.mqttDeviceName, 0, 8);
@@ -114,6 +114,8 @@ SettingsManager::SettingsManager(){
         settings.heaterSettings.temperatureSettings.core_power_diff_EMA = 6;
         // TODO
         settings.heaterSettings.temperatureSettings.core_temp_diff_EMA = 6;
+        // TODO
+        settings.heaterSettings.temperatureSettings.SMA_temperature_period_sec = 60;
 
         // TODO
         settings.heaterSettings.warmingSettings.time_to_reach_target_power_sec = 1800;
@@ -265,6 +267,7 @@ void SettingsManager::logSettings() {
     LOGGER.info("         middle: " + String(buffer));
     Converter::bytesToAsciiHex(buffer, (uint8_t*)&settings.ds18D20Addresses[SENSORS_ADDR_SIZE * 5], SENSORS_ADDR_SIZE);
     LOGGER.info("         bottom: " + String(buffer));
+    LOGGER.info("   sensors scan interval (ms): " + String(settings.heaterSettings.scan_interval_ms));
 
 //    LOGGER.info("   controllers:");
 //    LOGGER.info("      PWM I2C controller addr: " + String(settings.pwm_controller_address));

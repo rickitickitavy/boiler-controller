@@ -41,7 +41,6 @@ Telemetry::Telemetry(GlobalSettings *settings) {
         file_store_active = false;
     }
 
-    last_save_time_ms = millis();
     save_buffer = (char *) malloc(1024);
     sprintf(save_buffer, "mask %x", mask_for_index);
     LOGGER.info(save_buffer);
@@ -96,19 +95,41 @@ void Telemetry::handleFlush() {
 }
 
 bool Telemetry::addData(TelemetryDataRecord *dataRecord) {
-    dataRecord->date_time_ms = millis();
-    dataRecord->interval_ms = dataRecord->date_time_ms - last_save_time_ms;
-    last_save_time_ms = dataRecord->date_time_ms;
     memcpy(&data[index_of_next++ & mask_for_index], dataRecord, sizeof(TelemetryDataRecord));
     if (file_store_active) {
-        sprintf(save_buffer, "%d;%o;%f;%f;%f;%f;%f;%f;%f;%f;%f;%f;%f;%f;%f;%o;%f;%f;%f;%f;%f;%f;%f;%f;%f;%d;%d;%d;%f\r\n",
+        sprintf(save_buffer, "%d;%d;"
+                        "%f;%f;%f;%f;"
+                        "%f;%f;"
+                        "%f;%f;"
+                        "%f;%f;"
+                        "%f;%f;"
+                        "%f;%f;"
+                        "%f;%f;"
+                        "%f;%f;"
+                        "%f;%f;"
+                        "%f;%f;"
+                        "%f;%f;"
+                        "%d;"
+                        "%f;%f;%f;%f;"
+                        "%f;%f;"
+                        "%f;%f;"
+                        "%f;"
+                        "%d;%d;"
+                        "%d;"
+                        "%f\r\n",
                 dataRecord->date_time_ms, dataRecord->interval_ms,
-                dataRecord->core_temp, dataRecord->input_temp, dataRecord->output_temp,
-                dataRecord->accumulator_bottom_temp, dataRecord->accumulator_lower_temp,
-                dataRecord->accumulator_higher_temp, dataRecord->accumulator_top_temp,
-                dataRecord->forwar_flow_temp,
-                dataRecord->backward_flow_temp, dataRecord->avarage_backward_flow,
-                dataRecord->core_flow, dataRecord->core_power, dataRecord->core_EMA_power,
+                dataRecord->core_temp, dataRecord->core_temp_sma, dataRecord->input_temp, dataRecord->input_temp_sma,
+                dataRecord->output_temp, dataRecord->output_temp_sma,
+                dataRecord->accumulator_bottom_temp, dataRecord->accumulator_bottom_temp_sma,
+                dataRecord->accumulator_lower_temp, dataRecord->accumulator_lower_temp_sma,
+                dataRecord->accumulator_lower_temp, dataRecord->accumulator_lower_temp_sma,
+                dataRecord->accumulator_higher_temp, dataRecord->accumulator_higher_temp_sma,
+                dataRecord->accumulator_top_temp, dataRecord->accumulator_top_temp_sma,
+                dataRecord->forwar_flow_temp, dataRecord->forwar_flow_temp_sma,
+                dataRecord->backward_flow_temp, dataRecord->backward_flow_temp_sma,
+                dataRecord->avarage_backward_flow, dataRecord->core_flow,
+                dataRecord->core_power, dataRecord->core_EMA_power,
+
                 dataRecord->pid_on_hold ? 1 : 0,
                 dataRecord->pid_d, dataRecord->pid_prior_value, dataRecord->pid_i, dataRecord->pid_i_sum,
                 dataRecord->pid_p, dataRecord->pid_output,
@@ -125,6 +146,38 @@ bool Telemetry::addData(TelemetryDataRecord *dataRecord) {
             handleFlush();
             return true;
         }
+    } else if (save_buffer){
+        sprintf(save_buffer, "----------\r\n time ms = %d; interval ms = %d\r\n"
+                        " core t = %f (%f); inp t = %f (%f) \r\n"
+                        "out t = %f (%f)\r\n"
+                        " acc_b t = %f (%f); acc_l t = %f (%f)\r\n"
+                        " acc_h t = %f (%f); acc_t t = %f (%f)\r\n"
+                        " forwd_fl t = %f (%f); backwrd_fl t = %f (%f)\r\n"
+                        " avg_bckwrd_fl = %f; core_fl = %f\r\n"
+                        " core_pwr = %f; core_EMA_pwr = %f\r\n"
+                        " pid_on_hold = %d\r\n"
+                        " pid_d = %f; pid_pv = %f; pid_i = %f; pid_i_sum = %f\r\n"
+                        " pid_p = %f; pid_out = %f\r\n"
+                        " oxy_dr_p = %f; smk_dr_p = %f; upper_dr_p = %f\r\n"
+                        " pump_1 = %d; pump_2 = %d\r\n"
+                        " heaterMode = %d\r\n"
+                        " core_SMA_df t = %f\r\n------------",
+                dataRecord->date_time_ms, dataRecord->interval_ms,
+                dataRecord->core_temp, dataRecord->core_temp_sma, dataRecord->input_temp, dataRecord->input_temp_sma,
+                dataRecord->output_temp, dataRecord->output_temp_sma,
+                dataRecord->accumulator_bottom_temp, dataRecord->accumulator_bottom_temp_sma, dataRecord->accumulator_lower_temp, dataRecord->accumulator_lower_temp_sma,
+                dataRecord->accumulator_higher_temp, dataRecord->accumulator_higher_temp_sma, dataRecord->accumulator_top_temp, dataRecord->accumulator_top_temp_sma,
+                dataRecord->forwar_flow_temp, dataRecord->forwar_flow_temp_sma, dataRecord->backward_flow_temp, dataRecord->backward_flow_temp_sma,
+                dataRecord->avarage_backward_flow, dataRecord->core_flow,
+                dataRecord->core_power, dataRecord->core_EMA_power,
+                dataRecord->pid_on_hold ? 1 : 0,
+                dataRecord->pid_d, dataRecord->pid_prior_value, dataRecord->pid_i, dataRecord->pid_i_sum,
+                dataRecord->pid_p, dataRecord->pid_output,
+                dataRecord->oxygen_door_position, dataRecord->smoke_door_position, dataRecord->upper_door_position,
+                dataRecord->pump_1_state, dataRecord->pump_2_state,
+                dataRecord->heaterMode,
+                dataRecord->core_SMA_diff_tempr);
+        LOGGER.info(save_buffer);
     }
 }
 

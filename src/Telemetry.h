@@ -8,7 +8,7 @@
 #include <SD.h>
 #include "SettingsManager.h"
 
-#define TELEMETRY_BITS_FOR_BUFFER_SIZE 10
+#define TELEMETRY_BITS_FOR_BUFFER_SIZE 9
 #define TELEMETRY_FILE_NAME "telemetry.csv"
 
 struct TelemetryDataRecord{
@@ -23,6 +23,15 @@ struct TelemetryDataRecord{
     float accumulator_top_temp;
     float forwar_flow_temp;
     float backward_flow_temp;
+    float core_temp_sma;
+    float input_temp_sma;
+    float output_temp_sma;
+    float accumulator_bottom_temp_sma;
+    float accumulator_lower_temp_sma;
+    float accumulator_higher_temp_sma;
+    float accumulator_top_temp_sma;
+    float forwar_flow_temp_sma;
+    float backward_flow_temp_sma;
 
     float avarage_backward_flow;
     float core_flow;
@@ -61,10 +70,6 @@ private:
     int stored_records_from_last_flush;
 
     char *save_buffer;
-    /**
-     * time of last adding record to telemetry
-     */
-    long last_save_time_ms;
 
     TelemetryDataRecord *data;
 

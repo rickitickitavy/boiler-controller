@@ -151,33 +151,25 @@ HeaterController::HeaterController(GlobalSettings *settings, SensorController *s
         digitalWrite(EMERGENCY_VALVE_PIN, LOW);
     }
 
-    LOGGER.info("--- 1");
     doorsController = new DoorsController(&heaterSettings->servos_hardware_settings);
-    LOGGER.info("--- 2");
 
     pidRegulator = new PidRegulator(heaterSettings, sensorController, &mainCoreParams);
-    LOGGER.info("--- 3");
 
     last_cycle_time = 0;
 
     pumpsController = new PumpsController(heaterSettings);
-    LOGGER.info("--- 4");
 
     telemetry = new Telemetry(settings);
-    LOGGER.info("--- 5");
 
     previous_core_temperature = 0;
     mainCoreParams.core_DEMA_temperature = 0;
-    LOGGER.info("--- 6");
 
     resetDEMAtimers();
-    LOGGER.info("--- 7");
 
     two_pump_active_delta_core_input = false;
     two_pump_active_delta_core_output = false;
 
     flow_ticks = 0;
-    LOGGER.info("--- 8");
 }
 
 void HeaterController::resetDEMAtimers() {
@@ -185,8 +177,10 @@ void HeaterController::resetDEMAtimers() {
     mainCoreParams.DiffEMA_down_bellow_zero_at = 0;
 }
 
-void HeaterController::collectTelemetry() {
+void HeaterController::collectTelemetry(long last_cycle_length) {
     TelemetryDataRecord dataRecord;
+    dataRecord.interval_ms = last_cycle_length;
+    dataRecord.date_time_ms = millis();
     dataRecord.core_temp = (float) sensorController->sensor_data[T_SENS_INDEX_CORE].value;
     dataRecord.output_temp = (float) sensorController->sensor_data[T_SENS_INDEX_OUTPUT_FLOW].value;
     dataRecord.input_temp = (float) sensorController->sensor_data[T_SENS_INDEX_INPUT_FLOW].value;
@@ -196,6 +190,16 @@ void HeaterController::collectTelemetry() {
     dataRecord.accumulator_top_temp = (float) sensorController->sensor_data[T_SENS_INDEX_ACC_TOP].value;
     dataRecord.forwar_flow_temp = (float) sensorController->sensor_data[T_SENS_INDEX_FORWARD_FLOW].value;
     dataRecord.backward_flow_temp = (float) sensorController->sensor_data[T_SENS_INDEX_BACKWARD_FLOW].value;
+
+    dataRecord.core_temp_sma = (float) sensorController->getSmaValue(T_SENS_INDEX_CORE);
+    dataRecord.output_temp_sma = (float) sensorController->getSmaValue(T_SENS_INDEX_OUTPUT_FLOW);
+    dataRecord.input_temp_sma = (float) sensorController->getSmaValue(T_SENS_INDEX_INPUT_FLOW);
+    dataRecord.accumulator_higher_temp_sma = (float) sensorController->getSmaValue(T_SENS_INDEX_ACC_MID_HI);
+    dataRecord.accumulator_lower_temp_sma = (float) sensorController->getSmaValue(T_SENS_INDEX_ACC_MID_LO);
+    dataRecord.accumulator_bottom_temp_sma = (float) sensorController->getSmaValue(T_SENS_INDEX_ACC_BOTTOM);
+    dataRecord.accumulator_top_temp_sma = (float) sensorController->getSmaValue(T_SENS_INDEX_ACC_TOP);
+    dataRecord.forwar_flow_temp_sma = (float) sensorController->getSmaValue(T_SENS_INDEX_FORWARD_FLOW);
+    dataRecord.backward_flow_temp_sma = (float) sensorController->getSmaValue(T_SENS_INDEX_BACKWARD_FLOW);
 
     dataRecord.avarage_backward_flow = 0;
     dataRecord.core_power = (float) mainCoreParams.current_core_power;
@@ -217,7 +221,6 @@ void HeaterController::collectTelemetry() {
 }
 
 void HeaterController::calcMainCoreCharacteristics() {
-
     // calc core flow
     if (!heaterSettings->two_pumps_settings.flow_senser_installed) {
         // flow sensor is off. use setting for pumps
@@ -236,29 +239,37 @@ void HeaterController::calcMainCoreCharacteristics() {
     }
 
     // calc core DEMA temperature
-    if (!previous_core_temperature)
-        previous_core_temperature = sensorController->sensor_data[T_SENS_INDEX_CORE].value;
-    else {
+    if (!previous_core_temperature) {
+        previous_core_temperature = sensorController->getSmaValue(T_SENS_INDEX_CORE);
+        mainCoreParams.core_DEMA_temperature = 0;
+        mainCoreParams.current_core_power = 0;
+        mainCoreParams.core_EMA_power = 0;
+        mainCoreParams.core_DEMA_power = 0;
+    } else {
         double _delta_core_temperature =
-                sensorController->sensor_data[T_SENS_INDEX_CORE].value - previous_core_temperature;
+                sensorController->getSmaValue(T_SENS_INDEX_CORE) - previous_core_temperature;
+//        Serial.println(" --- debug in: _delta_core_temperature = " + String( _delta_core_temperature));
+
         mainCoreParams.core_DEMA_temperature =
                 mainCoreParams.core_DEMA_temperature * (heaterSettings->temperatureSettings.core_temp_diff_EMA - 1) /
                 heaterSettings->temperatureSettings.core_temp_diff_EMA
                 + (_delta_core_temperature) /
                   heaterSettings->temperatureSettings.core_temp_diff_EMA;
-        previous_core_temperature = sensorController->sensor_data[T_SENS_INDEX_CORE].value;
+        previous_core_temperature = sensorController->getSmaValue(T_SENS_INDEX_CORE);
 
         // calc core power
         if (!pumpsController->getOnPumpsCount()) {
+//            Serial.println(" core_pwr branch 1");
             // all pumps turned off. Calc power as temperature change for core and core volume
             mainCoreParams.current_core_power =
                     _delta_core_temperature * heaterSettings->capacities_setting.heater_core_ltr *
-                    WATER_ENERGY_PER_LTR_PER_GRAD;
+                    WATER_ENERGY_PER_LTR_PER_GRAD / (double)last_cycle_length * 1000;
         } else {
+//            Serial.println(" core_pwr branch 2");
             // calc power using flow and delta between temperatures of input and output flows
-            mainCoreParams.current_core_power = (sensorController->sensor_data[T_SENS_INDEX_OUTPUT_FLOW].value -
-                                                 sensorController->sensor_data[T_SENS_INDEX_INPUT_FLOW].value)
-                                                * WATER_ENERGY_PER_LTR_PER_GRAD * core_flow;
+            mainCoreParams.current_core_power = (sensorController->getSmaValue(T_SENS_INDEX_OUTPUT_FLOW) -
+                                                 sensorController->getSmaValue(T_SENS_INDEX_INPUT_FLOW)
+                                                * WATER_ENERGY_PER_LTR_PER_GRAD * core_flow);
         }
 
         // calc DEMA POWER
@@ -275,9 +286,11 @@ void HeaterController::calcMainCoreCharacteristics() {
         mainCoreParams.core_EMA_power =
                 mainCoreParams.core_EMA_power * (heaterSettings->temperatureSettings.core_power_EMA - 1) /
                 heaterSettings->temperatureSettings.core_power_EMA
-                + mainCoreParams.current_core_power /
+                + (isnan(mainCoreParams.current_core_power) ? 0 : mainCoreParams.current_core_power) /
                   heaterSettings->temperatureSettings.core_power_EMA;
     }
+
+    Serial.println(" -- debug: mainCoreParams.core_EMA_power = " + (isnan(mainCoreParams.core_EMA_power) ? " nan" : String(mainCoreParams.core_EMA_power)));
 
     // DEMA down bellow zero. Fix time or do nothing
     if (mainCoreParams.core_DEMA_temperature < 0) {
@@ -294,7 +307,6 @@ void HeaterController::calcMainCoreCharacteristics() {
     } else
         // clear time
         mainCoreParams.DiffEMA_rose_above_zero_at = 0;
-
 }
 //-------------------------------------------------------------------
 
@@ -315,10 +327,10 @@ long HeaterController::getTimeDEMAAboveZeroSec() {
 
 void HeaterController::handleModes() {
     // hardcoded failsafe
-    if (sensorController->sensor_data[T_SENS_INDEX_CORE].value >= 98)
+    if (sensorController->getSmaValue(T_SENS_INDEX_CORE) >= 98)
         switchTo_OVERHEATED_mode();
     else
-        switch (mode & !DOOR_OPENED) {
+        switch (mode & (DOOR_OPENED ^ 0xff)) {
             case STAND_BY:
                 handle_STAND_BY_mode();
                 break;
@@ -355,13 +367,15 @@ void HeaterController::handle() {
         last_cycle_time = millis();
         sensorController->fire();
 
+        LOGGER.info(" last_cycle_length = " + String(last_cycle_length));
+
         calcMainCoreCharacteristics();
 
         handleModes();
 
         handlePumps();
 
-        collectTelemetry();
+        collectTelemetry(last_cycle_length);
     }
 }
 //-------------------------------------------------------------------
@@ -387,7 +401,7 @@ void HeaterController::switchTo_STAND_BY_mode() {
  */
 void HeaterController::handle_STAND_BY_mode() {
     // if tempr > overheat - go to overheatmode
-    if (sensorController->sensor_data[T_SENS_INDEX_CORE].value >=
+    if (sensorController->getSmaValue(T_SENS_INDEX_CORE) >=
         heaterSettings->temperatureSettings.core_overheat)
         switchTo_OVERHEATED_mode();
     else
@@ -403,13 +417,13 @@ void HeaterController::handlePumps() {
     if ((mode == STAND_BY) || (mode == FINAL_COOLING)) {
         // cooling only
         // if tempr > pid_on tempr then core need to be cooled
-        bool _cooling_expected = sensorController->sensor_data[T_SENS_INDEX_CORE].value >=
+        bool _cooling_expected = sensorController->getSmaValue(T_SENS_INDEX_CORE) >=
                                  heaterSettings->coolingByPumpsSettings.start_pumps_temperature;
 
         // if cooling expected then check for input flow temperature is less than core for XX or more degrees
         if (_cooling_expected)
-            _cooling_expected = (sensorController->sensor_data[T_SENS_INDEX_CORE].value -
-                                 sensorController->sensor_data[T_SENS_INDEX_INPUT_FLOW].value) >=
+            _cooling_expected = (sensorController->getSmaValue(T_SENS_INDEX_CORE) -
+                                 sensorController->getSmaValue(T_SENS_INDEX_INPUT_FLOW)) >=
                                 heaterSettings->coolingByPumpsSettings.min_delta_btw_core_and_input_to_start_pumps;
 
         // it is already on check that temp
@@ -417,7 +431,7 @@ void HeaterController::handlePumps() {
             _cooling_expected = !standby_cooling_active ||
                                 (standby_cooling_active
                                  && ((heaterSettings->coolingByPumpsSettings.start_pumps_temperature
-                                      - sensorController->sensor_data[T_SENS_INDEX_CORE].value) <
+                                      - sensorController->getSmaValue(T_SENS_INDEX_CORE)) <
                                      heaterSettings->coolingByPumpsSettings.delta_btw_start_and_core_to_stop_pumps));
 
         if (_cooling_expected) {
@@ -434,13 +448,13 @@ void HeaterController::handlePumps() {
             // only one pump now active. Check if you need
             if (two_pump_active_delta_core_output)
 
-                two_pump_active_delta_core_output = (sensorController->sensor_data[T_SENS_INDEX_CORE].value
-                                                     - sensorController->sensor_data[T_SENS_INDEX_OUTPUT_FLOW].value) >=
+                two_pump_active_delta_core_output = (sensorController->getSmaValue(T_SENS_INDEX_CORE)
+                                                     - sensorController->getSmaValue(T_SENS_INDEX_OUTPUT_FLOW)) >=
                                                     heaterSettings->two_pumps_settings.start_on_delta_temperature_between_input_and_output;
 
 
-            two_pump_active_delta_core_input = (sensorController->sensor_data[T_SENS_INDEX_OUTPUT_FLOW].value
-                                                - sensorController->sensor_data[T_SENS_INDEX_INPUT_FLOW].value) >=
+            two_pump_active_delta_core_input = (sensorController->getSmaValue(T_SENS_INDEX_OUTPUT_FLOW)
+                                                - sensorController->getSmaValue(T_SENS_INDEX_INPUT_FLOW)) >=
                                                heaterSettings->two_pumps_settings.start_on_delta_temperature_between_input_and_output;
         }
     } else if (!pumpsController->getOnPumpsCount())
@@ -466,7 +480,7 @@ void HeaterController::switchTo_WARMING_mode() {
 void HeaterController::handle_WARMING_mode() {
     // check if power reached target power to switch to PID mode
     if ((mainCoreParams.core_EMA_power >= heaterSettings->warmingSettings.target_power_to_switch_to_the_PID_mode)
-        || (sensorController->sensor_data[T_SENS_INDEX_CORE].value >
+        || (sensorController->getSmaValue(T_SENS_INDEX_CORE) >
             heaterSettings->warmingSettings.start_pid_temperature))
         switchTo_PID_mode();
     else
@@ -508,7 +522,7 @@ void HeaterController::handle_FINAL_COOLING_mode() {
             final_cooling_power_low_at = millis();
         else if (((millis() - final_cooling_power_low_at) / 1000
                   < heaterSettings->finalCoolingSettings.delay_to_swirtch_to_standby_mode_sec)
-                 && (sensorController->sensor_data[T_SENS_INDEX_CORE].value
+                 && (sensorController->getSmaValue(T_SENS_INDEX_CORE)
                      <= heaterSettings->finalCoolingSettings.max_temperature_to_switch_to_standBy))
             switchTo_STAND_BY_mode();
     } else {
@@ -531,7 +545,7 @@ void HeaterController::switchTo_PID_mode() {
 
 void HeaterController::handle_PID_mode() {
     // check for overheat mode
-    if (sensorController->sensor_data[T_SENS_INDEX_CORE].value
+    if (sensorController->getSmaValue(T_SENS_INDEX_CORE)
         >= heaterSettings->temperatureSettings.core_overheat)
         switchTo_OVERHEATED_mode();
         // check for back to warming mode
@@ -567,12 +581,12 @@ void HeaterController::switchTo_OVERHEATED_mode() {
 
 void HeaterController::handle_OVERHEATED_mode() {
     // check for critical
-    if (sensorController->sensor_data[T_SENS_INDEX_CORE].value
+    if (sensorController->getSmaValue(T_SENS_INDEX_CORE)
         >= heaterSettings->temperatureSettings.core_critical)
         switchTo_CRITICAL_mode();
     else
         // handle for PID mode
-    if (sensorController->sensor_data[T_SENS_INDEX_CORE].value
+    if (sensorController->getSmaValue(T_SENS_INDEX_CORE)
         < heaterSettings->temperatureSettings.core_overheat)
         switchTo_PID_mode();
 }
@@ -603,7 +617,7 @@ void HeaterController::switchTo_CRITICAL_mode() {
 
 void HeaterController::handle_CRITICAL_mode() {
     // check for overheated mode
-    if (sensorController->sensor_data[T_SENS_INDEX_CORE].value
+    if (sensorController->getSmaValue(T_SENS_INDEX_CORE)
         < heaterSettings->temperatureSettings.core_critical) {
         digitalWrite(EMERGENCY_VALVE_PIN, LOW);
         switchTo_OVERHEATED_mode();

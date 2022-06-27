@@ -132,7 +132,7 @@ private:
     void handle_CRITICAL_mode();
     void switchTo_CRITICAL_mode();
 
-    void collectTelemetry();
+    void collectTelemetry(long last_cycle_length);
 
 public:
     HeaterController(GlobalSettings *settings,

@@ -15,7 +15,7 @@ PidRegulator::PidRegulator(HeaterSettings *settings, SensorController *sensorCon
 
 void PidRegulator::handle() {
 
-    double value = sensorController->sensor_data[T_SENS_INDEX_CORE].value - prior_value;
+    double value = sensorController->getSmaValue(T_SENS_INDEX_CORE) - prior_value;
 
     if ((prior_value == 0) || on_hold)
         prior_value = value;

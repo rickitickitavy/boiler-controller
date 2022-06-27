@@ -5,6 +5,7 @@
 #include <HardwareSerial.h>
 #include <SPIFFS.h>
 #include <SD.h>
+#include <lib/math/Sma.h>
 #include "Logger.h"
 #include "SettingsManager.h"
 #include "ArduinoOTA.h"
@@ -35,30 +36,6 @@ void setup() {
     LOGGER.info("Started UART at 115200");
 #endif
     LOGGER.info("Starting...");
-
-//    delay (1000);
-//
-//    OneWire *ow = new OneWire(14);
-//    ow->reset_search();
-//    delay(250);
-//
-//    if (!ow->search(addr, true)) {
-//        Serial.println(" No more addresses.");
-//        Serial.println();
-//    } else {
-//        Serial.println(" Found devices.");
-//        for (i = 0; i < 8; i++) {
-//            Serial.write(' ');
-//            Serial.print(addr[i], HEX);
-//        }
-//    }
-//    ow->reset_search();
-//    delay(250);
-//    ow->depower();
-//
-//    delay (1000);
-//    ESP.restart();
-//
 
     settingsManager = new SettingsManager();
 
@@ -100,15 +77,15 @@ void loop() {
 
     heaterController->handle();
 
-    if (sensorController->data_ready) {
-        sensorController->data_ready = false;
-        for (int index = 0; index < MAX_SENSORS_COUNT; index++) {
-            if (sensorController->sensor_data[index].data_ready) {
-                sensorController->sensor_data[index].data_ready = false;
-                mqtt->sendToCustomTopic("sensor" + String(index), String(sensorController->sensor_data[index].value));
-                LOGGER.info(String(index) + " = " + String(sensorController->sensor_data[index].value));
-            }
-        }
-    }
+//    if (sensorController->data_ready) {
+//        sensorController->data_ready = false;
+//        for (int index = 0; index < MAX_SENSORS_COUNT; index++) {
+//            if (sensorController->sensor_data[index].data_ready) {
+//                sensorController->sensor_data[index].data_ready = false;
+//                mqtt->sendToCustomTopic("sensor" + String(index), String(sensorController->sensor_data[index].value));
+//                LOGGER.info(String(index) + " = " + String(sensorController->sensor_data[index].value));
+//            }
+//        }
+//    }
 
 }

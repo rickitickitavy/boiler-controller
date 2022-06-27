@@ -29,9 +29,7 @@ Servo* Servo::setAngle(double angle){
         angle_grad = rotation_grad;
 
     position = min_pulse_ticks + angle_grad * ticks_per_grad;
-    LOGGER.info("Servo::setAngle 1");
     ledcWrite(channel, position);
-    LOGGER.info("Servo::setAngle 2");
     return this;
 }
 

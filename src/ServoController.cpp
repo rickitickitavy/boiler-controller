@@ -20,7 +20,6 @@ void ServoController::applySettings() {
 
 double ServoController::setAngle(double angle) {
     applySettings();
-    LOGGER.info("ServoController::setAngle 1 ");
     if (angle > servoSettings->working_max_angle)
         angle = servoSettings->working_max_angle;
     if (angle < servoSettings->working_min_angle)
@@ -28,7 +27,6 @@ double ServoController::setAngle(double angle) {
 
     servo->setAngle(angle);
 
-    LOGGER.info("ServoController::setAngle 2");
     return angle;
 }
 

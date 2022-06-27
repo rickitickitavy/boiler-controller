@@ -30,6 +30,13 @@ SensorController::SensorController(int one_wire_pin, SettingsManager *settingsMa
     }
     dallasTemperature->setResolution(12);
 
+    // SMA for all sensors values
+    smaSensors = (Sma **)malloc(sizeof(Sma *) * MAX_SENSORS_COUNT);
+    int intervals =  settingsManager->getSettings()->heaterSettings.temperatureSettings.SMA_temperature_period_sec * 1000
+                     / settingsManager->getSettings()->heaterSettings.scan_interval_ms + 1;
+    for (int index = 0; index < MAX_SENSORS_COUNT; index++)
+        smaSensors[index] = new Sma(intervals);
+
     if (!found_sensors_count) {
         LOGGER.info("   temperature sensor NOT found");
         hasSensors = false;
@@ -114,8 +121,15 @@ void SensorController::fire() {
                 sensor_data[index].value = tempr;
                 sensor_data[index].last_time_read = last_time_sensors_read;
                 sensor_data[index].data_ready = true;
+                smaSensors[index]->addValue(tempr);
             }
         }
     }
     data_ready = true;
+}
+
+double SensorController::getSmaValue(int sensorIndex) {
+    int intervals =  settingsManager->getSettings()->heaterSettings.temperatureSettings.SMA_temperature_period_sec * 1000
+                     / settingsManager->getSettings()->heaterSettings.scan_interval_ms + 1;
+    return smaSensors[sensorIndex]->calcSma(intervals);
 }

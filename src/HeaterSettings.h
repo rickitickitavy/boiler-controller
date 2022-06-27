@@ -202,6 +202,11 @@ struct TemperatureSettings {
      * EMA for core power
      */
     float core_power_EMA;
+
+    /**
+     * interval for calc SMA temperature
+     */
+    int SMA_temperature_period_sec;
 };
 
 struct ServoHardwareSettings {

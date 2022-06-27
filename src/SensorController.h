@@ -7,6 +7,7 @@
 
 
 #include <lib/oneWire/OneWire.h>
+#include <lib/math/Sma.h>
 #include "lib/dallasSensors/DallasTemperature.h"
 #include "SettingsManager.h"
 
@@ -28,6 +29,8 @@ private:
 
     bool hasData(char *data, int size);
 
+    Sma **smaSensors;
+
 public:
     bool data_ready;
     uint8_t found_sensors_addr[SENSORS_ADDR_SIZE * MAX_SENSORS_COUNT];
@@ -38,6 +41,7 @@ public:
     void handle();
     void fire();
     bool isHasSensors();
+    double getSmaValue(int sensorIndex);
     String buildSensorsList();
 };
 
