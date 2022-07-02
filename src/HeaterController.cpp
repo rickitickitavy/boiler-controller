@@ -170,6 +170,11 @@ HeaterController::HeaterController(GlobalSettings *settings, SensorController *s
     two_pump_active_delta_core_output = false;
 
     flow_ticks = 0;
+
+    CoreModel *coreModel = new CoreModel(&settings->heaterSettings, pumpsController, 1, 35000, 2000, 0.6, 25);
+    sensorController->setModeller(coreModel);
+
+    cycle_index = 10000;
 }
 
 void HeaterController::resetDEMAtimers() {
@@ -204,7 +209,7 @@ void HeaterController::collectTelemetry(long last_cycle_length) {
     dataRecord.avarage_backward_flow = 0;
     dataRecord.core_power = (float) mainCoreParams.current_core_power;
     dataRecord.core_EMA_power = (float) mainCoreParams.core_EMA_power;
-    dataRecord.core_flow = (float) core_flow;
+    dataRecord.core_flow = (float) mainCoreParams.core_flow;
 
     pidRegulator->fillPID(dataRecord.pid_p, dataRecord.pid_i, dataRecord.pid_i_sum, dataRecord.pid_d,
                           dataRecord.pid_on_hold, dataRecord.pid_prior_value);
@@ -220,11 +225,11 @@ void HeaterController::collectTelemetry(long last_cycle_length) {
     telemetry->addData(&dataRecord);
 }
 
-void HeaterController::calcMainCoreCharacteristics() {
+void HeaterController::calcMainCoreCharacteristics(long last_cycle_length) {
     // calc core flow
     if (!heaterSettings->two_pumps_settings.flow_senser_installed) {
         // flow sensor is off. use setting for pumps
-        core_flow =
+        mainCoreParams.core_flow =
                 ((pumpsController->pump1->isOn() ? heaterSettings->two_pumps_settings.first_pump_flow_litters_per_minute
                                                  : 0)
                  + (pumpsController->pump2->isOn()
@@ -233,21 +238,23 @@ void HeaterController::calcMainCoreCharacteristics() {
 
     } else {
         // sensor present. calc volume using sensor ticks.
-        core_flow = flow_ticks;
+        mainCoreParams.core_flow = flow_ticks;
         flow_ticks = 0;
-        core_flow *= heaterSettings->two_pumps_settings.volume_per_one_sensors_tick_litters;
+        mainCoreParams.core_flow *= heaterSettings->two_pumps_settings.volume_per_one_sensors_tick_litters;
     }
+
+    mainCoreParams.core_temperature = sensorController->getSmaValue(T_SENS_INDEX_CORE);
 
     // calc core DEMA temperature
     if (!previous_core_temperature) {
-        previous_core_temperature = sensorController->getSmaValue(T_SENS_INDEX_CORE);
+        previous_core_temperature = mainCoreParams.core_temperature;
         mainCoreParams.core_DEMA_temperature = 0;
         mainCoreParams.current_core_power = 0;
         mainCoreParams.core_EMA_power = 0;
         mainCoreParams.core_DEMA_power = 0;
     } else {
-        double _delta_core_temperature =
-                sensorController->getSmaValue(T_SENS_INDEX_CORE) - previous_core_temperature;
+
+        double _delta_core_temperature = mainCoreParams.core_temperature - previous_core_temperature;
 //        Serial.println(" --- debug in: _delta_core_temperature = " + String( _delta_core_temperature));
 
         mainCoreParams.core_DEMA_temperature =
@@ -255,21 +262,20 @@ void HeaterController::calcMainCoreCharacteristics() {
                 heaterSettings->temperatureSettings.core_temp_diff_EMA
                 + (_delta_core_temperature) /
                   heaterSettings->temperatureSettings.core_temp_diff_EMA;
-        previous_core_temperature = sensorController->getSmaValue(T_SENS_INDEX_CORE);
+        previous_core_temperature = mainCoreParams.core_temperature;
 
         // calc core power
         if (!pumpsController->getOnPumpsCount()) {
-//            Serial.println(" core_pwr branch 1");
             // all pumps turned off. Calc power as temperature change for core and core volume
             mainCoreParams.current_core_power =
                     _delta_core_temperature * heaterSettings->capacities_setting.heater_core_ltr *
                     WATER_ENERGY_PER_LTR_PER_GRAD / (double)last_cycle_length * 1000;
         } else {
-//            Serial.println(" core_pwr branch 2");
             // calc power using flow and delta between temperatures of input and output flows
             mainCoreParams.current_core_power = (sensorController->getSmaValue(T_SENS_INDEX_OUTPUT_FLOW) -
-                                                 sensorController->getSmaValue(T_SENS_INDEX_INPUT_FLOW)
-                                                * WATER_ENERGY_PER_LTR_PER_GRAD * core_flow);
+                                                 sensorController->getSmaValue(T_SENS_INDEX_INPUT_FLOW))
+                                                * WATER_ENERGY_PER_LTR_PER_GRAD * mainCoreParams.core_flow
+                                                / (double)last_cycle_length * 1000;
         }
 
         // calc DEMA POWER
@@ -289,8 +295,6 @@ void HeaterController::calcMainCoreCharacteristics() {
                 + (isnan(mainCoreParams.current_core_power) ? 0 : mainCoreParams.current_core_power) /
                   heaterSettings->temperatureSettings.core_power_EMA;
     }
-
-    Serial.println(" -- debug: mainCoreParams.core_EMA_power = " + (isnan(mainCoreParams.core_EMA_power) ? " nan" : String(mainCoreParams.core_EMA_power)));
 
     // DEMA down bellow zero. Fix time or do nothing
     if (mainCoreParams.core_DEMA_temperature < 0) {
@@ -358,18 +362,22 @@ void HeaterController::handleModes() {
 //-------------------------------------------------------------------
 
 void HeaterController::handle() {
-    if (sensorController->isHasSensors() && (last_cycle_time == 0 || ((millis() - last_cycle_time) >
-                                                                      heaterSettings->scan_interval_ms))) {
+    if (cycle_index){
+        cycle_index --;
+//    if (sensorController->isHasSensors() && (last_cycle_time == 0 || ((millis() - last_cycle_time) >
+//                                                                      heaterSettings->scan_interval_ms))) {
         LOGGER.info("work cycle...");
 
         last_cycle_length = millis() - last_cycle_time;
 
         last_cycle_time = millis();
+
+        last_cycle_length = 3001;
         sensorController->fire();
 
         LOGGER.info(" last_cycle_length = " + String(last_cycle_length));
 
-        calcMainCoreCharacteristics();
+        calcMainCoreCharacteristics(last_cycle_length);
 
         handleModes();
 

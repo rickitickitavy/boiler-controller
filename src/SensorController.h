@@ -10,6 +10,7 @@
 #include <lib/math/Sma.h>
 #include "lib/dallasSensors/DallasTemperature.h"
 #include "SettingsManager.h"
+#include "CoreModel.h"
 
 struct SensorData{
     double value;
@@ -28,8 +29,11 @@ private:
     bool hasSensors;
 
     bool hasData(char *data, int size);
+    void saveModelledSensorValue(int sensor_index, double value);
 
     Sma **smaSensors;
+
+    CoreModel *coreModel;
 
 public:
     bool data_ready;
@@ -38,6 +42,7 @@ public:
     SensorData sensor_data[MAX_SENSORS_COUNT];
 
     SensorController(int one_wire_pin, SettingsManager *settingsManager);
+    void setModeller(CoreModel *coreModel);
     void handle();
     void fire();
     bool isHasSensors();

@@ -72,10 +72,10 @@ private:
 
     double previous_core_power;
 
-    double core_flow;
     long flow_ticks;
 
     bool standby_cooling_active;
+    long cycle_index;
 
     HeaterMode mode;
 
@@ -85,7 +85,7 @@ private:
      * DiffEMA_down_bellow_zero_at, DiffEMA_rose_above_zero_at
      *
      */
-    void calcMainCoreCharacteristics();
+    void calcMainCoreCharacteristics(long last_cycle_length);
 
     /**
      * returns time in seconds of how long DEMA is less than zero

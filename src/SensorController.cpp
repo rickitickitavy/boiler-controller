@@ -6,7 +6,7 @@
 #include "Converter.h"
 
 SensorController::SensorController(int one_wire_pin, SettingsManager *settingsManager) {
-
+    this->coreModel = nullptr;
     this->settingsManager = settingsManager;
     this->last_time_sensors_read = 0;
     memset(sensor_data, 0, sizeof(sensor_data));
@@ -31,9 +31,9 @@ SensorController::SensorController(int one_wire_pin, SettingsManager *settingsMa
     dallasTemperature->setResolution(12);
 
     // SMA for all sensors values
-    smaSensors = (Sma **)malloc(sizeof(Sma *) * MAX_SENSORS_COUNT);
-    int intervals =  settingsManager->getSettings()->heaterSettings.temperatureSettings.SMA_temperature_period_sec * 1000
-                     / settingsManager->getSettings()->heaterSettings.scan_interval_ms + 1;
+    smaSensors = (Sma **) malloc(sizeof(Sma *) * MAX_SENSORS_COUNT);
+    int intervals = settingsManager->getSettings()->heaterSettings.temperatureSettings.SMA_temperature_period_sec * 1000
+                    / settingsManager->getSettings()->heaterSettings.scan_interval_ms + 1;
     for (int index = 0; index < MAX_SENSORS_COUNT; index++)
         smaSensors[index] = new Sma(intervals);
 
@@ -69,7 +69,10 @@ SensorController::SensorController(int one_wire_pin, SettingsManager *settingsMa
         } else
             LOGGER.info("Sensors was configured fully or partial. Using present config.");
     }
+}
 
+void SensorController::setModeller(CoreModel *coreModel) {
+    this->coreModel = coreModel;
 }
 
 bool SensorController::hasData(char *data, int size) {
@@ -78,6 +81,13 @@ bool SensorController::hasData(char *data, int size) {
             return true;
 
     return false;
+}
+
+void SensorController::saveModelledSensorValue(int sensor_index, double value) {
+    sensor_data[sensor_index].value = value;
+    sensor_data[sensor_index].last_time_read = millis();
+    sensor_data[sensor_index].data_ready = true;
+    smaSensors[sensor_index]->addValue(value);
 }
 
 String SensorController::buildSensorsList() {
@@ -111,25 +121,39 @@ void SensorController::handle() {
 }
 
 void SensorController::fire() {
-    dallasTemperature->requestTemperatures();
-    for (int index = 0; index < MAX_SENSORS_COUNT; index++) {
-        sensor_data[index].data_ready = false;
-        if (hasData(&settingsManager->getSettings()->ds18D20Addresses[index * SENSORS_ADDR_SIZE], SENSORS_ADDR_SIZE)) {
-            float tempr = dallasTemperature->getTempC(
-                    (uint8_t *) &settingsManager->getSettings()->ds18D20Addresses[index * SENSORS_ADDR_SIZE]);
-            if (tempr != -127) {
-                sensor_data[index].value = tempr;
-                sensor_data[index].last_time_read = last_time_sensors_read;
-                sensor_data[index].data_ready = true;
-                smaSensors[index]->addValue(tempr);
+    if (coreModel) {
+        coreModel->handle();
+        saveModelledSensorValue(T_SENS_INDEX_CORE, coreModel->core_tempr);
+        saveModelledSensorValue(T_SENS_INDEX_INPUT_FLOW, coreModel->bottom_tempr);
+        saveModelledSensorValue(T_SENS_INDEX_ACC_BOTTOM, coreModel->bottom_tempr);
+        saveModelledSensorValue(T_SENS_INDEX_OUTPUT_FLOW, coreModel->output_tempr);
+        saveModelledSensorValue(T_SENS_INDEX_ACC_TOP, coreModel->top_tempr);
+        saveModelledSensorValue(T_SENS_INDEX_ACC_MID_LO, coreModel->lower_tempr);
+        saveModelledSensorValue(T_SENS_INDEX_ACC_MID_HI, coreModel->higher_tempr);
+    }
+    else {
+        dallasTemperature->requestTemperatures();
+        for (int index = 0; index < MAX_SENSORS_COUNT; index++) {
+            sensor_data[index].data_ready = false;
+            if (hasData(&settingsManager->getSettings()->ds18D20Addresses[index * SENSORS_ADDR_SIZE],
+                        SENSORS_ADDR_SIZE)) {
+                float tempr = dallasTemperature->getTempC(
+                        (uint8_t *) &settingsManager->getSettings()->ds18D20Addresses[index * SENSORS_ADDR_SIZE]);
+                if (tempr != -127) {
+                    sensor_data[index].value = tempr;
+                    sensor_data[index].last_time_read = last_time_sensors_read;
+                    sensor_data[index].data_ready = true;
+                    smaSensors[index]->addValue(tempr);
+                }
             }
         }
     }
+
     data_ready = true;
 }
 
 double SensorController::getSmaValue(int sensorIndex) {
-    int intervals =  settingsManager->getSettings()->heaterSettings.temperatureSettings.SMA_temperature_period_sec * 1000
-                     / settingsManager->getSettings()->heaterSettings.scan_interval_ms + 1;
+    int intervals = settingsManager->getSettings()->heaterSettings.temperatureSettings.SMA_temperature_period_sec * 1000
+                    / settingsManager->getSettings()->heaterSettings.scan_interval_ms + 1;
     return smaSensors[sensorIndex]->calcSma(intervals);
 }
