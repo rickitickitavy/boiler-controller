@@ -7,6 +7,7 @@
 
 
 #include "PumpsController.h"
+#include "DoorsController.h"
 
 class CoreModel {
 private:
@@ -15,6 +16,8 @@ private:
     double angle;
     int skip_steps;
 
+    int cycle_index;
+
     double core_energy_volume_dg_per_grad;
 
     double current_power;
@@ -22,12 +25,21 @@ private:
 
     double energy_move_coef;
 
+    double doors_react_ema;
+
     int max_power_intervals_estimated;
     double core_volume_temp;
 
+    double radiator_normal_temperature;
+    double radiator_normal_power;
+    double home_temperature;
+    double radiator_flow;
+
+    double core_power_doors_coef;
 
     PumpsController *pumpsController;
     HeaterSettings *settings;
+    DoorsController *doorsController;
 
 public:
     double bottom_tempr;
@@ -38,8 +50,9 @@ public:
     double core_tempr;
 
     CoreModel(HeaterSettings *settings, PumpsController *pumpsController,
+              DoorsController *doorsController,
               double angle_step, double max_power, double max_power_intervals,
-              double tempr_coef, int skip_steps);
+              double tempr_coef, int skip_steps, double doors_react_ema);
 
     void handle();
 };

@@ -68,7 +68,9 @@ SettingsManager::SettingsManager(){
 
         initServoConfig(&settings.heaterSettings.servos_hardware_settings.oxygen_servo_settings);
         initServoConfig(&settings.heaterSettings.servos_hardware_settings.smoke_servo_settings);
+        settings.heaterSettings.servos_hardware_settings.smoke_servo_settings.working_max_angle = 90;
         initServoConfig(&settings.heaterSettings.servos_hardware_settings.upper_door_servo_settings);
+        settings.heaterSettings.servos_hardware_settings.upper_door_servo_settings.working_max_angle = 90;
 
         settings.heaterSettings.capacities_setting.boiler_ltr = 200;
         settings.heaterSettings.capacities_setting.heater_core_ltr = 50;
@@ -85,9 +87,9 @@ SettingsManager::SettingsManager(){
         //TODO
         settings.heaterSettings.two_pumps_settings.flow_senser_installed = false;
         //TODO
-        settings.heaterSettings.two_pumps_settings.first_pump_flow_litters_per_minute = 12;
+        settings.heaterSettings.two_pumps_settings.first_pump_flow_litters_per_minute = 16;
         //TODO
-        settings.heaterSettings.two_pumps_settings.second_pump_flow_litters_per_minute = 12;
+        settings.heaterSettings.two_pumps_settings.second_pump_flow_litters_per_minute = 16;
         //TODO
         settings.heaterSettings.two_pumps_settings.volume_per_one_sensors_tick_litters = 0.055;
 

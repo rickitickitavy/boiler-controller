@@ -35,6 +35,6 @@ double ServoController::getAngleGrad() {
 }
 
 double ServoController::setAnglePercentage(double percent) {
-    return setAngle((servoSettings->working_max_angle - servoSettings->working_min_angle)
+    return setAngle(servoSettings->working_min_angle + (servoSettings->working_max_angle - servoSettings->working_min_angle)
                     * percent / 100.0);
 }

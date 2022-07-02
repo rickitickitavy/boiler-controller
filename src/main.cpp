@@ -30,7 +30,7 @@ void setup() {
 //    byte addr[8];
 
 #ifdef CON_DEBUG
-    Serial.begin(115200);
+    Serial.begin(921600);
     Serial.println("---");
 
     LOGGER.info("Started UART at 115200");
@@ -67,13 +67,21 @@ void setup() {
 
 
     LOGGER.info("all done");
+
 }
+
+int cycle_index = 0;
 
 void loop() {
     ArduinoOTA.handle();
     mqtt->dispatch();
     wiFiController->checkConnection();
     LOGGER.handle();
+
+    if (cycle_index++ == 40)
+    // TODO remove
+    heaterController->openOxygenDoorForTime(1200);
+
 
     heaterController->handle();
 

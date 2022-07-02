@@ -171,10 +171,12 @@ HeaterController::HeaterController(GlobalSettings *settings, SensorController *s
 
     flow_ticks = 0;
 
-    CoreModel *coreModel = new CoreModel(&settings->heaterSettings, pumpsController, 1, 35000, 2000, 0.6, 25);
+    CoreModel *coreModel = new CoreModel(&settings->heaterSettings, pumpsController, doorsController, 1, 35000, 2000, 0.5, 25, 30);
     sensorController->setModeller(coreModel);
 
-    cycle_index = 10000;
+    time_to_close_oxygen_door_in_stanby_mode = 0;
+
+    cycle_index = 720;
 }
 
 void HeaterController::resetDEMAtimers() {
@@ -215,9 +217,9 @@ void HeaterController::collectTelemetry(long last_cycle_length) {
                           dataRecord.pid_on_hold, dataRecord.pid_prior_value);
     dataRecord.pid_output = (float) pidRegulator->getRawValue();
 
-    dataRecord.smoke_door_position = (float) doorsController->getSmokePipeValue();
-    dataRecord.upper_door_position = (float) doorsController->getUpperDoorValue();
-    dataRecord.oxygen_door_position = (float) doorsController->getOxygenDoorValue();
+    dataRecord.smoke_door_position = (float) doorsController->getSmokePipeAngle();
+    dataRecord.upper_door_position = (float) doorsController->getUpperDoorAngle();
+    dataRecord.oxygen_door_position = (float) doorsController->getOxygenDoorAngle();
     dataRecord.heaterMode = mode;
     dataRecord.core_SMA_diff_tempr = (float) mainCoreParams.core_DEMA_temperature;
     dataRecord.pump_1_state = pumpsController->pump1->getStateName();
@@ -361,6 +363,15 @@ void HeaterController::handleModes() {
 }
 //-------------------------------------------------------------------
 
+void HeaterController::openOxygenDoorForTime(long time_sec) {
+    if (mode == STAND_BY){
+        LOGGER.info("Oxygen door for " + String(time_sec) + " seconds opened.");
+        doorsController->setOxygenDoorValue(100);
+        time_to_close_oxygen_door_in_stanby_mode = millis() + time_sec * 1000;
+    }
+}
+//-------------------------------------------------------------------
+
 void HeaterController::handle() {
     if (cycle_index){
         cycle_index --;
@@ -384,6 +395,16 @@ void HeaterController::handle() {
         handlePumps();
 
         collectTelemetry(last_cycle_length);
+
+        if (mode == STAND_BY) {
+            if (time_to_close_oxygen_door_in_stanby_mode
+                && (millis() > time_to_close_oxygen_door_in_stanby_mode)){
+                LOGGER.info("Oxygen door for closed.");
+                time_to_close_oxygen_door_in_stanby_mode = 0;
+                doorsController->setOxygenDoorValue(0);
+            }
+        } else
+            time_to_close_oxygen_door_in_stanby_mode = 0;
     }
 }
 //-------------------------------------------------------------------

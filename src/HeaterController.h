@@ -79,6 +79,8 @@ private:
 
     HeaterMode mode;
 
+    long time_to_close_oxygen_door_in_stanby_mode;
+
 
     /**
      * calc core flow, core_DEMA_temperature, current_core_power, core_DEMA_power, core_EMA_power,
@@ -139,6 +141,8 @@ public:
                      SensorController *sensorController, SettingsNavigator *settingsNavigator);
 
     void handle();
+
+    void openOxygenDoorForTime(long time_sec);
 };
 
 

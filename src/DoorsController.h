@@ -28,12 +28,15 @@ public:
 
     void setSmokePipeValue(double value);
     double getSmokePipeValue();
+    double getSmokePipeAngle();
 
     void setOxygenDoorValue(double value);
     double getOxygenDoorValue();
+    double getOxygenDoorAngle();
 
     void setUpperDoorValue(double value);
     double getUpperDoorValue();
+    double getUpperDoorAngle();
 
     void setDoopOpened(bool door_opened);
     bool isDoorOpened();

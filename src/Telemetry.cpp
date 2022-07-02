@@ -95,7 +95,7 @@ void Telemetry::handleFlush() {
 }
 
 bool Telemetry::addData(TelemetryDataRecord *dataRecord) {
-    memcpy(&data[index_of_next++ & mask_for_index], dataRecord, sizeof(TelemetryDataRecord));
+  //  memcpy(&data[index_of_next++ & mask_for_index], dataRecord, sizeof(TelemetryDataRecord));
     if (file_store_active) {
         sprintf(save_buffer, "%d;%d;"
                         "%f;%f;%f;%f;"

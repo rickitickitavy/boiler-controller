@@ -5,25 +5,45 @@
 #include <math.h>
 #include <Arduino.h>
 #include "CoreModel.h"
+#include "DoorsController.h"
 
-void moveWarmedWater(double t_moved, double v_moved, double t2, double v2){
+void moveWarmedWater(double t_moved, double v_moved, double t2, double v2) {
 
 }
 
 void CoreModel::handle() {
-    Serial.println("coreModel: ==========================");
-
     if (skip_steps) {
         skip_steps--;
         return;
     }
 
+    Serial.println("coreModel: ========================== " + String(cycle_index++));
+
     // power is growing ?
-    if (angle < 90){
-        current_power = max_power * sin(angle * PI / 180);
+    if (angle < 90) {
         angle += angle_step;
         if (angle > 90)
             angle = 90;
+    }
+
+    current_power = max_power * sin(angle * PI / 180);
+
+    double _target_core_power_doors_coef = sin(doorsController->getOxygenDoorAngle() / 180 * PI) *
+                                           sin(doorsController->getSmokePipeAngle() / 180 * PI) * 2;
+    Serial.println("coreModel: _target_core_power_doors_coef = " + String(_target_core_power_doors_coef));
+
+    core_power_doors_coef = core_power_doors_coef / doors_react_ema * (doors_react_ema - 1)
+                            + _target_core_power_doors_coef / doors_react_ema;\
+    Serial.println("coreModel: core_power_doors_coef = " + String(core_power_doors_coef));
+
+    current_power *= core_power_doors_coef;
+
+    if (doorsController->getOxygenDoorAngle() == 0){
+        double _cooling_core_coef = sin(doorsController->getUpperDoorAngle() / 180 * PI) *
+                                    sin(doorsController->getSmokePipeAngle() / 180 * PI) * 2;
+        Serial.println("coreModel: _cooling_core_coef = " + String(_cooling_core_coef));
+
+        current_power -= 3000 * _cooling_core_coef * (core_tempr - 25) / core_tempr;
     }
 
     Serial.println(" power = " + String(current_power));
@@ -36,7 +56,7 @@ void CoreModel::handle() {
 
     // warm water by warmed core
     // if pumps is on - move warmed water to top of accumulator
-    if (pumpsController->getOnPumpsCount()){
+    if (pumpsController->getOnPumpsCount()) {
         Serial.println("coreModel: PUMPS ARE ON");
         double _warmed_volume = 0;
         if (pumpsController->pump1->isOn())
@@ -89,12 +109,51 @@ void CoreModel::handle() {
         // water from core to accumulator
         _delta_tempr_acc_part = _warmed_volume / _acc_part_vol * (core_volume_temp - top_tempr);
         top_tempr += _delta_tempr_acc_part;
-        Serial.println("coreModel: _delta_tempr_acc_part = " + String(_delta_tempr_acc_part));
+        Serial.println("coreModel: top_tempr = " + String(top_tempr));
 
         // new core vol tempr
         core_volume_temp += _warmed_volume / (settings->capacities_setting.heater_core_ltr - _warmed_volume)
-                * (bottom_tempr - core_volume_temp);
+                            * (bottom_tempr - core_volume_temp);
         Serial.println("coreModel: core_volume_temp = " + String(core_volume_temp));
+
+        // heating radiators
+        double _energy_max = radiator_normal_power * settings->scan_interval_ms / 1000;
+        Serial.println("coreModel: _energy_max = " + String(_energy_max));
+
+        double _radiator_volume = radiator_flow / 60 * settings->scan_interval_ms / 1000;
+        Serial.println("coreModel: _radiator_volume = " + String(_radiator_volume));
+
+        double _tempr_coef = pow((top_tempr - home_temperature) / (radiator_normal_temperature - home_temperature),
+                                 1.25);
+        Serial.println("coreModel: _tempr_coef = " + String(_tempr_coef));
+
+        double _radiator_energy = _energy_max * _tempr_coef;
+        Serial.println("coreModel: _radiator_energy = " + String(_radiator_energy));
+
+        double _after_radiator_tempr = top_tempr - _radiator_energy / 4200 / _radiator_volume;
+        Serial.println("coreModel: _after_radiator_tempr = " + String(_after_radiator_tempr));
+
+        _acc_part_vol = settings->capacities_setting.accumulator_ltr / 4 - _radiator_volume;
+        _delta_tempr_acc_part = _radiator_volume / _acc_part_vol * (_after_radiator_tempr - bottom_tempr);
+        Serial.println("coreModel: _delta_tempr_acc_part = " + String(_delta_tempr_acc_part));
+        bottom_tempr += _delta_tempr_acc_part;
+        Serial.println("coreModel: bottom_tempr = " + String(bottom_tempr));
+
+        _delta_tempr_acc_part = _radiator_volume / _acc_part_vol * (bottom_tempr - lower_tempr);
+        Serial.println("coreModel: _delta_tempr_acc_part = " + String(_delta_tempr_acc_part));
+        lower_tempr += _delta_tempr_acc_part;
+        Serial.println("coreModel: lower_tempr = " + String(lower_tempr));
+
+        _delta_tempr_acc_part = _radiator_volume / _acc_part_vol * (lower_tempr - higher_tempr);
+        Serial.println("coreModel: _delta_tempr_acc_part = " + String(_delta_tempr_acc_part));
+        higher_tempr += _delta_tempr_acc_part;
+        Serial.println("coreModel: higher_tempr = " + String(higher_tempr));
+
+        _delta_tempr_acc_part = _radiator_volume / _acc_part_vol * (higher_tempr - top_tempr);
+        Serial.println("coreModel: _delta_tempr_acc_part = " + String(_delta_tempr_acc_part));
+        top_tempr += _delta_tempr_acc_part;
+        Serial.println("coreModel: top_tempr = " + String(top_tempr));
+
     } else {
         // pumps is off. warming heater volume
         Serial.println("coreModel: PUMPS ARE OFF");
@@ -117,18 +176,22 @@ void CoreModel::handle() {
     Serial.println("coreModel: ---------------------- ");
 }
 
-CoreModel::CoreModel(HeaterSettings *settings, PumpsController *pumpsController
-        , double angle_step, double max_power
-        , double max_power_intervals, double tempr_coef, int skip_steps) {
+CoreModel::CoreModel(HeaterSettings *settings, PumpsController *pumpsController, DoorsController *doorsController,
+                     double angle_step, double max_power, double max_power_intervals, double tempr_coef,
+                     int skip_steps, double doors_react_ema) {
     if (tempr_coef > 0.99)
         tempr_coef = 0.99;
     this->skip_steps = skip_steps;
     this->energy_move_coef = tempr_coef;
     this->settings = settings;
     this->pumpsController = pumpsController;
+    this->doorsController = doorsController;
     this->angle = 0;
     this->angle_step = angle_step;
     this->max_power = max_power;
+    this->doors_react_ema = doors_react_ema;
+
+    cycle_index = 0;
 
     max_power_intervals_estimated = max_power_intervals;
 
@@ -139,6 +202,13 @@ CoreModel::CoreModel(HeaterSettings *settings, PumpsController *pumpsController
     core_volume_temp = 25;
     core_tempr = 25;
     output_tempr = 25;
+
+    radiator_normal_temperature = 70;
+    radiator_normal_power = 10000;
+    home_temperature = 25;
+    radiator_flow = 12;
+
+    core_power_doors_coef = 0;
 
     core_energy_volume_dg_per_grad = 460 * 220;
 }

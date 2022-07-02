@@ -17,7 +17,7 @@ Logger LOGGER;
 
 Logger::Logger() {
 #ifdef CON_DEBUG
-    Serial.begin(115200);
+    Serial.begin(921600);
     Serial.println("Starting logger...\r\nTrying to initialize SD card...");
 #endif
     last_flushed_time = 0;

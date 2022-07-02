@@ -43,6 +43,8 @@ void DoorsController::setDoopOpened(bool door_opened) {
 }
 
 void DoorsController::setOxygenDoorValue(double value) {
+    if (isnan(value))
+        value = 0;
     oxygen_door_value = value;
     applyStatus();
 }
@@ -52,6 +54,8 @@ double DoorsController::getOxygenDoorValue() {
 }
 
 void DoorsController::setSmokePipeValue(double value) {
+    if (isnan(value))
+        value = 0;
     smoke_pipe_value = value;
     applyStatus();
 }
@@ -62,12 +66,27 @@ double DoorsController::getSmokePipeValue() {
 
 
 void DoorsController::setUpperDoorValue(double value) {
+    if (isnan(value))
+        value = 0;
     upper_door_value = value;
     applyStatus();
 }
 
 double DoorsController::getUpperDoorValue() {
     return upper_door_value;
+}
+
+double DoorsController::getSmokePipeAngle() {
+    return smoke_pipe_control->getAngleGrad();
+}
+
+
+double DoorsController::getOxygenDoorAngle() {
+    return oxygen_door_control->getAngleGrad();
+}
+
+double DoorsController::getUpperDoorAngle() {
+    return upper_door_control->getAngleGrad();
 }
 
 bool DoorsController::isDoorOpened() {
