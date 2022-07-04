@@ -171,12 +171,12 @@ HeaterController::HeaterController(GlobalSettings *settings, SensorController *s
 
     flow_ticks = 0;
 
-    CoreModel *coreModel = new CoreModel(&settings->heaterSettings, pumpsController, doorsController, 1, 35000, 2000, 0.5, 25, 30);
+    CoreModel *coreModel = new CoreModel(&settings->heaterSettings, pumpsController, doorsController, 1, 40000, 2000, 0.5, 25, 200);
     sensorController->setModeller(coreModel);
 
     time_to_close_oxygen_door_in_stanby_mode = 0;
 
-    cycle_index = 720;
+    cycle_index = 10;
 }
 
 void HeaterController::resetDEMAtimers() {
@@ -213,9 +213,8 @@ void HeaterController::collectTelemetry(long last_cycle_length) {
     dataRecord.core_EMA_power = (float) mainCoreParams.core_EMA_power;
     dataRecord.core_flow = (float) mainCoreParams.core_flow;
 
-    pidRegulator->fillPID(dataRecord.pid_p, dataRecord.pid_i, dataRecord.pid_i_sum, dataRecord.pid_d,
-                          dataRecord.pid_on_hold, dataRecord.pid_prior_value);
-    dataRecord.pid_output = (float) pidRegulator->getRawValue();
+    pidRegulator->fillPID(dataRecord.pid_p, dataRecord.pid_i, dataRecord.pid_d,
+                          dataRecord.pid_raw_output, dataRecord.pid_output);
 
     dataRecord.smoke_door_position = (float) doorsController->getSmokePipeAngle();
     dataRecord.upper_door_position = (float) doorsController->getUpperDoorAngle();
@@ -550,7 +549,7 @@ void HeaterController::handle_FINAL_COOLING_mode() {
         if (!final_cooling_power_low_at)
             final_cooling_power_low_at = millis();
         else if (((millis() - final_cooling_power_low_at) / 1000
-                  < heaterSettings->finalCoolingSettings.delay_to_swirtch_to_standby_mode_sec)
+                  < heaterSettings->finalCoolingSettings.delay_to_switch_to_standby_mode_sec)
                  && (sensorController->getSmaValue(T_SENS_INDEX_CORE)
                      <= heaterSettings->finalCoolingSettings.max_temperature_to_switch_to_standBy))
             switchTo_STAND_BY_mode();

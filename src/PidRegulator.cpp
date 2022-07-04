@@ -9,40 +9,39 @@ PidRegulator::PidRegulator(HeaterSettings *settings, SensorController *sensorCon
     this->sensorController = sensorController;
     this->mainCoreParams = mainCoreParams;
 
-    i_sum = 0;
+    i = 0;
     prior_value = 0;
 }
 
 void PidRegulator::handle() {
 
-    double value = sensorController->getSmaValue(T_SENS_INDEX_CORE) - prior_value;
+//    double value = sensorController->getSmaValue(T_SENS_INDEX_CORE) - prior_value;
 
-    if ((prior_value == 0) || on_hold)
-        prior_value = value;
-    on_hold = false;
+    double _core_temperature = sensorController->getSmaValue(T_SENS_INDEX_CORE);
 
-    d = settings->oxygen_pid.d * (value - prior_value);
+    if (!prior_value)
+        prior_value = _core_temperature;
 
-    p = settings->oxygen_pid.p * settings->temperatureSettings.core_target;
+    p = settings->oxygen_pid.p * (settings->temperatureSettings.core_target - _core_temperature);
 
-    i_sum += settings->oxygen_pid.i * (settings->temperatureSettings.core_target - value);
-    if (i_sum > settings->oxygen_pid.max_i)
-        i_sum = settings->oxygen_pid.max_i;
-    else if (i_sum < settings->oxygen_pid.min_i)
-        i_sum = settings->oxygen_pid.min_i;
+    d = settings->oxygen_pid.d * (prior_value - _core_temperature);
 
-    prior_value = (prior_value * (settings->oxygen_pid.d_sma - 1) + value) / settings->oxygen_pid.d_sma;
-    output_raw_value = p + d + i_sum;
+    i += (settings->temperatureSettings.core_target - _core_temperature) * settings->oxygen_pid.i;
 
-    // calc scale
-    double scaler = p + settings->oxygen_pid.max_i - settings->oxygen_pid.min_i; // min_i always is less or equal zero
+    if (i > settings->oxygen_pid.max_i)
+        i = settings->oxygen_pid.max_i;
+    else if (i < settings->oxygen_pid.min_i)
+        i = settings->oxygen_pid.min_i;
 
-    output_value_prcnt = output_raw_value * 100 / scaler;
+    output_raw_value = p + d + i;
 
-    if (output_value_prcnt > settings->oxygen_pid.max_output_value_prcnt)
-        output_value_prcnt = settings->oxygen_pid.max_output_value_prcnt;
-    else if (output_value_prcnt < settings->oxygen_pid.min_output_value_prcnt)
-        output_value_prcnt = settings->oxygen_pid.min_output_value_prcnt;
+    output_value_prcnt = output_raw_value;
+    if (output_value_prcnt > 100)
+        output_value_prcnt = 100;
+    else if (output_value_prcnt < 0)
+        output_value_prcnt = 0;
+
+    prior_value = _core_temperature;
 }
 
 double PidRegulator::getRawValue() {
@@ -53,15 +52,10 @@ double PidRegulator::getValuePrcnt() {
     return output_value_prcnt;
 }
 
-void PidRegulator::hold() {
-    on_hold = true;
-}
-
-void PidRegulator::fillPID(float &p, float &i, float &i_sum, float &d, bool &on_hold, float &prior_value) {
+void PidRegulator::fillPID(float &p, float &i, float &d, float &raw_value, float &value) {
     p = (float) this->p;
     i = (float) this->i;
-    i_sum = (float) this->i_sum;
     d = (float) this->d;
-    on_hold = this->on_hold;
-    prior_value = (float) this->prior_value;
+    raw_value = this->output_raw_value;
+    value = (float) this->output_value_prcnt;
 }

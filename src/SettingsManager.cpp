@@ -84,65 +84,41 @@ SettingsManager::SettingsManager(){
         settings.heaterSettings.two_pumps_settings.stop_on_delta_temperature_between_input_and_output = 10;
         settings.heaterSettings.two_pumps_settings.start_on_delta_temperature_between_core_and_input = 28;
         settings.heaterSettings.two_pumps_settings.stop_on_delta_temperature_between_core_and_input = 20;
-        //TODO
         settings.heaterSettings.two_pumps_settings.flow_senser_installed = false;
-        //TODO
         settings.heaterSettings.two_pumps_settings.first_pump_flow_litters_per_minute = 16;
-        //TODO
         settings.heaterSettings.two_pumps_settings.second_pump_flow_litters_per_minute = 16;
-        //TODO
         settings.heaterSettings.two_pumps_settings.volume_per_one_sensors_tick_litters = 0.055;
 
-        // TODO
-        settings.heaterSettings.stadbyCoolingSettings.start_warming_cycle_on_power = 1000;
 
-        //TODO
+        settings.heaterSettings.stadbyCoolingSettings.start_warming_cycle_on_power = 1000;
         settings.heaterSettings.coolingByPumpsSettings.min_delta_btw_core_and_input_to_start_pumps = 10;
-        //TODO
         settings.heaterSettings.coolingByPumpsSettings.start_pumps_temperature = 90;
-        //TODO
         settings.heaterSettings.coolingByPumpsSettings.delta_btw_start_and_core_to_stop_pumps = 5;
 
-        settings.heaterSettings.temperatureSettings.core_low = 70;
+        settings.heaterSettings.temperatureSettings.core_power_when_need_to_refuel = 20000;
         settings.heaterSettings.temperatureSettings.core_target = 90;
         settings.heaterSettings.temperatureSettings.core_critical = 99;
         settings.heaterSettings.temperatureSettings.thermal_accumulator_target = 85;
-        //TODO
         settings.heaterSettings.temperatureSettings.core_overheat = 96;
 
-        // TODO
         settings.heaterSettings.temperatureSettings.core_power_EMA = 6;
-        // TODO
         settings.heaterSettings.temperatureSettings.core_power_diff_EMA = 6;
-        // TODO
         settings.heaterSettings.temperatureSettings.core_temp_diff_EMA = 6;
-        // TODO
         settings.heaterSettings.temperatureSettings.SMA_temperature_period_sec = 60;
 
-        // TODO
         settings.heaterSettings.warmingSettings.time_to_reach_target_power_sec = 1800;
-        //TODO
         settings.heaterSettings.warmingSettings.start_pid_temperature = 70;
-        // TODO
         settings.heaterSettings.warmingSettings.target_power_to_switch_to_the_PID_mode = 5000;
 
-        // TODO
         settings.heaterSettings.finalCoolingSettings.max_temperature_to_switch_to_standBy = 0;
-        // TODO
-        settings.heaterSettings.finalCoolingSettings.delay_to_swirtch_to_standby_mode_sec = 300;
-        // TODO
+        settings.heaterSettings.finalCoolingSettings.delay_to_switch_to_standby_mode_sec = 300;
         settings.heaterSettings.finalCoolingSettings.power_to_switch_to_warming_mode = 5000;
 
-
-        settings.heaterSettings.oxygen_pid.p = 1;
-        settings.heaterSettings.oxygen_pid.i = 0.01;
-        settings.heaterSettings.oxygen_pid.d = 10;
-        settings.heaterSettings.oxygen_pid.d_sma = 25;
-        settings.heaterSettings.oxygen_pid.max_i = 90;
-        settings.heaterSettings.oxygen_pid.max_i = -90;
-        settings.heaterSettings.oxygen_pid.min_output_value_prcnt = 0;
-        settings.heaterSettings.oxygen_pid.max_output_value_prcnt = 100;
-
+        settings.heaterSettings.oxygen_pid.p = 10;
+        settings.heaterSettings.oxygen_pid.i = 0.09;
+        settings.heaterSettings.oxygen_pid.d = 20;
+        settings.heaterSettings.oxygen_pid.max_i = 50;
+        settings.heaterSettings.oxygen_pid.min_i = -50;
 
         settings.version = 2;
         settings.send_data_to_mqtt_interval_ms = 3000;
@@ -150,7 +126,7 @@ SettingsManager::SettingsManager(){
         memcpy(settings.telemetrySettings.catName, "telemetry\0", 10);
         settings.telemetrySettings.flush_interval_ms = 240000;
         settings.telemetrySettings.flush_inteval_records = 40;
-        settings.telemetrySettings.max_file_size_bytes = 1024 * 1024;
+        settings.telemetrySettings.max_file_size_bytes = 20 * 1024 * 1024;
 
         logSettings();
 
@@ -271,12 +247,6 @@ void SettingsManager::logSettings() {
     LOGGER.info("         bottom: " + String(buffer));
     LOGGER.info("   sensors scan interval (ms): " + String(settings.heaterSettings.scan_interval_ms));
 
-//    LOGGER.info("   controllers:");
-//    LOGGER.info("      PWM I2C controller addr: " + String(settings.pwm_controller_address));
-//    LOGGER.info("   servos:");
-//    LOGGER.info("      smoke door: " + String(settings.smoke_pipe_control_channel_id));
-//    LOGGER.info("      oxygen door: " + String(settings.oxygen_door_control_channel_id));
-//    LOGGER.info("      upper door: " + String(settings.upper_door_control_channel_id));
 }
 //--------------------------------------------------------------------
 

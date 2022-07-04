@@ -13,14 +13,11 @@
 
 class PidRegulator {
 private:
-    double i_sum;
     double prior_value;
     double output_raw_value;
     double output_value_prcnt;
 
     double p, i, d;
-
-    boolean on_hold;
 
     HeaterSettings *settings;
     SensorController *sensorController;
@@ -34,9 +31,7 @@ public:
 
     double getValuePrcnt();
 
-    void fillPID(float &p, float &i, float &i_sum, float &d, bool &on_hold, float &prior_value);
-
-    void hold();
+    void fillPID(float &p, float &i, float &d, float &raw_value, float &value);
 
 };
 

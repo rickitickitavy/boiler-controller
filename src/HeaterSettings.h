@@ -11,19 +11,9 @@ struct PidSettings {
     float i;
 
     float d;
-    float d_sma;
 
     float max_i;
     float min_i;
-    /**
-     * minimum of output value of PID
-     */
-    float min_output_value_prcnt;
-
-    /**
-     * diapason of vales of PID output
-     */
-    float max_output_value_prcnt;
 };
 
 struct VolumeCapacitiesSetting {
@@ -145,7 +135,7 @@ struct FinalCoolingSettings {
      * how long time power must be less than standby_mode.start_warming_cycle_on_power
      * to switch to the STANDBY mode
      */
-    int delay_to_swirtch_to_standby_mode_sec;
+    int delay_to_switch_to_standby_mode_sec;
 
     /**
      *  switch to warming mode when power reaches this value
@@ -176,12 +166,12 @@ struct TemperatureSettings {
     /**
      * the working core temperature
      */
-    double core_target;
+    float core_target;
 
     /**
      * temperature at which to inform to refuel warmer
      */
-    float core_low;
+    float core_power_when_need_to_refuel;
 
     /**
      * expected temperature of the thermal accumulator
@@ -191,17 +181,17 @@ struct TemperatureSettings {
     /**
      * EMA for difference of core temperature
      */
-    float core_temp_diff_EMA;
+    int core_temp_diff_EMA;
 
     /**
      * DEMA for difference of core power
      */
-    float core_power_diff_EMA;
+    int core_power_diff_EMA;
 
     /**
      * EMA for core power
      */
-    float core_power_EMA;
+    int core_power_EMA;
 
     /**
      * interval for calc SMA temperature
@@ -226,7 +216,7 @@ struct ServosHardwareSettings {
 
 struct HeaterSettings {
 
-    long scan_interval_ms;
+    int scan_interval_ms;
 
     VolumeCapacitiesSetting capacities_setting;
 

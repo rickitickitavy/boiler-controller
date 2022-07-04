@@ -28,22 +28,32 @@ void CoreModel::handle() {
 
     current_power = max_power * sin(angle * PI / 180);
 
-    double _target_core_power_doors_coef = sin(doorsController->getOxygenDoorAngle() / 180 * PI) *
-                                           sin(doorsController->getSmokePipeAngle() / 180 * PI) * 2;
+    double _target_core_power_doors_coef = (doorsController->getOxygenDoorAngle() /
+                                            settings->servos_hardware_settings.oxygen_servo_settings.working_max_angle) *
+                                           sin(doorsController->getSmokePipeAngle() / 180 * PI) * 1.7;
     Serial.println("coreModel: _target_core_power_doors_coef = " + String(_target_core_power_doors_coef));
 
     core_power_doors_coef = core_power_doors_coef / doors_react_ema * (doors_react_ema - 1)
-                            + _target_core_power_doors_coef / doors_react_ema;\
+                            + _target_core_power_doors_coef / doors_react_ema;
     Serial.println("coreModel: core_power_doors_coef = " + String(core_power_doors_coef));
 
     current_power *= core_power_doors_coef;
 
-    if (doorsController->getOxygenDoorAngle() == 0){
+    if ((current_power > 10000) && !core_heated) {
+        Serial.println("coreModel: core heated !!!");
+        core_heated = true;
+    }
+
+    if ((current_power < 10000) && core_heated)
+        current_power = 10000;
+
+
+    if (doorsController->getOxygenDoorAngle() == 0) {
         double _cooling_core_coef = sin(doorsController->getUpperDoorAngle() / 180 * PI) *
                                     sin(doorsController->getSmokePipeAngle() / 180 * PI) * 2;
         Serial.println("coreModel: _cooling_core_coef = " + String(_cooling_core_coef));
 
-        current_power -= 3000 * _cooling_core_coef * (core_tempr - 25) / core_tempr;
+        current_power -= 7000 * _cooling_core_coef * (core_tempr - 25) / core_tempr;
     }
 
     Serial.println(" power = " + String(current_power));
@@ -116,44 +126,46 @@ void CoreModel::handle() {
                             * (bottom_tempr - core_volume_temp);
         Serial.println("coreModel: core_volume_temp = " + String(core_volume_temp));
 
-        // heating radiators
-        double _energy_max = radiator_normal_power * settings->scan_interval_ms / 1000;
-        Serial.println("coreModel: _energy_max = " + String(_energy_max));
+        if (cycle_index < 7200) {
 
-        double _radiator_volume = radiator_flow / 60 * settings->scan_interval_ms / 1000;
-        Serial.println("coreModel: _radiator_volume = " + String(_radiator_volume));
+            // heating radiators
+            double _energy_max = radiator_normal_power * settings->scan_interval_ms / 1000;
+            Serial.println("coreModel: _energy_max = " + String(_energy_max));
 
-        double _tempr_coef = pow((top_tempr - home_temperature) / (radiator_normal_temperature - home_temperature),
-                                 1.25);
-        Serial.println("coreModel: _tempr_coef = " + String(_tempr_coef));
+            double _radiator_volume = radiator_flow / 60 * settings->scan_interval_ms / 1000;
+            Serial.println("coreModel: _radiator_volume = " + String(_radiator_volume));
 
-        double _radiator_energy = _energy_max * _tempr_coef;
-        Serial.println("coreModel: _radiator_energy = " + String(_radiator_energy));
+            double _tempr_coef = pow((top_tempr - home_temperature) / (radiator_normal_temperature - home_temperature),
+                                     1.25);
+            Serial.println("coreModel: _tempr_coef = " + String(_tempr_coef));
 
-        double _after_radiator_tempr = top_tempr - _radiator_energy / 4200 / _radiator_volume;
-        Serial.println("coreModel: _after_radiator_tempr = " + String(_after_radiator_tempr));
+            double _radiator_energy = _energy_max * _tempr_coef;
+            Serial.println("coreModel: _radiator_energy = " + String(_radiator_energy));
 
-        _acc_part_vol = settings->capacities_setting.accumulator_ltr / 4 - _radiator_volume;
-        _delta_tempr_acc_part = _radiator_volume / _acc_part_vol * (_after_radiator_tempr - bottom_tempr);
-        Serial.println("coreModel: _delta_tempr_acc_part = " + String(_delta_tempr_acc_part));
-        bottom_tempr += _delta_tempr_acc_part;
-        Serial.println("coreModel: bottom_tempr = " + String(bottom_tempr));
+            double _after_radiator_tempr = top_tempr - _radiator_energy / 4200 / _radiator_volume;
+            Serial.println("coreModel: _after_radiator_tempr = " + String(_after_radiator_tempr));
 
-        _delta_tempr_acc_part = _radiator_volume / _acc_part_vol * (bottom_tempr - lower_tempr);
-        Serial.println("coreModel: _delta_tempr_acc_part = " + String(_delta_tempr_acc_part));
-        lower_tempr += _delta_tempr_acc_part;
-        Serial.println("coreModel: lower_tempr = " + String(lower_tempr));
+            _acc_part_vol = settings->capacities_setting.accumulator_ltr / 4 - _radiator_volume;
+            _delta_tempr_acc_part = _radiator_volume / _acc_part_vol * (_after_radiator_tempr - bottom_tempr);
+            Serial.println("coreModel: _delta_tempr_acc_part = " + String(_delta_tempr_acc_part));
+            bottom_tempr += _delta_tempr_acc_part;
+            Serial.println("coreModel: bottom_tempr = " + String(bottom_tempr));
 
-        _delta_tempr_acc_part = _radiator_volume / _acc_part_vol * (lower_tempr - higher_tempr);
-        Serial.println("coreModel: _delta_tempr_acc_part = " + String(_delta_tempr_acc_part));
-        higher_tempr += _delta_tempr_acc_part;
-        Serial.println("coreModel: higher_tempr = " + String(higher_tempr));
+            _delta_tempr_acc_part = _radiator_volume / _acc_part_vol * (bottom_tempr - lower_tempr);
+            Serial.println("coreModel: _delta_tempr_acc_part = " + String(_delta_tempr_acc_part));
+            lower_tempr += _delta_tempr_acc_part;
+            Serial.println("coreModel: lower_tempr = " + String(lower_tempr));
 
-        _delta_tempr_acc_part = _radiator_volume / _acc_part_vol * (higher_tempr - top_tempr);
-        Serial.println("coreModel: _delta_tempr_acc_part = " + String(_delta_tempr_acc_part));
-        top_tempr += _delta_tempr_acc_part;
-        Serial.println("coreModel: top_tempr = " + String(top_tempr));
+            _delta_tempr_acc_part = _radiator_volume / _acc_part_vol * (lower_tempr - higher_tempr);
+            Serial.println("coreModel: _delta_tempr_acc_part = " + String(_delta_tempr_acc_part));
+            higher_tempr += _delta_tempr_acc_part;
+            Serial.println("coreModel: higher_tempr = " + String(higher_tempr));
 
+            _delta_tempr_acc_part = _radiator_volume / _acc_part_vol * (higher_tempr - top_tempr);
+            Serial.println("coreModel: _delta_tempr_acc_part = " + String(_delta_tempr_acc_part));
+            top_tempr += _delta_tempr_acc_part;
+            Serial.println("coreModel: top_tempr = " + String(top_tempr));
+        }
     } else {
         // pumps is off. warming heater volume
         Serial.println("coreModel: PUMPS ARE OFF");
@@ -211,4 +223,7 @@ CoreModel::CoreModel(HeaterSettings *settings, PumpsController *pumpsController,
     core_power_doors_coef = 0;
 
     core_energy_volume_dg_per_grad = 460 * 220;
+
+    core_heated = false;
+    fuel = 10000000;
 }

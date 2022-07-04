@@ -39,13 +39,11 @@ struct TelemetryDataRecord{
     float core_power;
     float core_EMA_power;
 
-    bool pid_on_hold;
     float pid_d;
-    float pid_prior_value;
     float pid_i;
-    float pid_i_sum;
     float pid_p;
     float pid_output;
+    float pid_raw_output;
 
     float oxygen_door_position;
     float smoke_door_position;

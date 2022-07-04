@@ -22,6 +22,9 @@ private:
 
     double current_power;
 
+    double fuel;
+    bool core_heated;
+
 
     double energy_move_coef;
 

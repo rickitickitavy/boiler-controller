@@ -14,7 +14,7 @@
             var field = event.target;
 
             if (changedFields.filter(function (element) {
-                    return element.alt == field.alt;
+                    return element.id == field.id;
                 }).length == 0) {
                 if (field.id == "wiFiSSID" || field.id == "wiFiPassword")
                     wifiChanged = true;
@@ -49,10 +49,6 @@
                 var input = inputs[inputIndex];
                 input.onchange = fieldChanged;
             }
-//            if (! % control > servo > pwm_controller_initialized %) {
-//                const input = document.getElementById("control>servo>pwm_controller_address");
-//                input.style.backgroundColor = "red";
-//            }
         }
 
         function saveSystemSettings() {
@@ -61,10 +57,10 @@
 
             var requestText = "";
             changedFields.forEach(function (field) {
-                if (requestText == "")
+                if (requestText != "")
                     requestText += "|";
 
-                requestText += field.id + "=" + field.value;
+                requestText += field.id + "=" + (field.type == "checkbox" ? field.checked : field.value);
             }.bind(this));
 
             var saveNetworkSettings = function () {
@@ -348,65 +344,26 @@
         </div>
 
         <div class="form-section">
-            <div class="formHeader2">Telemetry logging</div>
-
-            <div class="form-inputField-container">
-                <div class="formParamCaption">Telemetry data catalog (max %telemetry>catalog_name#maxR%)
-                </div>
-                <div class="formParamValue">
-                    <input id="telemetry>catalog_name" class="formStringParamValue"
-                           value="%telemetry>catalog_name%">
-                </div>
-            </div>
-
-            <div class="form-inputField-container">
-                <div class="formParamCaption">Maximum file size in bytes (from %telemetry>max_file_size#minR% to
-                    %telemetry>max_file_size#maxR%)
-                </div>
-                <div class="formParamValue">
-                    <input id="telemetry>max_file_size" class="formStringParamValue"
-                           value="%telemetry>max_file_size%">
-                </div>
-            </div>
-
-            <div class="form-inputField-container">
-                <div class="formParamCaption">Interval between flushing data to the disk in ms (from %telemetry>flush_interval_ms#minR% to
-                    %telemetry>flush_interval_ms#maxR%)
-                </div>
-                <div class="formParamValue">
-                    <input id="telemetry>flush_interval_ms" class="formStringParamValue"
-                           value="%telemetry>flush_interval_ms%">
-                </div>
-            </div>
-
-            <div class="form-inputField-container">
-                <div class="formParamCaption">Interval in records between flushing data to the disk(from %telemetry>flush_inteval_records#minR% to
-                    %telemetry>flush_inteval_records#maxR%)
-                </div>
-                <div class="formParamValue">
-                    <input id="telemetry>flush_inteval_records" class="formStringParamValue"
-                           value="%telemetry>flush_inteval_records%">
-                </div>
-            </div>
-
-        </div>
-
-        <div class="form-section">
             <div class="formHeader2">Temperatures </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Burn cycle starts if temperature, after smothed down, ups to (from %heater>temperature>start_burn_on_temp_up_to#minR% to %heater>temperature>start_burn_on_temp_up_to#maxR%)</div>
-                <div class="formParamValue"><input id="heater>temperature>start_burn_on_temp_up_to" class="formStringParamValue" value="%heater>temperature>start_burn_on_temp_up_to%"></div>
+                <div class="formParamCaption">Read sensors interval in seconds (from %heater>scan_interval_ms#minR% to %heater>scan_interval_ms#maxR%)</div>
+                <div class="formParamValue"><input id="heater>scan_interval_ms" class="formStringParamValue" value="%heater>scan_interval_ms%"></div>
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Temperature on which need refuel (from %heater>temperature>core_low#minR% to %heater>temperature>core_low#maxR%)</div>
-                <div class="formParamValue"><input id="heater>temperature>core_low" class="formStringParamValue" value="%heater>temperature>core_low%"></div>
+                <div class="formParamCaption">Power when you need to refuel heater. Watts (from %heater>temperature>core_pwr_to_refuel#minR% to %heater>temperature>core_pwr_to_refuel#maxR%)</div>
+                <div class="formParamValue"><input id="heater>temperature>core_pwr_to_refuel" class="formStringParamValue" value="%heater>temperature>core_pwr_to_refuel%"></div>
             </div>
 
             <div class="form-inputField-container">
                 <div class="formParamCaption">Target heater core temperature (from %heater>temperature>core_target#minR% to %heater>temperature>core_target#maxR%)</div>
                 <div class="formParamValue"><input id="heater>temperature>core_target" class="formStringParamValue" value="%heater>temperature>core_target%"></div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Overheat heater core temperature (from %heater>temperature>core_overheat#minR% to %heater>temperature>core_overheat#maxR%)</div>
+                <div class="formParamValue"><input id="heater>temperature>core_overheat" class="formStringParamValue" value="%heater>temperature>core_overheat%"></div>
             </div>
 
             <div class="form-inputField-container">
@@ -419,8 +376,28 @@
                 <div class="formParamValue"><input id="heater>temperature>term_accumulator_target" class="formStringParamValue" value="%heater>temperature>term_accumulator_target%"></div>
             </div>
 
-        </div>
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Period in seconds for calc SMA for all temperature sensors value (from %heater>temperature>tempr_sma_period_sec#minR% to %heater>temperature>tempr_sma_period_sec#maxR%)</div>
+                <div class="formParamValue"><input id="heater>temperature>tempr_sma_period_sec" class="formStringParamValue" value="%heater>temperature>tempr_sma_period_sec%"></div>
+            </div>
 
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Period in measurements for calc core power EMA (from %heater>temperature>core_power_ema#minR% to %heater>temperature>core_power_ema#maxR%)</div>
+                <div class="formParamValue"><input id="heater>temperature>core_power_ema" class="formStringParamValue" value="%heater>temperature>core_power_ema%"></div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Period in measurements for calc core delta power EMA (from %heater>temperature>core_d_power_ema#minR% to %heater>temperature>core_d_power_ema#maxR%)</div>
+                <div class="formParamValue"><input id="heater>temperature>core_d_power_ema" class="formStringParamValue" value="%heater>temperature>core_d_power_ema%"></div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Period in measurements for calc core delta temperature EMA (from %heater>temperature>core_d_tempr_ema#minR% to %heater>temperature>core_d_tempr_ema#maxR%)</div>
+                <div class="formParamValue"><input id="heater>temperature>core_d_tempr_ema" class="formStringParamValue" value="%heater>temperature>core_d_tempr_ema%"></div>
+            </div>
+
+
+        </div>
 
         <div class="form-section">
             <div class="formHeader2">Two pumps support</div>
@@ -429,7 +406,7 @@
                 <div class="formParamCaption">Enabled</div>
                 <div class="formParamValue">
                     <input id="heater>2pumps>enabled" type="checkbox" class="formStringParamValue"
-                           value="%heater>2pumps>enabled%">
+                           %heater>2pumps>enabled%>
                 </div>
             </div>
 
@@ -470,15 +447,120 @@
                            value="%heater>2pumps>stop_on_delta_btw_in_and_out%">
                 </div>
             </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Flow sensor installed</div>
+                <div class="formParamValue">
+                    <input id="heater>2pumps>f_sens_installed" type="checkbox" class="formStringParamValue"
+                           %heater>2pumps>f_sens_installed%>
+                </div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Flow sensor measurement in litters per tick. If sensor is presents
+                    (from %heater>2pumps>flow_sens_lt_per_tick#minR% to %heater>2pumps>flow_sens_lt_per_tick#maxR%)
+                </div>
+                <div class="formParamValue">
+                    <input id="heater>2pumps>flow_sens_lt_per_tick" class="formStringParamValue"
+                           value="%heater>2pumps>flow_sens_lt_per_tick%">
+                </div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Pump 1 flow when is on (litters per min). If sensor is not presents
+                    (from %heater>2pumps>1st_pump_flow_lpm#minR% to %heater>2pumps>1st_pump_flow_lpm#maxR%)
+                </div>
+                <div class="formParamValue">
+                    <input id="heater>2pumps>1st_pump_flow_lpm" class="formStringParamValue"
+                           value="%heater>2pumps>1st_pump_flow_lpm%">
+                </div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Pump 2 flow when is on (litters per min). If sensor is not presents
+                    (from %heater>2pumps>2st_pump_flow_lpm#minR% to %heater>2pumps>2st_pump_flow_lpm#maxR%)
+                </div>
+                <div class="formParamValue">
+                    <input id="heater>2pumps>2st_pump_flow_lpm" class="formStringParamValue"
+                           value="%heater>2pumps>2st_pump_flow_lpm%">
+                </div>
+            </div>
+
+
+        </div>
+
+        <div class="form-section">
+            <div class="formHeader2">Pumps cooling settings</div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Start pumps on core temperature (from %heater>cool_pumps>start_on_tempr#minR% to %heater>cool_pumps>start_on_tempr#maxR%)</div>
+                <div class="formParamValue"><input id="heater>cool_pumps>start_on_tempr" class="formStringParamValue" value="%heater>cool_pumps>start_on_tempr%"></div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Delta between core temperature and bottom accumulator temperature must be grater or equal to (from %heater>cool_pumps>start_on_d_btw_core_inp#minR% to %heater>cool_pumps>start_on_d_btw_core_inp#maxR%)</div>
+                <div class="formParamValue"><input id="heater>cool_pumps>start_on_d_btw_core_inp" class="formStringParamValue" value="%heater>cool_pumps>start_on_d_btw_core_inp%"></div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Stop  pumps on core temperature cooled more than (from %heater>cool_pumps>stop_on_d_btw_start_core#minR% to %heater>cool_pumps>stop_on_d_btw_start_core#maxR%)</div>
+                <div class="formParamValue"><input id="heater>cool_pumps>stop_on_d_btw_start_core" class="formStringParamValue" value="%heater>cool_pumps>stop_on_d_btw_start_core%"></div>
+            </div>
+
+        </div>
+
+        <div class="form-section">
+            <div class="formHeader2">Standby mode settings </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Switch to the warming mode whet cores power reaches watts (from %heater>stanby>start_warm_on_power#minR% to %heater>stanby>start_warm_on_power#maxR%)</div>
+                <div class="formParamValue"><input id="heater>stanby>start_warm_on_power" class="formStringParamValue" value="%heater>stanby>start_warm_on_power%"></div>
+            </div>
+
+        </div>
+
+        <div class="form-section">
+            <div class="formHeader2">Warming mode settings </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Core power upon reaching which it is necessary to switch to PID mode. Watts (from %heater>warming>pwr_to_sw_to_PID#minR% to %heater>warming>pwr_to_sw_to_PID#maxR%)</div>
+                <div class="formParamValue"><input id="heater>warming>pwr_to_sw_to_PID" class="formStringParamValue" value="%heater>warming>pwr_to_sw_to_PID%"></div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Core temperature upon reaching which, combined with power, it is necessary to switch to PID mode. (from %heater>warming>core_tempr_to_sw#minR% to %heater>warming>core_tempr_to_sw#maxR%)</div>
+                <div class="formParamValue"><input id="heater>warming>core_tempr_to_sw" class="formStringParamValue" value="%heater>warming>core_tempr_to_sw%"></div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Time given to reaching power for switching to PID mode. Otherwise switching to colling mode. Sec (from %heater>warming>time_to_reach_pwr_sec#minR% to %heater>warming>time_to_reach_pwr_sec#maxR%)</div>
+                <div class="formParamValue"><input id="heater>warming>time_to_reach_pwr_sec" class="formStringParamValue" value="%heater>warming>time_to_reach_pwr_sec%"></div>
+            </div>
+
+        </div>
+
+        <div class="form-section">
+            <div class="formHeader2">Final cooling mode settings </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Core temperature to switch to STAND BY mode (from %heater>final_cool>tempr_to_sw_to_stby#minR% to %heater>final_cool>tempr_to_sw_to_stby#maxR%)</div>
+                <div class="formParamValue"><input id="heater>final_cool>tempr_to_sw_to_stby" class="formStringParamValue" value="%heater>final_cool>tempr_to_sw_to_stby%"></div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Power upon reaching witch it is necessary to switch to WARMING mode. Watts (from %heater>final_cool>start_on_d_btw_core_inp#minR% to %heater>final_cool>start_on_d_btw_core_inp#maxR%)</div>
+                <div class="formParamValue"><input id="heater>final_cool>start_on_d_btw_core_inp" class="formStringParamValue" value="%heater>final_cool>start_on_d_btw_core_inp%"></div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">The time that must elapse from the power drops bellow switching from standby mode to warming mode, to switch to STANDBY mode. Sec (from %heater>final_cool>delay_to_sw_to_stnby#minR% to %heater>final_cool>delay_to_sw_to_stnby#maxR%)</div>
+                <div class="formParamValue"><input id="heater>final_cool>delay_to_sw_to_stnby" class="formStringParamValue" value="%heater>final_cool>delay_to_sw_to_stnby%"></div>
+            </div>
+
         </div>
 
         <div class="form-section">
             <div class="formHeader2">PID of oxygen door</div>
-
-            <div class="form-inputField-container">
-                <div class="formParamCaption">Read sensors interval in seconds (from %heater>scan_interval_ms#minR% to %heater>scan_interval_ms#maxR%)</div>
-                <div class="formParamValue"><input id="heater>scan_interval_ms" class="formStringParamValue" value="%heater>scan_interval_ms%"></div>
-            </div>
 
             <div class="form-inputField-container">
                 <div class="formParamCaption">P coef (from %heater>pid>p#minR% to %heater>pid>p#maxR%)</div>
@@ -496,11 +578,6 @@
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">D SMA (from %heater>pid>d_sma#minR% to %heater>pid>d_sma#maxR%)</div>
-                <div class="formParamValue"><input id="heater>pid>d_sma" class="formStringParamValue" value="%heater>pid>d_sma%"></div>
-            </div>
-
-            <div class="form-inputField-container">
                 <div class="formParamCaption">Maximum I value (from %heater>pid>max_i#minR% to %heater>pid>max_i#maxR%)</div>
                 <div class="formParamValue"><input id="heater>pid>max_i" class="formStringParamValue" value="%heater>pid>max_i%"></div>
             </div>
@@ -510,18 +587,7 @@
                 <div class="formParamValue"><input id="heater>pid>min_i" class="formStringParamValue" value="%heater>pid>min_i%"></div>
             </div>
 
-            <div class="form-inputField-container">
-                <div class="formParamCaption">Minimum output value percents (from %heater>pid>min_output_value_prcnt#minR% to %heater>pid>min_output_value_prcnt#maxR%)</div>
-                <div class="formParamValue"><input id="heater>pid>min_output_value_prcnt" class="formStringParamValue" value="%heater>pid>min_output_value_prcnt%"></div>
-            </div>
-
-            <div class="form-inputField-container">
-                <div class="formParamCaption">Maximum output value percents (from %heater>pid>max_output_value_prcnt#minR% to %heater>pid>max_output_value_prcnt#maxR%)</div>
-                <div class="formParamValue"><input id="heater>pid>max_output_value_prcnt" class="formStringParamValue" value="%heater>pid>max_output_value_prcnt%"></div>
-            </div>
-
         </div>
-
 
         <div class="form-section">
             <div class="formHeader2">Servos settings</div>
@@ -611,6 +677,50 @@
                 </div>
 
             </div>
+        </div>
+
+        <div class="form-section">
+            <div class="formHeader2">Telemetry logging</div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Telemetry data catalog (max %telemetry>catalog_name#maxR%)
+                </div>
+                <div class="formParamValue">
+                    <input id="telemetry>catalog_name" class="formStringParamValue"
+                           value="%telemetry>catalog_name%">
+                </div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Maximum file size in bytes (from %telemetry>max_file_size#minR% to
+                    %telemetry>max_file_size#maxR%)
+                </div>
+                <div class="formParamValue">
+                    <input id="telemetry>max_file_size" class="formStringParamValue"
+                           value="%telemetry>max_file_size%">
+                </div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Interval between flushing data to the disk in ms (from %telemetry>flush_interval_ms#minR% to
+                    %telemetry>flush_interval_ms#maxR%)
+                </div>
+                <div class="formParamValue">
+                    <input id="telemetry>flush_interval_ms" class="formStringParamValue"
+                           value="%telemetry>flush_interval_ms%">
+                </div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Interval in records between flushing data to the disk(from %telemetry>flush_inteval_records#minR% to
+                    %telemetry>flush_inteval_records#maxR%)
+                </div>
+                <div class="formParamValue">
+                    <input id="telemetry>flush_inteval_records" class="formStringParamValue"
+                           value="%telemetry>flush_inteval_records%">
+                </div>
+            </div>
+
         </div>
 
         <div class="form-bottom">
