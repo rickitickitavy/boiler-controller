@@ -44,7 +44,9 @@ Telemetry::Telemetry(GlobalSettings *settings) {
     save_buffer = (char *) malloc(1024);
     sprintf(save_buffer, "mask %x", mask_for_index);
     LOGGER.info(save_buffer);
+}
 
+void Telemetry::sendCsvHeader(){
     char *header = "csv->;date_time_ms;interval_ms;core_temp;core_temp_sma;input_temp;"
             "input_temp_sma;output_temp;output_temp_sma;accumulator_bottom_temp;"
             "accumulator_bottom_temp_sma;accumulator_lower_temp;accumulator_lower_temp_sma;"
@@ -55,6 +57,7 @@ Telemetry::Telemetry(GlobalSettings *settings) {
             "pid_d;pid_i;pid_p;pid_output;oxygen_door_position;smoke_door_position;"
             "upper_door_position;pump_1_state;pump_2_state;heaterMode;core_SMA_diff_tempr";
     Serial.println(header);
+
 }
 
 void Telemetry::flushDataFile() {
@@ -169,7 +172,7 @@ bool Telemetry::addData(TelemetryDataRecord *dataRecord) {
             handleFlush();
             return true;
         }
-    } else if (save_buffer){
+    } else if ((save_buffer) && settings->telemetrySettings.log_gebug_to_UART){
         sprintf(save_buffer, "----------\r\n time ms = %d; interval ms = %d\r\n"
                         " core t = %f (%f); inp t = %f (%f) \r\n"
                         "out t = %f (%f)\r\n"

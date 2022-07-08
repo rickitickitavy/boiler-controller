@@ -17,12 +17,15 @@
 
 #include "lib/ESPAsyncWebServer/ESPAsyncWebServer.h"
 #include "SettingsManager.h"
+#include "HeaterController.h"
 
 class WebServerController {
 private:
     AsyncWebServer* webServer;
 public:
     static SettingsManager* settingsManager;
+    static HeaterController *heaterController;
+
     WebServerController(SettingsManager* settingsManager);
 
     static String systemSettingsProcessor(const String& paramName);
@@ -30,6 +33,10 @@ public:
     static void settingsApiProcessor(AsyncWebServerRequest *request);
 
     static void loadFileByUrl(AsyncWebServerRequest *request);
+
+    static void startModelling(AsyncWebServerRequest *request);
+
+    static void stopModelling(AsyncWebServerRequest *request);
 
 };
 

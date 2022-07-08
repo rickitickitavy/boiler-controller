@@ -4,7 +4,7 @@
 #include "HeaterSettings.h"
 
 #define GLOBAL_CURRENT_SETTINGS_VERSION 1
-#define GLOBAL_SETTINGS_MARKER_0 0x31
+#define GLOBAL_SETTINGS_MARKER_0 0x32
 #define GLOBAL_SETTINGS_MARKER_1 0x32
 #define GLOBAL_SETTINGS_MARKER_2 0x33
 #define GLOBAL_SETTINGS_MARKER_3 0x31
@@ -25,6 +25,7 @@ struct TelemetrySettings{
     int flush_interval_ms;
     int flush_inteval_records;
     int max_file_size_bytes;
+    bool log_gebug_to_UART;
 };
 
 struct GlobalSettings {

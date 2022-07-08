@@ -130,6 +130,10 @@ void WiFiController::init() {
     }
 }
 
+void WiFiController::setHeaterController(HeaterController *heaterController) {
+    this->serverController->heaterController = heaterController;
+}
+
 bool WiFiController::isClientConnected() {
 //    struct station_info *stat_info;
 //    stat_info = wifi_softap_get_station_info();

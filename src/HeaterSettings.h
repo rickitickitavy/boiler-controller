@@ -14,6 +14,9 @@ struct PidSettings {
 
     float max_i;
     float min_i;
+
+    float power_to_switch_to_warming_mode;
+    float oxygen_door_val_to_warming_mode;
 };
 
 struct VolumeCapacitiesSetting {
@@ -214,6 +217,25 @@ struct ServosHardwareSettings {
     ServoHardwareSettings upper_door_servo_settings;
 };
 
+struct ModellerSettings{
+    float max_core_power;
+    float core_power_grow_angle_step;
+    int max_power_cycles;
+    float core_energy_transmitting_coef;
+    int skip_first_N_cycles;
+    int ema_doors_reactions;
+    float radiators_base_power;
+    float radiators_home_temperature;
+    float radiators_base_temperature;
+    float radiators_efficiensy_coef_pow;
+    int radiator_stop_after_cycle;
+    float radiators_flow_lpm;
+    float additional_core_doors_coef;
+    int length_of_modeling_cycles;
+    bool logging_modeller_info;
+    int power_fade_out_steps;
+};
+
 struct HeaterSettings {
 
     int scan_interval_ms;
@@ -235,6 +257,8 @@ struct HeaterSettings {
     StadbyCoolingSettings stadbyCoolingSettings;
 
     CoolingByPumpsSettings coolingByPumpsSettings;
+
+    ModellerSettings modellerSettings;
 };
 
 #endif //BASE_ESP8266_MQTT_HEATERSETTINGS_H

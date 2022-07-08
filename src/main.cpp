@@ -56,6 +56,7 @@ void setup() {
     }
 
     wiFiController = new WiFiController(settingsManager);
+    wiFiController->setHeaterController(heaterController);
 
     mqtt = new MqttClient(settingsManager->getSettings());
 
@@ -77,11 +78,6 @@ void loop() {
     mqtt->dispatch();
     wiFiController->checkConnection();
     LOGGER.handle();
-
-    if (cycle_index++ == 40)
-    // TODO remove
-    heaterController->openOxygenDoorForTime(1200);
-
 
     heaterController->handle();
 

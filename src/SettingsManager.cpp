@@ -115,10 +115,29 @@ SettingsManager::SettingsManager(){
         settings.heaterSettings.finalCoolingSettings.power_to_switch_to_warming_mode = 5000;
 
         settings.heaterSettings.oxygen_pid.p = 10;
-        settings.heaterSettings.oxygen_pid.i = 0.09;
-        settings.heaterSettings.oxygen_pid.d = 20;
+        settings.heaterSettings.oxygen_pid.i = 0.07;
+        settings.heaterSettings.oxygen_pid.d = 60;
         settings.heaterSettings.oxygen_pid.max_i = 50;
         settings.heaterSettings.oxygen_pid.min_i = -50;
+        settings.heaterSettings.oxygen_pid.power_to_switch_to_warming_mode = 15000;
+        settings.heaterSettings.oxygen_pid.oxygen_door_val_to_warming_mode = 25;
+
+        settings.heaterSettings.modellerSettings.core_power_grow_angle_step = 0.1;
+        settings.heaterSettings.modellerSettings.max_core_power = 40000;
+        settings.heaterSettings.modellerSettings.core_energy_transmitting_coef = 0.5;
+        settings.heaterSettings.modellerSettings.skip_first_N_cycles = 50;
+        settings.heaterSettings.modellerSettings.max_power_cycles = 3600;
+        settings.heaterSettings.modellerSettings.ema_doors_reactions = 200;
+        settings.heaterSettings.modellerSettings.radiators_base_power = 10000;
+        settings.heaterSettings.modellerSettings.radiators_base_temperature = 70;
+        settings.heaterSettings.modellerSettings.radiators_efficiensy_coef_pow = 1.25;
+        settings.heaterSettings.modellerSettings.radiators_home_temperature = 25;
+        settings.heaterSettings.modellerSettings.radiator_stop_after_cycle = 7200;
+        settings.heaterSettings.modellerSettings.additional_core_doors_coef = 1.7;
+        settings.heaterSettings.modellerSettings.radiators_flow_lpm = 10;
+        settings.heaterSettings.modellerSettings.length_of_modeling_cycles = 10000;
+        settings.heaterSettings.modellerSettings.logging_modeller_info = true;
+        settings.heaterSettings.modellerSettings.power_fade_out_steps = 1000;
 
         settings.version = 2;
         settings.send_data_to_mqtt_interval_ms = 3000;
@@ -127,6 +146,7 @@ SettingsManager::SettingsManager(){
         settings.telemetrySettings.flush_interval_ms = 240000;
         settings.telemetrySettings.flush_inteval_records = 40;
         settings.telemetrySettings.max_file_size_bytes = 20 * 1024 * 1024;
+        settings.telemetrySettings.log_gebug_to_UART = true;
 
         logSettings();
 

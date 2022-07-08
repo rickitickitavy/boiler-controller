@@ -91,6 +91,8 @@ public:
     Telemetry(GlobalSettings *settings);
 
     bool addData(TelemetryDataRecord* dataRecord);
+
+    void sendCsvHeader();
 };
 
 

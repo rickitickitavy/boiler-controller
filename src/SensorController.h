@@ -47,6 +47,7 @@ public:
     void fire();
     bool isHasSensors();
     double getSmaValue(int sensorIndex);
+    double getNotNANSmaValue(int sensorIndex);
     String buildSensorsList();
 };
 

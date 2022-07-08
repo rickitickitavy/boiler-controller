@@ -157,3 +157,8 @@ double SensorController::getSmaValue(int sensorIndex) {
                     / settingsManager->getSettings()->heaterSettings.scan_interval_ms + 1;
     return smaSensors[sensorIndex]->calcSma(intervals);
 }
+
+double SensorController::getNotNANSmaValue(int sensorIndex) {
+    double val = getSmaValue(sensorIndex);
+    return isnan(val) ? 0 : val;
+}

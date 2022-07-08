@@ -145,6 +145,7 @@ HeaterController::HeaterController(GlobalSettings *settings, SensorController *s
     this->heaterSettings = &settings->heaterSettings;
     this->sensorController = sensorController;
     this->settingsNavigator = settingsNavigator;
+    modelling_is_active = false;
 
     if (EMERGENCY_VALVE_PIN) {
         pinMode(EMERGENCY_VALVE_PIN, OUTPUT);
@@ -171,12 +172,18 @@ HeaterController::HeaterController(GlobalSettings *settings, SensorController *s
 
     flow_ticks = 0;
 
-    CoreModel *coreModel = new CoreModel(&settings->heaterSettings, pumpsController, doorsController, 1, 40000, 2000, 0.5, 25, 200);
-    sensorController->setModeller(coreModel);
+    coreModel = new CoreModel(&settings->heaterSettings, pumpsController, doorsController, telemetry);
 
     time_to_close_oxygen_door_in_stanby_mode = 0;
 
-    cycle_index = 10;
+    cycle_index = 10000;
+    estimated_modelling_cycle_counter = 0;
+
+    settingsNavigator->addParamDescriptor(new ParamDescriptor("heater>modelling>est_modelling_cycles", INTEGER,
+                                                              100,
+                                                              50000,
+                                                              (void *) &estimated_modelling_cycle_counter,
+                                                              (void *) nullptr));
 }
 
 void HeaterController::resetDEMAtimers() {
@@ -198,15 +205,15 @@ void HeaterController::collectTelemetry(long last_cycle_length) {
     dataRecord.forwar_flow_temp = (float) sensorController->sensor_data[T_SENS_INDEX_FORWARD_FLOW].value;
     dataRecord.backward_flow_temp = (float) sensorController->sensor_data[T_SENS_INDEX_BACKWARD_FLOW].value;
 
-    dataRecord.core_temp_sma = (float) sensorController->getSmaValue(T_SENS_INDEX_CORE);
-    dataRecord.output_temp_sma = (float) sensorController->getSmaValue(T_SENS_INDEX_OUTPUT_FLOW);
-    dataRecord.input_temp_sma = (float) sensorController->getSmaValue(T_SENS_INDEX_INPUT_FLOW);
-    dataRecord.accumulator_higher_temp_sma = (float) sensorController->getSmaValue(T_SENS_INDEX_ACC_MID_HI);
-    dataRecord.accumulator_lower_temp_sma = (float) sensorController->getSmaValue(T_SENS_INDEX_ACC_MID_LO);
-    dataRecord.accumulator_bottom_temp_sma = (float) sensorController->getSmaValue(T_SENS_INDEX_ACC_BOTTOM);
-    dataRecord.accumulator_top_temp_sma = (float) sensorController->getSmaValue(T_SENS_INDEX_ACC_TOP);
-    dataRecord.forwar_flow_temp_sma = (float) sensorController->getSmaValue(T_SENS_INDEX_FORWARD_FLOW);
-    dataRecord.backward_flow_temp_sma = (float) sensorController->getSmaValue(T_SENS_INDEX_BACKWARD_FLOW);
+    dataRecord.core_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_CORE);
+    dataRecord.output_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_OUTPUT_FLOW);
+    dataRecord.input_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_INPUT_FLOW);
+    dataRecord.accumulator_higher_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_ACC_MID_HI);
+    dataRecord.accumulator_lower_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_ACC_MID_LO);
+    dataRecord.accumulator_bottom_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_ACC_BOTTOM);
+    dataRecord.accumulator_top_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_ACC_TOP);
+    dataRecord.forwar_flow_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_FORWARD_FLOW);
+    dataRecord.backward_flow_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_BACKWARD_FLOW);
 
     dataRecord.avarage_backward_flow = 0;
     dataRecord.core_power = (float) mainCoreParams.current_core_power;
@@ -270,13 +277,13 @@ void HeaterController::calcMainCoreCharacteristics(long last_cycle_length) {
             // all pumps turned off. Calc power as temperature change for core and core volume
             mainCoreParams.current_core_power =
                     _delta_core_temperature * heaterSettings->capacities_setting.heater_core_ltr *
-                    WATER_ENERGY_PER_LTR_PER_GRAD / (double)last_cycle_length * 1000;
+                    WATER_ENERGY_PER_LTR_PER_GRAD / (double) last_cycle_length * 1000;
         } else {
             // calc power using flow and delta between temperatures of input and output flows
             mainCoreParams.current_core_power = (sensorController->getSmaValue(T_SENS_INDEX_OUTPUT_FLOW) -
                                                  sensorController->getSmaValue(T_SENS_INDEX_INPUT_FLOW))
                                                 * WATER_ENERGY_PER_LTR_PER_GRAD * mainCoreParams.core_flow
-                                                / (double)last_cycle_length * 1000;
+                                                / (double) last_cycle_length * 1000;
         }
 
         // calc DEMA POWER
@@ -331,6 +338,9 @@ long HeaterController::getTimeDEMAAboveZeroSec() {
 //-------------------------------------------------------------------
 
 void HeaterController::handleModes() {
+    // in all cases pid must calculate
+    pidRegulator->handle();
+
     // hardcoded failsafe
     if (sensorController->getSmaValue(T_SENS_INDEX_CORE) >= 98)
         switchTo_OVERHEATED_mode();
@@ -346,6 +356,7 @@ void HeaterController::handleModes() {
                 handle_FINAL_COOLING_mode();
                 break;
             case PID:
+//                pidRegulator->handle();
                 handle_PID_mode();
                 break;
             case OVERHEATED:
@@ -363,7 +374,7 @@ void HeaterController::handleModes() {
 //-------------------------------------------------------------------
 
 void HeaterController::openOxygenDoorForTime(long time_sec) {
-    if (mode == STAND_BY){
+    if (mode == STAND_BY) {
         LOGGER.info("Oxygen door for " + String(time_sec) + " seconds opened.");
         doorsController->setOxygenDoorValue(100);
         time_to_close_oxygen_door_in_stanby_mode = millis() + time_sec * 1000;
@@ -372,10 +383,17 @@ void HeaterController::openOxygenDoorForTime(long time_sec) {
 //-------------------------------------------------------------------
 
 void HeaterController::handle() {
-    if (cycle_index){
-        cycle_index --;
-//    if (sensorController->isHasSensors() && (last_cycle_time == 0 || ((millis() - last_cycle_time) >
-//                                                                      heaterSettings->scan_interval_ms))) {
+    if ((sensorController->isHasSensors() && (last_cycle_time == 0 || ((millis() - last_cycle_time) >
+                                                                       heaterSettings->scan_interval_ms)))
+        || modelling_is_active) {
+
+        if (modelling_is_active){
+            if (estimated_modelling_cycle_counter-- <= 0){
+                stopModelling();
+                return;
+            }
+        }
+
         LOGGER.info("work cycle...");
 
         last_cycle_length = millis() - last_cycle_time;
@@ -397,7 +415,7 @@ void HeaterController::handle() {
 
         if (mode == STAND_BY) {
             if (time_to_close_oxygen_door_in_stanby_mode
-                && (millis() > time_to_close_oxygen_door_in_stanby_mode)){
+                && (millis() > time_to_close_oxygen_door_in_stanby_mode)) {
                 LOGGER.info("Oxygen door for closed.");
                 time_to_close_oxygen_door_in_stanby_mode = 0;
                 doorsController->setOxygenDoorValue(0);
@@ -498,6 +516,9 @@ void HeaterController::switchTo_WARMING_mode() {
     mode = HeaterMode::WARMING;
     entered_to_warming_mode_at = millis();
     pumpsController->setOnPumpsCount(2);
+    doorsController->setSmokePipeValue(60);
+    doorsController->setOxygenDoorValue(100);
+    doorsController->setUpperDoorValue(50);
     resetDEMAtimers();
 }
 //-------------------------------------------------------------------
@@ -507,9 +528,10 @@ void HeaterController::switchTo_WARMING_mode() {
  */
 void HeaterController::handle_WARMING_mode() {
     // check if power reached target power to switch to PID mode
-    if ((mainCoreParams.core_EMA_power >= heaterSettings->warmingSettings.target_power_to_switch_to_the_PID_mode)
-        || (sensorController->getSmaValue(T_SENS_INDEX_CORE) >
-            heaterSettings->warmingSettings.start_pid_temperature))
+//    if ((mainCoreParams.core_EMA_power >= heaterSettings->warmingSettings.target_power_to_switch_to_the_PID_mode)
+//        && (sensorController->getSmaValue(T_SENS_INDEX_CORE) >
+//            heaterSettings->warmingSettings.start_pid_temperature))
+    if (mainCoreParams.core_EMA_power >= heaterSettings->warmingSettings.target_power_to_switch_to_the_PID_mode)
         switchTo_PID_mode();
     else
         // check if time to reach target power is up
@@ -567,6 +589,8 @@ void HeaterController::handle_FINAL_COOLING_mode() {
 void HeaterController::switchTo_PID_mode() {
     LOGGER.info("Entered to PID mode");
     mode = HeaterMode::PID;
+    doorsController->setSmokePipeValue(60);
+    doorsController->setUpperDoorValue(50);
     resetDEMAtimers();
 }
 //-------------------------------------------------------------------
@@ -577,10 +601,11 @@ void HeaterController::handle_PID_mode() {
         >= heaterSettings->temperatureSettings.core_overheat)
         switchTo_OVERHEATED_mode();
         // check for back to warming mode
-    else if (mainCoreParams.core_EMA_power < heaterSettings->warmingSettings.target_power_to_switch_to_the_PID_mode)
+    else if ((mainCoreParams.core_EMA_power < heaterSettings->oxygen_pid.power_to_switch_to_warming_mode)
+        && (pidRegulator->getValuePrcnt() > heaterSettings->oxygen_pid.oxygen_door_val_to_warming_mode))
         switchTo_WARMING_mode();
     else {
-        pidRegulator->handle();
+//        pidRegulator->handle();
         doorsController->setOxygenDoorValue(pidRegulator->getValuePrcnt());
         // TODO
         // process
@@ -657,6 +682,31 @@ void HeaterController::handle_DOOR_OPENED_mode() {
     // TODO
 }
 //-------------------------------------------------------------------
+
+void HeaterController::startModelling() {
+    if (!modelling_is_active) {
+        LOGGER.info(" ---- STARTING MODELLING ----");
+        coreModel->reset();
+        switchTo_STAND_BY_mode();
+        sensorController->setModeller(coreModel);
+        estimated_modelling_cycle_counter = settings->heaterSettings.modellerSettings.length_of_modeling_cycles;
+        modelling_is_active = true;
+        openOxygenDoorForTime(1200);
+    } else
+        LOGGER.error(" MODELLING ALREADY STARTED.");
+}
 //-------------------------------------------------------------------
+
+void HeaterController::stopModelling() {
+    if (modelling_is_active) {
+        LOGGER.info(" ---- MODELLING FINISHED ----");
+        LOGGER.info(" ---- MODELLING: estimated cycles = " + String(estimated_modelling_cycle_counter));
+        sensorController->setModeller(nullptr);
+        estimated_modelling_cycle_counter = 0;
+        modelling_is_active = false;
+    } else
+        LOGGER.error(" MODELLING ALREADY STOPPED.");
+
+}
 //-------------------------------------------------------------------
 

@@ -63,10 +63,13 @@ private:
 
     PumpsController *pumpsController;
 
+    CoreModel *coreModel;
     PidRegulator *pidRegulator;
     long last_cycle_time;
     long last_cycle_length;
     double previous_core_temperature;
+
+    int estimated_modelling_cycle_counter;
 
     MainCoreParams mainCoreParams;
 
@@ -80,6 +83,8 @@ private:
     HeaterMode mode;
 
     long time_to_close_oxygen_door_in_stanby_mode;
+
+    bool modelling_is_active;
 
 
     /**
@@ -143,6 +148,9 @@ public:
     void handle();
 
     void openOxygenDoorForTime(long time_sec);
+
+    void startModelling();
+    void stopModelling();
 };
 
 

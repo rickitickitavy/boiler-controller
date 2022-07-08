@@ -5,6 +5,7 @@
 #include <lib/NTPClient/NTPClient.h>
 #include "WebServerController.h"
 #include "SettingsManager.h"
+#include "HeaterController.h"
 
 #ifndef EFLAMEESP8266_WIFICONTROLLER_H
 #define EFLAMEESP8266_WIFICONTROLLER_H
@@ -34,6 +35,7 @@ public:
     void checkConnection();
     void setApMode(IPAddress *ipAddress);
     bool isClientConnected();
+    void setHeaterController(HeaterController *heaterController);
 };
 
 extern WiFiController *wiFiController;

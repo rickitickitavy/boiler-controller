@@ -17,7 +17,7 @@ void PidRegulator::handle() {
 
 //    double value = sensorController->getSmaValue(T_SENS_INDEX_CORE) - prior_value;
 
-    double _core_temperature = sensorController->getSmaValue(T_SENS_INDEX_CORE);
+    double _core_temperature = sensorController->getNotNANSmaValue(T_SENS_INDEX_CORE);
 
     if (!prior_value)
         prior_value = _core_temperature;

@@ -14,9 +14,11 @@ String OK_RESPONSE = "OK";
 String PROFILES_PARAMETER_ATTR_NAME = "parameter";
 
 SettingsManager *WebServerController::settingsManager;
+HeaterController *WebServerController::heaterController;
 
 WebServerController::WebServerController(SettingsManager *settingsManager) {
     WebServerController::settingsManager = settingsManager;
+    this->heaterController = nullptr;
 
     LOGGER.info(" Starting web server...");
 
@@ -36,6 +38,8 @@ WebServerController::WebServerController(SettingsManager *settingsManager) {
 //
     webServer->on("/settingsApi", HTTP_GET, settingsApiProcessor);
     webServer->on("/settingsApi", HTTP_POST, settingsApiProcessor);
+    webServer->on("/startModelling", HTTP_GET, startModelling);
+    webServer->on("/stopModelling", HTTP_GET, stopModelling);
 
     webServer->onNotFound(loadFileByUrl);
 
@@ -142,6 +146,18 @@ void WebServerController::settingsApiProcessor(AsyncWebServerRequest *request) {
         }
     }
 
+}
+//----------------------------------------------------------------------
+
+void WebServerController::startModelling(AsyncWebServerRequest *request) {
+    if (heaterController)
+        heaterController->startModelling();
+}
+//----------------------------------------------------------------------
+
+void WebServerController::stopModelling(AsyncWebServerRequest *request) {
+    if (heaterController)
+        heaterController->stopModelling();
 }
 //----------------------------------------------------------------------
 
