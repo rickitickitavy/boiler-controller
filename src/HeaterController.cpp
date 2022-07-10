@@ -152,6 +152,8 @@ HeaterController::HeaterController(GlobalSettings *settings, SensorController *s
         digitalWrite(EMERGENCY_VALVE_PIN, LOW);
     }
 
+    cycle_index = 0;
+
     doorsController = new DoorsController(&heaterSettings->servos_hardware_settings);
 
     pidRegulator = new PidRegulator(heaterSettings, sensorController, &mainCoreParams);
@@ -387,6 +389,8 @@ void HeaterController::handle() {
                                                                        heaterSettings->scan_interval_ms)))
         || modelling_is_active) {
 
+        cycle_index ++;
+
         if (modelling_is_active){
             if (estimated_modelling_cycle_counter-- <= 0){
                 stopModelling();
@@ -515,6 +519,7 @@ void HeaterController::switchTo_WARMING_mode() {
     LOGGER.info("Entered to WARMING mode");
     mode = HeaterMode::WARMING;
     entered_to_warming_mode_at = millis();
+    entered_to_warming_mode_at_cycle_index = cycle_index;
     pumpsController->setOnPumpsCount(2);
     doorsController->setSmokePipeValue(60);
     doorsController->setOxygenDoorValue(100);
@@ -535,7 +540,9 @@ void HeaterController::handle_WARMING_mode() {
         switchTo_PID_mode();
     else
         // check if time to reach target power is up
-    if ((millis() - entered_to_warming_mode_at) / 1000 > heaterSettings->warmingSettings.time_to_reach_target_power_sec)
+    if (((millis() - entered_to_warming_mode_at) / 1000 > heaterSettings->warmingSettings.time_to_reach_target_power_sec)
+        || (modelling_is_active && (((cycle_index - entered_to_warming_mode_at_cycle_index) * heaterSettings->scan_interval_ms / 1000.0)
+                                    >= heaterSettings->warmingSettings.time_to_reach_target_power_sec)))
         switchTo_FINAL_COOLING_mode();
     else {
         // process. if needed
@@ -589,7 +596,7 @@ void HeaterController::handle_FINAL_COOLING_mode() {
 void HeaterController::switchTo_PID_mode() {
     LOGGER.info("Entered to PID mode");
     mode = HeaterMode::PID;
-    doorsController->setSmokePipeValue(60);
+    doorsController->setSmokePipeValue(67);
     doorsController->setUpperDoorValue(50);
     resetDEMAtimers();
 }

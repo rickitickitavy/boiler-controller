@@ -121,6 +121,7 @@ private:
     void switchTo_STAND_BY_mode();
 
     long entered_to_warming_mode_at;
+    long entered_to_warming_mode_at_cycle_index;
     void switchTo_WARMING_mode();
     void handle_WARMING_mode();
 

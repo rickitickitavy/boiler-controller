@@ -538,6 +538,16 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
                                                                            1,
                                                                            (void *) &settings->heaterSettings.modellerSettings.logging_modeller_info,
                                                                            (void *) &settings->heaterSettings.modellerSettings.logging_modeller_info);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>naturaly_cooling_pow", FLOAT,
+                                                                           0.01,
+                                                                           5,
+                                                                           (void *) &settings->heaterSettings.modellerSettings.naturaly_cooling_pow,
+                                                                           (void *) &settings->heaterSettings.modellerSettings.naturaly_cooling_pow);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>nat_cooling_coef_div", FLOAT,
+                                                                           1000,
+                                                                           10000000,
+                                                                           (void *) &settings->heaterSettings.modellerSettings.naturaly_cooling_coefficient_as_devider,
+                                                                           (void *) &settings->heaterSettings.modellerSettings.naturaly_cooling_coefficient_as_devider);
 
 
 }

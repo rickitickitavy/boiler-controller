@@ -110,7 +110,7 @@ SettingsManager::SettingsManager(){
         settings.heaterSettings.warmingSettings.start_pid_temperature = 70;
         settings.heaterSettings.warmingSettings.target_power_to_switch_to_the_PID_mode = 5000;
 
-        settings.heaterSettings.finalCoolingSettings.max_temperature_to_switch_to_standBy = 0;
+        settings.heaterSettings.finalCoolingSettings.max_temperature_to_switch_to_standBy = 70;
         settings.heaterSettings.finalCoolingSettings.delay_to_switch_to_standby_mode_sec = 300;
         settings.heaterSettings.finalCoolingSettings.power_to_switch_to_warming_mode = 5000;
 
@@ -126,18 +126,20 @@ SettingsManager::SettingsManager(){
         settings.heaterSettings.modellerSettings.max_core_power = 40000;
         settings.heaterSettings.modellerSettings.core_energy_transmitting_coef = 0.5;
         settings.heaterSettings.modellerSettings.skip_first_N_cycles = 50;
-        settings.heaterSettings.modellerSettings.max_power_cycles = 3600;
+        settings.heaterSettings.modellerSettings.max_power_cycles = 7200;
         settings.heaterSettings.modellerSettings.ema_doors_reactions = 200;
         settings.heaterSettings.modellerSettings.radiators_base_power = 10000;
         settings.heaterSettings.modellerSettings.radiators_base_temperature = 70;
         settings.heaterSettings.modellerSettings.radiators_efficiensy_coef_pow = 1.25;
         settings.heaterSettings.modellerSettings.radiators_home_temperature = 25;
-        settings.heaterSettings.modellerSettings.radiator_stop_after_cycle = 7200;
+        settings.heaterSettings.modellerSettings.radiator_stop_after_cycle = 5000;
         settings.heaterSettings.modellerSettings.additional_core_doors_coef = 1.7;
         settings.heaterSettings.modellerSettings.radiators_flow_lpm = 10;
-        settings.heaterSettings.modellerSettings.length_of_modeling_cycles = 10000;
+        settings.heaterSettings.modellerSettings.length_of_modeling_cycles = 17000;
         settings.heaterSettings.modellerSettings.logging_modeller_info = true;
         settings.heaterSettings.modellerSettings.power_fade_out_steps = 1000;
+        settings.heaterSettings.modellerSettings.naturaly_cooling_coefficient_as_devider = 10000;
+        settings.heaterSettings.modellerSettings.naturaly_cooling_pow = 1.5;
 
         settings.version = 2;
         settings.send_data_to_mqtt_interval_ms = 3000;

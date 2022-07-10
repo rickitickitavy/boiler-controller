@@ -53,6 +53,7 @@ private:
     Telemetry *telemetry;
 
     void println(String data);
+    double calcEnergyLoose(double source_tempr);
 
 public:
     double bottom_tempr;

@@ -241,7 +241,26 @@ void CoreModel::handle() {
         core_volume_temp += _moved_core_energy / (settings->capacities_setting.heater_core_ltr * 4200);
         println("coreModel: core_volume_temp = " + String(core_volume_temp));
     }
+
+    // cooling accumulator
+    Serial.println("coreModel: cooling accumulator ");
+    core_tempr = calcEnergyLoose(core_tempr);
+    output_tempr = calcEnergyLoose(output_tempr);
+    core_tempr = calcEnergyLoose(core_tempr);
+    top_tempr = calcEnergyLoose(top_tempr);
+    higher_tempr = calcEnergyLoose(higher_tempr);
+    lower_tempr = calcEnergyLoose(lower_tempr);
+    bottom_tempr = calcEnergyLoose(bottom_tempr);
+
     Serial.println("coreModel: ---------------------- ");
+}
+
+double CoreModel::calcEnergyLoose(double source_tempr) {
+    return source_tempr - (source_tempr - settings->modellerSettings.radiators_home_temperature)
+                          *
+                          pow((source_tempr - settings->modellerSettings.radiators_home_temperature) / source_tempr, settings->modellerSettings.naturaly_cooling_pow)
+                          / settings->modellerSettings.naturaly_cooling_coefficient_as_devider;
+
 }
 
 CoreModel::CoreModel(HeaterSettings *settings, PumpsController *pumpsController, DoorsController *doorsController,

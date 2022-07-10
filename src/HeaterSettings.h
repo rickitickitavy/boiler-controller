@@ -234,6 +234,8 @@ struct ModellerSettings{
     int length_of_modeling_cycles;
     bool logging_modeller_info;
     int power_fade_out_steps;
+    float naturaly_cooling_coefficient_as_devider;
+    float naturaly_cooling_pow;
 };
 
 struct HeaterSettings {
