@@ -69,6 +69,8 @@ void setup() {
 
     LOGGER.info("all done");
 
+    LOGGER.info("lib has " + String(settingsManager->getNavigator()->getParamDescriptorCounter()));
+
 }
 
 int cycle_index = 0;

@@ -235,7 +235,8 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
                                                                            22,
                                                                            (void *) &settings->heaterSettings.two_pumps_settings.stop_on_delta_temperature_between_input_and_output,
                                                                            (void *) &settings->heaterSettings.two_pumps_settings.stop_on_delta_temperature_between_input_and_output);
-    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>2pumps>f_sens_installed", CHECK_BOX, 0,
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>2pumps>f_sens_installed", CHECK_BOX,
+                                                                           0,
                                                                            1,
                                                                            (void *) &settings->heaterSettings.two_pumps_settings.flow_senser_installed,
                                                                            (void *) &settings->heaterSettings.two_pumps_settings.flow_senser_installed);
@@ -395,7 +396,8 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
                                                                            85,
                                                                            (void *) &settings->heaterSettings.warmingSettings.start_pid_temperature,
                                                                            (void *) &settings->heaterSettings.warmingSettings.start_pid_temperature);
-    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>warming>time_to_reach_pwr_sec", INTEGER,
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>warming>time_to_reach_pwr_sec",
+                                                                           INTEGER,
                                                                            200,
                                                                            3600,
                                                                            (void *) &settings->heaterSettings.warmingSettings.time_to_reach_target_power_sec,
@@ -463,12 +465,8 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
                                                                            200000,
                                                                            (void *) &settings->heaterSettings.modellerSettings.max_core_power,
                                                                            (void *) &settings->heaterSettings.modellerSettings.max_core_power);
-    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>max_power_cycles", INTEGER,
-                                                                           1000,
-                                                                           10800,
-                                                                           (void *) &settings->heaterSettings.modellerSettings.max_power_cycles,
-                                                                           (void *) &settings->heaterSettings.modellerSettings.max_power_cycles);
-    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>start_heat_from_cycle", INTEGER,
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>start_heat_from_cycle",
+                                                                           INTEGER,
                                                                            1000,
                                                                            10800,
                                                                            (void *) &settings->heaterSettings.modellerSettings.skip_first_N_cycles,
@@ -478,32 +476,25 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
                                                                            0.92,
                                                                            (void *) &settings->heaterSettings.modellerSettings.core_energy_transmitting_coef,
                                                                            (void *) &settings->heaterSettings.modellerSettings.core_energy_transmitting_coef);
-    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>angle_step", FLOAT,
-                                                                           0.01,
-                                                                           0.92,
-                                                                           (void *) &settings->heaterSettings.modellerSettings.core_power_grow_angle_step,
-                                                                           (void *) &settings->heaterSettings.modellerSettings.core_power_grow_angle_step);
-    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>ema_doors_reactions", INTEGER,
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>ema_doors_reactions",
+                                                                           INTEGER,
                                                                            0.01,
                                                                            0.92,
                                                                            (void *) &settings->heaterSettings.modellerSettings.ema_doors_reactions,
                                                                            (void *) &settings->heaterSettings.modellerSettings.ema_doors_reactions);
-    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>add_core_doors_coef", FLOAT,
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>add_core_doors_coef",
+                                                                           FLOAT,
                                                                            0.5,
                                                                            3.0,
                                                                            (void *) &settings->heaterSettings.modellerSettings.additional_core_doors_coef,
                                                                            (void *) &settings->heaterSettings.modellerSettings.additional_core_doors_coef);
-    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>radiators_base_power", FLOAT,
-                                                                           1000,
-                                                                           180000,
-                                                                           (void *) &settings->heaterSettings.modellerSettings.radiators_base_power,
-                                                                           (void *) &settings->heaterSettings.modellerSettings.radiators_base_power);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>home_temperature", FLOAT,
                                                                            -20,
                                                                            45,
                                                                            (void *) &settings->heaterSettings.modellerSettings.radiators_home_temperature,
                                                                            (void *) &settings->heaterSettings.modellerSettings.radiators_home_temperature);
-    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>radiators_base_tempr", FLOAT,
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>radiators_base_tempr",
+                                                                           FLOAT,
                                                                            60,
                                                                            90,
                                                                            (void *) &settings->heaterSettings.modellerSettings.radiators_base_temperature,
@@ -513,42 +504,78 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
                                                                            3,
                                                                            (void *) &settings->heaterSettings.modellerSettings.radiators_flow_lpm,
                                                                            (void *) &settings->heaterSettings.modellerSettings.radiators_flow_lpm);
-    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>radiators_eff_coef_pow", FLOAT,
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>radiators_eff_coef_pow",
+                                                                           FLOAT,
                                                                            0.5,
                                                                            3,
                                                                            (void *) &settings->heaterSettings.modellerSettings.radiators_efficiensy_coef_pow,
                                                                            (void *) &settings->heaterSettings.modellerSettings.radiators_efficiensy_coef_pow);
-    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>radiator_stop_after_cycle", INTEGER,
-                                                                           100,
-                                                                           40000,
-                                                                           (void *) &settings->heaterSettings.modellerSettings.radiator_stop_after_cycle,
-                                                                           (void *) &settings->heaterSettings.modellerSettings.radiator_stop_after_cycle);
-    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>modeling_length", INTEGER,
-                                                                           100,
-                                                                           50000,
-                                                                           (void *) &settings->heaterSettings.modellerSettings.length_of_modeling_cycles,
-                                                                           (void *) &settings->heaterSettings.modellerSettings.length_of_modeling_cycles);
-    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>pwr_fade_out_steps", INTEGER,
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>pwr_fade_out_steps",
+                                                                           INTEGER,
                                                                            100,
                                                                            50000,
                                                                            (void *) &settings->heaterSettings.modellerSettings.power_fade_out_steps,
                                                                            (void *) &settings->heaterSettings.modellerSettings.power_fade_out_steps);
-    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>logging_modeller_info", CHECK_BOX,
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>logging_modeller_info",
+                                                                           CHECK_BOX,
                                                                            0,
                                                                            1,
                                                                            (void *) &settings->heaterSettings.modellerSettings.logging_modeller_info,
                                                                            (void *) &settings->heaterSettings.modellerSettings.logging_modeller_info);
-    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>naturaly_cooling_pow", FLOAT,
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>naturaly_cooling_pow",
+                                                                           FLOAT,
                                                                            0.01,
                                                                            5,
                                                                            (void *) &settings->heaterSettings.modellerSettings.naturaly_cooling_pow,
                                                                            (void *) &settings->heaterSettings.modellerSettings.naturaly_cooling_pow);
-    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>nat_cooling_coef_div", FLOAT,
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>nat_cooling_coef_div",
+                                                                           FLOAT,
                                                                            1000,
                                                                            10000000,
                                                                            (void *) &settings->heaterSettings.modellerSettings.naturaly_cooling_coefficient_as_devider,
                                                                            (void *) &settings->heaterSettings.modellerSettings.naturaly_cooling_coefficient_as_devider);
 
+    for (int stage_index = 0; stage_index < 5; stage_index++) {
+        this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>s" + String(stage_index) + "_active", CHECK_BOX,
+                                                                               0,
+                                                                               1,
+                                                                               (void *) &settings->heaterSettings.modellerSettings.stages[stage_index].active,
+                                                                               (void *) &settings->heaterSettings.modellerSettings.stages[stage_index].active);
+        this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>s" + String(stage_index) + "_start_angle", FLOAT,
+                                                                               0.01,
+                                                                               0.92,
+                                                                               (void *) &settings->heaterSettings.modellerSettings.stages[stage_index].initial_angle,
+                                                                               (void *) &settings->heaterSettings.modellerSettings.stages[stage_index].initial_angle);
+        this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>s" + String(stage_index) + "_angle_step", FLOAT,
+                                                                               0.01,
+                                                                               0.92,
+                                                                               (void *) &settings->heaterSettings.modellerSettings.stages[stage_index].core_power_grow_angle_step,
+                                                                               (void *) &settings->heaterSettings.modellerSettings.stages[stage_index].core_power_grow_angle_step);
+        this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>s" + String(stage_index) + "_max_power_cycles",
+                                                                               INTEGER,
+                                                                               1000,
+                                                                               10800,
+                                                                               (void *) &settings->heaterSettings.modellerSettings.stages[stage_index].max_power_cycles,
+                                                                               (void *) &settings->heaterSettings.modellerSettings.stages[stage_index].max_power_cycles);
+        this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor(
+                "heater>modelling>s" + String(stage_index) + "_radiators_base_power", FLOAT,
+                1000,
+                180000,
+                (void *) &settings->heaterSettings.modellerSettings.stages[stage_index].radiators_base_power,
+                (void *) &settings->heaterSettings.modellerSettings.stages[stage_index].radiators_base_power);
+        this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor(
+                "heater>modelling>s" + String(stage_index) + "_rad_stop_after_cycle", INTEGER,
+                100,
+                40000,
+                (void *) &settings->heaterSettings.modellerSettings.stages[stage_index].radiator_stop_after_cycle,
+                (void *) &settings->heaterSettings.modellerSettings.stages[stage_index].radiator_stop_after_cycle);
+        this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>s" + String(stage_index) + "_modeling_length",
+                                                                               INTEGER,
+                                                                               100,
+                                                                               50000,
+                                                                               (void *) &settings->heaterSettings.modellerSettings.stages[stage_index].length_of_modeling_cycles,
+                                                                               (void *) &settings->heaterSettings.modellerSettings.stages[stage_index].length_of_modeling_cycles);
+    }
 
 }
 
@@ -712,7 +739,11 @@ String SettingsNavigator::saveSettingsByNames(String *params, int paramsCount) {
 
     return res;
 }
+
 //--------------------------------------------------------------------
+int SettingsNavigator::getParamDescriptorCounter() {
+    return activeParamDescriptors;
+}
 
 void SettingsNavigator::setSensorList(String sensorsList) {
     this->sensorsList = (char *) malloc(sensorsList.length() + 1);

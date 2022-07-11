@@ -122,24 +122,39 @@ SettingsManager::SettingsManager(){
         settings.heaterSettings.oxygen_pid.power_to_switch_to_warming_mode = 15000;
         settings.heaterSettings.oxygen_pid.oxygen_door_val_to_warming_mode = 25;
 
-        settings.heaterSettings.modellerSettings.core_power_grow_angle_step = 0.1;
         settings.heaterSettings.modellerSettings.max_core_power = 40000;
         settings.heaterSettings.modellerSettings.core_energy_transmitting_coef = 0.5;
         settings.heaterSettings.modellerSettings.skip_first_N_cycles = 50;
-        settings.heaterSettings.modellerSettings.max_power_cycles = 7200;
         settings.heaterSettings.modellerSettings.ema_doors_reactions = 200;
-        settings.heaterSettings.modellerSettings.radiators_base_power = 10000;
         settings.heaterSettings.modellerSettings.radiators_base_temperature = 70;
         settings.heaterSettings.modellerSettings.radiators_efficiensy_coef_pow = 1.25;
         settings.heaterSettings.modellerSettings.radiators_home_temperature = 25;
-        settings.heaterSettings.modellerSettings.radiator_stop_after_cycle = 5000;
         settings.heaterSettings.modellerSettings.additional_core_doors_coef = 1.7;
         settings.heaterSettings.modellerSettings.radiators_flow_lpm = 10;
-        settings.heaterSettings.modellerSettings.length_of_modeling_cycles = 17000;
         settings.heaterSettings.modellerSettings.logging_modeller_info = true;
         settings.heaterSettings.modellerSettings.power_fade_out_steps = 1000;
         settings.heaterSettings.modellerSettings.naturaly_cooling_coefficient_as_devider = 10000;
         settings.heaterSettings.modellerSettings.naturaly_cooling_pow = 1.5;
+
+
+        settings.heaterSettings.modellerSettings.stages[0].active = true;
+        settings.heaterSettings.modellerSettings.stages[0].initial_angle = 0;
+        settings.heaterSettings.modellerSettings.stages[0].core_power_grow_angle_step = 0.1;
+        settings.heaterSettings.modellerSettings.stages[0].max_power_cycles = 7200;
+        settings.heaterSettings.modellerSettings.stages[0].radiators_base_power = 10000;
+        settings.heaterSettings.modellerSettings.stages[0].radiator_stop_after_cycle = 5000;
+        settings.heaterSettings.modellerSettings.stages[0].length_of_modeling_cycles = 17000;
+
+
+        for (int stage_index = 1; stage_index < 5; stage_index++) {
+            settings.heaterSettings.modellerSettings.stages[stage_index].active = false;
+            settings.heaterSettings.modellerSettings.stages[stage_index].initial_angle = 0;
+            settings.heaterSettings.modellerSettings.stages[stage_index].core_power_grow_angle_step = 0.1;
+            settings.heaterSettings.modellerSettings.stages[stage_index].max_power_cycles = 10000;
+            settings.heaterSettings.modellerSettings.stages[stage_index].radiators_base_power = 20000;
+            settings.heaterSettings.modellerSettings.stages[stage_index].radiator_stop_after_cycle = 5000;
+            settings.heaterSettings.modellerSettings.stages[stage_index].length_of_modeling_cycles = 17000;
+        }
 
         settings.version = 2;
         settings.send_data_to_mqtt_interval_ms = 3000;

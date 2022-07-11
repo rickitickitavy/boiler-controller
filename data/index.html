@@ -32,7 +32,7 @@
             }
         }
 
-        function startModelling(){
+        function startModelling() {
             var startModellingFunction = function () {
                 $.ajax({
                     url: "/startModelling",
@@ -50,7 +50,7 @@
             startModellingFunction();
         }
 
-        function stopModelling(){
+        function stopModelling() {
             var stopModellingFunction = function () {
                 $.ajax({
                     url: "/stopModelling",
@@ -373,63 +373,102 @@
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Pipes and radiators_ltr volume (from %heater>capacities>pipes_and_radiators_ltr#minR% to %heater>capacities>pipes_and_radiators_ltr#maxR%)</div>
-                <div class="formParamValue"><input id="heater>capacities>pipes_and_radiators_ltr" class="formStringParamValue" value="%heater>capacities>pipes_and_radiators_ltr%"></div>
+                <div class="formParamCaption">Pipes and radiators_ltr volume (from
+                    %heater>capacities>pipes_and_radiators_ltr#minR% to
+                    %heater>capacities>pipes_and_radiators_ltr#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>capacities>pipes_and_radiators_ltr"
+                                                   class="formStringParamValue"
+                                                   value="%heater>capacities>pipes_and_radiators_ltr%"></div>
             </div>
 
         </div>
 
         <div class="form-section">
-            <div class="formHeader2">Temperatures </div>
+            <div class="formHeader2">Temperatures</div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Read sensors interval in seconds (from %heater>scan_interval_ms#minR% to %heater>scan_interval_ms#maxR%)</div>
-                <div class="formParamValue"><input id="heater>scan_interval_ms" class="formStringParamValue" value="%heater>scan_interval_ms%"></div>
+                <div class="formParamCaption">Read sensors interval in seconds (from %heater>scan_interval_ms#minR% to
+                    %heater>scan_interval_ms#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>scan_interval_ms" class="formStringParamValue"
+                                                   value="%heater>scan_interval_ms%"></div>
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Power when you need to refuel heater. Watts (from %heater>temperature>core_pwr_to_refuel#minR% to %heater>temperature>core_pwr_to_refuel#maxR%)</div>
-                <div class="formParamValue"><input id="heater>temperature>core_pwr_to_refuel" class="formStringParamValue" value="%heater>temperature>core_pwr_to_refuel%"></div>
+                <div class="formParamCaption">Power when you need to refuel heater. Watts (from
+                    %heater>temperature>core_pwr_to_refuel#minR% to %heater>temperature>core_pwr_to_refuel#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>temperature>core_pwr_to_refuel"
+                                                   class="formStringParamValue"
+                                                   value="%heater>temperature>core_pwr_to_refuel%"></div>
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Target heater core temperature (from %heater>temperature>core_target#minR% to %heater>temperature>core_target#maxR%)</div>
-                <div class="formParamValue"><input id="heater>temperature>core_target" class="formStringParamValue" value="%heater>temperature>core_target%"></div>
+                <div class="formParamCaption">Target heater core temperature (from %heater>temperature>core_target#minR%
+                    to %heater>temperature>core_target#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>temperature>core_target" class="formStringParamValue"
+                                                   value="%heater>temperature>core_target%"></div>
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Overheat heater core temperature (from %heater>temperature>core_overheat#minR% to %heater>temperature>core_overheat#maxR%)</div>
-                <div class="formParamValue"><input id="heater>temperature>core_overheat" class="formStringParamValue" value="%heater>temperature>core_overheat%"></div>
+                <div class="formParamCaption">Overheat heater core temperature (from
+                    %heater>temperature>core_overheat#minR% to %heater>temperature>core_overheat#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>temperature>core_overheat" class="formStringParamValue"
+                                                   value="%heater>temperature>core_overheat%"></div>
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Critical heater core temperature (from %heater>temperature>core_critical#minR% to %heater>temperature>core_critical#maxR%)</div>
-                <div class="formParamValue"><input id="heater>temperature>core_critical" class="formStringParamValue" value="%heater>temperature>core_critical%"></div>
+                <div class="formParamCaption">Critical heater core temperature (from
+                    %heater>temperature>core_critical#minR% to %heater>temperature>core_critical#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>temperature>core_critical" class="formStringParamValue"
+                                                   value="%heater>temperature>core_critical%"></div>
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Target temperature of thermal accumulator (from %heater>temperature>term_accumulator_target#minR% to %heater>temperature>term_accumulator_target#maxR%)</div>
-                <div class="formParamValue"><input id="heater>temperature>term_accumulator_target" class="formStringParamValue" value="%heater>temperature>term_accumulator_target%"></div>
+                <div class="formParamCaption">Target temperature of thermal accumulator (from
+                    %heater>temperature>term_accumulator_target#minR% to
+                    %heater>temperature>term_accumulator_target#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>temperature>term_accumulator_target"
+                                                   class="formStringParamValue"
+                                                   value="%heater>temperature>term_accumulator_target%"></div>
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Period in seconds for calc SMA for all temperature sensors value (from %heater>temperature>tempr_sma_period_sec#minR% to %heater>temperature>tempr_sma_period_sec#maxR%)</div>
-                <div class="formParamValue"><input id="heater>temperature>tempr_sma_period_sec" class="formStringParamValue" value="%heater>temperature>tempr_sma_period_sec%"></div>
+                <div class="formParamCaption">Period in seconds for calc SMA for all temperature sensors value (from
+                    %heater>temperature>tempr_sma_period_sec#minR% to %heater>temperature>tempr_sma_period_sec#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>temperature>tempr_sma_period_sec"
+                                                   class="formStringParamValue"
+                                                   value="%heater>temperature>tempr_sma_period_sec%"></div>
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Period in measurements for calc core power EMA (from %heater>temperature>core_power_ema#minR% to %heater>temperature>core_power_ema#maxR%)</div>
-                <div class="formParamValue"><input id="heater>temperature>core_power_ema" class="formStringParamValue" value="%heater>temperature>core_power_ema%"></div>
+                <div class="formParamCaption">Period in measurements for calc core power EMA (from
+                    %heater>temperature>core_power_ema#minR% to %heater>temperature>core_power_ema#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>temperature>core_power_ema" class="formStringParamValue"
+                                                   value="%heater>temperature>core_power_ema%"></div>
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Period in measurements for calc core delta power EMA (from %heater>temperature>core_d_power_ema#minR% to %heater>temperature>core_d_power_ema#maxR%)</div>
-                <div class="formParamValue"><input id="heater>temperature>core_d_power_ema" class="formStringParamValue" value="%heater>temperature>core_d_power_ema%"></div>
+                <div class="formParamCaption">Period in measurements for calc core delta power EMA (from
+                    %heater>temperature>core_d_power_ema#minR% to %heater>temperature>core_d_power_ema#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>temperature>core_d_power_ema" class="formStringParamValue"
+                                                   value="%heater>temperature>core_d_power_ema%"></div>
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Period in measurements for calc core delta temperature EMA (from %heater>temperature>core_d_tempr_ema#minR% to %heater>temperature>core_d_tempr_ema#maxR%)</div>
-                <div class="formParamValue"><input id="heater>temperature>core_d_tempr_ema" class="formStringParamValue" value="%heater>temperature>core_d_tempr_ema%"></div>
+                <div class="formParamCaption">Period in measurements for calc core delta temperature EMA (from
+                    %heater>temperature>core_d_tempr_ema#minR% to %heater>temperature>core_d_tempr_ema#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>temperature>core_d_tempr_ema" class="formStringParamValue"
+                                                   value="%heater>temperature>core_d_tempr_ema%"></div>
             </div>
 
 
@@ -447,7 +486,9 @@
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Start 2-nd pump if difference between temperature of core and input flow up to (from %heater>2pumps>start_on_delta_btw_core_input#minR% to %heater>2pumps>start_on_delta_btw_core_input#maxR%)
+                <div class="formParamCaption">Start 2-nd pump if difference between temperature of core and input flow
+                    up to (from %heater>2pumps>start_on_delta_btw_core_input#minR% to
+                    %heater>2pumps>start_on_delta_btw_core_input#maxR%)
                 </div>
                 <div class="formParamValue">
                     <input id="heater>2pumps>start_on_delta_btw_core_input" class="formStringParamValue"
@@ -467,7 +508,9 @@
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Start 2-nd pump if difference between temperature of input and output flows UP to (from %heater>2pumps>start_on_delta_btw_in_and_out#minR% to %heater>2pumps>start_on_delta_btw_in_and_out#maxR%)
+                <div class="formParamCaption">Start 2-nd pump if difference between temperature of input and output
+                    flows UP to (from %heater>2pumps>start_on_delta_btw_in_and_out#minR% to
+                    %heater>2pumps>start_on_delta_btw_in_and_out#maxR%)
                 </div>
                 <div class="formParamValue">
                     <input id="heater>2pumps>start_on_delta_btw_input_output" class="formStringParamValue"
@@ -476,7 +519,9 @@
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Stop 2-nd pump if difference between temperature of input and output flows DOWN to (from %heater>2pumps>stop_on_delta_btw_in_and_out#minR% to %heater>2pumps>stop_on_delta_btw_in_and_out#maxR%)
+                <div class="formParamCaption">Stop 2-nd pump if difference between temperature of input and output flows
+                    DOWN to (from %heater>2pumps>stop_on_delta_btw_in_and_out#minR% to
+                    %heater>2pumps>stop_on_delta_btw_in_and_out#maxR%)
                 </div>
                 <div class="formParamValue">
                     <input id="heater>2pumps>stop_on_delta_btw_input_output" class="formStringParamValue"
@@ -529,68 +574,110 @@
             <div class="formHeader2">Pumps cooling settings</div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Start pumps on core temperature (from %heater>cool_pumps>start_on_tempr#minR% to %heater>cool_pumps>start_on_tempr#maxR%)</div>
-                <div class="formParamValue"><input id="heater>cool_pumps>start_on_tempr" class="formStringParamValue" value="%heater>cool_pumps>start_on_tempr%"></div>
+                <div class="formParamCaption">Start pumps on core temperature (from
+                    %heater>cool_pumps>start_on_tempr#minR% to %heater>cool_pumps>start_on_tempr#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>cool_pumps>start_on_tempr" class="formStringParamValue"
+                                                   value="%heater>cool_pumps>start_on_tempr%"></div>
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Delta between core temperature and bottom accumulator temperature must be grater or equal to (from %heater>cool_pumps>start_on_d_btw_core_inp#minR% to %heater>cool_pumps>start_on_d_btw_core_inp#maxR%)</div>
-                <div class="formParamValue"><input id="heater>cool_pumps>start_on_d_btw_core_inp" class="formStringParamValue" value="%heater>cool_pumps>start_on_d_btw_core_inp%"></div>
+                <div class="formParamCaption">Delta between core temperature and bottom accumulator temperature must be
+                    grater or equal to (from %heater>cool_pumps>start_on_d_btw_core_inp#minR% to
+                    %heater>cool_pumps>start_on_d_btw_core_inp#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>cool_pumps>start_on_d_btw_core_inp"
+                                                   class="formStringParamValue"
+                                                   value="%heater>cool_pumps>start_on_d_btw_core_inp%"></div>
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Stop  pumps on core temperature cooled more than (from %heater>cool_pumps>stop_on_d_btw_start_core#minR% to %heater>cool_pumps>stop_on_d_btw_start_core#maxR%)</div>
-                <div class="formParamValue"><input id="heater>cool_pumps>stop_on_d_btw_start_core" class="formStringParamValue" value="%heater>cool_pumps>stop_on_d_btw_start_core%"></div>
-            </div>
-
-        </div>
-
-        <div class="form-section">
-            <div class="formHeader2">Standby mode settings </div>
-
-            <div class="form-inputField-container">
-                <div class="formParamCaption">Switch to the warming mode whet cores power reaches watts (from %heater>stanby>start_warm_on_power#minR% to %heater>stanby>start_warm_on_power#maxR%)</div>
-                <div class="formParamValue"><input id="heater>stanby>start_warm_on_power" class="formStringParamValue" value="%heater>stanby>start_warm_on_power%"></div>
-            </div>
-
-        </div>
-
-        <div class="form-section">
-            <div class="formHeader2">Warming mode settings </div>
-
-            <div class="form-inputField-container">
-                <div class="formParamCaption">Core power upon reaching which it is necessary to switch to PID mode. Watts (from %heater>warming>pwr_to_sw_to_PID#minR% to %heater>warming>pwr_to_sw_to_PID#maxR%)</div>
-                <div class="formParamValue"><input id="heater>warming>pwr_to_sw_to_PID" class="formStringParamValue" value="%heater>warming>pwr_to_sw_to_PID%"></div>
-            </div>
-
-            <div class="form-inputField-container">
-                <div class="formParamCaption">Core temperature upon reaching which, combined with power, it is necessary to switch to PID mode. (from %heater>warming>core_tempr_to_sw#minR% to %heater>warming>core_tempr_to_sw#maxR%)</div>
-                <div class="formParamValue"><input id="heater>warming>core_tempr_to_sw" class="formStringParamValue" value="%heater>warming>core_tempr_to_sw%"></div>
-            </div>
-
-            <div class="form-inputField-container">
-                <div class="formParamCaption">Time given to reaching power for switching to PID mode. Otherwise switching to colling mode. Sec (from %heater>warming>time_to_reach_pwr_sec#minR% to %heater>warming>time_to_reach_pwr_sec#maxR%)</div>
-                <div class="formParamValue"><input id="heater>warming>time_to_reach_pwr_sec" class="formStringParamValue" value="%heater>warming>time_to_reach_pwr_sec%"></div>
+                <div class="formParamCaption">Stop pumps on core temperature cooled more than (from
+                    %heater>cool_pumps>stop_on_d_btw_start_core#minR% to
+                    %heater>cool_pumps>stop_on_d_btw_start_core#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>cool_pumps>stop_on_d_btw_start_core"
+                                                   class="formStringParamValue"
+                                                   value="%heater>cool_pumps>stop_on_d_btw_start_core%"></div>
             </div>
 
         </div>
 
         <div class="form-section">
-            <div class="formHeader2">Final cooling mode settings </div>
+            <div class="formHeader2">Standby mode settings</div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Core temperature to switch to STAND BY mode (from %heater>final_cool>tempr_to_sw_to_stby#minR% to %heater>final_cool>tempr_to_sw_to_stby#maxR%)</div>
-                <div class="formParamValue"><input id="heater>final_cool>tempr_to_sw_to_stby" class="formStringParamValue" value="%heater>final_cool>tempr_to_sw_to_stby%"></div>
+                <div class="formParamCaption">Switch to the warming mode whet cores power reaches watts (from
+                    %heater>stanby>start_warm_on_power#minR% to %heater>stanby>start_warm_on_power#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>stanby>start_warm_on_power" class="formStringParamValue"
+                                                   value="%heater>stanby>start_warm_on_power%"></div>
+            </div>
+
+        </div>
+
+        <div class="form-section">
+            <div class="formHeader2">Warming mode settings</div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Core power upon reaching which it is necessary to switch to PID mode.
+                    Watts (from %heater>warming>pwr_to_sw_to_PID#minR% to %heater>warming>pwr_to_sw_to_PID#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>warming>pwr_to_sw_to_PID" class="formStringParamValue"
+                                                   value="%heater>warming>pwr_to_sw_to_PID%"></div>
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Power upon reaching witch it is necessary to switch to WARMING mode. Watts (from %heater>final_cool>start_on_d_btw_core_inp#minR% to %heater>final_cool>start_on_d_btw_core_inp#maxR%)</div>
-                <div class="formParamValue"><input id="heater>final_cool>start_on_d_btw_core_inp" class="formStringParamValue" value="%heater>final_cool>start_on_d_btw_core_inp%"></div>
+                <div class="formParamCaption">Core temperature upon reaching which, combined with power, it is necessary
+                    to switch to PID mode. (from %heater>warming>core_tempr_to_sw#minR% to
+                    %heater>warming>core_tempr_to_sw#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>warming>core_tempr_to_sw" class="formStringParamValue"
+                                                   value="%heater>warming>core_tempr_to_sw%"></div>
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">The time that must elapse from the power drops bellow switching from standby mode to warming mode, to switch to STANDBY mode. Sec (from %heater>final_cool>delay_to_sw_to_stnby#minR% to %heater>final_cool>delay_to_sw_to_stnby#maxR%)</div>
-                <div class="formParamValue"><input id="heater>final_cool>delay_to_sw_to_stnby" class="formStringParamValue" value="%heater>final_cool>delay_to_sw_to_stnby%"></div>
+                <div class="formParamCaption">Time given to reaching power for switching to PID mode. Otherwise
+                    switching to colling mode. Sec (from %heater>warming>time_to_reach_pwr_sec#minR% to
+                    %heater>warming>time_to_reach_pwr_sec#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>warming>time_to_reach_pwr_sec"
+                                                   class="formStringParamValue"
+                                                   value="%heater>warming>time_to_reach_pwr_sec%"></div>
+            </div>
+
+        </div>
+
+        <div class="form-section">
+            <div class="formHeader2">Final cooling mode settings</div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Core temperature to switch to STAND BY mode (from
+                    %heater>final_cool>tempr_to_sw_to_stby#minR% to %heater>final_cool>tempr_to_sw_to_stby#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>final_cool>tempr_to_sw_to_stby"
+                                                   class="formStringParamValue"
+                                                   value="%heater>final_cool>tempr_to_sw_to_stby%"></div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Power upon reaching witch it is necessary to switch to WARMING mode. Watts
+                    (from %heater>final_cool>start_on_d_btw_core_inp#minR% to
+                    %heater>final_cool>start_on_d_btw_core_inp#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>final_cool>start_on_d_btw_core_inp"
+                                                   class="formStringParamValue"
+                                                   value="%heater>final_cool>start_on_d_btw_core_inp%"></div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">The time that must elapse from the power drops bellow switching from
+                    standby mode to warming mode, to switch to STANDBY mode. Sec (from
+                    %heater>final_cool>delay_to_sw_to_stnby#minR% to %heater>final_cool>delay_to_sw_to_stnby#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>final_cool>delay_to_sw_to_stnby"
+                                                   class="formStringParamValue"
+                                                   value="%heater>final_cool>delay_to_sw_to_stnby%"></div>
             </div>
 
         </div>
@@ -600,37 +687,54 @@
 
             <div class="form-inputField-container">
                 <div class="formParamCaption">P coef (from %heater>pid>p#minR% to %heater>pid>p#maxR%)</div>
-                <div class="formParamValue"><input id="heater>pid>p" class="formStringParamValue" value="%heater>pid>p%"></div>
+                <div class="formParamValue"><input id="heater>pid>p" class="formStringParamValue"
+                                                   value="%heater>pid>p%"></div>
             </div>
 
             <div class="form-inputField-container">
                 <div class="formParamCaption">I coef (from %heater>pid>i#minR% to %heater>pid>i#maxR%)</div>
-                <div class="formParamValue"><input id="heater>pid>i" class="formStringParamValue" value="%heater>pid>i%"></div>
+                <div class="formParamValue"><input id="heater>pid>i" class="formStringParamValue"
+                                                   value="%heater>pid>i%"></div>
             </div>
 
             <div class="form-inputField-container">
                 <div class="formParamCaption">D coef (from %heater>pid>d#minR% to %heater>pid>d#maxR%)</div>
-                <div class="formParamValue"><input id="heater>pid>d" class="formStringParamValue" value="%heater>pid>d%"></div>
+                <div class="formParamValue"><input id="heater>pid>d" class="formStringParamValue"
+                                                   value="%heater>pid>d%"></div>
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Maximum I value (from %heater>pid>max_i#minR% to %heater>pid>max_i#maxR%)</div>
-                <div class="formParamValue"><input id="heater>pid>max_i" class="formStringParamValue" value="%heater>pid>max_i%"></div>
+                <div class="formParamCaption">Maximum I value (from %heater>pid>max_i#minR% to
+                    %heater>pid>max_i#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>pid>max_i" class="formStringParamValue"
+                                                   value="%heater>pid>max_i%"></div>
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Minimum I value (from %heater>pid>min_i#minR% to %heater>pid>min_i#maxR%)</div>
-                <div class="formParamValue"><input id="heater>pid>min_i" class="formStringParamValue" value="%heater>pid>min_i%"></div>
+                <div class="formParamCaption">Minimum I value (from %heater>pid>min_i#minR% to
+                    %heater>pid>min_i#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>pid>min_i" class="formStringParamValue"
+                                                   value="%heater>pid>min_i%"></div>
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Power upon reached which it is necessary to switch to WARMING mode. Combining with next parameter. Watts (from %heater>pid>pwr_to_sw_to_warm#minR% to %heater>pid>pwr_to_sw_to_warm#maxR%)</div>
-                <div class="formParamValue"><input id="heater>pid>pwr_to_sw_to_warm" class="formStringParamValue" value="%heater>pid>pwr_to_sw_to_warm%"></div>
+                <div class="formParamCaption">Power upon reached which it is necessary to switch to WARMING mode.
+                    Combining with next parameter. Watts (from %heater>pid>pwr_to_sw_to_warm#minR% to
+                    %heater>pid>pwr_to_sw_to_warm#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>pid>pwr_to_sw_to_warm" class="formStringParamValue"
+                                                   value="%heater>pid>pwr_to_sw_to_warm%"></div>
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Oxygen door opening percentage to switch to WARMING mode. Combining with prior parameter. Watts (from %heater>pid>oxy_door_to_sw_warm#minR% to %heater>pid>oxy_door_to_sw_warm#maxR%)</div>
-                <div class="formParamValue"><input id="heater>pid>oxy_door_to_sw_warm" class="formStringParamValue" value="%heater>pid>oxy_door_to_sw_warm%"></div>
+                <div class="formParamCaption">Oxygen door opening percentage to switch to WARMING mode. Combining with
+                    prior parameter. Watts (from %heater>pid>oxy_door_to_sw_warm#minR% to
+                    %heater>pid>oxy_door_to_sw_warm#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>pid>oxy_door_to_sw_warm" class="formStringParamValue"
+                                                   value="%heater>pid>oxy_door_to_sw_warm%"></div>
             </div>
 
         </div>
@@ -641,56 +745,100 @@
             <div class="form-section">
                 <div class="formHeader2">Smoke door</div>
                 <div class="form-inputField-container">
-                    <div class="formParamCaption">Impulse length for 0 degrees mcSec (from %heater>servos>smoke>min_impulse_length_us#minR% to %heater>servos>smoke>min_impulse_length_us#maxR%)</div>
-                    <div class="formParamValue"><input id="heater>servos>smoke>min_impulse_length_us" class="formStringParamValue" value="%heater>servos>smoke>min_impulse_length_us%"></div>
+                    <div class="formParamCaption">Impulse length for 0 degrees mcSec (from
+                        %heater>servos>smoke>min_impulse_length_us#minR% to
+                        %heater>servos>smoke>min_impulse_length_us#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>servos>smoke>min_impulse_length_us"
+                                                       class="formStringParamValue"
+                                                       value="%heater>servos>smoke>min_impulse_length_us%"></div>
                 </div>
 
                 <div class="form-inputField-container">
-                    <div class="formParamCaption">Impulse length for maximum degrees mcSec (from %heater>servos>smoke>max_impulse_length_us#minR% to %heater>servos>smoke>max_impulse_length_us#maxR%)</div>
-                    <div class="formParamValue"><input id="heater>servos>smoke>max_impulse_length_us" class="formStringParamValue" value="%heater>servos>smoke>max_impulse_length_us%"></div>
+                    <div class="formParamCaption">Impulse length for maximum degrees mcSec (from
+                        %heater>servos>smoke>max_impulse_length_us#minR% to
+                        %heater>servos>smoke>max_impulse_length_us#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>servos>smoke>max_impulse_length_us"
+                                                       class="formStringParamValue"
+                                                       value="%heater>servos>smoke>max_impulse_length_us%"></div>
                 </div>
 
                 <div class="form-inputField-container">
-                    <div class="formParamCaption">Servo rotation degrees (from %heater>servos>smoke>total_degrees#minR% to %heater>servos>smoke>total_degrees#maxR%)</div>
-                    <div class="formParamValue"><input id="heater>servos>smoke>total_degrees" class="formStringParamValue" value="%heater>servos>smoke>total_degrees%"></div>
+                    <div class="formParamCaption">Servo rotation degrees (from %heater>servos>smoke>total_degrees#minR%
+                        to %heater>servos>smoke>total_degrees#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>servos>smoke>total_degrees"
+                                                       class="formStringParamValue"
+                                                       value="%heater>servos>smoke>total_degrees%"></div>
                 </div>
 
                 <div class="form-inputField-container">
-                    <div class="formParamCaption">Minimum working angle degrees (from %heater>servos>smoke>working_min_angle#minR% to %heater>servos>smoke>working_min_angle#maxR%)</div>
-                    <div class="formParamValue"><input id="heater>servos>smoke>working_min_angle" class="formStringParamValue" value="%heater>servos>smoke>working_min_angle%"></div>
+                    <div class="formParamCaption">Minimum working angle degrees (from
+                        %heater>servos>smoke>working_min_angle#minR% to %heater>servos>smoke>working_min_angle#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>servos>smoke>working_min_angle"
+                                                       class="formStringParamValue"
+                                                       value="%heater>servos>smoke>working_min_angle%"></div>
                 </div>
 
                 <div class="form-inputField-container">
-                    <div class="formParamCaption">Maximum working angle degrees (from %heater>servos>smoke>working_max_angle#minR% to %heater>servos>smoke>working_max_angle#maxR%)</div>
-                    <div class="formParamValue"><input id="heater>servos>smoke>working_max_angle" class="formStringParamValue" value="%heater>servos>smoke>working_max_angle%"></div>
+                    <div class="formParamCaption">Maximum working angle degrees (from
+                        %heater>servos>smoke>working_max_angle#minR% to %heater>servos>smoke>working_max_angle#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>servos>smoke>working_max_angle"
+                                                       class="formStringParamValue"
+                                                       value="%heater>servos>smoke>working_max_angle%"></div>
                 </div>
             </div>
 
             <div class="form-section">
                 <div class="formHeader2">Oxygen door</div>
                 <div class="form-inputField-container">
-                    <div class="formParamCaption">Impulse length for 0 degrees mcSec (from %heater>servos>oxygen>min_impulse_length_us#minR% to %heater>servos>oxygen>min_impulse_length_us#maxR%)</div>
-                    <div class="formParamValue"><input id="heater>servos>oxygen>min_impulse_length_us" class="formStringParamValue" value="%heater>servos>oxygen>min_impulse_length_us%"></div>
+                    <div class="formParamCaption">Impulse length for 0 degrees mcSec (from
+                        %heater>servos>oxygen>min_impulse_length_us#minR% to
+                        %heater>servos>oxygen>min_impulse_length_us#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>servos>oxygen>min_impulse_length_us"
+                                                       class="formStringParamValue"
+                                                       value="%heater>servos>oxygen>min_impulse_length_us%"></div>
                 </div>
 
                 <div class="form-inputField-container">
-                    <div class="formParamCaption">Impulse length for maximum degrees mcSec (from %heater>servos>oxygen>max_impulse_length_us#minR% to %heater>servos>oxygen>max_impulse_length_us#maxR%)</div>
-                    <div class="formParamValue"><input id="heater>servos>oxygen>max_impulse_length_us" class="formStringParamValue" value="%heater>servos>oxygen>max_impulse_length_us%"></div>
+                    <div class="formParamCaption">Impulse length for maximum degrees mcSec (from
+                        %heater>servos>oxygen>max_impulse_length_us#minR% to
+                        %heater>servos>oxygen>max_impulse_length_us#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>servos>oxygen>max_impulse_length_us"
+                                                       class="formStringParamValue"
+                                                       value="%heater>servos>oxygen>max_impulse_length_us%"></div>
                 </div>
 
                 <div class="form-inputField-container">
-                    <div class="formParamCaption">Servo rotation degrees (from %heater>servos>oxygen>total_degrees#minR% to %heater>servos>oxygen>total_degrees#maxR%)</div>
-                    <div class="formParamValue"><input id="heater>servos>oxygen>total_degrees" class="formStringParamValue" value="%heater>servos>oxygen>total_degrees%"></div>
+                    <div class="formParamCaption">Servo rotation degrees (from %heater>servos>oxygen>total_degrees#minR%
+                        to %heater>servos>oxygen>total_degrees#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>servos>oxygen>total_degrees"
+                                                       class="formStringParamValue"
+                                                       value="%heater>servos>oxygen>total_degrees%"></div>
                 </div>
 
                 <div class="form-inputField-container">
-                    <div class="formParamCaption">Minimum working angle degrees (from %heater>servos>oxygen>working_min_angle#minR% to %heater>servos>oxygen>working_min_angle#maxR%)</div>
-                    <div class="formParamValue"><input id="heater>servos>oxygen>working_min_angle" class="formStringParamValue" value="%heater>servos>oxygen>working_min_angle%"></div>
+                    <div class="formParamCaption">Minimum working angle degrees (from
+                        %heater>servos>oxygen>working_min_angle#minR% to %heater>servos>oxygen>working_min_angle#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>servos>oxygen>working_min_angle"
+                                                       class="formStringParamValue"
+                                                       value="%heater>servos>oxygen>working_min_angle%"></div>
                 </div>
 
                 <div class="form-inputField-container">
-                    <div class="formParamCaption">Maximum working angle degrees (from %heater>servos>oxygen>working_max_angle#minR% to %heater>servos>oxygen>working_max_angle#maxR%)</div>
-                    <div class="formParamValue"><input id="heater>servos>oxygen>working_max_angle" class="formStringParamValue" value="%heater>servos>oxygen>working_max_angle%"></div>
+                    <div class="formParamCaption">Maximum working angle degrees (from
+                        %heater>servos>oxygen>working_max_angle#minR% to %heater>servos>oxygen>working_max_angle#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>servos>oxygen>working_max_angle"
+                                                       class="formStringParamValue"
+                                                       value="%heater>servos>oxygen>working_max_angle%"></div>
                 </div>
 
             </div>
@@ -698,119 +846,502 @@
             <div class="form-section">
                 <div class="formHeader2">Upper oxygen door</div>
                 <div class="form-inputField-container">
-                    <div class="formParamCaption">Impulse length for 0 degrees mcSec (from %heater>servos>upper>min_impulse_length_us#minR% to %heater>servos>upper>min_impulse_length_us#maxR%)</div>
-                    <div class="formParamValue"><input id="heater>servos>upper>min_impulse_length_us" class="formStringParamValue" value="%heater>servos>upper>min_impulse_length_us%"></div>
+                    <div class="formParamCaption">Impulse length for 0 degrees mcSec (from
+                        %heater>servos>upper>min_impulse_length_us#minR% to
+                        %heater>servos>upper>min_impulse_length_us#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>servos>upper>min_impulse_length_us"
+                                                       class="formStringParamValue"
+                                                       value="%heater>servos>upper>min_impulse_length_us%"></div>
                 </div>
 
                 <div class="form-inputField-container">
-                    <div class="formParamCaption">Impulse length for maximum degrees mcSec (from %heater>servos>upper>max_impulse_length_us#minR% to %heater>servos>upper>max_impulse_length_us#maxR%)</div>
-                    <div class="formParamValue"><input id="heater>servos>upper>max_impulse_length_us" class="formStringParamValue" value="%heater>servos>upper>max_impulse_length_us%"></div>
+                    <div class="formParamCaption">Impulse length for maximum degrees mcSec (from
+                        %heater>servos>upper>max_impulse_length_us#minR% to
+                        %heater>servos>upper>max_impulse_length_us#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>servos>upper>max_impulse_length_us"
+                                                       class="formStringParamValue"
+                                                       value="%heater>servos>upper>max_impulse_length_us%"></div>
                 </div>
 
                 <div class="form-inputField-container">
-                    <div class="formParamCaption">Servo rotation degrees (from %heater>servos>upper>total_degrees#minR% to %heater>servos>upper>total_degrees#maxR%)</div>
-                    <div class="formParamValue"><input id="heater>servos>upper>total_degrees" class="formStringParamValue" value="%heater>servos>upper>total_degrees%"></div>
+                    <div class="formParamCaption">Servo rotation degrees (from %heater>servos>upper>total_degrees#minR%
+                        to %heater>servos>upper>total_degrees#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>servos>upper>total_degrees"
+                                                       class="formStringParamValue"
+                                                       value="%heater>servos>upper>total_degrees%"></div>
                 </div>
 
                 <div class="form-inputField-container">
-                    <div class="formParamCaption">Minimum working angle degrees (from %heater>servos>upper>working_min_angle#minR% to %heater>servos>upper>working_min_angle#maxR%)</div>
-                    <div class="formParamValue"><input id="heater>servos>upper>working_min_angle" class="formStringParamValue" value="%heater>servos>upper>working_min_angle%"></div>
+                    <div class="formParamCaption">Minimum working angle degrees (from
+                        %heater>servos>upper>working_min_angle#minR% to %heater>servos>upper>working_min_angle#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>servos>upper>working_min_angle"
+                                                       class="formStringParamValue"
+                                                       value="%heater>servos>upper>working_min_angle%"></div>
                 </div>
 
                 <div class="form-inputField-container">
-                    <div class="formParamCaption">Maximum working angle degrees (from %heater>servos>upper>working_max_angle#minR% to %heater>servos>upper>working_max_angle#maxR%)</div>
-                    <div class="formParamValue"><input id="heater>servos>upper>working_max_angle" class="formStringParamValue" value="%heater>servos>upper>working_max_angle%"></div>
+                    <div class="formParamCaption">Maximum working angle degrees (from
+                        %heater>servos>upper>working_max_angle#minR% to %heater>servos>upper>working_max_angle#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>servos>upper>working_max_angle"
+                                                       class="formStringParamValue"
+                                                       value="%heater>servos>upper>working_max_angle%"></div>
                 </div>
 
             </div>
         </div>
 
         <div class="form-section">
-            <div class="formHeader2">Modelling settings </div>
+            <div class="formHeader2">Modelling settings</div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Maximum core power. Watts (from %heater>modelling>max_core_power#minR% to %heater>modelling>max_core_power#maxR%)</div>
-                <div class="formParamValue"><input id="heater>modelling>max_core_power" class="formStringParamValue" value="%heater>modelling>max_core_power%"></div>
+                <div class="formParamCaption">Maximum core power. Watts (from %heater>modelling>max_core_power#minR% to
+                    %heater>modelling>max_core_power#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>modelling>max_core_power" class="formStringParamValue"
+                                                   value="%heater>modelling>max_core_power%"></div>
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Cycles with maximum power. (from %heater>modelling>max_power_cycles#minR% to %heater>modelling>max_power_cycles#maxR%)</div>
-                <div class="formParamValue"><input id="heater>modelling>max_power_cycles" class="formStringParamValue" value="%heater>modelling>max_power_cycles%"></div>
+                <div class="formParamCaption">Power fade out steps (from %heater>modelling>pwr_fade_out_steps#minR% to
+                    %heater>modelling>pwr_fade_out_steps#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>modelling>pwr_fade_out_steps" class="formStringParamValue"
+                                                   value="%heater>modelling>pwr_fade_out_steps%"></div>
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Power fade out steps  (from %heater>modelling>pwr_fade_out_steps#minR% to %heater>modelling>pwr_fade_out_steps#maxR%)</div>
-                <div class="formParamValue"><input id="heater>modelling>pwr_fade_out_steps" class="formStringParamValue" value="%heater>modelling>pwr_fade_out_steps%"></div>
+                <div class="formParamCaption">Start core heating from cycle. (from
+                    %heater>modelling>start_heat_from_cycle#minR% to %heater>modelling>start_heat_from_cycle#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>modelling>start_heat_from_cycle"
+                                                   class="formStringParamValue"
+                                                   value="%heater>modelling>start_heat_from_cycle%"></div>
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Start core heating from cycle. (from %heater>modelling>start_heat_from_cycle#minR% to %heater>modelling>start_heat_from_cycle#maxR%)</div>
-                <div class="formParamValue"><input id="heater>modelling>start_heat_from_cycle" class="formStringParamValue" value="%heater>modelling>start_heat_from_cycle%"></div>
+                <div class="formParamCaption">Coefficient of energy transmission from the core to water (from
+                    %heater>modelling>core_energy_tr_cf#minR% to %heater>modelling>core_energy_tr_cf#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>modelling>core_energy_tr_cf" class="formStringParamValue"
+                                                   value="%heater>modelling>core_energy_tr_cf%"></div>
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Coefficient of energy transmission from the core to water (from %heater>modelling>core_energy_tr_cf#minR% to %heater>modelling>core_energy_tr_cf#maxR%)</div>
-                <div class="formParamValue"><input id="heater>modelling>core_energy_tr_cf" class="formStringParamValue" value="%heater>modelling>core_energy_tr_cf%"></div>
+                <div class="formParamCaption">Ema for reactions core power for doors. (from
+                    %heater>modelling>ema_doors_reactions#minR% to %heater>modelling>ema_doors_reactions#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>modelling>ema_doors_reactions"
+                                                   class="formStringParamValue"
+                                                   value="%heater>modelling>ema_doors_reactions%"></div>
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Power of core grows as Sinus of an angle. Angle grows from 0 to 90 degrees each cycle with step (from %heater>modelling>angle_step#minR% to %heater>modelling>angle_step#maxR%)</div>
-                <div class="formParamValue"><input id="heater>modelling>angle_step" class="formStringParamValue" value="%heater>modelling>angle_step%"></div>
+                <div class="formParamCaption">Coefficient of core power calculates as prcnt_oxygen_door *
+                    Sin(smoke_door) * this coef. Default 1.7 (from %heater>modelling>add_core_doors_coef#minR% to
+                    %heater>modelling>add_core_doors_coef#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>modelling>add_core_doors_coef"
+                                                   class="formStringParamValue"
+                                                   value="%heater>modelling>add_core_doors_coef%"></div>
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Ema for reactions core power for doors. (from %heater>modelling>ema_doors_reactions#minR% to %heater>modelling>ema_doors_reactions#maxR%)</div>
-                <div class="formParamValue"><input id="heater>modelling>ema_doors_reactions" class="formStringParamValue" value="%heater>modelling>ema_doors_reactions%"></div>
+                <div class="formParamCaption">Permanent home temperature. Default 25 (from
+                    %heater>modelling>home_temperature#minR% to %heater>modelling>home_temperature#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>modelling>home_temperature" class="formStringParamValue"
+                                                   value="%heater>modelling>home_temperature%"></div>
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Coefficient of core power calculates as prcnt_oxygen_door * Sin(smoke_door) * this coef. Default 1.7 (from %heater>modelling>add_core_doors_coef#minR% to %heater>modelling>add_core_doors_coef#maxR%)</div>
-                <div class="formParamValue"><input id="heater>modelling>add_core_doors_coef" class="formStringParamValue" value="%heater>modelling>add_core_doors_coef%"></div>
+                <div class="formParamCaption">Working radiators temperature at which they irradiates rated power. (from
+                    %heater>modelling>radiators_base_tempr#minR% to %heater>modelling>radiators_base_tempr#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>modelling>radiators_base_tempr"
+                                                   class="formStringParamValue"
+                                                   value="%heater>modelling>radiators_base_tempr%"></div>
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Maximum power of home radiators. Watts (from %heater>modelling>radiators_base_power#minR% to %heater>modelling>radiators_base_power#maxR%)</div>
-                <div class="formParamValue"><input id="heater>modelling>radiators_base_power" class="formStringParamValue" value="%heater>modelling>radiators_base_power%"></div>
+                <div class="formParamCaption">Flow through radiators. Litters per minute (from
+                    %heater>modelling>radiators_flow_lpm#minR% to %heater>modelling>radiators_flow_lpm#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>modelling>radiators_flow_lpm" class="formStringParamValue"
+                                                   value="%heater>modelling>radiators_flow_lpm%"></div>
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Permanent home temperature. Default 25 (from %heater>modelling>home_temperature#minR% to %heater>modelling>home_temperature#maxR%)</div>
-                <div class="formParamValue"><input id="heater>modelling>home_temperature" class="formStringParamValue" value="%heater>modelling>home_temperature%"></div>
+                <div class="formParamCaption">coefficient of transmission energy from heated water to home by radiators.
+                    calculate as pow((top_tempr - home_temperature) / (radiator_normal_temperature - home_temperature),
+                    X_POW). This parameter is X_POW. default 1.25 (from %heater>modelling>radiators_eff_coef_pow#minR%
+                    to %heater>modelling>radiators_eff_coef_pow#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>modelling>radiators_eff_coef_pow"
+                                                   class="formStringParamValue"
+                                                   value="%heater>modelling>radiators_eff_coef_pow%"></div>
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Working radiators temperature at which they irradiates rated power. (from %heater>modelling>radiators_base_tempr#minR% to %heater>modelling>radiators_base_tempr#maxR%)</div>
-                <div class="formParamValue"><input id="heater>modelling>radiators_base_tempr" class="formStringParamValue" value="%heater>modelling>radiators_base_tempr%"></div>
+                <div class="formParamCaption">Coefficient is a POW shows how fast will grows the cooling. (from
+                    %heater>modelling>naturaly_cooling_pow#minR% to %heater>modelling>naturaly_cooling_pow#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>modelling>naturaly_cooling_pow"
+                                                   class="formStringParamValue"
+                                                   value="%heater>modelling>naturaly_cooling_pow%"></div>
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Flow through radiators. Litters per minute (from %heater>modelling>radiators_flow_lpm#minR% to %heater>modelling>radiators_flow_lpm#maxR%)</div>
-                <div class="formParamValue"><input id="heater>modelling>radiators_flow_lpm" class="formStringParamValue" value="%heater>modelling>radiators_flow_lpm%"></div>
+                <div class="formParamCaption">Naturally cooling of accumulator and pipes. 1 / N (N from
+                    %heater>modelling>nat_cooling_coef_div#minR% to %heater>modelling>nat_cooling_coef_div#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>modelling>nat_cooling_coef_div"
+                                                   class="formStringParamValue"
+                                                   value="%heater>modelling>nat_cooling_coef_div%"></div>
             </div>
 
-            <div class="form-inputField-container">
-                <div class="formParamCaption">coefficient of transmission energy from heated water to home by radiators. calculate as pow((top_tempr - home_temperature) / (radiator_normal_temperature - home_temperature), X_POW). This parameter is X_POW. default 1.25  (from %heater>modelling>radiators_eff_coef_pow#minR% to %heater>modelling>radiators_eff_coef_pow#maxR%)</div>
-                <div class="formParamValue"><input id="heater>modelling>radiators_eff_coef_pow" class="formStringParamValue" value="%heater>modelling>radiators_eff_coef_pow%"></div>
+            <div class="form-section">
+                <div class="formHeader2">Stage 1</div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Is active</div>
+                    <div class="formParamValue">
+                        <input id="heater>modelling>s0_active" type="checkbox" class="formStringParamValue"
+                               %heater>modelling>s0_active%>
+                    </div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Power of core grows as Sinus of an angle. This is a start angle (from
+                        %heater>modelling>s0_start_angle#minR% to %heater>modelling>s0_start_angle#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s0_start_angle" class="formStringParamValue"
+                                                       value="%heater>modelling>s0_start_angle%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Power of core grows as Sinus of an angle. Angle grows from 0 to 90
+                        degrees each cycle with step (from %heater>modelling>s0_angle_step#minR% to
+                        %heater>modelling>s0_angle_step#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s0_angle_step" class="formStringParamValue"
+                                                       value="%heater>modelling>s0_angle_step%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Cycles with maximum power. (from
+                        %heater>modelling>s0_max_power_cycles#minR% to %heater>modelling>s0_max_power_cycles#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s0_max_power_cycles"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s0_max_power_cycles%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Maximum power of home radiators. Watts (from
+                        %heater>modelling>s0_radiators_base_power#minR% to
+                        %heater>modelling>s0_radiators_base_power#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s0_radiators_base_power"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s0_radiators_base_power%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Stop radiators at cycle (from
+                        %heater>modelling>s0_rad_stop_after_cycle#minR% to
+                        %heater>modelling>s0_rad_stop_after_cycle#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s0_rad_stop_after_cycle"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s0_rad_stop_after_cycle%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Cycle count of simulation (from
+                        %heater>modelling>s0_modeling_length#minR% to %heater>modelling>s0_modeling_length#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s0_modeling_length"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s0_modeling_length%"></div>
+                </div>
+
             </div>
 
-            <div class="form-inputField-container">
-                <div class="formParamCaption">Stop radiators at cycle  (from %heater>modelling>radiator_stop_after_cycle#minR% to %heater>modelling>radiator_stop_after_cycle#maxR%)</div>
-                <div class="formParamValue"><input id="heater>modelling>radiator_stop_after_cycle" class="formStringParamValue" value="%heater>modelling>radiator_stop_after_cycle%"></div>
+            <div class="form-section">
+                <div class="formHeader2">Stage 2</div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Is active</div>
+                    <div class="formParamValue">
+                        <input id="heater>modelling>s1_active" type="checkbox" class="formStringParamValue"
+                               %heater>modelling>s1_active%>
+                    </div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Power of core grows as Sinus of an angle. This is a start angle (from
+                        %heater>modelling>s1_start_angle#minR% to %heater>modelling>s1_start_angle#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s1_start_angle" class="formStringParamValue"
+                                                       value="%heater>modelling>s1_start_angle%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Power of core grows as Sinus of an angle. Angle grows from 0 to 90
+                        degrees each cycle with step (from %heater>modelling>s1_angle_step#minR% to
+                        %heater>modelling>s1_angle_step#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s1_angle_step" class="formStringParamValue"
+                                                       value="%heater>modelling>s1_angle_step%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Cycles with maximum power. (from
+                        %heater>modelling>s1_max_power_cycles#minR% to %heater>modelling>s1_max_power_cycles#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s1_max_power_cycles"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s1_max_power_cycles%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Maximum power of home radiators. Watts (from
+                        %heater>modelling>s1_radiators_base_power#minR% to
+                        %heater>modelling>s1_radiators_base_power#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s1_radiators_base_power"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s1_radiators_base_power%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Stop radiators at cycle (from
+                        %heater>modelling>s1_rad_stop_after_cycle#minR% to
+                        %heater>modelling>s1_rad_stop_after_cycle#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s1_rad_stop_after_cycle"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s1_rad_stop_after_cycle%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Cycle count of simulation (from
+                        %heater>modelling>s1_modeling_length#minR% to %heater>modelling>s1_modeling_length#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s1_modeling_length"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s1_modeling_length%"></div>
+                </div>
+
             </div>
 
-            <div class="form-inputField-container">
-                <div class="formParamCaption">Coefficient is a POW shows how fast will grows the cooling. (from %heater>modelling>naturaly_cooling_pow#minR% to %heater>modelling>naturaly_cooling_pow#maxR%)</div>
-                <div class="formParamValue"><input id="heater>modelling>naturaly_cooling_pow" class="formStringParamValue" value="%heater>modelling>naturaly_cooling_pow%"></div>
+            <div class="form-section">
+                <div class="formHeader2">Stage 3</div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Is active</div>
+                    <div class="formParamValue">
+                        <input id="heater>modelling>s2_active" type="checkbox" class="formStringParamValue"
+                               %heater>modelling>s2_active%>
+                    </div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Power of core grows as Sinus of an angle. This is a start angle (from
+                        %heater>modelling>s2_start_angle#minR% to %heater>modelling>s2_start_angle#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s2_start_angle" class="formStringParamValue"
+                                                       value="%heater>modelling>s2_start_angle%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Power of core grows as Sinus of an angle. Angle grows from 0 to 90
+                        degrees each cycle with step (from %heater>modelling>s2_angle_step#minR% to
+                        %heater>modelling>s2_angle_step#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s2_angle_step" class="formStringParamValue"
+                                                       value="%heater>modelling>s2_angle_step%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Cycles with maximum power. (from
+                        %heater>modelling>s2_max_power_cycles#minR% to %heater>modelling>s2_max_power_cycles#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s2_max_power_cycles"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s2_max_power_cycles%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Maximum power of home radiators. Watts (from
+                        %heater>modelling>s2_radiators_base_power#minR% to
+                        %heater>modelling>s2_radiators_base_power#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s2_radiators_base_power"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s2_radiators_base_power%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Stop radiators at cycle (from
+                        %heater>modelling>s2_rad_stop_after_cycle#minR% to
+                        %heater>modelling>s2_rad_stop_after_cycle#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s2_rad_stop_after_cycle"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s2_rad_stop_after_cycle%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Cycle count of simulation (from
+                        %heater>modelling>s2_modeling_length#minR% to %heater>modelling>s2_modeling_length#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s2_modeling_length"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s2_modeling_length%"></div>
+                </div>
+
             </div>
 
-            <div class="form-inputField-container">
-                <div class="formParamCaption">Naturally cooling of accumulator and pipes. 1 / N  (N from %heater>modelling>nat_cooling_coef_div#minR% to %heater>modelling>nat_cooling_coef_div#maxR%)</div>
-                <div class="formParamValue"><input id="heater>modelling>nat_cooling_coef_div" class="formStringParamValue" value="%heater>modelling>nat_cooling_coef_div%"></div>
+            <div class="form-section">
+                <div class="formHeader2">Stage 4</div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Is active</div>
+                    <div class="formParamValue">
+                        <input id="heater>modelling>s3_active" type="checkbox" class="formStringParamValue"
+                               %heater>modelling>s3_active%>
+                    </div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Power of core grows as Sinus of an angle. This is a start angle (from
+                        %heater>modelling>s3_start_angle#minR% to %heater>modelling>s3_start_angle#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s3_start_angle" class="formStringParamValue"
+                                                       value="%heater>modelling>s3_start_angle%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Power of core grows as Sinus of an angle. Angle grows from 0 to 90
+                        degrees each cycle with step (from %heater>modelling>s3_angle_step#minR% to
+                        %heater>modelling>s3_angle_step#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s3_angle_step" class="formStringParamValue"
+                                                       value="%heater>modelling>s3_angle_step%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Cycles with maximum power. (from
+                        %heater>modelling>s3_max_power_cycles#minR% to %heater>modelling>s3_max_power_cycles#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s3_max_power_cycles"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s3_max_power_cycles%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Maximum power of home radiators. Watts (from
+                        %heater>modelling>s3_radiators_base_power#minR% to
+                        %heater>modelling>s3_radiators_base_power#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s3_radiators_base_power"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s3_radiators_base_power%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Stop radiators at cycle (from
+                        %heater>modelling>s3_rad_stop_after_cycle#minR% to
+                        %heater>modelling>s3_rad_stop_after_cycle#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s3_rad_stop_after_cycle"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s3_rad_stop_after_cycle%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Cycle count of simulation (from
+                        %heater>modelling>s3_modeling_length#minR% to %heater>modelling>s3_modeling_length#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s3_modeling_length"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s3_modeling_length%"></div>
+                </div>
+
             </div>
 
-            <div class="form-inputField-container">
-                <div class="formParamCaption">Length of modelling in iterations (from %heater>modelling>modeling_length#minR% to %heater>modelling>modeling_length#maxR%)</div>
-                <div class="formParamValue"><input id="heater>modelling>modeling_length" class="formStringParamValue" value="%heater>modelling>modeling_length%"></div>
+            <div class="form-section">
+                <div class="formHeader2">Stage 5</div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Is active</div>
+                    <div class="formParamValue">
+                        <input id="heater>modelling>s4_active" type="checkbox" class="formStringParamValue"
+                               %heater>modelling>s4_active%>
+                    </div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Power of core grows as Sinus of an angle. This is a start angle (from
+                        %heater>modelling>s4_start_angle#minR% to %heater>modelling>s4_start_angle#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s4_start_angle" class="formStringParamValue"
+                                                       value="%heater>modelling>s4_start_angle%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Power of core grows as Sinus of an angle. Angle grows from 0 to 90
+                        degrees each cycle with step (from %heater>modelling>s4_angle_step#minR% to
+                        %heater>modelling>s4_angle_step#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s4_angle_step" class="formStringParamValue"
+                                                       value="%heater>modelling>s4_angle_step%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Cycles with maximum power. (from
+                        %heater>modelling>s4_max_power_cycles#minR% to %heater>modelling>s4_max_power_cycles#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s4_max_power_cycles"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s4_max_power_cycles%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Maximum power of home radiators. Watts (from
+                        %heater>modelling>s4_radiators_base_power#minR% to
+                        %heater>modelling>s4_radiators_base_power#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s4_radiators_base_power"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s4_radiators_base_power%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Stop radiators at cycle (from
+                        %heater>modelling>s4_rad_stop_after_cycle#minR% to
+                        %heater>modelling>s4_rad_stop_after_cycle#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s4_rad_stop_after_cycle"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s4_rad_stop_after_cycle%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Cycle count of simulation (from
+                        %heater>modelling>s4_modeling_length#minR% to %heater>modelling>s4_modeling_length#maxR%)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s4_modeling_length"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s4_modeling_length%"></div>
+                </div>
+
             </div>
 
             <div class="form-inputField-container">
@@ -823,11 +1354,21 @@
 
             <div class="form-inputField-container">
                 <div class="formParamCaption">Estimated modelling iterations</div>
-                <div class="formParamValue"><input disabled="true" id="heater>modelling>est_modelling_cycles" class="formStringParamValue" value="%heater>modelling>est_modelling_cycles%"></div>
+                <div class="formParamValue"><input disabled="true" id="heater>modelling>est_modelling_cycles"
+                                                   class="formStringParamValue"
+                                                   value="%heater>modelling>est_modelling_cycles%"></div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Current stage</div>
+                <div class="formParamValue"><input disabled="true" id="heater>modelling>current_stage"
+                                                   class="formStringParamValue"
+                                                   value="%heater>modelling>current_stage%"></div>
             </div>
 
             <div class="form-bottom">
-                <button id="startModellingButton" class="toolButton" onclick="startModelling()">Start simulation</button>
+                <button id="startModellingButton" class="toolButton" onclick="startModelling()">Start simulation
+                </button>
                 <button id="stopModellingButton" class="toolButton" onclick="stopModelling()">Stop simulation</button>
             </div>
         </div>
@@ -855,7 +1396,8 @@
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Interval between flushing data to the disk in ms (from %telemetry>flush_interval_ms#minR% to
+                <div class="formParamCaption">Interval between flushing data to the disk in ms (from
+                    %telemetry>flush_interval_ms#minR% to
                     %telemetry>flush_interval_ms#maxR%)
                 </div>
                 <div class="formParamValue">
@@ -865,7 +1407,8 @@
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Interval in records between flushing data to the disk(from %telemetry>flush_inteval_records#minR% to
+                <div class="formParamCaption">Interval in records between flushing data to the disk(from
+                    %telemetry>flush_inteval_records#minR% to
                     %telemetry>flush_inteval_records#maxR%)
                 </div>
                 <div class="formParamValue">

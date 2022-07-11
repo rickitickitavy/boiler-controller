@@ -47,6 +47,9 @@ private:
     double current_core_power_doors_coef;
     double additioanl_core_doors_coef;
 
+
+    int cycle_index_for_next_stage;
+
     PumpsController *pumpsController;
     HeaterSettings *settings;
     DoorsController *doorsController;
@@ -54,6 +57,8 @@ private:
 
     void println(String data);
     double calcEnergyLoose(double source_tempr);
+
+    bool loadStage(int stage_index);
 
 public:
     double bottom_tempr;
@@ -63,10 +68,14 @@ public:
     double output_tempr;
     double core_tempr;
 
+    int stage_index;
+
     CoreModel(HeaterSettings *settings, PumpsController *pumpsController,
               DoorsController *doorsController, Telemetry *telemetry);
 
     void reset();
+
+    int calcTotalCycles();
 
     void handle();
 };

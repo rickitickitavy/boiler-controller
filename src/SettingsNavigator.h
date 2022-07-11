@@ -20,7 +20,7 @@ class SettingsNavigator {
 private:
     SettingsManager *settingsManager;
     GlobalSettings *settings;
-    ParamDescriptor *paramDescriptors[120];
+    ParamDescriptor *paramDescriptors[150];
     int activeParamDescriptors = 0;
     char *sensorsList;
 
@@ -56,6 +56,8 @@ public:
     String saveSettingsByNames(String *params, int paramsCount);
 
     void setSensorList(String sensorsList);
+
+    int getParamDescriptorCounter();
 
 };
 

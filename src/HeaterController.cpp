@@ -186,6 +186,12 @@ HeaterController::HeaterController(GlobalSettings *settings, SensorController *s
                                                               50000,
                                                               (void *) &estimated_modelling_cycle_counter,
                                                               (void *) nullptr));
+
+    settingsNavigator->addParamDescriptor(new ParamDescriptor("heater>modelling>current_stage", INTEGER,
+                                                              100,
+                                                              50000,
+                                                              (void *) &coreModel->stage_index,
+                                                              (void *) nullptr));
 }
 
 void HeaterController::resetDEMAtimers() {
@@ -696,7 +702,7 @@ void HeaterController::startModelling() {
         coreModel->reset();
         switchTo_STAND_BY_mode();
         sensorController->setModeller(coreModel);
-        estimated_modelling_cycle_counter = settings->heaterSettings.modellerSettings.length_of_modeling_cycles;
+        estimated_modelling_cycle_counter = coreModel->calcTotalCycles();
         modelling_is_active = true;
         openOxygenDoorForTime(1200);
     } else

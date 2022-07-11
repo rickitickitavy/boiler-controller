@@ -217,25 +217,33 @@ struct ServosHardwareSettings {
     ServoHardwareSettings upper_door_servo_settings;
 };
 
-struct ModellerSettings{
-    float max_core_power;
+struct ModellerStage{
+    bool active;
+    float initial_angle;
     float core_power_grow_angle_step;
     int max_power_cycles;
+    int radiator_stop_after_cycle;
+    float radiators_base_power;
+    int length_of_modeling_cycles;
+};
+
+
+struct ModellerSettings{
+    float max_core_power;
     float core_energy_transmitting_coef;
     int skip_first_N_cycles;
     int ema_doors_reactions;
-    float radiators_base_power;
     float radiators_home_temperature;
     float radiators_base_temperature;
     float radiators_efficiensy_coef_pow;
-    int radiator_stop_after_cycle;
     float radiators_flow_lpm;
     float additional_core_doors_coef;
-    int length_of_modeling_cycles;
     bool logging_modeller_info;
     int power_fade_out_steps;
     float naturaly_cooling_coefficient_as_devider;
     float naturaly_cooling_pow;
+
+    ModellerStage stages[5];
 };
 
 struct HeaterSettings {
