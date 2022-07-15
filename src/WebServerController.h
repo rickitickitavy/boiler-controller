@@ -38,6 +38,8 @@ public:
 
     static void stopModelling(AsyncWebServerRequest *request);
 
+    static void getTelemetry(AsyncWebServerRequest *request);
+
 };
 
 extern String TEXT_PLAN;

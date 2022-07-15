@@ -199,8 +199,9 @@ void HeaterController::resetDEMAtimers() {
     mainCoreParams.DiffEMA_down_bellow_zero_at = 0;
 }
 
+
+
 void HeaterController::collectTelemetry(long last_cycle_length) {
-    TelemetryDataRecord dataRecord;
     dataRecord.interval_ms = last_cycle_length;
     dataRecord.date_time_ms = millis();
     dataRecord.core_temp = (float) sensorController->sensor_data[T_SENS_INDEX_CORE].value;
@@ -723,3 +724,6 @@ void HeaterController::stopModelling() {
 }
 //-------------------------------------------------------------------
 
+TelemetryDataRecord *HeaterController::getTelemetry() {
+    return &dataRecord;
+}

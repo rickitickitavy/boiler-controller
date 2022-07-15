@@ -263,3 +263,87 @@ html, body {
     background: #4CAF50;
     cursor: pointer;
 }
+
+.svg{
+    width: 100%;
+    height: 100%;
+}
+
+
+.svg-outer{
+    fill:none;
+    stroke:black;
+    stroke-width:5;
+}
+
+.svg-pump-arrow{
+    fill:none;
+    stroke-width:5;
+}
+
+.svg-core-furniture{
+    fill:none;
+    stroke:black;
+    stroke-width:9;
+}
+
+.svg-core-inner{
+    fill:none;
+    stroke:black;
+    stroke-width:3;
+}
+
+.svg-hot-text{
+    fill: red;
+    stroke:red;
+    stroke-width:1;
+    font-size: 35px;
+    /*font-weight: 100;*/
+}
+
+.svg-pid-text{
+    fill: none;
+    stroke:gray;
+    stroke-width:1;
+    font-size: 20px;
+    /*font-weight: 100;*/
+}
+
+.svg-cold-text{
+    fill: blue;
+    stroke:blue;
+    stroke-width:1;
+    font-size: 35px;
+    /*font-weight: 100;*/
+}
+
+.svg-core-upper-door{
+    fill:none;
+    stroke:black;
+    stroke-width:1;
+}
+
+.svg-hot-pipe{
+    fill:none;
+    stroke:red;
+    stroke-width:4;
+}
+
+.svg-cold-pipe{
+    fill:none;
+    stroke:blue;
+    stroke-width:4;
+}
+
+.svg-cold-pipe-arrow{
+    fill:none;
+    stroke:blue;
+    stroke-width:2;
+}
+
+.svg-hot-pipe-arrow{
+    fill:none;
+    stroke:red;
+    stroke-width:2;
+}
+

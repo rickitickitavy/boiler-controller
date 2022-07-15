@@ -140,6 +140,7 @@ private:
     void handle_CRITICAL_mode();
     void switchTo_CRITICAL_mode();
 
+    TelemetryDataRecord dataRecord;
     void collectTelemetry(long last_cycle_length);
 
 public:
@@ -152,6 +153,7 @@ public:
 
     void startModelling();
     void stopModelling();
+    TelemetryDataRecord *getTelemetry();
 };
 
 
