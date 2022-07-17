@@ -227,7 +227,7 @@ void HeaterController::collectTelemetry(long last_cycle_length) {
     dataRecord.avarage_backward_flow = 0;
     dataRecord.core_power = (float) mainCoreParams.current_core_power;
     dataRecord.core_EMA_power = (float) mainCoreParams.core_EMA_power;
-    dataRecord.core_flow = (float) mainCoreParams.core_flow;
+    dataRecord.core_flow = (float) mainCoreParams.core_flow * 1000 / last_cycle_length * 60.0;
 
     pidRegulator->fillPID(dataRecord.pid_p, dataRecord.pid_i, dataRecord.pid_d,
                           dataRecord.pid_raw_output, dataRecord.pid_output);
@@ -724,6 +724,47 @@ void HeaterController::stopModelling() {
 }
 //-------------------------------------------------------------------
 
-TelemetryDataRecord *HeaterController::getTelemetry() {
-    return &dataRecord;
+void HeaterController::getTelemetry(char *buffer) {
+    sprintf(buffer, "{"
+                    "\"date_time_ms\":\"%d\", \"interval_ms\": \"%d\","
+                    "\"temperature\":{"
+                    "\"core\": \"%00.2f\", \"input_t\": \"%00.2f\", "
+                    "\"output_t\": \"%00.2f\", \"acc_top\": \"%00.2f\", "
+                    "\"acc_upper\": \"%00.2f\", \"acc_low\": \"%00.2f\", "
+                    "\"acc_bottom\": \"%00.2f\","
+                    "\"forward_to_home\": \"%00.2f\", \"backward_from_home\": \"%00.2f\","
+                    "\"core_sma_diff\":\"%00.2f\""
+                    "}, "
+                    "\"pumps\": {"
+                    "\"pump_1_on\":%s, "
+                    "\"pump_2_on\":%s, "
+                    "\"core_flow\": \"%00.2f\" "
+                    "}, "
+                    "\"core_power\": \"%00.0f\", "
+                    "\"doors\":{"
+                    "\"smoke\": \"%00.2f\", \"oxygen\": \"%00.2f\", "
+                    "\"upper\": \"%00.2f\" "
+                    "},"
+                    "\"pid\":{"
+                    "\"p\":\"%00.2f\", \"i\":\"%00.2f\", \"d\":\"%00.2f\", "
+                    "\"output\": \"%00.2f\""
+                    "},"
+                    "\"mode\":%d"
+                    "}"
+            , dataRecord.date_time_ms, dataRecord.interval_ms
+            , dataRecord.core_temp_sma, dataRecord.input_temp_sma
+            , dataRecord.output_temp_sma, dataRecord.accumulator_top_temp_sma
+            , dataRecord.accumulator_higher_temp_sma, dataRecord.accumulator_lower_temp_sma
+            , dataRecord.accumulator_bottom_temp_sma
+            , dataRecord.forwar_flow_temp_sma, dataRecord.backward_flow_temp_sma
+            , dataRecord.core_SMA_diff_tempr
+            , dataRecord.pump_1_state ? "true" : "false"
+            , dataRecord.pump_2_state ? "true" : "false"
+            , dataRecord.core_flow, dataRecord.core_EMA_power
+            , dataRecord.smoke_door_position, dataRecord.oxygen_door_position
+            , dataRecord.upper_door_position
+            , dataRecord.pid_p, dataRecord.pid_i, dataRecord.pid_d
+            , dataRecord.pid_output
+            , dataRecord.heaterMode
+    );
 }

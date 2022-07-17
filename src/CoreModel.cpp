@@ -237,11 +237,12 @@ void CoreModel::handle() {
             double _radiator_energy = _energy_max * _tempr_coef;
             println("_radiator_energy = " + String(_radiator_energy));
 
-            double _after_radiator_tempr = top_tempr - _radiator_energy / 4200 / _radiator_volume;
-            println("_after_radiator_tempr = " + String(_after_radiator_tempr));
+            backward_tempr = top_tempr - _radiator_energy / 4200 / _radiator_volume;
+            println("_after_radiator_tempr = " + String(backward_tempr));
+            forward_tempr = top_tempr;
 
             _acc_part_vol = settings->capacities_setting.accumulator_ltr / 4 - _radiator_volume;
-            _delta_tempr_acc_part = _radiator_volume / _acc_part_vol * (_after_radiator_tempr - bottom_tempr);
+            _delta_tempr_acc_part = _radiator_volume / _acc_part_vol * (backward_tempr - bottom_tempr);
             println("_delta_tempr_acc_part = " + String(_delta_tempr_acc_part));
             bottom_tempr += _delta_tempr_acc_part;
             println("bottom_tempr = " + String(bottom_tempr));

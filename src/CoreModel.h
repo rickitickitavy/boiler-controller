@@ -61,6 +61,8 @@ private:
     bool loadStage(int stage_index);
 
 public:
+    double forward_tempr;
+    double backward_tempr;
     double bottom_tempr;
     double lower_tempr;
     double higher_tempr;

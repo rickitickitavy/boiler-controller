@@ -543,7 +543,7 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
                                                                                (void *) &settings->heaterSettings.modellerSettings.stages[stage_index].active);
         this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>s" + String(stage_index) + "_start_angle", FLOAT,
                                                                                0.01,
-                                                                               0.92,
+                                                                               90,
                                                                                (void *) &settings->heaterSettings.modellerSettings.stages[stage_index].initial_angle,
                                                                                (void *) &settings->heaterSettings.modellerSettings.stages[stage_index].initial_angle);
         this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>s" + String(stage_index) + "_angle_step", FLOAT,

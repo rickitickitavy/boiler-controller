@@ -130,6 +130,8 @@ void SensorController::fire() {
         saveModelledSensorValue(T_SENS_INDEX_ACC_TOP, coreModel->top_tempr);
         saveModelledSensorValue(T_SENS_INDEX_ACC_MID_LO, coreModel->lower_tempr);
         saveModelledSensorValue(T_SENS_INDEX_ACC_MID_HI, coreModel->higher_tempr);
+        saveModelledSensorValue(T_SENS_INDEX_FORWARD_FLOW, coreModel->forward_tempr);
+        saveModelledSensorValue(T_SENS_INDEX_BACKWARD_FLOW, coreModel->backward_tempr);
     }
     else {
         dallasTemperature->requestTemperatures();

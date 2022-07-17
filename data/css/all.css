@@ -276,6 +276,18 @@ html, body {
     stroke-width:5;
 }
 
+.svg-pump-on{
+    fill: rgba(22, 255, 0, 0.31);
+    stroke:green;
+    stroke-width:5;
+}
+
+.svg-pump-off{
+    fill:yellow;
+    stroke:red;
+    stroke-width:5;
+}
+
 .svg-pump-arrow{
     fill:none;
     stroke-width:5;
@@ -304,6 +316,14 @@ html, body {
 .svg-pid-text{
     fill: none;
     stroke:gray;
+    stroke-width:1;
+    font-size: 20px;
+    /*font-weight: 100;*/
+}
+
+.svg-mode-text{
+    fill: none;
+    stroke:green;
     stroke-width:1;
     font-size: 20px;
     /*font-weight: 100;*/
@@ -347,3 +367,9 @@ html, body {
     stroke-width:2;
 }
 
+.svg-radiator{
+    /*fill:url(#grad1);*/
+    /*stroke: url(#grad1);*/
+    stroke-width:2;
+
+}

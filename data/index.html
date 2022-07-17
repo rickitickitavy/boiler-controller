@@ -7,7 +7,7 @@
     <script src="js/jq/jquery-3.4.1.js"></script>
     <script language="JavaScript">
 
-        function updateGraph(response){
+        function updateGraph(response) {
             document.getElementById("core_temperature").innerHTML = "T= " + response.temperature.core;
             document.getElementById("core_power").innerHTML = "P= " + response.core_power;
             document.getElementById("core_flow").innerHTML = "Q= " + response.pumps.core_flow;
@@ -22,13 +22,62 @@
             document.getElementById("core_input").innerHTML = "T= " + response.temperature.input_t;
             document.getElementById("core_output").innerHTML = "T= " + response.temperature.output_t;
 
-            document.getElementById("pump1").style.stroke = response.pumps.pump_1_on ? "green" : "red";
-            document.getElementById("pump2").style.stroke = response.pumps.pump_2_on ? "green" : "red";
+            document.getElementById("backward_temperature").innerHTML = "T= " + response.temperature.backward_from_home;
+            document.getElementById("forward_temperature").innerHTML = "T= " + response.temperature.forward_to_home;
+
+            var pump1 = document.getElementById("pump1");
+            if (response.pumps.pump_1_on) {
+                if (pump1.classList.contains("svg-pump-off")) {
+                    pump1.classList.remove("svg-pump-off");
+                    pump1.classList.add("svg-pump-on");
+                }
+            } else if (pump1.classList.contains("svg-pump-on")) {
+                pump1.classList.remove("svg-pump-on");
+                pump1.classList.add("svg-pump-off");
+            }
+
+            var pump2 = document.getElementById("pump2");
+            if (response.pumps.pump_2_on) {
+                if (pump2.classList.contains("svg-pump-off")) {
+                    pump2.classList.remove("svg-pump-off");
+                    pump2.classList.add("svg-pump-on");
+                }
+            } else if (pump2.classList.contains("svg-pump-on")) {
+                pump2.classList.remove("svg-pump-on");
+                pump2.classList.add("svg-pump-off");
+            }
+
+            document.getElementById("pump1_arrow").style.stroke = response.pumps.pump_1_on ? "green" : "red";
+            document.getElementById("pump2_arrow").style.stroke = response.pumps.pump_2_on ? "green" : "red";
 
             document.getElementById("pid_p").innerHTML = "p= " + response.pid.p;
             document.getElementById("pid_i").innerHTML = "i= " + response.pid.i;
             document.getElementById("pid_d").innerHTML = "d= " + response.pid.d;
             document.getElementById("pid_output").innerHTML = "out= " + response.pid.output;
+
+            var mode;
+            switch (response.mode) {
+                case 1:
+                    mode = "STAND BY";
+                    break;
+                case 2:
+                    mode = "WARMING";
+                    break;
+                case 4:
+                    mode = "BURNING";
+                    break;
+                case 8:
+                    mode = "FINAL COOLING";
+                    break;
+                case 16:
+                    mode = "OVERHEATED";
+                    break;
+                case 32:
+                    mode = "CRITICAL OVERHEATED";
+                    break;
+
+            }
+            document.getElementById("core_mode").innerHTML = "Mode: " + mode;
         }
 
         function loaded() {
@@ -64,10 +113,16 @@
 
     <div class="form-flex-vertical-container">
         <svg class="svg" height="800px" width="1210px">
-            <polyline points="20,150 20,600 320,600 320,150" class="svg-outer" />
-            <path d="M 20 150 q 150 -120 300 000" class="svg-outer" />
+            <defs>
+                <linearGradient id="grad1" x1="0%%" y1="0%%" x2="0%%" y2="100%%">
+                    <stop offset="0%%" style="stop-color:red;stop-opacity:1"/>
+                    <stop offset="100%%" style="stop-color:blue;stop-opacity:1"/>
+                </linearGradient>
+            </defs>
+            <polyline points="20,150 20,600 320,600 320,150" class="svg-outer"/>
+            <path d="M 20 150 q 150 -120 300 000" class="svg-outer"/>
 
-            <path d="M 170 320  a 25,25 0 0,0 0,50 L 170,318" class="svg-core-inner" />
+            <path d="M 170 320  a 25,25 0 0,0 0,50 L 170,318" class="svg-core-inner"/>
             <circle class="svg-core-upper-door" r="3" cx="175" cy="322"/>
             <circle class="svg-core-upper-door" r="3" cx="175" cy="329"/>
             <circle class="svg-core-upper-door" r="3" cx="175" cy="336"/>
@@ -79,77 +134,130 @@
             <circle class="svg-core-upper-door" r="3" cx="184" cy="326"/>
             <circle class="svg-core-upper-door" r="3" cx="191" cy="334"/>
             <circle class="svg-core-furniture" r="6" cx="170" cy="345"/>
-            <polyline points="50,250 50,380 290,380 290,250 50,250" class="svg-core-inner" />
-            <polyline points="50,550 50,590 290,590 290,550 50,550" class="svg-core-inner" />
+            <polyline points="50,250 50,380 290,380 290,250 50,250" class="svg-core-inner"/>
+            <polyline points="50,550 50,590 290,590 290,550 50,550" class="svg-core-inner"/>
 
-            <polyline points="50,550 50,590 290,590 290,550 50,550" class="svg-core-inner" />
+            <polyline points="50,550 50,590 290,590 290,550 50,550" class="svg-core-inner"/>
 
-            <polyline points="320,180 420,180 420,2 480,2 480,240 320,240" class="svg-outer" />
+            <polyline points="320,180 420,180 420,2 480,2 480,240 320,240" class="svg-outer"/>
             <circle class="svg-outer" r="5" cx="370" cy="180"/>
-            <polyline points="370,180 410,230 " class="svg-core-inner" />
+            <polyline points="370,180 410,230 " class="svg-core-inner"/>
 
 
-            <polyline points="800,60 800,540 " class="svg-outer" />
-            <polyline points="1200,60 1200,540 " class="svg-outer" />
-            <path d="M 798 62 q 200 -120 402 000" class="svg-outer" />
-            <path d="M 798 538 q 200 120 402 000" class="svg-outer" />
-            <polyline points="830,558 820,600 845,561" class="svg-outer" />
-            <polyline points="1170,556 1180,600 1155,561" class="svg-outer" />
+            <polyline points="650,60 650,540 " class="svg-outer"/>
+            <polyline points="1050,60 1050,540 " class="svg-outer"/>
+            <path d="M 648 62 q 200 -120 402 000" class="svg-outer"/>
+            <path d="M 648 538 q 200 120 402 000" class="svg-outer"/>
+            <polyline points="680,558 670,600 695,561" class="svg-outer"/>
+            <polyline points="1020,556 1030,600 1005,561" class="svg-outer"/>
 
             <text id="core_temperature" class="svg-hot-text"
-                  x="57" y="430" >T= 0.00</text>
+                  x="57" y="430">T= 0.00
+            </text>
             <text id="core_power" class="svg-hot-text"
-                  x="57" y="465" >P= 0.00</text>
+                  x="57" y="465">P= 0.00
+            </text>
             <text id="oxygen_door" class="svg-hot-text"
-                  x="97" y="585" >A= 0.00</text>
+                  x="97" y="585">A= 0.00
+            </text>
             <text id="upper_door" class="svg-hot-text"
-                  x="97" y="300" >A= 0.00</text>
+                  x="97" y="300">A= 0.00
+            </text>
             <text id="smoke_door" class="svg-hot-text"
-                  x="330" y="275" >A= 0.00</text>
+                  x="330" y="275">A= 0.00
+            </text>
 
             <text id="acc_top_t" class="svg-hot-text"
-                  x="900" y="95" >T= 0.00</text>
+                  x="750" y="95">T= 0.00
+            </text>
             <text id="acc_upper_t" class="svg-hot-text"
-                  x="900" y="225" >T= 0.00</text>
+                  x="750" y="225">T= 0.00
+            </text>
             <text id="acc_lower_t" class="svg-hot-text"
-                  x="900" y="355" >T= 0.00</text>
+                  x="750" y="355">T= 0.00
+            </text>
             <text id="acc_bottom_t" class="svg-hot-text"
-                  x="900" y="500" >T= 0.00</text>
+                  x="750" y="500">T= 0.00
+            </text>
 
-            <circle class="svg-outer" r="25" cx="525" cy="540"/>
-            <polyline id="pump1" points="525,525 510,540 525,555 510,540 540,540" class="svg-pump-arrow" />
-            <circle class="svg-outer" r="25" cx="525" cy="470"/>
-            <polyline id="pump2" points="525,455 510,470 525,485 510,470 540,470" class="svg-pump-arrow" />
+            <circle id="pump1" class="svg-pump-off" r="25" cx="525" cy="540"/>
+            <polyline id="pump1_arrow" points="525,525 510,540 525,555 510,540 540,540" class="svg-pump-arrow"/>
+            <circle id="pump2" class="svg-pump-off" r="25" cx="525" cy="470"/>
+            <polyline id="pump2_arrow" points="525,455 510,470 525,485 510,470 540,470" class="svg-pump-arrow"/>
 
-            <polyline points="320,530 320,550 500,550 500,530 470,530 470,480 500,480 500,460 450,460 450,530 320,530" class="svg-cold-pipe" />
-            <polyline points="360,533 343,540 360,547 343,540 400,540" class="svg-cold-pipe-arrow" />
+            <polyline points="320,530 320,550 500,550 500,530 470,530 470,480 500,480 500,460 450,460 450,530 320,530"
+                      class="svg-cold-pipe"/>
+            <polyline points="360,533 343,540 360,547 343,540 400,540" class="svg-cold-pipe-arrow"/>
             <text id="core_input" class="svg-cold-text"
-                  x="330" y="580" >T= 0.00</text>
+                  x="330" y="580">T= 0.00
+            </text>
             <text id="core_flow" class="svg-cold-text"
-                  x="330" y="615" >Q= 0.00</text>
+                  x="330" y="615">Q= 0.00
+            </text>
 
-            <polyline points="550,550 600,550 600,480 800,480 800,460 550,460 550,480 580,480 580,530 550,530 550,550" class="svg-cold-pipe" />
+            <polyline points="550,550 600,550 600,480 650,480 650,460 550,460 550,480 580,480 580,530 550,530 550,550"
+                      class="svg-cold-pipe"/>
 
-            <polyline points="320,380 600,380 600,100 800,100 " class="svg-hot-pipe" />
-            <polyline points="320,400 620,400 620,120 800,120 " class="svg-hot-pipe" />
-            <polyline points="420,383 437,390 420,397 437,390 360,390" class="svg-hot-pipe-arrow" />
+            <polyline points="320,380 550,380 550,100 650,100 " class="svg-hot-pipe"/>
+            <polyline points="320,400 570,400 570,120 650,120 " class="svg-hot-pipe"/>
+            <polyline points="420,383 437,390 420,397 437,390 360,390" class="svg-hot-pipe-arrow"/>
 
             <text id="core_output" class="svg-hot-text"
-                  x="330" y="360" >T= 0.00</text>
+                  x="330" y="360">T= 0.00
+            </text>
 
             <text class="svg-pid-text"
-                  x="130" y="135" >REG</text>
+                  x="130" y="135">REG
+            </text>
 
             <text id="pid_p" class="svg-pid-text"
-                  x="105" y="158" >p</text>
+                  x="105" y="158">p
+            </text>
             <text id="pid_i" class="svg-pid-text"
-                  x="105" y="178" >i</text>
+                  x="105" y="178">i
+            </text>
             <text id="pid_d" class="svg-pid-text"
-                  x="105" y="198" >d</text>
+                  x="105" y="198">d
+            </text>
             <text id="pid_output" class="svg-pid-text"
-                  x="105" y="218" >out</text>
+                  x="105" y="218">out
+            </text>
 
-            <polyline points="100,115 240,115 240,230 100,230 100,115" class="svg-pid-text" />
+            <polyline points="100,115 240,115 240,230 100,230 100,115" class="svg-pid-text"/>
+
+            <polyline points="1050,480 1200,480 1200,400 1180,400 1180,460 1050,460" class="svg-cold-pipe"/>
+            <polyline points="1090,463 1073,470 1090,477 1073,470 1170,470" class="svg-cold-pipe-arrow"/>
+            <text id="backward_temperature" class="svg-cold-text"
+                  x="1060" y="515">T= 0.00
+            </text>
+
+
+            <polyline points="1050,100 1200,100 1200,160 1180,160 1180,120 1050,120" class="svg-hot-pipe"/>
+            <polyline points="1153,103 1170,110 1153,117 1170,110 1090,110" class="svg-hot-pipe-arrow"/>
+            <text id="forward_temperature" class="svg-hot-text"
+                  x="1060" y="90">T= 0.00
+            </text>
+
+            <rect x="1090" y="160" width="4" height="240" fill="url(#grad1)"/>
+            <rect x="1100" y="160" width="4" height="240" fill="url(#grad1)"/>
+            <rect x="1110" y="160" width="4" height="240" fill="url(#grad1)"/>
+            <rect x="1120" y="160" width="4" height="240" fill="url(#grad1)"/>
+            <rect x="1130" y="160" width="4" height="240" fill="url(#grad1)"/>
+            <rect x="1140" y="160" width="4" height="240" fill="url(#grad1)"/>
+            <rect x="1150" y="160" width="4" height="240" fill="url(#grad1)"/>
+            <rect x="1160" y="160" width="4" height="240" fill="url(#grad1)"/>
+            <rect x="1170" y="160" width="4" height="240" fill="url(#grad1)"/>
+            <rect x="1180" y="160" width="4" height="240" fill="url(#grad1)"/>
+            <rect x="1190" y="160" width="4" height="240" fill="url(#grad1)"/>
+            <rect x="1200" y="160" width="4" height="240" fill="url(#grad1)"/>
+            <rect x="1210" y="160" width="4" height="240" fill="url(#grad1)"/>
+
+            <polyline points="1090,160 1214,160" class="svg-hot-pipe"/>
+            <polyline points="1090,400 1214,400" class="svg-cold-pipe"/>
+
+            <text id="core_mode" class="svg-mode-text"
+                  x="40" y="60">Mode: STAND BY
+            </text>
 
         </svg>
 

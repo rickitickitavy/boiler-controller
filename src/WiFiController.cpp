@@ -111,8 +111,6 @@ void WiFiController::init() {
         } else {
             Serial.println("Connected to router.");
             Serial.println("local IP " + WiFi.localIP().toString());
-//        WiFi.hostname(settings->network.hostName);
-//        wifi_station_set_hostname(settings->network.hostName);
 
             MDNS.begin(&settings->mqttDeviceName[0]);
             MDNS.addService("http", "tcp", 80);
@@ -135,9 +133,6 @@ void WiFiController::setHeaterController(HeaterController *heaterController) {
 }
 
 bool WiFiController::isClientConnected() {
-//    struct station_info *stat_info;
-//    stat_info = wifi_softap_get_station_info();
-//    return stat_info != NULL;
     return WiFi.isConnected();
 }
 

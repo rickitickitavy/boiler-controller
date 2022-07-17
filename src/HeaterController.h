@@ -153,7 +153,7 @@ public:
 
     void startModelling();
     void stopModelling();
-    TelemetryDataRecord *getTelemetry();
+    void getTelemetry(char *buffer);
 };
 
 
