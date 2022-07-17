@@ -13,8 +13,8 @@ ServoController::ServoController(uint8_t pin, uint8_t channel, ServoHardwareSett
 }
 
 void ServoController::applySettings() {
-    servo->set_min_pulse_length_us(servoSettings->min_impulse_length_us);
-    servo->set_max_pulse_length_us(servoSettings->max_impulse_length_us);
+    servo->setMinPulseLengthUs(servoSettings->min_impulse_length_us);
+    servo->setMaxPulseLengthUs(servoSettings->max_impulse_length_us);
     servo->set_rotation_grad(servoSettings->total_degrees);
 }
 

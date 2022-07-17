@@ -34,20 +34,20 @@ Servo* Servo::setAngle(double angle){
 }
 
 void Servo::calc_ticks_per_grad(){
-    double us_per_tick = 1.0 / PWM_FREQUENCY / 65535;
+    double us_per_tick = 1000000.0 / (PWM_FREQUENCY * 65535);
     double dynamic_depth = max_pulse_length_us - min_pulse_length_us;
     double us_per_grad = dynamic_depth / rotation_grad;
     ticks_per_grad = us_per_grad / us_per_tick;
     min_pulse_ticks = min_pulse_length_us / us_per_tick;
 }
 
-Servo* Servo::set_min_pulse_length_us(int min_pulse_length_us){
+Servo* Servo::setMinPulseLengthUs(int min_pulse_length_us){
     this->min_pulse_length_us = min_pulse_length_us;
     calc_ticks_per_grad();
     return this;
 }
 
-Servo* Servo::set_max_pulse_length_us(int max_pulse_length_us){
+Servo* Servo::setMaxPulseLengthUs(int max_pulse_length_us){
     this->max_pulse_length_us = max_pulse_length_us;
     calc_ticks_per_grad();
     return this;

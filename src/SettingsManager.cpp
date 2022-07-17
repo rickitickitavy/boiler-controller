@@ -68,9 +68,7 @@ SettingsManager::SettingsManager(){
 
         initServoConfig(&settings.heaterSettings.servos_hardware_settings.oxygen_servo_settings);
         initServoConfig(&settings.heaterSettings.servos_hardware_settings.smoke_servo_settings);
-        settings.heaterSettings.servos_hardware_settings.smoke_servo_settings.working_max_angle = 90;
         initServoConfig(&settings.heaterSettings.servos_hardware_settings.upper_door_servo_settings);
-        settings.heaterSettings.servos_hardware_settings.upper_door_servo_settings.working_max_angle = 90;
 
         settings.heaterSettings.capacities_setting.boiler_ltr = 200;
         settings.heaterSettings.capacities_setting.heater_core_ltr = 50;
@@ -204,10 +202,10 @@ void SettingsManager::saveSetting(bool restart) {
 
 void SettingsManager::initServoConfig(ServoHardwareSettings *servoHardwareSettings){
     servoHardwareSettings->total_degrees = 180;
-    servoHardwareSettings->min_impulse_length_us = 800;
-    servoHardwareSettings->max_impulse_length_us = 2000;
+    servoHardwareSettings->min_impulse_length_us = 600;
+    servoHardwareSettings->max_impulse_length_us = 2600;
     servoHardwareSettings->working_min_angle = 0;
-    servoHardwareSettings->working_max_angle = 35;
+    servoHardwareSettings->working_max_angle = 90;
 }
 //--------------------------------------------------------------------
 

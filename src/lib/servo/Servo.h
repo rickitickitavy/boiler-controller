@@ -25,11 +25,10 @@ private:
 public:
     Servo(uint8_t pin, uint8_t channel);
     Servo* setAngle(double angle);
-    Servo* set_min_pulse_length_us(int min_pulse_length_us);
-    Servo* set_max_pulse_length_us(int max_pulse_length_us);
+    Servo* setMinPulseLengthUs(int min_pulse_length_us);
+    Servo* setMaxPulseLengthUs(int max_pulse_length_us);
     Servo* set_rotation_grad(int rotation_grad);
 
-    Servo* set_angle(double angle_grad);
     double get_angle_grad();
 };
 
