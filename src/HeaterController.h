@@ -17,6 +17,7 @@
 #include "ServoController.h"
 #include "MainCoreParams.h"
 #include "DoorsController.h"
+#include "FlowSensor.h"
 
 
 #define MODE_WARMING_TIME_TO_WAIT_FOR_REACHED_PID_MODE_SEC 1200
@@ -58,6 +59,7 @@ private:
     SensorController *sensorController;
     SettingsNavigator *settingsNavigator;
     Telemetry *telemetry;
+    FlowSensor *flowSensor;
 
     DoorsController *doorsController;
 

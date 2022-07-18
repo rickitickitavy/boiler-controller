@@ -85,7 +85,7 @@ SettingsManager::SettingsManager(){
         settings.heaterSettings.two_pumps_settings.flow_senser_installed = false;
         settings.heaterSettings.two_pumps_settings.first_pump_flow_litters_per_minute = 16;
         settings.heaterSettings.two_pumps_settings.second_pump_flow_litters_per_minute = 16;
-        settings.heaterSettings.two_pumps_settings.volume_per_one_sensors_tick_litters = 0.055;
+        settings.heaterSettings.two_pumps_settings.flow_sensor_ticks_per_litters = 12;
 
 
         settings.heaterSettings.stadbyCoolingSettings.start_warming_cycle_on_power = 1000;

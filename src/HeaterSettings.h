@@ -93,9 +93,9 @@ struct TwoPumpsSettings {
     bool flow_senser_installed;
 
     /**
-     * how many litters flows through sensor to raise one tick. in litters
+     * how many ticks generates flows sensor at 1 litter flown through it
      */
-    float volume_per_one_sensors_tick_litters;
+    float flow_sensor_ticks_per_litters;
 
     /**
      * will be used if flow sensor is absent

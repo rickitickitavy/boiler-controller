@@ -10,6 +10,102 @@
         var changedFields = new Array();
         var wifiChanged = false;
 
+
+        function updateGraph(response) {
+//            document.getElementById("core_temperature").innerHTML = "T= " + response.temperature.core;
+//            document.getElementById("core_power").innerHTML = "P= " + response.core_power;
+            document.getElementById("heater>sensors>data>core_flow").value = "Q = " + response.pumps.core_flow;
+//            document.getElementById("oxygen_door").innerHTML = "A= " + response.doors.oxygen;
+//            document.getElementById("upper_door").innerHTML = "A= " + response.doors.upper;
+//            document.getElementById("smoke_door").innerHTML = "A= " + response.doors.smoke;
+//
+//            document.getElementById("acc_top_t").innerHTML = "T= " + response.temperature.acc_top;
+//            document.getElementById("acc_upper_t").innerHTML = "T= " + response.temperature.acc_upper;
+//            document.getElementById("acc_lower_t").innerHTML = "T= " + response.temperature.acc_low;
+//            document.getElementById("acc_bottom_t").innerHTML = "T= " + response.temperature.acc_bottom;
+//            document.getElementById("core_input").innerHTML = "T= " + response.temperature.input_t;
+//            document.getElementById("core_output").innerHTML = "T= " + response.temperature.output_t;
+//
+//            document.getElementById("backward_temperature").innerHTML = "T= " + response.temperature.backward_from_home;
+//            document.getElementById("forward_temperature").innerHTML = "T= " + response.temperature.forward_to_home;
+//
+//            var pump1 = document.getElementById("pump1");
+//            if (response.pumps.pump_1_on) {
+//                if (pump1.classList.contains("svg-pump-off")) {
+//                    pump1.classList.remove("svg-pump-off");
+//                    pump1.classList.add("svg-pump-on");
+//                }
+//            } else if (pump1.classList.contains("svg-pump-on")) {
+//                pump1.classList.remove("svg-pump-on");
+//                pump1.classList.add("svg-pump-off");
+//            }
+//
+//            var pump2 = document.getElementById("pump2");
+//            if (response.pumps.pump_2_on) {
+//                if (pump2.classList.contains("svg-pump-off")) {
+//                    pump2.classList.remove("svg-pump-off");
+//                    pump2.classList.add("svg-pump-on");
+//                }
+//            } else if (pump2.classList.contains("svg-pump-on")) {
+//                pump2.classList.remove("svg-pump-on");
+//                pump2.classList.add("svg-pump-off");
+//            }
+//
+//            document.getElementById("pump1_arrow").style.stroke = response.pumps.pump_1_on ? "green" : "red";
+//            document.getElementById("pump2_arrow").style.stroke = response.pumps.pump_2_on ? "green" : "red";
+//
+//            document.getElementById("pid_p").innerHTML = "p= " + response.pid.p;
+//            document.getElementById("pid_i").innerHTML = "i= " + response.pid.i;
+//            document.getElementById("pid_d").innerHTML = "d= " + response.pid.d;
+//            document.getElementById("pid_output").innerHTML = "out= " + response.pid.output;
+//
+//            var mode;
+//            switch (response.mode) {
+//                case 1:
+//                    mode = "STAND BY";
+//                    break;
+//                case 2:
+//                    mode = "WARMING";
+//                    break;
+//                case 4:
+//                    mode = "BURNING";
+//                    break;
+//                case 8:
+//                    mode = "FINAL COOLING";
+//                    break;
+//                case 16:
+//                    mode = "OVERHEATED";
+//                    break;
+//                case 32:
+//                    mode = "CRITICAL OVERHEATED";
+//                    break;
+//
+//            }
+//            document.getElementById("core_mode").innerHTML = "Mode: " + mode;
+        }
+
+        function registerSensorsReader() {
+            var stopModellingFunction = function () {
+                $.ajax({
+                    url: "/getTelemetry",
+                    method: "GET",
+                    data: "on=0",
+                    success: function (response) {
+                        updateGraph(response);
+                    }.bind(this),
+                    error: function (error) {
+                        if (error.status == 200)
+                            alert("bad JSON");
+                    }.bind(this),
+                    dataType: "json"
+                });
+
+            };
+
+            window.setInterval(stopModellingFunction, 1000);
+        }
+
+
         function fieldChanged(event) {
             var field = event.target;
 
@@ -85,6 +181,7 @@
                 var input = inputs[inputIndex];
                 input.onchange = fieldChanged;
             }
+            registerSensorsReader();
         }
 
         function saveSystemSettings() {
@@ -534,16 +631,18 @@
                 <div class="formParamValue">
                     <input id="heater>2pumps>f_sens_installed" type="checkbox" class="formStringParamValue"
                            %heater>2pumps>f_sens_installed%>
+                    <input disabled="true" id="heater>sensors>data>core_flow" class="formStringParamValue"
+                           value="Q = ?">
                 </div>
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Flow sensor measurement in litters per tick. If sensor is presents
-                    (from %heater>2pumps>flow_sens_lt_per_tick#minR% to %heater>2pumps>flow_sens_lt_per_tick#maxR%)
+                <div class="formParamCaption">Flow sensor measurement in ticks per litter. If sensor is presents
+                    (from %heater>2pumps>flow_sens_ticks_per_lt#minR% to %heater>2pumps>flow_sens_ticks_per_lt#maxR%)
                 </div>
                 <div class="formParamValue">
-                    <input id="heater>2pumps>flow_sens_lt_per_tick" class="formStringParamValue"
-                           value="%heater>2pumps>flow_sens_lt_per_tick%">
+                    <input id="heater>2pumps>flow_sens_ticks_per_lt" class="formStringParamValue"
+                           value="%heater>2pumps>flow_sens_ticks_per_lt%">
                 </div>
             </div>
 

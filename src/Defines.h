@@ -10,8 +10,6 @@
 #define LOG_LEVEL_ERROR 4
 #define LOG_LEVEL_NOTHING 5
 
-#define ONE_WIRE_PIN 14
-
 
 #define T_SENS_INDEX_CORE 0
 #define T_SENS_INDEX_OUTPUT_FLOW 1
@@ -43,5 +41,8 @@
 
 #define PUMP_1_PIN 13
 #define PUMP_2_PIN 12
+
+#define ONE_WIRE_PIN 14
+
 
 #define WATER_ENERGY_PER_LTR_PER_GRAD 4200

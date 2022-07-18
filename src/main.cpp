@@ -14,6 +14,7 @@
 #include "SwitcherX4.h"
 #include "SensorController.h"
 #include "HeaterController.h"
+#include "FlowSensor.h"
 
 SettingsManager *settingsManager;
 WiFiController *wiFiController;
@@ -37,38 +38,13 @@ void setup() {
 #endif
     LOGGER.info("Starting...");
 
-    pinMode(26, OUTPUT);
-    Serial.println("frec = " + String(ledcSetup(0, PWM_FREQUENCY, 16)));
-    ledcAttachPin(26, 0);
-
-
-//    ledcWrite(0, 4000 );
-//    delay(500);
-//    for (int i = 0; i < 100; i++) {
-//        ledcWrite(0, 4000 + i * 100);
-//        delay(40);
-//    }
-
-//    Servo *servo = new Servo(26, 0);
-//    servo->setMinPulseLengthUs(600);
-//    servo->setMaxPulseLengthUs(2600);
-//    servo->set_rotation_grad(180);
-//    servo->setAngle(0);
-//    delay(1000);
-//    servo->setAngle(90);
-//    delay(1000);
-//    servo->setAngle(180);
-//    delay(1000);
-//    servo->setAngle(0);
-//    delay(1000);
+//    FlowSensor *flowSensor = new FlowSensor(15);
 //
-//    for (int i = 0; i < 180; ++i) {
-//        servo->setAngle(i);
-//        LOGGER.info("angle = " + String(i));
-//        delay(30);
+//    for (int i =0; i< 200; i++){
+//        Serial.println(String(i) + " sens = " + String(flowSensor->readAndReset()));
+//        delay(500);
 //    }
-//    delay(1000);
-
+//
     settingsManager = new SettingsManager();
 
     LOGGER.info("starting DS18D20...");

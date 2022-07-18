@@ -146,6 +146,7 @@ HeaterController::HeaterController(GlobalSettings *settings, SensorController *s
     this->sensorController = sensorController;
     this->settingsNavigator = settingsNavigator;
     modelling_is_active = false;
+    flowSensor = new FlowSensor(15);
 
     if (EMERGENCY_VALVE_PIN) {
         pinMode(EMERGENCY_VALVE_PIN, OUTPUT);
@@ -244,6 +245,7 @@ void HeaterController::collectTelemetry(long last_cycle_length) {
 
 void HeaterController::calcMainCoreCharacteristics(long last_cycle_length) {
     // calc core flow
+    flow_ticks = flowSensor->readAndReset();
     if (!heaterSettings->two_pumps_settings.flow_senser_installed) {
         // flow sensor is off. use setting for pumps
         mainCoreParams.core_flow =
@@ -257,7 +259,7 @@ void HeaterController::calcMainCoreCharacteristics(long last_cycle_length) {
         // sensor present. calc volume using sensor ticks.
         mainCoreParams.core_flow = flow_ticks;
         flow_ticks = 0;
-        mainCoreParams.core_flow *= heaterSettings->two_pumps_settings.volume_per_one_sensors_tick_litters;
+        mainCoreParams.core_flow /= heaterSettings->two_pumps_settings.flow_sensor_ticks_per_litters;
     }
 
     mainCoreParams.core_temperature = sensorController->getSmaValue(T_SENS_INDEX_CORE);

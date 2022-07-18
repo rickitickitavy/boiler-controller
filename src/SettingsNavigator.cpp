@@ -240,11 +240,11 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
                                                                            1,
                                                                            (void *) &settings->heaterSettings.two_pumps_settings.flow_senser_installed,
                                                                            (void *) &settings->heaterSettings.two_pumps_settings.flow_senser_installed);
-    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>2pumps>flow_sens_lt_per_tick", FLOAT,
-                                                                           0.01,
-                                                                           2,
-                                                                           (void *) &settings->heaterSettings.two_pumps_settings.volume_per_one_sensors_tick_litters,
-                                                                           (void *) &settings->heaterSettings.two_pumps_settings.volume_per_one_sensors_tick_litters);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>2pumps>flow_sens_ticks_per_lt", FLOAT,
+                                                                           1,
+                                                                           50,
+                                                                           (void *) &settings->heaterSettings.two_pumps_settings.flow_sensor_ticks_per_litters,
+                                                                           (void *) &settings->heaterSettings.two_pumps_settings.flow_sensor_ticks_per_litters);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>2pumps>1st_pump_flow_lpm", FLOAT, 4,
                                                                            40,
                                                                            (void *) &settings->heaterSettings.two_pumps_settings.first_pump_flow_litters_per_minute,
