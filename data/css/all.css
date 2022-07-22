@@ -322,10 +322,26 @@ html, body {
 }
 
 .svg-mode-text{
-    fill: none;
+    fill: green;
     stroke:green;
     stroke-width:1;
     font-size: 20px;
+    /*font-weight: 100;*/
+}
+
+.svg-oxy-door-control-green-text{
+    fill: green;
+    stroke:green;
+    stroke-width:1;
+    font-size: 30px;
+    /*font-weight: 100;*/
+}
+
+.svg-oxy-door-control-red-text{
+    fill: red;
+    stroke:red;
+    stroke-width:1;
+    font-size: 30px;
     /*font-weight: 100;*/
 }
 
@@ -373,3 +389,16 @@ html, body {
     stroke-width:2;
 
 }
+
+.svg-core-oxy-door-control{
+    fill:white;
+    stroke:black;
+    stroke-width:1;
+}
+
+.svg-main-door-opened{
+    fill:none;
+    stroke:red;
+    stroke-width:10;
+}
+

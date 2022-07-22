@@ -45,6 +45,44 @@ void setup() {
 //        delay(500);
 //    }
 //
+//
+//    pinMode(22, OUTPUT);
+//    while (true) {
+//        long next = millis() + 3;
+//
+//        for (int i = 500; i > 45;) {
+//            if (millis() > next) {
+//                i--;
+//                next = millis() + 2;
+//            }
+//
+//            digitalWrite(22, HIGH);
+//            delayMicroseconds(5);
+//            digitalWrite(22, LOW);
+//            delayMicroseconds(i);
+//        }
+//
+//        for (int i = 0; i < 10000; i++) {
+//            digitalWrite(22, HIGH);
+//            delayMicroseconds(5);
+//            digitalWrite(22, LOW);
+//            delayMicroseconds(45);
+//        }
+//
+//        next = millis() + 3;
+//        for (int i = 45; i < 500;) {
+//            if (millis() > next) {
+//                i++;
+//                next = millis() + 2;
+//            }
+//
+//            digitalWrite(22, HIGH);
+//            delayMicroseconds(5);
+//            digitalWrite(22, LOW);
+//            delayMicroseconds(i);
+//        }
+//
+//    }
     settingsManager = new SettingsManager();
 
     LOGGER.info("starting DS18D20...");
@@ -56,7 +94,8 @@ void setup() {
     Wire.setClock(400000);
 
     LOGGER.error("Starting heater controller...");
-    heaterController = new HeaterController(settingsManager->getSettings(), sensorController, settingsManager->getNavigator());
+    heaterController = new HeaterController(settingsManager->getSettings(), sensorController,
+                                            settingsManager->getNavigator());
 
     LOGGER.error("Mounting SD...");
     if (!SPIFFS.begin(false)) {

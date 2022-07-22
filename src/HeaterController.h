@@ -43,7 +43,6 @@
  *          -> ALARM (BANG)
  */
 enum HeaterMode {
-    DOOR_OPENED = 128,
     STAND_BY = 1,
     WARMING = 2,
     PID = 4,
@@ -60,6 +59,7 @@ private:
     SettingsNavigator *settingsNavigator;
     Telemetry *telemetry;
     FlowSensor *flowSensor;
+    static HeaterController *instance;
 
     DoorsController *doorsController;
 
@@ -83,6 +83,10 @@ private:
     long cycle_index;
 
     HeaterMode mode;
+
+
+    bool previous_main_door_opened;
+    bool main_door_opened;
 
     long time_to_close_oxygen_door_in_stanby_mode;
 
@@ -142,8 +146,10 @@ private:
     void handle_CRITICAL_mode();
     void switchTo_CRITICAL_mode();
 
-    TelemetryDataRecord dataRecord;
+    TelemetryDataRecord telemetryDataRecord;
     void collectTelemetry(long last_cycle_length);
+
+    static void IRAM_ATTR MAIN_DOOR_ISR();
 
 public:
     HeaterController(GlobalSettings *settings,
@@ -152,6 +158,8 @@ public:
     void handle();
 
     void openOxygenDoorForTime(long time_sec);
+
+    void closeOxygenDoor();
 
     void startModelling();
     void stopModelling();

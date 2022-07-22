@@ -138,6 +138,7 @@
  *
 */
 
+HeaterController * HeaterController::instance = nullptr;
 
 HeaterController::HeaterController(GlobalSettings *settings, SensorController *sensorController,
                                    SettingsNavigator *settingsNavigator) {
@@ -145,8 +146,9 @@ HeaterController::HeaterController(GlobalSettings *settings, SensorController *s
     this->heaterSettings = &settings->heaterSettings;
     this->sensorController = sensorController;
     this->settingsNavigator = settingsNavigator;
+    instance = this;
     modelling_is_active = false;
-    flowSensor = new FlowSensor(15);
+    flowSensor = new FlowSensor(FLOW_SENSOR_PIN);
 
     if (EMERGENCY_VALVE_PIN) {
         pinMode(EMERGENCY_VALVE_PIN, OUTPUT);
@@ -193,6 +195,11 @@ HeaterController::HeaterController(GlobalSettings *settings, SensorController *s
                                                               50000,
                                                               (void *) &coreModel->stage_index,
                                                               (void *) nullptr));
+
+    pinMode(MAIN_DOOR_SENSOR_PIN, INPUT_PULLDOWN);
+    attachInterrupt(MAIN_DOOR_SENSOR_PIN, MAIN_DOOR_ISR, CHANGE);
+    MAIN_DOOR_ISR();
+    previous_main_door_opened = false;
 }
 
 void HeaterController::resetDEMAtimers() {
@@ -200,47 +207,50 @@ void HeaterController::resetDEMAtimers() {
     mainCoreParams.DiffEMA_down_bellow_zero_at = 0;
 }
 
-
+void IRAM_ATTR HeaterController::MAIN_DOOR_ISR() {
+    bool door_mode = digitalRead(MAIN_DOOR_SENSOR_PIN);
+    instance->main_door_opened = !door_mode;
+}
 
 void HeaterController::collectTelemetry(long last_cycle_length) {
-    dataRecord.interval_ms = last_cycle_length;
-    dataRecord.date_time_ms = millis();
-    dataRecord.core_temp = (float) sensorController->sensor_data[T_SENS_INDEX_CORE].value;
-    dataRecord.output_temp = (float) sensorController->sensor_data[T_SENS_INDEX_OUTPUT_FLOW].value;
-    dataRecord.input_temp = (float) sensorController->sensor_data[T_SENS_INDEX_INPUT_FLOW].value;
-    dataRecord.accumulator_higher_temp = (float) sensorController->sensor_data[T_SENS_INDEX_ACC_MID_HI].value;
-    dataRecord.accumulator_lower_temp = (float) sensorController->sensor_data[T_SENS_INDEX_ACC_MID_LO].value;
-    dataRecord.accumulator_bottom_temp = (float) sensorController->sensor_data[T_SENS_INDEX_ACC_BOTTOM].value;
-    dataRecord.accumulator_top_temp = (float) sensorController->sensor_data[T_SENS_INDEX_ACC_TOP].value;
-    dataRecord.forwar_flow_temp = (float) sensorController->sensor_data[T_SENS_INDEX_FORWARD_FLOW].value;
-    dataRecord.backward_flow_temp = (float) sensorController->sensor_data[T_SENS_INDEX_BACKWARD_FLOW].value;
+    telemetryDataRecord.interval_ms = last_cycle_length;
+    telemetryDataRecord.date_time_ms = millis();
+    telemetryDataRecord.core_temp = (float) sensorController->sensor_data[T_SENS_INDEX_CORE].value;
+    telemetryDataRecord.output_temp = (float) sensorController->sensor_data[T_SENS_INDEX_OUTPUT_FLOW].value;
+    telemetryDataRecord.input_temp = (float) sensorController->sensor_data[T_SENS_INDEX_INPUT_FLOW].value;
+    telemetryDataRecord.accumulator_higher_temp = (float) sensorController->sensor_data[T_SENS_INDEX_ACC_MID_HI].value;
+    telemetryDataRecord.accumulator_lower_temp = (float) sensorController->sensor_data[T_SENS_INDEX_ACC_MID_LO].value;
+    telemetryDataRecord.accumulator_bottom_temp = (float) sensorController->sensor_data[T_SENS_INDEX_ACC_BOTTOM].value;
+    telemetryDataRecord.accumulator_top_temp = (float) sensorController->sensor_data[T_SENS_INDEX_ACC_TOP].value;
+    telemetryDataRecord.forwar_flow_temp = (float) sensorController->sensor_data[T_SENS_INDEX_FORWARD_FLOW].value;
+    telemetryDataRecord.backward_flow_temp = (float) sensorController->sensor_data[T_SENS_INDEX_BACKWARD_FLOW].value;
 
-    dataRecord.core_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_CORE);
-    dataRecord.output_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_OUTPUT_FLOW);
-    dataRecord.input_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_INPUT_FLOW);
-    dataRecord.accumulator_higher_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_ACC_MID_HI);
-    dataRecord.accumulator_lower_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_ACC_MID_LO);
-    dataRecord.accumulator_bottom_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_ACC_BOTTOM);
-    dataRecord.accumulator_top_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_ACC_TOP);
-    dataRecord.forwar_flow_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_FORWARD_FLOW);
-    dataRecord.backward_flow_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_BACKWARD_FLOW);
+    telemetryDataRecord.core_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_CORE);
+    telemetryDataRecord.output_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_OUTPUT_FLOW);
+    telemetryDataRecord.input_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_INPUT_FLOW);
+    telemetryDataRecord.accumulator_higher_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_ACC_MID_HI);
+    telemetryDataRecord.accumulator_lower_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_ACC_MID_LO);
+    telemetryDataRecord.accumulator_bottom_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_ACC_BOTTOM);
+    telemetryDataRecord.accumulator_top_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_ACC_TOP);
+    telemetryDataRecord.forwar_flow_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_FORWARD_FLOW);
+    telemetryDataRecord.backward_flow_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_BACKWARD_FLOW);
 
-    dataRecord.avarage_backward_flow = 0;
-    dataRecord.core_power = (float) mainCoreParams.current_core_power;
-    dataRecord.core_EMA_power = (float) mainCoreParams.core_EMA_power;
-    dataRecord.core_flow = (float) mainCoreParams.core_flow * 1000 / last_cycle_length * 60.0;
+    telemetryDataRecord.avarage_backward_flow = 0;
+    telemetryDataRecord.core_power = (float) mainCoreParams.current_core_power;
+    telemetryDataRecord.core_EMA_power = (float) mainCoreParams.core_EMA_power;
+    telemetryDataRecord.core_flow = (float) mainCoreParams.core_flow * 1000 / last_cycle_length * 60.0;
 
-    pidRegulator->fillPID(dataRecord.pid_p, dataRecord.pid_i, dataRecord.pid_d,
-                          dataRecord.pid_raw_output, dataRecord.pid_output);
+    pidRegulator->fillPID(telemetryDataRecord.pid_p, telemetryDataRecord.pid_i, telemetryDataRecord.pid_d,
+                          telemetryDataRecord.pid_raw_output, telemetryDataRecord.pid_output);
 
-    dataRecord.smoke_door_position = (float) doorsController->getSmokePipeAngle();
-    dataRecord.upper_door_position = (float) doorsController->getUpperDoorAngle();
-    dataRecord.oxygen_door_position = (float) doorsController->getOxygenDoorAngle();
-    dataRecord.heaterMode = mode;
-    dataRecord.core_SMA_diff_tempr = (float) mainCoreParams.core_DEMA_temperature;
-    dataRecord.pump_1_state = pumpsController->pump1->getStateName();
-    dataRecord.pump_2_state = pumpsController->pump2 ? pumpsController->pump2->getStateName() : (uint8_t) -1;
-    telemetry->addData(&dataRecord);
+    telemetryDataRecord.smoke_door_position = (float) doorsController->getSmokePipeAngle();
+    telemetryDataRecord.upper_door_position = (float) doorsController->getUpperDoorAngle();
+    telemetryDataRecord.oxygen_door_position = (float) doorsController->getOxygenDoorAngle();
+    telemetryDataRecord.heaterMode = mode;
+    telemetryDataRecord.core_SMA_diff_tempr = (float) mainCoreParams.core_DEMA_temperature;
+    telemetryDataRecord.pump_1_state = pumpsController->pump1->getStateName();
+    telemetryDataRecord.pump_2_state = pumpsController->pump2 ? pumpsController->pump2->getStateName() : (uint8_t) -1;
+    telemetry->addData(&telemetryDataRecord);
 }
 
 void HeaterController::calcMainCoreCharacteristics(long last_cycle_length) {
@@ -350,13 +360,14 @@ long HeaterController::getTimeDEMAAboveZeroSec() {
 
 void HeaterController::handleModes() {
     // in all cases pid must calculate
-    pidRegulator->handle();
+    if (!isnan(sensorController->getSmaValue(T_SENS_INDEX_CORE)))
+        pidRegulator->handle();
 
     // hardcoded failsafe
     if (sensorController->getSmaValue(T_SENS_INDEX_CORE) >= 98)
         switchTo_OVERHEATED_mode();
     else
-        switch (mode & (DOOR_OPENED ^ 0xff)) {
+        switch (mode) {
             case STAND_BY:
                 handle_STAND_BY_mode();
                 break;
@@ -393,15 +404,29 @@ void HeaterController::openOxygenDoorForTime(long time_sec) {
 }
 //-------------------------------------------------------------------
 
+void HeaterController::closeOxygenDoor() {
+    if (mode == STAND_BY) {
+        LOGGER.info("Oxygen door closing...");
+        if ((time_to_close_oxygen_door_in_stanby_mode != 0) && (millis() < time_to_close_oxygen_door_in_stanby_mode)) {
+            doorsController->setOxygenDoorValue(0);
+            time_to_close_oxygen_door_in_stanby_mode = 0;
+            LOGGER.info("Oxygen door closed.");
+        } else
+            LOGGER.info("Oxygen door already closed.");
+
+    }
+}
+//-------------------------------------------------------------------
+
 void HeaterController::handle() {
     if ((sensorController->isHasSensors() && (last_cycle_time == 0 || ((millis() - last_cycle_time) >
                                                                        heaterSettings->scan_interval_ms)))
         || modelling_is_active) {
 
-        cycle_index ++;
+        cycle_index++;
 
-        if (modelling_is_active){
-            if (estimated_modelling_cycle_counter-- <= 0){
+        if (modelling_is_active) {
+            if (estimated_modelling_cycle_counter-- <= 0) {
                 stopModelling();
                 return;
             }
@@ -436,7 +461,17 @@ void HeaterController::handle() {
         } else
             time_to_close_oxygen_door_in_stanby_mode = 0;
     }
+
+    if (main_door_opened != previous_main_door_opened) {
+        LOGGER.info("Main door status has changed to " + String(main_door_opened ? "open" : "closed"));
+        doorsController->setDoopOpened(main_door_opened);
+        previous_main_door_opened = main_door_opened;
+    }
+
 }
+//-------------------------------------------------------------------
+
+
 //-------------------------------------------------------------------
 
 void HeaterController::switchTo_STAND_BY_mode() {
@@ -549,9 +584,11 @@ void HeaterController::handle_WARMING_mode() {
         switchTo_PID_mode();
     else
         // check if time to reach target power is up
-    if (((millis() - entered_to_warming_mode_at) / 1000 > heaterSettings->warmingSettings.time_to_reach_target_power_sec)
-        || (modelling_is_active && (((cycle_index - entered_to_warming_mode_at_cycle_index) * heaterSettings->scan_interval_ms / 1000.0)
-                                    >= heaterSettings->warmingSettings.time_to_reach_target_power_sec)))
+    if (((millis() - entered_to_warming_mode_at) / 1000 >
+         heaterSettings->warmingSettings.time_to_reach_target_power_sec)
+        || (modelling_is_active &&
+            (((cycle_index - entered_to_warming_mode_at_cycle_index) * heaterSettings->scan_interval_ms / 1000.0)
+             >= heaterSettings->warmingSettings.time_to_reach_target_power_sec)))
         switchTo_FINAL_COOLING_mode();
     else {
         // process. if needed
@@ -618,7 +655,7 @@ void HeaterController::handle_PID_mode() {
         switchTo_OVERHEATED_mode();
         // check for back to warming mode
     else if ((mainCoreParams.core_EMA_power < heaterSettings->oxygen_pid.power_to_switch_to_warming_mode)
-        && (pidRegulator->getValuePrcnt() > heaterSettings->oxygen_pid.oxygen_door_val_to_warming_mode))
+             && (pidRegulator->getValuePrcnt() > heaterSettings->oxygen_pid.oxygen_door_val_to_warming_mode))
         switchTo_WARMING_mode();
     else {
 //        pidRegulator->handle();
@@ -727,6 +764,10 @@ void HeaterController::stopModelling() {
 //-------------------------------------------------------------------
 
 void HeaterController::getTelemetry(char *buffer) {
+    int tToCloseOxygenDoor = !time_to_close_oxygen_door_in_stanby_mode ? 0 : (time_to_close_oxygen_door_in_stanby_mode - millis()) / 1000;
+    if (tToCloseOxygenDoor < 0)
+        tToCloseOxygenDoor = 0;
+
     sprintf(buffer, "{"
                     "\"date_time_ms\":\"%d\", \"interval_ms\": \"%d\","
                     "\"temperature\":{"
@@ -745,28 +786,21 @@ void HeaterController::getTelemetry(char *buffer) {
                     "\"core_power\": \"%00.0f\", "
                     "\"doors\":{"
                     "\"smoke\": \"%00.2f\", \"oxygen\": \"%00.2f\", "
-                    "\"upper\": \"%00.2f\" "
+                    "\"upper\": \"%00.2f\", "
+                    "\"main_door\": %s, "
+                    "\"oxygenManualTimer\": \"%i\" "
                     "},"
                     "\"pid\":{"
                     "\"p\":\"%00.2f\", \"i\":\"%00.2f\", \"d\":\"%00.2f\", "
                     "\"output\": \"%00.2f\""
                     "},"
                     "\"mode\":%d"
-                    "}"
-            , dataRecord.date_time_ms, dataRecord.interval_ms
-            , dataRecord.core_temp_sma, dataRecord.input_temp_sma
-            , dataRecord.output_temp_sma, dataRecord.accumulator_top_temp_sma
-            , dataRecord.accumulator_higher_temp_sma, dataRecord.accumulator_lower_temp_sma
-            , dataRecord.accumulator_bottom_temp_sma
-            , dataRecord.forwar_flow_temp_sma, dataRecord.backward_flow_temp_sma
-            , dataRecord.core_SMA_diff_tempr
-            , dataRecord.pump_1_state ? "true" : "false"
-            , dataRecord.pump_2_state ? "true" : "false"
-            , dataRecord.core_flow, dataRecord.core_EMA_power
-            , dataRecord.smoke_door_position, dataRecord.oxygen_door_position
-            , dataRecord.upper_door_position
-            , dataRecord.pid_p, dataRecord.pid_i, dataRecord.pid_d
-            , dataRecord.pid_output
-            , dataRecord.heaterMode
-    );
+                    "}", telemetryDataRecord.date_time_ms, telemetryDataRecord.interval_ms, telemetryDataRecord.core_temp_sma, telemetryDataRecord.input_temp_sma,
+            telemetryDataRecord.output_temp_sma, telemetryDataRecord.accumulator_top_temp_sma, telemetryDataRecord.accumulator_higher_temp_sma,
+            telemetryDataRecord.accumulator_lower_temp_sma, telemetryDataRecord.accumulator_bottom_temp_sma,
+            telemetryDataRecord.forwar_flow_temp_sma, telemetryDataRecord.backward_flow_temp_sma, telemetryDataRecord.core_SMA_diff_tempr,
+            telemetryDataRecord.pump_1_state ? "true" : "false", telemetryDataRecord.pump_2_state ? "true" : "false",
+            telemetryDataRecord.core_flow, telemetryDataRecord.core_EMA_power, telemetryDataRecord.smoke_door_position,
+            telemetryDataRecord.oxygen_door_position, telemetryDataRecord.upper_door_position, main_door_opened ? "true" : "false", tToCloseOxygenDoor, telemetryDataRecord.pid_p, telemetryDataRecord.pid_i,
+            telemetryDataRecord.pid_d, telemetryDataRecord.pid_output, telemetryDataRecord.heaterMode);
 }

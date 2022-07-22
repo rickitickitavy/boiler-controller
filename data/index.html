@@ -7,6 +7,25 @@
     <script src="js/jq/jquery-3.4.1.js"></script>
     <script language="JavaScript">
 
+        var manual_oxygen_door_opened_for_sec = 0;
+        var main_door_opened = false;
+        var main_door_element;
+
+        function blinkMainDoor(){
+            if (main_door_opened) {
+                if (main_door_element.classList.contains("svg-main-door-opened")) {
+                    main_door_element.classList.remove("svg-main-door-opened");
+                    main_door_element.classList.add("svg-core-inner");
+                } else {
+                    main_door_element.classList.add("svg-main-door-opened");
+                    main_door_element.classList.remove("svg-core-inner");
+                }
+            } else if (main_door_element.classList.contains("svg-main-door-opened")) {
+                main_door_element.classList.remove("svg-main-door-opened");
+                main_door_element.classList.add("svg-core-inner");
+            }
+        }
+
         function updateGraph(response) {
             document.getElementById("core_temperature").innerHTML = "T= " + response.temperature.core;
             document.getElementById("core_power").innerHTML = "P= " + response.core_power;
@@ -24,6 +43,21 @@
 
             document.getElementById("backward_temperature").innerHTML = "T= " + response.temperature.backward_from_home;
             document.getElementById("forward_temperature").innerHTML = "T= " + response.temperature.forward_to_home;
+
+            main_door_opened = response.doors.main_door;
+            manual_oxygen_door_opened_for_sec = response.doors.oxygenManualTimer;
+            var oxy_door_text = document.getElementById("open_close_oxy_text");
+            if (manual_oxygen_door_opened_for_sec != 0){
+                if (oxy_door_text.classList.contains("svg-oxy-door-control-green-text")) {
+                    oxy_door_text.classList.remove("svg-oxy-door-control-green-text");
+                    oxy_door_text.classList.add("svg-oxy-door-control-red-text");
+                }
+                oxy_door_text.innerHTML = "Opened for " + Math.floor(manual_oxygen_door_opened_for_sec / 60) + ":" + manual_oxygen_door_opened_for_sec % 60;
+            } else if (oxy_door_text.classList.contains("svg-oxy-door-control-red-text")) {
+                oxy_door_text.classList.remove("svg-oxy-door-control-red-text");
+                oxy_door_text.classList.add("svg-oxy-door-control-green-text");
+                oxy_door_text.innerHTML = "Open for 15 min";
+            }
 
             var pump1 = document.getElementById("pump1");
             if (response.pumps.pump_1_on) {
@@ -80,37 +114,49 @@
             document.getElementById("core_mode").innerHTML = "Mode: " + mode;
         }
 
+        function getTelemetry() {
+            $.ajax({
+                url: "/getTelemetry",
+                method: "GET",
+                data: "on=0",
+                success: function (response) {
+                    updateGraph(response);
+                }.bind(this),
+                error: function (error) {
+                    if (error.status == 200)
+                        alert("bad JSON");
+                }.bind(this),
+                dataType: "json"
+            });
+        }
+
+
         function loaded() {
-            var stopModellingFunction = function () {
-                $.ajax({
-                    url: "/getTelemetry",
-                    method: "GET",
-                    data: "on=0",
-                    success: function (response) {
-                        updateGraph(response);
-                    }.bind(this),
-                    error: function (error) {
-                        if (error.status == 200)
-                            alert("bad JSON");
-                    }.bind(this),
-                    dataType: "json"
-                });
+            main_door_element = document.getElementById("main_door");
+            window.setInterval(getTelemetry, 1000);
+            window.setInterval(blinkMainDoor, 250);
+        }
 
-            };
-
-            window.setInterval(stopModellingFunction, 1000);
+        function openOrCloseOxygenDoor() {
+            $.ajax({
+                url: manual_oxygen_door_opened_for_sec == 0 ? "/openDoorFor15Min" : "/closeDoor",
+                method: "GET",
+                data: "on=0",
+                success: function (response) {
+                    getTelemetry();
+                }.bind(this),
+                error: function (error) {
+                    if (error.status == 200)
+                        alert("bad JSON");
+                }.bind(this),
+                dataType: "json"
+            });
         }
 
     </script>
 </head>
 <body onload="loaded();">
 <div class="formBase form-flex-vertical-container">
-
-    <div class="formHeader form-flex-horizontal-container">
-        <!--<div class="toolButton buttonIcon" onclick="window.location='settings.html'">Settings</div>-->
-        <button class="toolButton buttonIcon" onclick="window.location='settings.html'">Settings</button>
-    </div>
-
     <div class="form-flex-vertical-container">
         <svg class="svg" height="800px" width="1210px">
             <defs>
@@ -134,7 +180,7 @@
             <circle class="svg-core-upper-door" r="3" cx="184" cy="326"/>
             <circle class="svg-core-upper-door" r="3" cx="191" cy="334"/>
             <circle class="svg-core-furniture" r="6" cx="170" cy="345"/>
-            <polyline points="50,250 50,380 290,380 290,250 50,250" class="svg-core-inner"/>
+            <polyline id="main_door" points="50,250 50,380 290,380 290,250 50,250" class="svg-core-inner"/>
             <polyline points="50,550 50,590 290,590 290,550 50,550" class="svg-core-inner"/>
 
             <polyline points="50,550 50,590 290,590 290,550 50,550" class="svg-core-inner"/>
@@ -259,9 +305,22 @@
                   x="40" y="60">Mode: STAND BY
             </text>
 
+            <rect x="50" y="500" class="svg-core-oxy-door-control" width="240" height="40"
+                  onclick="openOrCloseOxygenDoor()"/>
+            <text id="open_close_oxy_text" class="svg-oxy-door-control-green-text"
+                  x="56" y="530" onclick="openOrCloseOxygenDoor()">Open for 15 min
+            </text>
+
+
         </svg>
 
+        <div class="formHeader form-flex-horizontal-container">
+            <!--<div class="toolButton buttonIcon" onclick="window.location='settings.html'">Settings</div>-->
+            <button class="toolButton buttonIcon" onclick="window.location='settings.html'">Settings</button>
+        </div>
+
     </div>
+
 
 </div>
 </body>

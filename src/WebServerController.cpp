@@ -11,6 +11,8 @@
 String TEXT_PLAN = "text/plan";
 String TEXT_JSON = "text/json";
 String OK_RESPONSE = "OK";
+String OK_RESPONSE_JSON = "{\"status\":0}";
+
 String PROFILES_PARAMETER_ATTR_NAME = "parameter";
 
 SettingsManager *WebServerController::settingsManager;
@@ -45,6 +47,8 @@ WebServerController::WebServerController(SettingsManager *settingsManager) {
     webServer->on("/settingsApi", HTTP_POST, settingsApiProcessor);
     webServer->on("/startModelling", HTTP_GET, startModelling);
     webServer->on("/stopModelling", HTTP_GET, stopModelling);
+    webServer->on("/openDoorFor15Min", HTTP_GET, openDoorFor15Min);
+    webServer->on("/closeDoor", HTTP_GET, closeDoor);
     webServer->on("/getTelemetry", HTTP_GET, getTelemetry);
 
     webServer->onNotFound(loadFileByUrl);
@@ -156,14 +160,41 @@ void WebServerController::settingsApiProcessor(AsyncWebServerRequest *request) {
 //----------------------------------------------------------------------
 
 void WebServerController::startModelling(AsyncWebServerRequest *request) {
-    if (heaterController)
+    if (heaterController){
         heaterController->startModelling();
+        request->send(200, TEXT_JSON, OK_RESPONSE_JSON);
+    } else
+        request->send(200, TEXT_JSON, "{\"status\":0, \"error\":\"heaterController is not initialized\"}");
+
 }
 //----------------------------------------------------------------------
 
 void WebServerController::stopModelling(AsyncWebServerRequest *request) {
-    if (heaterController)
+    if (heaterController) {
         heaterController->stopModelling();
+        request->send(200, TEXT_JSON, OK_RESPONSE_JSON);
+    } else
+        request->send(200, TEXT_JSON, "{\"status\":0, \"error\":\"heaterController is not initialized\"}");
+}
+//----------------------------------------------------------------------
+
+void WebServerController::openDoorFor15Min(AsyncWebServerRequest *request) {
+    if (heaterController) {
+        heaterController->openOxygenDoorForTime(900);
+        request->send(200, TEXT_JSON, OK_RESPONSE_JSON);
+    } else
+        request->send(200, TEXT_JSON, "{\"status\":0, \"error\":\"heaterController is not initialized\"}");
+
+}
+//----------------------------------------------------------------------
+
+void WebServerController::closeDoor(AsyncWebServerRequest *request) {
+    if (heaterController) {
+        heaterController->closeOxygenDoor();
+        request->send(200, TEXT_JSON, OK_RESPONSE_JSON);
+    } else
+        request->send(200, TEXT_JSON, "{\"status\":0, \"error\":\"heaterController is not initialized\"}");
+
 }
 //----------------------------------------------------------------------
 

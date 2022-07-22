@@ -38,6 +38,10 @@ public:
 
     static void stopModelling(AsyncWebServerRequest *request);
 
+    static void openDoorFor15Min(AsyncWebServerRequest *request);
+
+    static void closeDoor(AsyncWebServerRequest *request);
+
     static void getTelemetry(AsyncWebServerRequest *request);
 
 };
