@@ -22,16 +22,16 @@ void PidRegulator::handle() {
     if (!prior_value)
         prior_value = _core_temperature;
 
-    p = settings->oxygen_pid.p * (settings->temperatureSettings.core_target - _core_temperature);
+    p = settings->burning_settings.p * (settings->temperatureSettings.core_target - _core_temperature);
 
-    d = settings->oxygen_pid.d * (prior_value - _core_temperature);
+    d = settings->burning_settings.d * (prior_value - _core_temperature);
 
-    i += (settings->temperatureSettings.core_target - _core_temperature) * settings->oxygen_pid.i;
+    i += (settings->temperatureSettings.core_target - _core_temperature) * settings->burning_settings.i;
 
-    if (i > settings->oxygen_pid.max_i)
-        i = settings->oxygen_pid.max_i;
-    else if (i < settings->oxygen_pid.min_i)
-        i = settings->oxygen_pid.min_i;
+    if (i > settings->burning_settings.max_i)
+        i = settings->burning_settings.max_i;
+    else if (i < settings->burning_settings.min_i)
+        i = settings->burning_settings.min_i;
 
     output_raw_value = p + d + i;
 

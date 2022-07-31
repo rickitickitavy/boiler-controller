@@ -104,21 +104,25 @@ SettingsManager::SettingsManager(){
         settings.heaterSettings.temperatureSettings.core_temp_diff_EMA = 6;
         settings.heaterSettings.temperatureSettings.SMA_temperature_period_sec = 60;
 
-        settings.heaterSettings.warmingSettings.time_to_reach_target_power_sec = 1800;
-        settings.heaterSettings.warmingSettings.start_pid_temperature = 70;
-        settings.heaterSettings.warmingSettings.target_power_to_switch_to_the_PID_mode = 5000;
+        settings.heaterSettings.warming_settings.time_to_reach_target_power_sec = 1800;
+        settings.heaterSettings.warming_settings.start_pid_temperature = 70;
+        settings.heaterSettings.warming_settings.target_power_to_switch_to_the_PID_mode = 5000;
+        settings.heaterSettings.warming_settings.smoke_door_value_prcnt = 66;
+        settings.heaterSettings.warming_settings.upper_door_value_prcnt = 50;
 
         settings.heaterSettings.finalCoolingSettings.max_temperature_to_switch_to_standBy = 70;
         settings.heaterSettings.finalCoolingSettings.delay_to_switch_to_standby_mode_sec = 300;
         settings.heaterSettings.finalCoolingSettings.power_to_switch_to_warming_mode = 5000;
 
-        settings.heaterSettings.oxygen_pid.p = 10;
-        settings.heaterSettings.oxygen_pid.i = 0.07;
-        settings.heaterSettings.oxygen_pid.d = 60;
-        settings.heaterSettings.oxygen_pid.max_i = 50;
-        settings.heaterSettings.oxygen_pid.min_i = -50;
-        settings.heaterSettings.oxygen_pid.power_to_switch_to_warming_mode = 15000;
-        settings.heaterSettings.oxygen_pid.oxygen_door_val_to_warming_mode = 25;
+        settings.heaterSettings.burning_settings.p = 10;
+        settings.heaterSettings.burning_settings.i = 0.07;
+        settings.heaterSettings.burning_settings.d = 60;
+        settings.heaterSettings.burning_settings.max_i = 50;
+        settings.heaterSettings.burning_settings.min_i = -50;
+        settings.heaterSettings.burning_settings.upper_door_value_prcnt = 100;
+        settings.heaterSettings.burning_settings.smoke_door_value_prcnt = 66;
+        settings.heaterSettings.burning_settings.power_to_switch_to_warming_mode = 15000;
+        settings.heaterSettings.burning_settings.oxygen_door_val_to_warming_mode = 25;
 
         settings.heaterSettings.modellerSettings.max_core_power = 40000;
         settings.heaterSettings.modellerSettings.core_energy_transmitting_coef = 0.5;
@@ -142,7 +146,12 @@ SettingsManager::SettingsManager(){
         settings.heaterSettings.modellerSettings.stages[0].radiators_base_power = 10000;
         settings.heaterSettings.modellerSettings.stages[0].radiator_stop_after_cycle = 5000;
         settings.heaterSettings.modellerSettings.stages[0].length_of_modeling_cycles = 17000;
-
+        settings.heaterSettings.modellerSettings.stages[0].tempr_start_acc_top = 0;
+        settings.heaterSettings.modellerSettings.stages[0].tempr_start_acc_higher = 0;
+        settings.heaterSettings.modellerSettings.stages[0].tempr_start_acc_lower = 0;
+        settings.heaterSettings.modellerSettings.stages[0].tempr_start_acc_bottom = 0;
+        settings.heaterSettings.modellerSettings.stages[0].tempr_start_core = 0;
+        settings.heaterSettings.modellerSettings.stages[0].tempr_start_core_volume = 0;
 
         for (int stage_index = 1; stage_index < 5; stage_index++) {
             settings.heaterSettings.modellerSettings.stages[stage_index].active = false;
@@ -152,6 +161,12 @@ SettingsManager::SettingsManager(){
             settings.heaterSettings.modellerSettings.stages[stage_index].radiators_base_power = 20000;
             settings.heaterSettings.modellerSettings.stages[stage_index].radiator_stop_after_cycle = 5000;
             settings.heaterSettings.modellerSettings.stages[stage_index].length_of_modeling_cycles = 17000;
+            settings.heaterSettings.modellerSettings.stages[stage_index].tempr_start_acc_top = 0;
+            settings.heaterSettings.modellerSettings.stages[stage_index].tempr_start_acc_higher = 0;
+            settings.heaterSettings.modellerSettings.stages[stage_index].tempr_start_acc_lower = 0;
+            settings.heaterSettings.modellerSettings.stages[stage_index].tempr_start_acc_bottom = 0;
+            settings.heaterSettings.modellerSettings.stages[stage_index].tempr_start_core = 0;
+            settings.heaterSettings.modellerSettings.stages[stage_index].tempr_start_core_volume = 0;
         }
 
         settings.version = 2;

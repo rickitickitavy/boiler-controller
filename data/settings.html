@@ -745,6 +745,24 @@
                                                    value="%heater>warming>time_to_reach_pwr_sec%"></div>
             </div>
 
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Smoke door position in percents (from %heater>warming>smoke_door_value_prc#minR% to
+                    %heater>warming>smoke_door_value_prc#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>warming>smoke_door_value_prc"
+                                                   class="formStringParamValue"
+                                                   value="%heater>warming>smoke_door_value_prc%"></div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Smoke door position in percents (from %heater>warming>upper_door_value_prc#minR% to
+                    %heater>warming>upper_door_value_prc#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>warming>upper_door_value_prc"
+                                                   class="formStringParamValue"
+                                                   value="%heater>warming>upper_door_value_prc%"></div>
+            </div>
+
         </div>
 
         <div class="form-section">
@@ -782,7 +800,25 @@
         </div>
 
         <div class="form-section">
-            <div class="formHeader2">PID of oxygen door</div>
+            <div class="formHeader2">Burning mode settings (PID)</div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Smoke door position in percents (from %heater>pid>smoke_door_value_prc#minR% to
+                    %heater>pid>smoke_door_value_prc#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>pid>smoke_door_value_prc"
+                                                   class="formStringParamValue"
+                                                   value="%heater>pid>smoke_door_value_prc%"></div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Smoke door position in percents (from %heater>pid>upper_door_value_prc#minR% to
+                    %heater>pid>upper_door_value_prc#maxR%)
+                </div>
+                <div class="formParamValue"><input id="heater>pid>upper_door_value_prc"
+                                                   class="formStringParamValue"
+                                                   value="%heater>pid>upper_door_value_prc%"></div>
+            </div>
 
             <div class="form-inputField-container">
                 <div class="formParamCaption">P coef (from %heater>pid>p#minR% to %heater>pid>p#maxR%)</div>
@@ -1161,6 +1197,66 @@
                 </div>
 
                 <div class="form-inputField-container">
+                    <div class="formParamCaption">Initial core temperature (from
+                        %heater>modelling>s0_sttmpr_core#minR% to
+                        %heater>modelling>s0_sttmpr_core#maxR%. 0 - stay current)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s0_sttmpr_core"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s0_sttmpr_core%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Initial core volume temperature (from
+                        %heater>modelling>s0_sttmpr_core_v#minR% to
+                        %heater>modelling>s0_sttmpr_core_v#maxR%. 0 - stay current)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s0_sttmpr_core_v"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s0_sttmpr_core_v%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Initial accumulator top temperature (from
+                        %heater>modelling>s0_sttmpr_acc_t#minR% to
+                        %heater>modelling>s0_sttmpr_acc_t#maxR%. 0 - stay current)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s0_sttmpr_acc_t"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s0_sttmpr_acc_t%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Initial accumulator higher temperature (from
+                        %heater>modelling>s0_sttmpr_acc_h#minR% to
+                        %heater>modelling>s0_sttmpr_acc_h#maxR%. 0 - stay current)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s0_sttmpr_acc_h"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s0_sttmpr_acc_h%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Initial accumulator lower temperature (from
+                        %heater>modelling>s0_sttmpr_acc_l#minR% to
+                        %heater>modelling>s0_sttmpr_acc_l#maxR%. 0 - stay current)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s0_sttmpr_acc_l"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s0_sttmpr_acc_l%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Initial accumulator bottom temperature (from
+                        %heater>modelling>s0_sttmpr_acc_b#minR% to
+                        %heater>modelling>s0_sttmpr_acc_b#maxR%. 0 - stay current)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s0_sttmpr_acc_b"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s0_sttmpr_acc_b%"></div>
+                </div>
+
+                <div class="form-inputField-container">
                     <div class="formParamCaption">Cycle count of simulation (from
                         %heater>modelling>s0_modeling_length#minR% to %heater>modelling>s0_modeling_length#maxR%)
                     </div>
@@ -1226,6 +1322,66 @@
                     <div class="formParamValue"><input id="heater>modelling>s1_rad_stop_after_cycle"
                                                        class="formStringParamValue"
                                                        value="%heater>modelling>s1_rad_stop_after_cycle%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Initial core temperature (from
+                        %heater>modelling>s1_sttmpr_core#minR% to
+                        %heater>modelling>s1_sttmpr_core#maxR%. 0 - stay current)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s1_sttmpr_core"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s1_sttmpr_core%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Initial core volume temperature (from
+                        %heater>modelling>s1_sttmpr_core_v#minR% to
+                        %heater>modelling>s1_sttmpr_core_v#maxR%. 0 - stay current)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s1_sttmpr_core_v"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s1_sttmpr_core_v%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Initial accumulator top temperature (from
+                        %heater>modelling>s1_sttmpr_acc_t#minR% to
+                        %heater>modelling>s1_sttmpr_acc_t#maxR%. 0 - stay current)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s1_sttmpr_acc_t"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s1_sttmpr_acc_t%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Initial accumulator higher temperature (from
+                        %heater>modelling>s1_sttmpr_acc_h#minR% to
+                        %heater>modelling>s1_sttmpr_acc_h#maxR%. 0 - stay current)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s1_sttmpr_acc_h"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s1_sttmpr_acc_h%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Initial accumulator lower temperature (from
+                        %heater>modelling>s1_sttmpr_acc_l#minR% to
+                        %heater>modelling>s1_sttmpr_acc_l#maxR%. 0 - stay current)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s1_sttmpr_acc_l"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s1_sttmpr_acc_l%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Initial accumulator bottom temperature (from
+                        %heater>modelling>s1_sttmpr_acc_b#minR% to
+                        %heater>modelling>s1_sttmpr_acc_b#maxR%. 0 - stay current)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s1_sttmpr_acc_b"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s1_sttmpr_acc_b%"></div>
                 </div>
 
                 <div class="form-inputField-container">
@@ -1297,6 +1453,66 @@
                 </div>
 
                 <div class="form-inputField-container">
+                    <div class="formParamCaption">Initial core temperature (from
+                        %heater>modelling>s2_sttmpr_core#minR% to
+                        %heater>modelling>s2_sttmpr_core#maxR%. 0 - stay current)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s2_sttmpr_core"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s2_sttmpr_core%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Initial core volume temperature (from
+                        %heater>modelling>s2_sttmpr_core_v#minR% to
+                        %heater>modelling>s2_sttmpr_core_v#maxR%. 0 - stay current)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s2_sttmpr_core_v"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s2_sttmpr_core_v%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Initial accumulator top temperature (from
+                        %heater>modelling>s2_sttmpr_acc_t#minR% to
+                        %heater>modelling>s2_sttmpr_acc_t#maxR%. 0 - stay current)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s2_sttmpr_acc_t"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s2_sttmpr_acc_t%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Initial accumulator higher temperature (from
+                        %heater>modelling>s2_sttmpr_acc_h#minR% to
+                        %heater>modelling>s2_sttmpr_acc_h#maxR%. 0 - stay current)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s2_sttmpr_acc_h"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s2_sttmpr_acc_h%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Initial accumulator lower temperature (from
+                        %heater>modelling>s2_sttmpr_acc_l#minR% to
+                        %heater>modelling>s2_sttmpr_acc_l#maxR%. 0 - stay current)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s2_sttmpr_acc_l"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s2_sttmpr_acc_l%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Initial accumulator bottom temperature (from
+                        %heater>modelling>s2_sttmpr_acc_b#minR% to
+                        %heater>modelling>s2_sttmpr_acc_b#maxR%. 0 - stay current)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s2_sttmpr_acc_b"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s2_sttmpr_acc_b%"></div>
+                </div>
+
+                <div class="form-inputField-container">
                     <div class="formParamCaption">Cycle count of simulation (from
                         %heater>modelling>s2_modeling_length#minR% to %heater>modelling>s2_modeling_length#maxR%)
                     </div>
@@ -1365,6 +1581,66 @@
                 </div>
 
                 <div class="form-inputField-container">
+                    <div class="formParamCaption">Initial core temperature (from
+                        %heater>modelling>s3_sttmpr_core#minR% to
+                        %heater>modelling>s3_sttmpr_core#maxR%. 0 - stay current)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s3_sttmpr_core"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s3_sttmpr_core%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Initial core volume temperature (from
+                        %heater>modelling>s3_sttmpr_core_v#minR% to
+                        %heater>modelling>s3_sttmpr_core_v#maxR%. 0 - stay current)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s3_sttmpr_core_v"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s3_sttmpr_core_v%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Initial accumulator top temperature (from
+                        %heater>modelling>s3_sttmpr_acc_t#minR% to
+                        %heater>modelling>s3_sttmpr_acc_t#maxR%. 0 - stay current)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s3_sttmpr_acc_t"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s3_sttmpr_acc_t%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Initial accumulator higher temperature (from
+                        %heater>modelling>s3_sttmpr_acc_h#minR% to
+                        %heater>modelling>s3_sttmpr_acc_h#maxR%. 0 - stay current)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s3_sttmpr_acc_h"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s3_sttmpr_acc_h%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Initial accumulator lower temperature (from
+                        %heater>modelling>s3_sttmpr_acc_l#minR% to
+                        %heater>modelling>s3_sttmpr_acc_l#maxR%. 0 - stay current)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s3_sttmpr_acc_l"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s3_sttmpr_acc_l%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Initial accumulator bottom temperature (from
+                        %heater>modelling>s3_sttmpr_acc_b#minR% to
+                        %heater>modelling>s3_sttmpr_acc_b#maxR%. 0 - stay current)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s3_sttmpr_acc_b"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s3_sttmpr_acc_b%"></div>
+                </div>
+
+                <div class="form-inputField-container">
                     <div class="formParamCaption">Cycle count of simulation (from
                         %heater>modelling>s3_modeling_length#minR% to %heater>modelling>s3_modeling_length#maxR%)
                     </div>
@@ -1430,6 +1706,66 @@
                     <div class="formParamValue"><input id="heater>modelling>s4_rad_stop_after_cycle"
                                                        class="formStringParamValue"
                                                        value="%heater>modelling>s4_rad_stop_after_cycle%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Initial core temperature (from
+                        %heater>modelling>s4_sttmpr_core#minR% to
+                        %heater>modelling>s4_sttmpr_core#maxR%. 0 - stay current)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s4_sttmpr_core"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s4_sttmpr_core%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Initial core volume temperature (from
+                        %heater>modelling>s4_sttmpr_core_v#minR% to
+                        %heater>modelling>s4_sttmpr_core_v#maxR%. 0 - stay current)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s4_sttmpr_core_v"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s4_sttmpr_core_v%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Initial accumulator top temperature (from
+                        %heater>modelling>s4_sttmpr_acc_t#minR% to
+                        %heater>modelling>s4_sttmpr_acc_t#maxR%. 0 - stay current)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s4_sttmpr_acc_t"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s4_sttmpr_acc_t%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Initial accumulator higher temperature (from
+                        %heater>modelling>s4_sttmpr_acc_h#minR% to
+                        %heater>modelling>s4_sttmpr_acc_h#maxR%. 0 - stay current)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s4_sttmpr_acc_h"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s4_sttmpr_acc_h%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Initial accumulator lower temperature (from
+                        %heater>modelling>s4_sttmpr_acc_l#minR% to
+                        %heater>modelling>s4_sttmpr_acc_l#maxR%. 0 - stay current)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s4_sttmpr_acc_l"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s4_sttmpr_acc_l%"></div>
+                </div>
+
+                <div class="form-inputField-container">
+                    <div class="formParamCaption">Initial accumulator bottom temperature (from
+                        %heater>modelling>s4_sttmpr_acc_b#minR% to
+                        %heater>modelling>s4_sttmpr_acc_b#maxR%. 0 - stay current)
+                    </div>
+                    <div class="formParamValue"><input id="heater>modelling>s4_sttmpr_acc_b"
+                                                       class="formStringParamValue"
+                                                       value="%heater>modelling>s4_sttmpr_acc_b%"></div>
                 </div>
 
                 <div class="form-inputField-container">

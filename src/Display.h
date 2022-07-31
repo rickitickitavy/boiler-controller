@@ -5,9 +5,10 @@
 #ifndef BASE_ESP8266_MQTT_DISPLAY_H
 #define BASE_ESP8266_MQTT_DISPLAY_H
 
-#define FIRST_COLUMN_WIDTH 240
+#define FIRST_COLUMN_WIDTH 230
 #define SCREEN_0_DATA_LENGTH 10
 #define SCREEN_0_MAX_NAME_LENGTH 16
+#define SCREEN_COLOR_LIGHT_GRAY 0xCE79
 
 #include "lib/adafruit/Adafruit_GFX.h"
 #include "lib/adafruit/Adafruit_ST7789.h"

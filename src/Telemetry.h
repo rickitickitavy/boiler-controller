@@ -54,6 +54,7 @@ struct TelemetryDataRecord{
 
     uint8_t heaterMode;
     float core_SMA_diff_tempr;
+    bool main_door_opened;
 };
 
 class Telemetry {

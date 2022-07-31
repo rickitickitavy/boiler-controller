@@ -20,7 +20,7 @@ class SettingsNavigator {
 private:
     SettingsManager *settingsManager;
     GlobalSettings *settings;
-    ParamDescriptor *paramDescriptors[150];
+    ParamDescriptor *paramDescriptors[180];
     int activeParamDescriptors = 0;
     char *sensorsList;
 

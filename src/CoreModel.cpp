@@ -66,13 +66,34 @@ bool CoreModel::loadStage(int stage_index) {
     max_power_intervals_estimated = settings->modellerSettings.stages[stage_index].max_power_cycles;
     radiator_stop_after_cycle = cycle_index + settings->modellerSettings.stages[stage_index].radiator_stop_after_cycle;
     cycle_index_for_next_stage += settings->modellerSettings.stages[stage_index].length_of_modeling_cycles;
+
+    if (settings->modellerSettings.stages[stage_index].tempr_start_core != 0)
+        core_tempr = settings->modellerSettings.stages[stage_index].tempr_start_core;
+    if (settings->modellerSettings.stages[stage_index].tempr_start_acc_top != 0)
+        top_tempr = settings->modellerSettings.stages[stage_index].tempr_start_acc_top;
+    if (settings->modellerSettings.stages[stage_index].tempr_start_acc_higher != 0)
+        higher_tempr = settings->modellerSettings.stages[stage_index].tempr_start_acc_higher;
+    if (settings->modellerSettings.stages[stage_index].tempr_start_acc_lower != 0)
+        lower_tempr = settings->modellerSettings.stages[stage_index].tempr_start_acc_lower;
+    if (settings->modellerSettings.stages[stage_index].tempr_start_acc_bottom != 0)
+        bottom_tempr = settings->modellerSettings.stages[stage_index].tempr_start_acc_bottom;
+    if (settings->modellerSettings.stages[stage_index].tempr_start_core_volume != 0)
+        core_volume_temp = settings->modellerSettings.stages[stage_index].tempr_start_core_volume;
+
     power_fade_out_steps = 0;
     println(" stage " + String(stage_index) + " loaded as \r\n"
             + "   angle = " + String(angle)
             + "\r\n   angle_step = " + String(angle_step)
             + "\r\n   max_power_intervals_estimated = " + String(max_power_intervals_estimated)
             + "\r\n   radiator_normal_power = " + String(radiator_normal_power)
-            + "\r\n   radiator_stop_after_cycle = " + String(radiator_stop_after_cycle));
+            + "\r\n   radiator_stop_after_cycle = " + String(radiator_stop_after_cycle)
+            + "\r\n   core_tempr = " + String(core_tempr)
+            + "\r\n   core_volume_temp = " + String(core_volume_temp)
+            + "\r\n   top_tempr = " + String(top_tempr)
+            + "\r\n   higher_tempr = " + String(higher_tempr)
+            + "\r\n   lower_tempr = " + String(lower_tempr)
+            + "\r\n   bottom_tempr = " + String(bottom_tempr)
+    );
     return true;
 }
 

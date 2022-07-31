@@ -55,7 +55,7 @@ void Telemetry::sendCsvHeader(){
             "forwar_flow_temp;forwar_flow_temp_sma;backward_flow_temp;backward_flow_temp_sma;"
             "avarage_backward_flow;core_flow;core_power;core_EMA_power;pid_raw_output;"
             "pid_d;pid_i;pid_p;pid_output;oxygen_door_position;smoke_door_position;"
-            "upper_door_position;pump_1_state;pump_2_state;heaterMode;core_SMA_diff_tempr";
+            "upper_door_position;pump_1_state;pump_2_state;heaterMode;core_SMA_diff_tempr;main_door_opened";
     Serial.println(header);
 
 }
@@ -101,7 +101,7 @@ void Telemetry::openDataFile() {
             "forwar_flow_temp;forwar_flow_temp_sma;backward_flow_temp;backward_flow_temp_sma;"
             "avarage_backward_flow;core_flow;core_power;core_EMA_power;pid_raw_output;"
             "pid_d;pid_i;pid_p;pid_output;oxygen_door_position;smoke_door_position;"
-            "upper_door_position;pump_1_state;pump_2_state;heaterMode;core_SMA_diff_tempr\r\n";
+            "upper_door_position;pump_1_state;pump_2_state;heaterMode;core_SMA_diff_tempr;main_door_opened\r\n";
     if (data_file) {
         file_store_active = true;
         stored_records_from_last_flush = 0;
@@ -141,7 +141,7 @@ bool Telemetry::addData(TelemetryDataRecord *dataRecord) {
                         "%f;"
                         "%d;%d;"
                         "%d;"
-                        "%f\r\n",
+                        "%f;%s\r\n",
                 dataRecord->date_time_ms, dataRecord->interval_ms,
                 dataRecord->core_temp, dataRecord->core_temp_sma, dataRecord->input_temp, dataRecord->input_temp_sma,
                 dataRecord->output_temp, dataRecord->output_temp_sma,
@@ -160,7 +160,8 @@ bool Telemetry::addData(TelemetryDataRecord *dataRecord) {
                 dataRecord->upper_door_position,
                 dataRecord->pump_1_state, dataRecord->pump_2_state,
                 dataRecord->heaterMode,
-                dataRecord->core_SMA_diff_tempr);
+                dataRecord->core_SMA_diff_tempr,
+                dataRecord->main_door_opened ? "true" : "false");
     Serial.print("csv->;");
     Serial.println(save_buffer);
     if (file_store_active) {
@@ -186,7 +187,8 @@ bool Telemetry::addData(TelemetryDataRecord *dataRecord) {
                         " oxy_dr_p = %f; smk_dr_p = %f; upper_dr_p = %f\r\n"
                         " pump_1 = %d; pump_2 = %d\r\n"
                         " heaterMode = %d\r\n"
-                        " core_SMA_df t = %f\r\n------------",
+                        " core_SMA_df t = %f\r\n"
+                        " main door opened = %s\r\n------------",
                 dataRecord->date_time_ms, dataRecord->interval_ms,
                 dataRecord->core_temp, dataRecord->core_temp_sma, dataRecord->input_temp, dataRecord->input_temp_sma,
                 dataRecord->output_temp, dataRecord->output_temp_sma,
@@ -200,7 +202,7 @@ bool Telemetry::addData(TelemetryDataRecord *dataRecord) {
                 dataRecord->oxygen_door_position, dataRecord->smoke_door_position, dataRecord->upper_door_position,
                 dataRecord->pump_1_state, dataRecord->pump_2_state,
                 dataRecord->heaterMode,
-                dataRecord->core_SMA_diff_tempr);
+                dataRecord->core_SMA_diff_tempr, dataRecord->main_door_opened ? "true" : "false");
         LOGGER.info(save_buffer);
     }
 }

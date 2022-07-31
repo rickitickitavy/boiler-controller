@@ -251,6 +251,7 @@ void HeaterController::collectTelemetry(long last_cycle_length) {
     telemetryDataRecord.pump_1_state = pumpsController->pump1->getStateName();
     telemetryDataRecord.pump_2_state = pumpsController->pump2 ? pumpsController->pump2->getStateName() : (uint8_t) -1;
     telemetry->addData(&telemetryDataRecord);
+    telemetryDataRecord.main_door_opened = main_door_opened;
 }
 
 void HeaterController::calcMainCoreCharacteristics(long last_cycle_length) {
@@ -568,9 +569,9 @@ void HeaterController::switchTo_WARMING_mode() {
     entered_to_warming_mode_at = millis();
     entered_to_warming_mode_at_cycle_index = cycle_index;
     pumpsController->setOnPumpsCount(2);
-    doorsController->setSmokePipeValue(60);
+    doorsController->setSmokePipeValue(heaterSettings->warming_settings.smoke_door_value_prcnt);
     doorsController->setOxygenDoorValue(100);
-    doorsController->setUpperDoorValue(50);
+    doorsController->setUpperDoorValue(heaterSettings->warming_settings.upper_door_value_prcnt);
     resetDEMAtimers();
 }
 //-------------------------------------------------------------------
@@ -580,18 +581,18 @@ void HeaterController::switchTo_WARMING_mode() {
  */
 void HeaterController::handle_WARMING_mode() {
     // check if power reached target power to switch to PID mode
-//    if ((mainCoreParams.core_EMA_power >= heaterSettings->warmingSettings.target_power_to_switch_to_the_PID_mode)
+//    if ((mainCoreParams.core_EMA_power >= heaterSettings->warming_settings.target_power_to_switch_to_the_PID_mode)
 //        && (sensorController->getSmaValue(T_SENS_INDEX_CORE) >
-//            heaterSettings->warmingSettings.start_pid_temperature))
-    if (mainCoreParams.core_EMA_power >= heaterSettings->warmingSettings.target_power_to_switch_to_the_PID_mode)
+//            heaterSettings->warming_settings.start_pid_temperature))
+    if (mainCoreParams.core_EMA_power >= heaterSettings->warming_settings.target_power_to_switch_to_the_PID_mode)
         switchTo_PID_mode();
     else
         // check if time to reach target power is up
     if (((millis() - entered_to_warming_mode_at) / 1000 >
-         heaterSettings->warmingSettings.time_to_reach_target_power_sec)
+         heaterSettings->warming_settings.time_to_reach_target_power_sec)
         || (modelling_is_active &&
             (((cycle_index - entered_to_warming_mode_at_cycle_index) * heaterSettings->scan_interval_ms / 1000.0)
-             >= heaterSettings->warmingSettings.time_to_reach_target_power_sec)))
+             >= heaterSettings->warming_settings.time_to_reach_target_power_sec)))
         switchTo_FINAL_COOLING_mode();
     else {
         // process. if needed
@@ -645,8 +646,8 @@ void HeaterController::handle_FINAL_COOLING_mode() {
 void HeaterController::switchTo_PID_mode() {
     LOGGER.info("Entered to PID mode");
     mode = HeaterMode::PID;
-    doorsController->setSmokePipeValue(67);
-    doorsController->setUpperDoorValue(50);
+    doorsController->setSmokePipeValue(heaterSettings->burning_settings.smoke_door_value_prcnt);
+    doorsController->setUpperDoorValue(heaterSettings->burning_settings.upper_door_value_prcnt);
     resetDEMAtimers();
 }
 //-------------------------------------------------------------------
@@ -657,8 +658,8 @@ void HeaterController::handle_PID_mode() {
         >= heaterSettings->temperatureSettings.core_overheat)
         switchTo_OVERHEATED_mode();
         // check for back to warming mode
-    else if ((mainCoreParams.core_EMA_power < heaterSettings->oxygen_pid.power_to_switch_to_warming_mode)
-             && (pidRegulator->getValuePrcnt() > heaterSettings->oxygen_pid.oxygen_door_val_to_warming_mode))
+    else if ((mainCoreParams.core_EMA_power < heaterSettings->burning_settings.power_to_switch_to_warming_mode)
+             && (pidRegulator->getValuePrcnt() > heaterSettings->burning_settings.oxygen_door_val_to_warming_mode))
         switchTo_WARMING_mode();
     else {
 //        pidRegulator->handle();
@@ -796,7 +797,7 @@ void HeaterController::getTelemetry(char *buffer) {
                     "\"pump_2_on\":%s, "
                     "\"core_flow\": \"%00.2f\" "
                     "}, "
-                    "\"core_power\": \"%00.0f\", "
+                    "\"core_power\": \"%d\", "
                     "\"doors\":{"
                     "\"smoke\": \"%00.2f\", \"oxygen\": \"%00.2f\", "
                     "\"upper\": \"%00.2f\", "
@@ -813,7 +814,7 @@ void HeaterController::getTelemetry(char *buffer) {
             telemetryDataRecord.accumulator_lower_temp_sma, telemetryDataRecord.accumulator_bottom_temp_sma,
             telemetryDataRecord.forwar_flow_temp_sma, telemetryDataRecord.backward_flow_temp_sma, telemetryDataRecord.core_SMA_diff_tempr,
             telemetryDataRecord.pump_1_state ? "true" : "false", telemetryDataRecord.pump_2_state ? "true" : "false",
-            telemetryDataRecord.core_flow, telemetryDataRecord.core_EMA_power, telemetryDataRecord.smoke_door_position,
+            telemetryDataRecord.core_flow, (int)telemetryDataRecord.core_EMA_power, telemetryDataRecord.smoke_door_position,
             telemetryDataRecord.oxygen_door_position, telemetryDataRecord.upper_door_position, main_door_opened ? "true" : "false", tToCloseOxygenDoor, telemetryDataRecord.pid_p, telemetryDataRecord.pid_i,
             telemetryDataRecord.pid_d, telemetryDataRecord.pid_output, telemetryDataRecord.heaterMode);
 }

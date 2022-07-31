@@ -6,7 +6,7 @@
 #define BASE_ESP8266_MQTT_HEATERSETTINGS_H
 
 
-struct PidSettings {
+struct BurningModeSettings {
     float p;
     float i;
 
@@ -17,6 +17,9 @@ struct PidSettings {
 
     float power_to_switch_to_warming_mode;
     float oxygen_door_val_to_warming_mode;
+
+    int smoke_door_value_prcnt;
+    int upper_door_value_prcnt;
 };
 
 struct VolumeCapacitiesSetting {
@@ -126,6 +129,10 @@ struct WarmingSettings {
      * switch to the final cooling mode
      */
     int time_to_reach_target_power_sec;
+
+    int smoke_door_value_prcnt;
+    int upper_door_value_prcnt;
+
 };
 
 struct FinalCoolingSettings {
@@ -225,6 +232,12 @@ struct ModellerStage{
     int radiator_stop_after_cycle;
     float radiators_base_power;
     int length_of_modeling_cycles;
+    float tempr_start_acc_top;
+    float tempr_start_acc_higher;
+    float tempr_start_acc_lower;
+    float tempr_start_acc_bottom;
+    float tempr_start_core;
+    float tempr_start_core_volume;
 };
 
 
@@ -252,7 +265,7 @@ struct HeaterSettings {
 
     VolumeCapacitiesSetting capacities_setting;
 
-    PidSettings oxygen_pid;
+    BurningModeSettings burning_settings;
 
     TwoPumpsSettings two_pumps_settings;
 
@@ -260,7 +273,7 @@ struct HeaterSettings {
 
     TemperatureSettings temperatureSettings;
 
-    WarmingSettings warmingSettings;
+    WarmingSettings warming_settings;
 
     FinalCoolingSettings finalCoolingSettings;
 

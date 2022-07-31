@@ -70,7 +70,14 @@ void Display::drawScreen0() {
         tft->drawLine(1, y, 318, y, 0xce79);
     }
 
-    tft->drawLine(FIRST_COLUMN_WIDTH, 2, FIRST_COLUMN_WIDTH, 238, 0xCE79);
+    tft->drawLine(FIRST_COLUMN_WIDTH, 2, FIRST_COLUMN_WIDTH, 238, SCREEN_COLOR_LIGHT_GRAY);
+
+    if (screen_0_data[0].value[0] == 'O'){
+        tft->fillRect(FIRST_COLUMN_WIDTH + 1, 1, 238, 21, ST77XX_RED);
+        tft->setCursor(FIRST_COLUMN_WIDTH + 4, 17);
+        tft->setTextColor(ST77XX_YELLOW);
+        tft->print(screen_0_data[0].value);
+    }
 }
 
 void Display::setScreen0Parameter(int index, const char *name, const char *value) {

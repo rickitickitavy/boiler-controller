@@ -163,9 +163,9 @@ void loop() {
                 mode = "Mode: FINAL_COOLING";
                 break;
         }
-        display->setScreen0Parameter(0, mode, "");
+        display->setScreen0Parameter(0, mode, telemetryDataRecord->main_door_opened ? "OPENED" : "CLOSED");
         display->setScreen0Parameter(1, "Core t (°C)", String(telemetryDataRecord->core_temp_sma).c_str());
-        display->setScreen0Parameter(2, "Core pwr (Watt)", String(telemetryDataRecord->core_EMA_power).c_str());
+        display->setScreen0Parameter(2, "Core pwr (Watt)", String((int)telemetryDataRecord->core_EMA_power).c_str());
         display->setScreen0Parameter(3, "Core input (°C)", String(telemetryDataRecord->input_temp_sma).c_str());
         display->setScreen0Parameter(4, "Core output (°C)", String(telemetryDataRecord->output_temp_sma).c_str());
         display->setScreen0Parameter(5, "Core flow(l/min)", String(telemetryDataRecord->core_flow).c_str());

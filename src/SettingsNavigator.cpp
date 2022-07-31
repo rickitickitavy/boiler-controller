@@ -182,34 +182,42 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
                                                                            (void *) &settings->heaterSettings.capacities_setting.pipes_and_radiators_ltr);
 
     // PID
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>pid>smoke_door_value_prc", INTEGER, 40,
+                                                                           100,
+                                                                           (void *) &settings->heaterSettings.burning_settings.smoke_door_value_prcnt,
+                                                                           (void *) &settings->heaterSettings.burning_settings.smoke_door_value_prcnt);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>pid>upper_door_value_prc", INTEGER, 40,
+                                                                           100,
+                                                                           (void *) &settings->heaterSettings.burning_settings.upper_door_value_prcnt,
+                                                                           (void *) &settings->heaterSettings.burning_settings.upper_door_value_prcnt);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>pid>p", FLOAT, 1,
                                                                            1000,
-                                                                           (void *) &settings->heaterSettings.oxygen_pid.p,
-                                                                           (void *) &settings->heaterSettings.oxygen_pid.p);
+                                                                           (void *) &settings->heaterSettings.burning_settings.p,
+                                                                           (void *) &settings->heaterSettings.burning_settings.p);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>pid>i", FLOAT, 0.01,
                                                                            100,
-                                                                           (void *) &settings->heaterSettings.oxygen_pid.i,
-                                                                           (void *) &settings->heaterSettings.oxygen_pid.i);
+                                                                           (void *) &settings->heaterSettings.burning_settings.i,
+                                                                           (void *) &settings->heaterSettings.burning_settings.i);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>pid>d", FLOAT, 0.01,
                                                                            100,
-                                                                           (void *) &settings->heaterSettings.oxygen_pid.d,
-                                                                           (void *) &settings->heaterSettings.oxygen_pid.d);
+                                                                           (void *) &settings->heaterSettings.burning_settings.d,
+                                                                           (void *) &settings->heaterSettings.burning_settings.d);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>pid>max_i", FLOAT, 1,
                                                                            100,
-                                                                           (void *) &settings->heaterSettings.oxygen_pid.max_i,
-                                                                           (void *) &settings->heaterSettings.oxygen_pid.max_i);
+                                                                           (void *) &settings->heaterSettings.burning_settings.max_i,
+                                                                           (void *) &settings->heaterSettings.burning_settings.max_i);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>pid>min_i", FLOAT, -100,
                                                                            -1,
-                                                                           (void *) &settings->heaterSettings.oxygen_pid.min_i,
-                                                                           (void *) &settings->heaterSettings.oxygen_pid.min_i);
+                                                                           (void *) &settings->heaterSettings.burning_settings.min_i,
+                                                                           (void *) &settings->heaterSettings.burning_settings.min_i);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>pid>pwr_to_sw_to_warm", FLOAT, 5000,
                                                                            40000,
-                                                                           (void *) &settings->heaterSettings.oxygen_pid.power_to_switch_to_warming_mode,
-                                                                           (void *) &settings->heaterSettings.oxygen_pid.power_to_switch_to_warming_mode);
+                                                                           (void *) &settings->heaterSettings.burning_settings.power_to_switch_to_warming_mode,
+                                                                           (void *) &settings->heaterSettings.burning_settings.power_to_switch_to_warming_mode);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>pid>oxy_door_to_sw_warm", FLOAT, 2,
                                                                            90,
-                                                                           (void *) &settings->heaterSettings.oxygen_pid.oxygen_door_val_to_warming_mode,
-                                                                           (void *) &settings->heaterSettings.oxygen_pid.oxygen_door_val_to_warming_mode);
+                                                                           (void *) &settings->heaterSettings.burning_settings.oxygen_door_val_to_warming_mode,
+                                                                           (void *) &settings->heaterSettings.burning_settings.oxygen_door_val_to_warming_mode);
     // two pumps
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>2pumps>enabled", CHECK_BOX, 0,
                                                                            1,
@@ -389,19 +397,31 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>warming>pwr_to_sw_to_PID", FLOAT,
                                                                            3000,
                                                                            20000,
-                                                                           (void *) &settings->heaterSettings.warmingSettings.target_power_to_switch_to_the_PID_mode,
-                                                                           (void *) &settings->heaterSettings.warmingSettings.target_power_to_switch_to_the_PID_mode);
+                                                                           (void *) &settings->heaterSettings.warming_settings.target_power_to_switch_to_the_PID_mode,
+                                                                           (void *) &settings->heaterSettings.warming_settings.target_power_to_switch_to_the_PID_mode);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>warming>core_tempr_to_sw", FLOAT,
                                                                            50,
                                                                            85,
-                                                                           (void *) &settings->heaterSettings.warmingSettings.start_pid_temperature,
-                                                                           (void *) &settings->heaterSettings.warmingSettings.start_pid_temperature);
+                                                                           (void *) &settings->heaterSettings.warming_settings.start_pid_temperature,
+                                                                           (void *) &settings->heaterSettings.warming_settings.start_pid_temperature);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>warming>time_to_reach_pwr_sec",
                                                                            INTEGER,
                                                                            200,
                                                                            3600,
-                                                                           (void *) &settings->heaterSettings.warmingSettings.time_to_reach_target_power_sec,
-                                                                           (void *) &settings->heaterSettings.warmingSettings.time_to_reach_target_power_sec);
+                                                                           (void *) &settings->heaterSettings.warming_settings.time_to_reach_target_power_sec,
+                                                                           (void *) &settings->heaterSettings.warming_settings.time_to_reach_target_power_sec);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>warming>smoke_door_value_prc",
+                                                                           INTEGER,
+                                                                           50,
+                                                                           100,
+                                                                           (void *) &settings->heaterSettings.warming_settings.smoke_door_value_prcnt,
+                                                                           (void *) &settings->heaterSettings.warming_settings.smoke_door_value_prcnt);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>warming>upper_door_value_prc",
+                                                                           INTEGER,
+                                                                           40,
+                                                                           100,
+                                                                           (void *) &settings->heaterSettings.warming_settings.upper_door_value_prcnt,
+                                                                           (void *) &settings->heaterSettings.warming_settings.upper_door_value_prcnt);
     // FINAL COOLING SETTINGS
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>final_cool>tempr_to_sw_to_stby",
                                                                            FLOAT, 40,
@@ -478,8 +498,8 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
                                                                            (void *) &settings->heaterSettings.modellerSettings.core_energy_transmitting_coef);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>ema_doors_reactions",
                                                                            INTEGER,
-                                                                           0.01,
-                                                                           0.92,
+                                                                           10,
+                                                                           2000,
                                                                            (void *) &settings->heaterSettings.modellerSettings.ema_doors_reactions,
                                                                            (void *) &settings->heaterSettings.modellerSettings.ema_doors_reactions);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>add_core_doors_coef",
@@ -575,6 +595,42 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
                                                                                50000,
                                                                                (void *) &settings->heaterSettings.modellerSettings.stages[stage_index].length_of_modeling_cycles,
                                                                                (void *) &settings->heaterSettings.modellerSettings.stages[stage_index].length_of_modeling_cycles);
+        this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>s" + String(stage_index) + "_sttmpr_core",
+                                                                               FLOAT,
+                                                                               1,
+                                                                               120,
+                                                                               (void *) &settings->heaterSettings.modellerSettings.stages[stage_index].tempr_start_core,
+                                                                               (void *) &settings->heaterSettings.modellerSettings.stages[stage_index].tempr_start_core);
+        this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>s" + String(stage_index) + "_sttmpr_core_v",
+                                                                               FLOAT,
+                                                                               1,
+                                                                               120,
+                                                                               (void *) &settings->heaterSettings.modellerSettings.stages[stage_index].tempr_start_core_volume,
+                                                                               (void *) &settings->heaterSettings.modellerSettings.stages[stage_index].tempr_start_core_volume);
+        this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>s" + String(stage_index) + "_sttmpr_acc_t",
+                                                                               FLOAT,
+                                                                               1,
+                                                                               120,
+                                                                               (void *) &settings->heaterSettings.modellerSettings.stages[stage_index].tempr_start_acc_top,
+                                                                               (void *) &settings->heaterSettings.modellerSettings.stages[stage_index].tempr_start_acc_top);
+        this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>s" + String(stage_index) + "_sttmpr_acc_h",
+                                                                               FLOAT,
+                                                                               1,
+                                                                               120,
+                                                                               (void *) &settings->heaterSettings.modellerSettings.stages[stage_index].tempr_start_acc_higher,
+                                                                               (void *) &settings->heaterSettings.modellerSettings.stages[stage_index].tempr_start_acc_higher);
+        this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>s" + String(stage_index) + "_sttmpr_acc_l",
+                                                                               FLOAT,
+                                                                               1,
+                                                                               120,
+                                                                               (void *) &settings->heaterSettings.modellerSettings.stages[stage_index].tempr_start_acc_lower,
+                                                                               (void *) &settings->heaterSettings.modellerSettings.stages[stage_index].tempr_start_acc_lower);
+        this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>modelling>s" + String(stage_index) + "_sttmpr_acc_b",
+                                                                               FLOAT,
+                                                                               1,
+                                                                               120,
+                                                                               (void *) &settings->heaterSettings.modellerSettings.stages[stage_index].tempr_start_acc_bottom,
+                                                                               (void *) &settings->heaterSettings.modellerSettings.stages[stage_index].tempr_start_acc_bottom);
     }
 
 }
