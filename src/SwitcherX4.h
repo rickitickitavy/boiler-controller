@@ -10,10 +10,10 @@
 
 #include "MqttClient.h"
 
-#define SW_PIN0 16
-#define SW_PIN1 14
-#define SW_PIN2 12
-#define SW_PIN3 13
+#define SW_PIN0 4
+#define SW_PIN1 13
+#define SW_PIN2 33
+#define SW_PIN3 32
 
 class SwitcherX4 {
 private:

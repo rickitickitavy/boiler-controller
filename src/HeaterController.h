@@ -155,7 +155,7 @@ public:
     HeaterController(GlobalSettings *settings,
                      SensorController *sensorController, SettingsNavigator *settingsNavigator);
 
-    void handle();
+    bool handle();
 
     void openOxygenDoorForTime(long time_sec);
 
@@ -164,6 +164,8 @@ public:
     void startModelling();
     void stopModelling();
     void getTelemetry(char *buffer);
+    TelemetryDataRecord *getTelemetryRecord();
+    bool isModelling();
 };
 
 

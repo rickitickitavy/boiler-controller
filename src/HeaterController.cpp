@@ -418,17 +418,18 @@ void HeaterController::closeOxygenDoor() {
 }
 //-------------------------------------------------------------------
 
-void HeaterController::handle() {
+bool HeaterController::handle() {
+    bool proceeded = false;
     if ((sensorController->isHasSensors() && (last_cycle_time == 0 || ((millis() - last_cycle_time) >
                                                                        heaterSettings->scan_interval_ms)))
         || modelling_is_active) {
-
+        proceeded = true;
         cycle_index++;
 
         if (modelling_is_active) {
             if (estimated_modelling_cycle_counter-- <= 0) {
                 stopModelling();
-                return;
+                return false;
             }
         }
 
@@ -467,6 +468,8 @@ void HeaterController::handle() {
         doorsController->setDoopOpened(main_door_opened);
         previous_main_door_opened = main_door_opened;
     }
+
+    return proceeded;
 
 }
 //-------------------------------------------------------------------
@@ -760,6 +763,16 @@ void HeaterController::stopModelling() {
     } else
         LOGGER.error(" MODELLING ALREADY STOPPED.");
 
+}
+//-------------------------------------------------------------------
+
+bool HeaterController::isModelling() {
+    return modelling_is_active;
+}
+//-------------------------------------------------------------------
+
+TelemetryDataRecord *HeaterController::getTelemetryRecord() {
+    return &telemetryDataRecord;
 }
 //-------------------------------------------------------------------
 

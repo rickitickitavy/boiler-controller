@@ -43,7 +43,11 @@
 #define PUMP_2_PIN 12
 
 #define ONE_WIRE_PIN 14
-#define FLOW_SENSOR_PIN 15
+#define FLOW_SENSOR_PIN 39
+
+#define DISPLAY_CS_PIN 17
+#define DISPLAY_DC_PIN 15
+#define DISPLAY_RST_PIN 16
 
 #define MAIN_DOOR_SENSOR_PIN 34
 
