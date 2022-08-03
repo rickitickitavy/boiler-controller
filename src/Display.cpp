@@ -26,13 +26,16 @@ Display::Display() {
         screen_0_data[i].name[0] = 0;
         screen_0_data[i].value[0] = 0;
     }
+    tft->setCursor(0, 18);
+//    tft->setTextColor(0xf800, 0x001f);
+
 }
 
 void Display::printStatus(const char *status) {
-    tft->fillRect(0, 80, 320, 80, 0);
-    tft->setCursor(20, 120);
+//    tft->fillRect(0, 80, 320, 80, 0);
+//    tft->setCursor(20, 120);
     tft->setTextColor(0xf800, 0x001f);
-    tft->print(status);
+    tft->println(status);
 }
 
 void Display::drawScreen() {
@@ -95,4 +98,3 @@ void Display::setScreen0Parameter(int index, const char *name, const char *value
         screen_0_data[index].value[val_len] = 0;
     }
 }
-

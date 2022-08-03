@@ -14,6 +14,7 @@
 struct TelemetryDataRecord{
     long date_time_ms;
     int interval_ms;
+    float internal_temp;
     float core_temp;
     float input_temp;
     float output_temp;

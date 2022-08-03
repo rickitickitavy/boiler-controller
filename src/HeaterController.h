@@ -51,6 +51,12 @@ enum HeaterMode {
     CRITICAL = 32
 };
 
+enum DisplayButtonEvent{
+    NONE, SHORT_CLICK, LONG_CLICK
+};
+
+
+
 class HeaterController {
 private:
     GlobalSettings *settings;
@@ -84,6 +90,9 @@ private:
 
     HeaterMode mode;
 
+    long buttonChangedAt;
+    bool button_pressed;
+    DisplayButtonEvent buttonEvent;
 
     bool previous_main_door_opened;
     bool main_door_opened;
@@ -150,6 +159,7 @@ private:
     void collectTelemetry(long last_cycle_length);
 
     static void IRAM_ATTR MAIN_DOOR_ISR();
+    static void IRAM_ATTR DISPLAY_BUTTON_ISR();
 
 public:
     HeaterController(GlobalSettings *settings,

@@ -137,6 +137,14 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
                                                                            (void *) &settings->ds18D20Addresses[
                                                                                    SENSORS_ADDR_SIZE *
                                                                                    T_SENS_INDEX_BACKWARD_FLOW]);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>internal>temperature",
+                                                                           SENSORS_ADDR_SIZE,
+                                                                           (void *) &settings->ds18D20Addresses[
+                                                                                   SENSORS_ADDR_SIZE *
+                                                                                   T_SENS_INDEX_INTERNAL],
+                                                                           (void *) &settings->ds18D20Addresses[
+                                                                                   SENSORS_ADDR_SIZE *
+                                                                                           T_SENS_INDEX_INTERNAL]);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>back>contour2", SENSORS_ADDR_SIZE,
                                                                            (void *) &settings->ds18D20Addresses[
                                                                                    SENSORS_ADDR_SIZE * 9],

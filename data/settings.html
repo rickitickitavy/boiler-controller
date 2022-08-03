@@ -176,7 +176,14 @@
             prepareDropDownList("sensors>forward>temperature");
             prepareDropDownList("sensors>backward>temperature");
 
+            prepareDropDownList("sensors>internal>temperature");
+
             var inputs = document.getElementsByTagName("input");
+            for (var inputIndex = 0; inputIndex < inputs.length; inputIndex++) {
+                var input = inputs[inputIndex];
+                input.onchange = fieldChanged;
+            }
+            inputs = document.getElementsByTagName("select");
             for (var inputIndex = 0; inputIndex < inputs.length; inputIndex++) {
                 var input = inputs[inputIndex];
                 input.onchange = fieldChanged;
@@ -339,6 +346,16 @@
                 <div class="formParamValue">
                     <input id="sensors>send_data_to_mqtt_interval_ms" class="formStringParamValue"
                            value="%sensors>send_data_to_mqtt_interval_ms%">
+                </div>
+            </div>
+
+            <div class="form-inputField-container">
+                <div class="formParamCaption">Internal termosensor</div>
+                <div class="formParamValue">
+                    <select id="sensors>internal>temperature" name="sensors>internal>temperature" class="formStringParamValue"
+                            title="%sensors>internal>temperature%">
+                        %sensors>list%
+                    </select>
                 </div>
             </div>
 

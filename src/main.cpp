@@ -131,6 +131,8 @@ void setup() {
 }
 
 int cycle_index = 0;
+char temp_char_buffer[64];
+
 
 void loop() {
     ArduinoOTA.handle();
@@ -145,25 +147,27 @@ void loop() {
         char *mode;
         switch (telemetryDataRecord->heaterMode){
             case STAND_BY :
-                mode = "Mode: STANDBY";
+                mode = "STANDBY";
                 break;
             case WARMING :
-                mode = "Mode: WARMING";
+                mode = "WARMING";
                 break;
             case PID :
-                mode = "Mode: NORMAL BURNING";
+                mode = "BURNING";
                 break;
             case OVERHEATED :
-                mode = "Mode: OVERHEATED";
+                mode = "OVERHEATED";
                 break;
             case CRITICAL :
-                mode = "Mode: CRITICAL";
+                mode = "CRITICAL";
                 break;
             case FINAL_COOLING :
-                mode = "Mode: FINAL_COOLING";
+                mode = "FINAL_COOLING";
                 break;
         }
-        display->setScreen0Parameter(0, mode, telemetryDataRecord->main_door_opened ? "OPENED" : "CLOSED");
+
+        sprintf(temp_char_buffer, "%s (%0.1f°C)", mode, telemetryDataRecord->internal_temp);
+        display->setScreen0Parameter(0, temp_char_buffer, telemetryDataRecord->main_door_opened ? "OPENED" : "CLOSED");
         display->setScreen0Parameter(1, "Core t (°C)", String(telemetryDataRecord->core_temp_sma).c_str());
         display->setScreen0Parameter(2, "Core pwr (Watt)", String((int)telemetryDataRecord->core_EMA_power).c_str());
         display->setScreen0Parameter(3, "Core input (°C)", String(telemetryDataRecord->input_temp_sma).c_str());

@@ -48,6 +48,7 @@ public:
     bool isHasSensors();
     double getSmaValue(int sensorIndex);
     double getNotNANSmaValue(int sensorIndex);
+    double getNotNANValue(int sensorIndex);
     String buildSensorsList();
 };
 

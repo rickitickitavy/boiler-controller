@@ -47,7 +47,7 @@ Telemetry::Telemetry(GlobalSettings *settings) {
 }
 
 void Telemetry::sendCsvHeader(){
-    char *header = "csv->;date_time_ms;interval_ms;core_temp;core_temp_sma;input_temp;"
+    char *header = "csv->;date_time_ms;interval_ms;internal_temp;core_temp;core_temp_sma;input_temp;"
             "input_temp_sma;output_temp;output_temp_sma;accumulator_bottom_temp;"
             "accumulator_bottom_temp_sma;accumulator_lower_temp;accumulator_lower_temp_sma;"
             "accumulator_higher_temp;"
@@ -93,7 +93,7 @@ void Telemetry::openDataFile() {
         }
     }
 
-    char *header = "date_time_ms;interval_ms;core_temp;core_temp_sma;input_temp;"
+    char *header = "date_time_ms;interval_ms;internal_temp;core_temp;core_temp_sma;input_temp;"
             "input_temp_sma;output_temp;output_temp_sma;accumulator_bottom_temp;"
             "accumulator_bottom_temp_sma;accumulator_lower_temp;accumulator_lower_temp_sma;"
             "accumulator_higher_temp;"
@@ -124,7 +124,7 @@ void Telemetry::handleFlush() {
 
 bool Telemetry::addData(TelemetryDataRecord *dataRecord) {
   //  memcpy(&data[index_of_next++ & mask_for_index], telemetryDataRecord, sizeof(TelemetryDataRecord));
-        sprintf(save_buffer, "%d;%d;"
+        sprintf(save_buffer, "%d;%d;%f;"
                         "%f;%f;%f;%f;"
                         "%f;%f;"
                         "%f;%f;"
@@ -142,7 +142,7 @@ bool Telemetry::addData(TelemetryDataRecord *dataRecord) {
                         "%d;%d;"
                         "%d;"
                         "%f;%s\r\n",
-                dataRecord->date_time_ms, dataRecord->interval_ms,
+                dataRecord->date_time_ms, dataRecord->interval_ms, dataRecord->internal_temp,
                 dataRecord->core_temp, dataRecord->core_temp_sma, dataRecord->input_temp, dataRecord->input_temp_sma,
                 dataRecord->output_temp, dataRecord->output_temp_sma,
                 dataRecord->accumulator_bottom_temp, dataRecord->accumulator_bottom_temp_sma,
@@ -175,6 +175,7 @@ bool Telemetry::addData(TelemetryDataRecord *dataRecord) {
         }
     } else if ((save_buffer) && settings->telemetrySettings.log_gebug_to_UART){
         sprintf(save_buffer, "----------\r\n time ms = %d; interval ms = %d\r\n"
+                        " internal t = %f \r\n"
                         " core t = %f (%f); inp t = %f (%f) \r\n"
                         "out t = %f (%f)\r\n"
                         " acc_b t = %f (%f); acc_l t = %f (%f)\r\n"
@@ -189,7 +190,7 @@ bool Telemetry::addData(TelemetryDataRecord *dataRecord) {
                         " heaterMode = %d\r\n"
                         " core_SMA_df t = %f\r\n"
                         " main door opened = %s\r\n------------",
-                dataRecord->date_time_ms, dataRecord->interval_ms,
+                dataRecord->date_time_ms, dataRecord->interval_ms, dataRecord->internal_temp,
                 dataRecord->core_temp, dataRecord->core_temp_sma, dataRecord->input_temp, dataRecord->input_temp_sma,
                 dataRecord->output_temp, dataRecord->output_temp_sma,
                 dataRecord->accumulator_bottom_temp, dataRecord->accumulator_bottom_temp_sma, dataRecord->accumulator_lower_temp, dataRecord->accumulator_lower_temp_sma,

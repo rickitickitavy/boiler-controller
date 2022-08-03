@@ -164,3 +164,8 @@ double SensorController::getNotNANSmaValue(int sensorIndex) {
     double val = getSmaValue(sensorIndex);
     return isnan(val) ? 0 : val;
 }
+
+double SensorController::getNotNANValue(int sensorIndex) {
+    double val = sensor_data[sensorIndex].value;
+    return isnan(val) ? 0 : val;
+}

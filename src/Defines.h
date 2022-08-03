@@ -11,6 +11,7 @@
 #define LOG_LEVEL_NOTHING 5
 
 
+#define T_SENS_INDEX_INTERNAL 9
 #define T_SENS_INDEX_CORE 0
 #define T_SENS_INDEX_OUTPUT_FLOW 1
 #define T_SENS_INDEX_INPUT_FLOW 2
@@ -39,8 +40,10 @@
 
 #define EMERGENCY_VALVE_PIN 0
 
-#define PUMP_1_PIN 13
-#define PUMP_2_PIN 12
+#define PUMP_1_PIN 4
+#define PUMP_2_PIN 13
+#define PUMP_3_PIN 33
+#define PUMP_4_PIN 32
 
 #define ONE_WIRE_PIN 14
 #define FLOW_SENSOR_PIN 39
@@ -50,5 +53,6 @@
 #define DISPLAY_RST_PIN 16
 
 #define MAIN_DOOR_SENSOR_PIN 34
+#define DISPLAY_BUTTON_PIN 12
 
 #define WATER_ENERGY_PER_LTR_PER_GRAD 4200
