@@ -1,0 +1,13 @@
+.black{
+    fill:none;
+    stroke:black;
+    stroke-width:1;
+}
+
+.blue{
+    fill:none;
+    stroke:blue;
+    stroke-width:1;
+    font-size: 12px;
+}
+

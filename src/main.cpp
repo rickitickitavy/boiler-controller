@@ -5,6 +5,7 @@
 #include <HardwareSerial.h>
 #include <SPIFFS.h>
 #include <SD.h>
+#include <DisplayButtonController.h>
 #include "Logger.h"
 #include "SettingsManager.h"
 #include "ArduinoOTA.h"
@@ -20,6 +21,8 @@ SwitcherX4 *switcher;
 SensorController *sensorController;
 HeaterController *heaterController;
 Display *display;
+DisplayButtonController *displayButtonController;
+
 long lastTimeDisplayed;
 
 void towDeviceInfo(const char *msg){
@@ -120,6 +123,8 @@ void setup() {
     towDeviceInfo("start device");
     switcher = new SwitcherX4(settingsManager->getSettings(), mqtt);
 
+    towDeviceInfo("start displayBtn controller");
+    displayButtonController = new DisplayButtonController(heaterController, display);
 
     towDeviceInfo("all done");
 
@@ -139,6 +144,7 @@ void loop() {
     mqtt->dispatch();
     wiFiController->checkConnection();
     LOGGER.handle();
+    displayButtonController->handle();
 
     if (((heaterController->handle()) && !heaterController->isModelling())
     || (heaterController->isModelling() && ((millis() - lastTimeDisplayed) > 3000))){

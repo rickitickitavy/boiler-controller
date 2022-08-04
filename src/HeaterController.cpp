@@ -200,13 +200,6 @@ HeaterController::HeaterController(GlobalSettings *settings, SensorController *s
     attachInterrupt(MAIN_DOOR_SENSOR_PIN, MAIN_DOOR_ISR, CHANGE);
     MAIN_DOOR_ISR();
     previous_main_door_opened = false;
-
-    button_pressed = false;
-    buttonEvent =  DisplayButtonEvent::NONE;
-    pinMode(DISPLAY_BUTTON_PIN, INPUT_PULLUP);
-    attachInterrupt(DISPLAY_BUTTON_PIN, DISPLAY_BUTTON_ISR, CHANGE);
-    DISPLAY_BUTTON_ISR();
-
 }
 
 void HeaterController::resetDEMAtimers() {
@@ -429,20 +422,6 @@ void HeaterController::closeOxygenDoor() {
 
 bool HeaterController::handle() {
     bool proceeded = false;
-//    DISPLAY_BUTTON_ISR();
-    if (buttonEvent != DisplayButtonEvent::NONE){
-        LOGGER.info("++++++  Display button event " + String(buttonEvent));
-        if ((buttonEvent == DisplayButtonEvent::LONG_CLICK) && (mode == STAND_BY)){
-            if ((time_to_close_oxygen_door_in_stanby_mode != 0)
-                && (millis() < time_to_close_oxygen_door_in_stanby_mode))
-                closeOxygenDoor();
-            else
-                openOxygenDoorForTime(900);
-        }
-
-
-        buttonEvent= DisplayButtonEvent::NONE;
-    }
     if ((sensorController->isHasSensors() && (last_cycle_time == 0 || ((millis() - last_cycle_time) >
                                                                        heaterSettings->scan_interval_ms)))
         || modelling_is_active) {
@@ -794,6 +773,12 @@ bool HeaterController::isModelling() {
 }
 //-------------------------------------------------------------------
 
+bool HeaterController::isOxygenDoorOpenedForATime() {
+    return ((time_to_close_oxygen_door_in_stanby_mode != 0)
+        && (millis() < time_to_close_oxygen_door_in_stanby_mode));
+}
+//-------------------------------------------------------------------
+
 TelemetryDataRecord *HeaterController::getTelemetryRecord() {
     return &telemetryDataRecord;
 }
@@ -841,23 +826,3 @@ void HeaterController::getTelemetry(char *buffer) {
             telemetryDataRecord.pid_d, telemetryDataRecord.pid_output, telemetryDataRecord.heaterMode);
 }
 
-void IRAM_ATTR HeaterController::DISPLAY_BUTTON_ISR(){
-    if (!instance)
-        return;
-
-    if ((millis() - instance->buttonChangedAt) > 50){
-        bool new_state = !(bool)digitalRead(DISPLAY_BUTTON_PIN);
-
-        if (new_state != instance->button_pressed){
-            if (instance->button_pressed){
-                // button was released
-                if ((millis() - instance->buttonChangedAt) > 1500)
-                    instance->buttonEvent = DisplayButtonEvent::LONG_CLICK;
-                else
-                    instance->buttonEvent = DisplayButtonEvent::SHORT_CLICK;
-            } else
-                instance->button_pressed = true;
-        }
-        instance->buttonChangedAt = millis();
-    }
-}
