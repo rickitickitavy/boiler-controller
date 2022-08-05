@@ -56,6 +56,8 @@ struct TelemetryDataRecord{
     uint8_t heaterMode;
     float core_SMA_diff_tempr;
     bool main_door_opened;
+
+    long time_to_close_oxygen_door_in_stanby_mode;
 };
 
 class Telemetry {

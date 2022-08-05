@@ -253,6 +253,7 @@ void HeaterController::collectTelemetry(long last_cycle_length) {
     telemetryDataRecord.pump_2_state = pumpsController->pump2 ? pumpsController->pump2->getStateName() : (uint8_t) -1;
     telemetry->addData(&telemetryDataRecord);
     telemetryDataRecord.main_door_opened = main_door_opened;
+    telemetryDataRecord.time_to_close_oxygen_door_in_stanby_mode = time_to_close_oxygen_door_in_stanby_mode;
 }
 
 void HeaterController::calcMainCoreCharacteristics(long last_cycle_length) {

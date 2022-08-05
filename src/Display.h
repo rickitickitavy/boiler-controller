@@ -5,29 +5,47 @@
 #ifndef BASE_ESP8266_MQTT_DISPLAY_H
 #define BASE_ESP8266_MQTT_DISPLAY_H
 
-#define FIRST_COLUMN_WIDTH 230
-#define SCREEN_0_DATA_LENGTH 10
-#define SCREEN_0_MAX_NAME_LENGTH 16
+#define SCREEN_COLOR_BACKGROUND ST77XX_WHITE
+#define SCREEN_COLOR_GRAY 0x8410
 #define SCREEN_COLOR_LIGHT_GRAY 0xCE79
+#define SCREEN_COLOR_MID_LIGHT_GRAY 0x4208
 
+#define SCREEN_COLOR_CYAN 0x07FF
+
+#define SCREEN_COLOR_ORANGE 0xFD64
+
+#define SCREEN_LIGHT_BLUE 0x94BD
+#define SCREEN_LIGHT_LIGHT_BLUE 0xBE7F
+
+#define SCREEN_COLOR_LIGHT_RED 0xFBEF
+#define SCREEN_LIGHT_LIGHT_RED 0xFDB5
+
+//#define SCREEN_GREEN 0x0FE0
+#define SCREEN_GREEN 0x0600
+#define SCREEN_LIGHT_LIGHT_GREEN 0xDFF9
+
+//1111 1    111 111    1 1111
+//1111 1    011 111    0 1111
+//0000 0    110 000    0 1001
+
+// 217 255 203
 #include "lib/adafruit/Adafruit_GFX.h"
 #include "lib/adafruit/Adafruit_ST7789.h"
 #include "lib/adafruit/Fonts/FreeMonoBoldOblique18pt7b.h"
 #include "Telemetry.h"
-
-struct NameValue{
-    char name[SCREEN_0_MAX_NAME_LENGTH + 1];
-    char value[7];
-};
 
 class Display {
 private:
     Adafruit_ST7789 *tft;
 
     int screen_index = -1;
-    NameValue screen_0_data[SCREEN_0_DATA_LENGTH];
+    TelemetryDataRecord savedDataRecord;
+    bool telemetry_initialized;
 
-    void drawScreen0();
+    void drawScreen0(TelemetryDataRecord *telemetryDataRecord);
+    void drawPumpState(int index, bool is_on);
+
+    void initScreen0();
 
 public:
     Display();
@@ -36,9 +54,9 @@ public:
     void setScreenIndex(int index);
     void drawScreen();
 
-    void setScreen0Parameter(int index, const char *name, const char *value);
-
     void updateInfo(TelemetryDataRecord *telemetryDataRecord);
+
+    Adafruit_ST7789 *getTft();
 };
 
 
