@@ -244,9 +244,9 @@ void HeaterController::collectTelemetry(long last_cycle_length) {
     pidRegulator->fillPID(telemetryDataRecord.pid_p, telemetryDataRecord.pid_i, telemetryDataRecord.pid_d,
                           telemetryDataRecord.pid_raw_output, telemetryDataRecord.pid_output);
 
-    telemetryDataRecord.smoke_door_position = (float) doorsController->getSmokePipeAngle();
-    telemetryDataRecord.upper_door_position = (float) doorsController->getUpperDoorAngle();
-    telemetryDataRecord.oxygen_door_position = (float) doorsController->getOxygenDoorAngle();
+    telemetryDataRecord.smoke_door_position = (float) doorsController->getSmokePipeValue();
+    telemetryDataRecord.upper_door_position = (float) doorsController->getUpperDoorValue();
+    telemetryDataRecord.oxygen_door_position = (float) doorsController->getOxygenDoorValue();
     telemetryDataRecord.heaterMode = mode;
     telemetryDataRecord.core_SMA_diff_tempr = (float) mainCoreParams.core_DEMA_temperature;
     telemetryDataRecord.pump_1_state = pumpsController->pump1->getStateName();

@@ -12,7 +12,7 @@
 Display::Display() {
     telemetry_initialized = false;
     tft = new Adafruit_ST7789(DISPLAY_CS_PIN, DISPLAY_DC_PIN, DISPLAY_RST_PIN);
-    tft->init(240, 320, SPI_MODE2);
+    tft->init(240, 320, SPI_MODE0);
     tft->setRotation(3);
     tft->fillScreen(0);
 
@@ -52,10 +52,31 @@ void Display::setScreenIndex(int index) {
     }
 }
 
+void Display::drawFloatField(const char *msg, float value, int txt_x, int txt_y, int width, int font_color,
+                             int bg_color) {
+    char buffer[32];
+    sprintf(buffer, msg, value);
+    drawField(buffer, txt_x, txt_y, width, font_color, bg_color);
+}
+
+void Display::drawIntField(const char *msg, int value, int txt_x, int txt_y, int width, int font_color, int bg_color) {
+    char buffer[32];
+    sprintf(buffer, msg, value);
+    drawField(buffer, txt_x, txt_y, width, font_color, bg_color);
+}
+
+void Display::drawField(const char *msg, int txt_x, int txt_y, int width, int font_color, int bg_color) {
+    tft->fillRect(txt_x, txt_y - 17, width, 19, bg_color);
+    tft->setCursor(txt_x, txt_y);
+    tft->setTextColor(font_color);
+    tft->print(msg);
+}
+
 void Display::initScreen0() {
-    tft->fillScreen(SCREEN_COLOR_BACKGROUND);
+    tft->fillScreen(COLOR_BACKGROUND);
 //    tft->fillScreen(SCREEN_COLOR_GRAY);
     tft->drawRect(1, 1, 105, 239, ST77XX_BLACK);
+    tft->fillRect(2, 2, 103, 237, COLOR_CORE);
     tft->setFont(&FreeSans12pt7b);
 
     tft->setCursor(5, 20);
@@ -63,12 +84,13 @@ void Display::initScreen0() {
     tft->fillTriangle(82, 38, 102, 48, 82, 58, ST77XX_RED);
 
     tft->drawRect(105, 136, 20, 20, ST77XX_BLUE);
-    tft->fillRect(106, 137, 18, 18, SCREEN_LIGHT_LIGHT_BLUE);
+    tft->fillRect(106, 137, 18, 18, SCREEN_COLOR_LIGHT_LIGHT_BLUE);
 
     tft->drawRect(105, 40, 20, 20, ST77XX_RED);
     tft->fillRect(106, 41, 18, 18, SCREEN_LIGHT_LIGHT_RED);
 
-    tft->drawRoundRect(125, 10, 88, 160, 10, ST77XX_BLACK);
+    tft->drawRoundRect(125, 10, 88, 160, 10, COLOR_CONTOUR_ACCUMULATOR);
+    tft->fillRoundRect(126, 11, 86, 158, 10, COLOR_ACCUMULATOR);
 
     tft->drawCircle(135, 200, 20, SCREEN_GREEN);
     tft->drawCircle(135, 200, 19, SCREEN_GREEN);
@@ -81,7 +103,8 @@ void Display::initScreen0() {
     tft->fillCircle(185, 200, 18, SCREEN_LIGHT_LIGHT_GREEN);
     tft->fillTriangle(192, 190, 172, 200, 192, 210, SCREEN_GREEN);
 
-    tft->drawRoundRect(220, 154, 96, 85, 10, SCREEN_COLOR_LIGHT_GRAY);
+    tft->drawRoundRect(220, 154, 96, 85, 10, COLOR_CONTOUR_CONTROLLER);
+    tft->fillRoundRect(221, 155, 94, 83, 10, COLOR_CONTROLLER);
 
     if (telemetry_initialized)
         drawScreen0(&savedDataRecord);
@@ -92,85 +115,50 @@ void Display::drawScreen0(TelemetryDataRecord *telemetryDataRecord) {
 
     tft->setFont(&FreeSans12pt7b);
 
-    tft->fillRect(5, 3, 97, 19, SCREEN_COLOR_BACKGROUND);
-    tft->setCursor(5, 20);
-    tft->setTextColor(SCREEN_COLOR_LIGHT_GRAY);
-    sprintf(buffer, "%d%%", (int) telemetryDataRecord->smoke_door_position);
-    tft->print(buffer);
+    drawIntField("%d%%", (int) telemetryDataRecord->smoke_door_position, 5, 20, 97, SCREEN_COLOR_GRAY, COLOR_CORE);
+    drawFloatField("%0.2fC", telemetryDataRecord->output_temp_sma, 5, 45, 77, ST77XX_RED, COLOR_CORE);
+    drawIntField("%d L/m", (int) telemetryDataRecord->core_flow, 5, 64, 77, ST77XX_RED, COLOR_CORE);
 
-    tft->fillRect(5, 28, 77, 19, SCREEN_COLOR_BACKGROUND);
-    tft->setCursor(5, 45);
-    tft->setTextColor(ST77XX_RED);
-    sprintf(buffer, "%0.2fC", telemetryDataRecord->output_temp_sma);
-    tft->print(buffer);
+    drawIntField("%d%%", (int) telemetryDataRecord->upper_door_position, 5, 89, 77, SCREEN_COLOR_CYAN, COLOR_CORE);
+    drawFloatField("%0.2fC", telemetryDataRecord->core_temp_sma, 5, 108, 77, SCREEN_COLOR_ORANGE, COLOR_CORE);
+    drawIntField("%dW", (int) telemetryDataRecord->core_EMA_power, 5, 127, 97, SCREEN_COLOR_ORANGE, COLOR_CORE);
 
-    tft->fillRect(5, 47, 77, 19, SCREEN_COLOR_BACKGROUND);
-    tft->setCursor(5, 64);
-    tft->setTextColor(ST77XX_RED);
-    sprintf(buffer, "%d L/m", (int) telemetryDataRecord->core_flow);
-    tft->print(buffer);
+    drawFloatField("%0.2fC", telemetryDataRecord->input_temp_sma, 5, 152, 77, ST77XX_BLUE, COLOR_CORE);
+    drawIntField("%d%%", (int) telemetryDataRecord->oxygen_door_position, 5, 171, 77, SCREEN_COLOR_CYAN, COLOR_CORE);
 
-    tft->fillRect(5, 72, 77, 19, SCREEN_COLOR_BACKGROUND);
-    tft->setCursor(5, 89);
-    tft->setTextColor(SCREEN_COLOR_CYAN);
-    sprintf(buffer, "%d%%", (int) telemetryDataRecord->upper_door_position);
-    tft->print(buffer);
-
-    tft->fillRect(5, 91, 77, 19, SCREEN_COLOR_BACKGROUND);
-    tft->setCursor(5, 108);
-    tft->setTextColor(SCREEN_COLOR_ORANGE);
-    sprintf(buffer, "%0.2fC", telemetryDataRecord->core_temp_sma);
-    tft->print(buffer);
-
-    tft->fillRect(5, 110, 97, 19, SCREEN_COLOR_BACKGROUND);
-    tft->setCursor(5, 127);
-    tft->setTextColor(SCREEN_COLOR_ORANGE);
-    sprintf(buffer, "%dW", (int) telemetryDataRecord->core_EMA_power);
-    tft->print(buffer);
-
-    tft->fillRect(5, 135, 77, 19, SCREEN_COLOR_BACKGROUND);
-    tft->setCursor(5, 152);
-    tft->setTextColor(ST77XX_BLUE);
-    sprintf(buffer, "%0.2fC", telemetryDataRecord->input_temp_sma);
-    tft->print(buffer);
-
-    tft->fillRect(5, 154, 77, 19, SCREEN_COLOR_BACKGROUND);
-    tft->setCursor(5, 171);
-    tft->setTextColor(SCREEN_COLOR_CYAN);
-    sprintf(buffer, "%d%%", (int) telemetryDataRecord->oxygen_door_position);
-    tft->print(buffer);
-
-    tft->fillRect(5, 176, 97, 19, SCREEN_COLOR_BACKGROUND);
-    tft->setCursor(5, 193);
-    tft->setTextColor(SCREEN_GREEN);
     if (telemetryDataRecord->time_to_close_oxygen_door_in_stanby_mode
-        && (telemetryDataRecord->time_to_close_oxygen_door_in_stanby_mode > millis())) {
+        && (telemetryDataRecord->time_to_close_oxygen_door_in_stanby_mode > millis())){
+
         int min = (telemetryDataRecord->time_to_close_oxygen_door_in_stanby_mode - millis()) / 1000;
         int sec = min % 60;
         min = min / 60;
         sprintf(buffer, "%2d:%2d", min, sec);
-        tft->print(buffer);
+        drawField(buffer, 5, 193, 97, SCREEN_GREEN, COLOR_CORE);
     }
+    else
+        drawField("", 5, 193, 97, SCREEN_GREEN, COLOR_CORE);
 
-    tft->fillRect(5, 195, 100, 19, SCREEN_COLOR_BACKGROUND);
-    tft->setCursor(5, 212);
-    if (telemetryDataRecord->main_door_opened) {
-        tft->setTextColor(SCREEN_COLOR_LIGHT_RED);
-        tft->print("OPENED");
-    } else {
-        tft->setTextColor(SCREEN_GREEN);
-        tft->print("Closed");
-    }
 
-    tft->fillRect(5, 214, 97, 24, SCREEN_COLOR_BACKGROUND);
+    if (telemetryDataRecord->main_door_opened)
+        drawField("OPENED", 5, 212, 100, SCREEN_COLOR_LIGHT_RED, COLOR_CORE);
+    else
+        drawField("Closed", 5, 212, 100, SCREEN_GREEN, COLOR_CORE);
+
+    tft->fillRect(5, 214, 97, 24, COLOR_CORE);
     tft->setCursor(5, 231);
     tft->setTextColor(SCREEN_GREEN);
     switch (telemetryDataRecord->heaterMode){
-        case STAND_BY:  tft->print("Stand By");
+        case STAND_BY:
+            tft->print("Stand By");
             break;
-        case WARMING:  tft->print("Warming");
+        case WARMING:
+            tft->print("Warming");
             break;
-        case FINAL_COOLING:  tft->print("Cooling");
+        case FINAL_COOLING:
+            tft->print("Cooling");
+            break;
+        case PID:
+            tft->print("Burning");
             break;
         case OVERHEATED:
             tft->setTextColor(ST77XX_YELLOW);
@@ -182,54 +170,18 @@ void Display::drawScreen0(TelemetryDataRecord *telemetryDataRecord) {
             break;
     }
 
-
-    tft->setTextColor(SCREEN_GREEN);
-    tft->fillRect(130, 18, 80, 19, SCREEN_COLOR_BACKGROUND);
-    tft->setCursor(130, 35);
-    sprintf(buffer, "%0.2fC", telemetryDataRecord->accumulator_top_temp_sma);
-    tft->print(buffer);
-
-    tft->setTextColor(SCREEN_GREEN);
-    tft->fillRect(130, 58, 80, 19, SCREEN_COLOR_BACKGROUND);
-    tft->setCursor(130, 75);
-    sprintf(buffer, "%0.2fC", telemetryDataRecord->accumulator_higher_temp_sma);
-    tft->print(buffer);
-
-    tft->setTextColor(SCREEN_GREEN);
-    tft->fillRect(130, 98, 80, 19, SCREEN_COLOR_BACKGROUND);
-    tft->setCursor(130, 115);
-    sprintf(buffer, "%0.2fC", telemetryDataRecord->accumulator_lower_temp_sma);
-    tft->print(buffer);
-
-    tft->setTextColor(SCREEN_GREEN);
-    tft->fillRect(130, 138, 80, 19, SCREEN_COLOR_BACKGROUND);
-    tft->setCursor(130, 155);
-    sprintf(buffer, "%0.2fC", telemetryDataRecord->accumulator_bottom_temp_sma);
-    tft->print(buffer);
+    drawFloatField("%0.2fC", telemetryDataRecord->accumulator_top_temp_sma, 130, 35, 80, SCREEN_GREEN, COLOR_ACCUMULATOR);
+    drawFloatField("%0.2fC", telemetryDataRecord->accumulator_higher_temp_sma, 130, 75, 80, SCREEN_GREEN, COLOR_ACCUMULATOR);
+    drawFloatField("%0.2fC", telemetryDataRecord->accumulator_lower_temp_sma, 130, 115, 80, SCREEN_GREEN, COLOR_ACCUMULATOR);
+    drawFloatField("%0.2fC", telemetryDataRecord->accumulator_bottom_temp_sma, 130, 155, 80, SCREEN_GREEN, COLOR_ACCUMULATOR);
 
     drawPumpState(0, telemetryDataRecord->pump_1_state);
     drawPumpState(1, telemetryDataRecord->pump_2_state);
 
-    tft->setTextColor(SCREEN_COLOR_LIGHT_GRAY);
-    tft->fillRect(225, 158, 87, 19, SCREEN_COLOR_BACKGROUND);
-    tft->setCursor(225, 175);
-    sprintf(buffer, "%0.2fC", telemetryDataRecord->internal_temp);
-    tft->print(buffer);
-
-    tft->fillRect(225, 177, 87, 19, SCREEN_COLOR_BACKGROUND);
-    tft->setCursor(225, 194);
-    sprintf(buffer, "%d", (int)telemetryDataRecord->pid_p);
-    tft->print(buffer);
-
-    tft->fillRect(225, 196, 87, 19, SCREEN_COLOR_BACKGROUND);
-    tft->setCursor(225, 213);
-    sprintf(buffer, "%0.1f", telemetryDataRecord->pid_i);
-    tft->print(buffer);
-
-    tft->fillRect(225, 215, 87, 19, SCREEN_COLOR_BACKGROUND);
-    tft->setCursor(225, 232);
-    sprintf(buffer, "%0.1f", telemetryDataRecord->pid_d);
-    tft->print(buffer);
+    drawFloatField("%0.2fC", telemetryDataRecord->internal_temp, 225, 175, 87, SCREEN_COLOR_GRAY, COLOR_CONTROLLER);
+    drawIntField("%d", (int)telemetryDataRecord->pid_p, 225, 194, 87, SCREEN_COLOR_GRAY, COLOR_CONTROLLER);
+    drawFloatField("%0.1f", telemetryDataRecord->pid_i, 225, 213, 87, SCREEN_COLOR_GRAY, COLOR_CONTROLLER);
+    drawFloatField("%0.1f", telemetryDataRecord->pid_d, 225, 232, 87, SCREEN_COLOR_GRAY, COLOR_CONTROLLER);
 
 }
 
