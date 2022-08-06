@@ -82,29 +82,46 @@ void Display::initScreen0() {
     tft->setCursor(5, 20);
 
     tft->fillTriangle(82, 38, 102, 48, 82, 58, ST77XX_RED);
-
-    tft->drawRect(105, 136, 20, 20, ST77XX_BLUE);
-    tft->fillRect(106, 137, 18, 18, SCREEN_COLOR_LIGHT_LIGHT_BLUE);
-
-    tft->drawRect(105, 40, 20, 20, ST77XX_RED);
-    tft->fillRect(106, 41, 18, 18, SCREEN_LIGHT_LIGHT_RED);
-
-    tft->drawRoundRect(125, 10, 88, 160, 10, COLOR_CONTOUR_ACCUMULATOR);
-    tft->fillRoundRect(126, 11, 86, 158, 10, COLOR_ACCUMULATOR);
-
-    tft->drawCircle(135, 200, 20, SCREEN_GREEN);
-    tft->drawCircle(135, 200, 19, SCREEN_GREEN);
-    tft->fillCircle(135, 200, 18, SCREEN_LIGHT_LIGHT_GREEN);
-    tft->fillTriangle(142, 190, 122, 200, 142, 210, SCREEN_GREEN);
     tft->fillTriangle(100, 136, 81, 146, 100, 156, ST77XX_BLUE);
 
-    tft->drawCircle(185, 200, 20, SCREEN_GREEN);
-    tft->drawCircle(185, 200, 19, SCREEN_GREEN);
-    tft->fillCircle(185, 200, 18, SCREEN_LIGHT_LIGHT_GREEN);
-    tft->fillTriangle(192, 190, 172, 200, 192, 210, SCREEN_GREEN);
+    tft->fillRect(106, 140, 78, 10, SCREEN_COLOR_LIGHT_LIGHT_BLUE);
+    tft->drawRect(105, 139, 80, 12, ST77XX_BLUE);
+
+    tft->fillRect(140, 117, 10, 28, SCREEN_COLOR_LIGHT_LIGHT_BLUE);
+    tft->drawRect(139, 116, 12, 30, ST77XX_BLUE);
+
+    tft->fillRect(185, 117, 10, 28, SCREEN_COLOR_LIGHT_LIGHT_BLUE);
+    tft->drawRect(184, 116, 12, 30, ST77XX_BLUE);
+
+    tft->drawRect(105, 43, 20, 12, ST77XX_RED);
+    tft->fillRect(106, 44, 18, 10, SCREEN_COLOR_LIGHT_LIGHT_RED);
+
+    tft->fillRoundRect(125, 10, 88, 110, 10, COLOR_ACCUMULATOR);
+    tft->drawRoundRect(125, 10, 88, 110, 10, COLOR_CONTOUR_ACCUMULATOR);
 
     tft->drawRoundRect(220, 154, 96, 85, 10, COLOR_CONTOUR_CONTROLLER);
     tft->fillRoundRect(221, 155, 94, 83, 10, COLOR_CONTROLLER);
+
+    tft->fillRoundRect(230, 10, 87, 30, 4, SCREEN_COLOR_LIGHT_LIGHT_RED);
+    tft->drawRoundRect(230, 10, 87, 30, 4, ST77XX_RED);
+
+    tft->fillRect(213, 20, 18, 12, SCREEN_COLOR_LIGHT_LIGHT_RED);
+    tft->drawRect(213, 20, 18, 12, ST77XX_RED);
+
+    tft->drawRect(212, 46, 37, 12, ST77XX_BLUE);
+    tft->drawRect(237, 39, 12, 18, ST77XX_BLUE);
+    tft->fillRect(213, 47, 35, 10, SCREEN_COLOR_LIGHT_LIGHT_BLUE);
+    tft->fillRect(238, 40, 10, 16, SCREEN_COLOR_LIGHT_LIGHT_BLUE);
+
+    tft->drawRect(213, 75, 20, 12, ST77XX_RED);
+    tft->fillRect(214, 76, 18, 10, SCREEN_COLOR_LIGHT_LIGHT_RED);
+
+    tft->drawRect(213, 95, 20, 12, ST77XX_BLUE);
+    tft->fillRect(214, 96, 18, 10, SCREEN_COLOR_LIGHT_LIGHT_BLUE);
+
+    tft->fillRoundRect(230, 65, 87, 75, 4, SCREEN_COLOR_LIGHT_LIGHT_RED);
+    tft->drawRoundRect(230, 65, 87, 75, 4, ST77XX_RED);
+
 
     if (telemetry_initialized)
         drawScreen0(&savedDataRecord);
@@ -170,10 +187,10 @@ void Display::drawScreen0(TelemetryDataRecord *telemetryDataRecord) {
             break;
     }
 
-    drawFloatField("%0.2fC", telemetryDataRecord->accumulator_top_temp_sma, 130, 35, 80, SCREEN_GREEN, COLOR_ACCUMULATOR);
-    drawFloatField("%0.2fC", telemetryDataRecord->accumulator_higher_temp_sma, 130, 75, 80, SCREEN_GREEN, COLOR_ACCUMULATOR);
-    drawFloatField("%0.2fC", telemetryDataRecord->accumulator_lower_temp_sma, 130, 115, 80, SCREEN_GREEN, COLOR_ACCUMULATOR);
-    drawFloatField("%0.2fC", telemetryDataRecord->accumulator_bottom_temp_sma, 130, 155, 80, SCREEN_GREEN, COLOR_ACCUMULATOR);
+    drawFloatField("%0.2fC", telemetryDataRecord->accumulator_top_temp_sma, 130, 32, 80, SCREEN_GREEN, COLOR_ACCUMULATOR);
+    drawFloatField("%0.2fC", telemetryDataRecord->accumulator_higher_temp_sma, 130, 59, 80, SCREEN_GREEN, COLOR_ACCUMULATOR);
+    drawFloatField("%0.2fC", telemetryDataRecord->accumulator_lower_temp_sma, 130, 85, 80, SCREEN_GREEN, COLOR_ACCUMULATOR);
+    drawFloatField("%0.2fC", telemetryDataRecord->accumulator_bottom_temp_sma, 130, 112, 80, SCREEN_GREEN, COLOR_ACCUMULATOR);
 
     drawPumpState(0, telemetryDataRecord->pump_1_state);
     drawPumpState(1, telemetryDataRecord->pump_2_state);
@@ -183,23 +200,28 @@ void Display::drawScreen0(TelemetryDataRecord *telemetryDataRecord) {
     drawFloatField("%0.1f", telemetryDataRecord->pid_i, 225, 213, 87, SCREEN_COLOR_GRAY, COLOR_CONTROLLER);
     drawFloatField("%0.1f", telemetryDataRecord->pid_d, 225, 232, 87, SCREEN_COLOR_GRAY, COLOR_CONTROLLER);
 
+    drawFloatField("%0.2fC", telemetryDataRecord->forwar_flow_temp_sma, 236, 33, 77, ST77XX_RED, SCREEN_COLOR_LIGHT_LIGHT_RED);
+
+    drawFloatField("%0.2fC", telemetryDataRecord->forwar_flow_temp_sma, 236, 86, 77, ST77XX_RED, SCREEN_COLOR_LIGHT_LIGHT_RED);
+//    drawFloatField("%0.2f", telemetryDataRecord->forwar_flow_temp_sma, 236, 33, 77, ST77XX_RED, SCREEN_COLOR_LIGHT_LIGHT_RED);
+    drawFloatField("%0.2fC", telemetryDataRecord->backward_flow_temp_sma, 236, 134, 77, ST77XX_RED, SCREEN_COLOR_LIGHT_LIGHT_RED);
+
 }
 
 void Display::drawPumpState(int index, bool is_on) {
+    int y = 145;
+    int x = 145;
     int outer_color, inner_color;
     if (is_on){
         outer_color = SCREEN_GREEN;
         inner_color = SCREEN_LIGHT_LIGHT_GREEN;
     } else {
         outer_color = ST77XX_RED;
-        inner_color = SCREEN_LIGHT_LIGHT_RED;
+        inner_color = SCREEN_COLOR_LIGHT_LIGHT_RED;
     }
-    tft->drawCircle(135 + index * 50, 200, 20, outer_color);
-    tft->drawCircle(135 + index * 50, 200, 19, outer_color);
-    tft->fillCircle(135 + index * 50, 200, 18, inner_color);
-    tft->fillTriangle(142 + index * 50, 190, 122 + index * 50, 200, 142 + index * 50, 210, outer_color);
-
-
+    tft->fillCircle(x + index * 45, y, 16, outer_color);
+    tft->fillCircle(x + index * 45, y, 14, inner_color);
+    tft->fillTriangle(x + 4 + index * 45, y - 7, x - 10 + index * 45, y, x + 4 + index * 45, y + 7, outer_color);
 }
 
 Adafruit_ST7789 *Display::getTft() {
