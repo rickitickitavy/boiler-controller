@@ -31,6 +31,9 @@ double Sma::addValue(double value) {
 }
 
 double Sma::calcSma(int intervals) {
+    if ((stored_values_count < intervals) && (stored_values_count > 0))
+        intervals = stored_values_count;
+
     if (stored_values_count >= intervals){
         double sum = 0;
         for (int index = 0; index < intervals; sum += values[index++]);

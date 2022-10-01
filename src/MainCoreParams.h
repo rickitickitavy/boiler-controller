@@ -13,7 +13,7 @@ struct MainCoreParams{
     long DiffEMA_down_bellow_zero_at;
     long DiffEMA_rose_above_zero_at;
     double core_flow;
-
+    double backward_flow;
     double core_temperature;
 };
 

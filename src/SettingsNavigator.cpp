@@ -207,7 +207,7 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
                                                                            (void *) &settings->heaterSettings.burning_settings.i,
                                                                            (void *) &settings->heaterSettings.burning_settings.i);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>pid>d", FLOAT, 0.01,
-                                                                           100,
+                                                                           1000,
                                                                            (void *) &settings->heaterSettings.burning_settings.d,
                                                                            (void *) &settings->heaterSettings.burning_settings.d);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>pid>max_i", FLOAT, 1,

@@ -6,14 +6,18 @@
 #include "Defines.h"
 
 DoorsController::DoorsController(ServosHardwareSettings *servos_hardware_settings) {
+    invert_smoke = true;
+    invert_oxygen = true;
+    invert_upper = true;
+
     LOGGER.info("DoorsController starting...");
     this->servos_hardware_settings = servos_hardware_settings;
     smoke_pipe_control = new ServoController(SMOKE_SERVO_PIN, 0,
-                                             &servos_hardware_settings->smoke_servo_settings);
+                                             &servos_hardware_settings->smoke_servo_settings, invert_smoke);
     oxygen_door_control = new ServoController(OXYGEN_SERVO_PIN, 1,
-                                              &servos_hardware_settings->oxygen_servo_settings);
+                                              &servos_hardware_settings->oxygen_servo_settings, invert_oxygen);
     upper_door_control = new ServoController(UPPER_SERVO_PIN, 2,
-                                             &servos_hardware_settings->upper_door_servo_settings);
+                                             &servos_hardware_settings->upper_door_servo_settings, invert_upper);
 
     smoke_pipe_value = 66;
     oxygen_door_value = 0;
@@ -37,9 +41,11 @@ void DoorsController::applyStatus() {
     }
 }
 
-void DoorsController::setDoopOpened(bool door_opened) {
+void DoorsController::setDoorOpened(bool door_opened) {
+    bool old_opened = this->door_opened;
     this->door_opened = door_opened;
-    applyStatus();
+    if (old_opened != door_opened)
+        applyStatus();
 }
 
 void DoorsController::setOxygenDoorValue(double value) {

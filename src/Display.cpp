@@ -203,9 +203,8 @@ void Display::drawScreen0(TelemetryDataRecord *telemetryDataRecord) {
     drawFloatField("%0.2fC", telemetryDataRecord->forwar_flow_temp_sma, 236, 33, 77, ST77XX_RED, SCREEN_COLOR_LIGHT_LIGHT_RED);
 
     drawFloatField("%0.2fC", telemetryDataRecord->forwar_flow_temp_sma, 236, 86, 77, ST77XX_RED, SCREEN_COLOR_LIGHT_LIGHT_RED);
-//    drawFloatField("%0.2f", telemetryDataRecord->forwar_flow_temp_sma, 236, 33, 77, ST77XX_RED, SCREEN_COLOR_LIGHT_LIGHT_RED);
-    drawFloatField("%0.2fC", telemetryDataRecord->backward_flow_temp_sma, 236, 134, 77, ST77XX_RED, SCREEN_COLOR_LIGHT_LIGHT_RED);
-
+    drawFloatField("%0.1f L/m", telemetryDataRecord->avarage_backward_flow, 236, 110, 77, ST77XX_BLUE, SCREEN_COLOR_LIGHT_LIGHT_RED);
+    drawFloatField("%0.2fC", telemetryDataRecord->backward_flow_temp_sma, 236, 134, 77, ST77XX_BLUE, SCREEN_COLOR_LIGHT_LIGHT_RED);
 }
 
 void Display::drawPumpState(int index, bool is_on) {

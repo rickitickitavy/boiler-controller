@@ -5,9 +5,10 @@
 #include "ServoController.h"
 #include "Logger.h"
 
-ServoController::ServoController(uint8_t pin, uint8_t channel, ServoHardwareSettings *servoHardwareSettings) {
+ServoController::ServoController(uint8_t pin, uint8_t channel, ServoHardwareSettings *servoHardwareSettings, bool inverted) {
     servoSettings = servoHardwareSettings;
     this->channel = channel;
+    this->inverted = inverted;
     servo = new Servo(pin, channel);
     applySettings();
 }
@@ -35,6 +36,9 @@ double ServoController::getAngleGrad() {
 }
 
 double ServoController::setAnglePercentage(double percent) {
-    return setAngle(servoSettings->working_min_angle + (servoSettings->working_max_angle - servoSettings->working_min_angle)
-                    * percent / 100.0);
+    if (inverted)
+        percent = 100 - percent;
+    return setAngle(servoSettings->working_min_angle
+                    + (servoSettings->working_max_angle - servoSettings->working_min_angle)
+                      * percent / 100.0);
 }

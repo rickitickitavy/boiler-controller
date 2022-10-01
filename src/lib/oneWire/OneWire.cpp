@@ -204,18 +204,18 @@ void IRAM_ATTR OneWire::write_bit(uint8_t v)
 		noInterrupts();
 		DIRECT_WRITE_LOW(reg, mask);
 		DIRECT_MODE_OUTPUT(reg, mask);	// drive output low
-		delayMicroseconds(5); //10
+		delayMicroseconds(5); //5 //10
 		DIRECT_WRITE_HIGH(reg, mask);	// drive output high
 		interrupts();
-		delayMicroseconds(90); //55
+		delayMicroseconds(90); // 90 //55
 	} else {
 		noInterrupts();
 		DIRECT_WRITE_LOW(reg, mask);
 		DIRECT_MODE_OUTPUT(reg, mask);	// drive output low
-		delayMicroseconds(90);//65
+		delayMicroseconds(90);// 90 //65
 		DIRECT_WRITE_HIGH(reg, mask);	// drive output high
 		interrupts();
-		delayMicroseconds(5);
+		delayMicroseconds(5); // 5
 	}
 }
 
@@ -232,12 +232,12 @@ uint8_t IRAM_ATTR OneWire::read_bit(void)
 	noInterrupts();
 	DIRECT_MODE_OUTPUT(reg, mask);
 	DIRECT_WRITE_LOW(reg, mask);
-	delayMicroseconds(2); //3
+	delayMicroseconds(2); // 2 //3
 	DIRECT_MODE_INPUT(reg, mask);	// let pin float, pull up will raise
-	delayMicroseconds(8); //10
+	delayMicroseconds(8); // 8 //10
 	r = DIRECT_READ(reg, mask);
 	interrupts();
-	delayMicroseconds(80);//53
+	delayMicroseconds(53);//53
 	return r;
 }
 

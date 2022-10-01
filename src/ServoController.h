@@ -17,12 +17,14 @@ private:
 
     void applySettings();
 public:
-    ServoController(uint8_t pin, uint8_t channel, ServoHardwareSettings *servoHardwareSettings);
+    ServoController(uint8_t pin, uint8_t channel, ServoHardwareSettings *servoHardwareSettings, bool inverted);
 
     double setAngle(double angle);
     double getAngleGrad();
 
     double setAnglePercentage(double percent);
+
+    bool inverted;
 };
 
 

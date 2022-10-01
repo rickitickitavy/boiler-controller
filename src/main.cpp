@@ -12,6 +12,7 @@
 #include <lib/adafruit/Fonts/TomThumb.h>
 #include <lib/adafruit/Fonts/Picopixel.h>
 #include <lib/adafruit/Fonts/Org_01.h>
+#include <esp_task_wdt.h>
 #include "Logger.h"
 #include "SettingsManager.h"
 #include "ArduinoOTA.h"
@@ -31,10 +32,18 @@ DisplayButtonController *displayButtonController;
 
 long lastTimeDisplayed;
 
-void towDeviceInfo(const char *msg){
+void towDeviceInfo(const char *msg) {
     LOGGER.info(msg);
     display->printStatus(msg);
 
+}
+
+long last_wdt_reset = 0;
+void reset_wdt(){
+    if (millis() - last_wdt_reset > 3000){
+        last_wdt_reset = millis();
+        esp_task_wdt_reset();
+    }
 }
 
 void setup() {
@@ -111,6 +120,9 @@ void setup() {
 ////    Adafruit_ST7789 *tft = display->getTft();
 //    delay(10000);
 //
+    esp_task_wdt_init(20, true); //enable panic so ESP32 restarts
+    esp_task_wdt_add(NULL); //add current thread to WDT watch
+
     towDeviceInfo("Starting...");
     settingsManager = new SettingsManager();
 
@@ -131,6 +143,7 @@ void setup() {
         LOGGER.error(" Mount Failed");
     }
 
+    reset_wdt();
     towDeviceInfo("starting WiFi...");
     wiFiController = new WiFiController(settingsManager);
 
@@ -140,7 +153,28 @@ void setup() {
     towDeviceInfo("starting MqTT...");
     mqtt = new MqttClient(settingsManager->getSettings());
 
+    reset_wdt();
     towDeviceInfo("starting OTA");
+    ArduinoOTA.onStart([]() {
+        Adafruit_ST7789 * tft = display->getTft();
+        tft->fillScreen(COLOR_BACKGROUND);
+        tft->setCursor(10, 60);
+        tft->print("OTA Updating...");
+        LOGGER.info("OTA begins...");
+    });
+    ArduinoOTA.onProgress([](unsigned int progress, unsigned int total){
+        Adafruit_ST7789 * tft = display->getTft();
+
+        tft->fillRect(0, 120, 318, 100, COLOR_BACKGROUND);
+        tft->setCursor(10, 160);
+        tft->print("Loading " + String(progress) + " of " + String(total));
+        LOGGER.info("OTA loading " + String(progress) + " of " + String(total));
+        reset_wdt();
+    });
+    ArduinoOTA.onError([](ota_error_t error){
+        display->setScreenIndex(0);
+        display->drawScreen();
+    });
     ArduinoOTA.begin();
 
     towDeviceInfo("start device");
@@ -154,34 +188,47 @@ void setup() {
     LOGGER.info("lib has " + String(settingsManager->getNavigator()->getParamDescriptorCounter()));
     delay(500);
 
+    reset_wdt();
     display->setScreenIndex(0);
 
     lastTimeDisplayed = 0;
+
 }
+
+long last_report_to_mqtt = 0;
 
 void loop() {
     ArduinoOTA.handle();
     mqtt->dispatch();
     wiFiController->checkConnection();
-    LOGGER.handle();
+//    LOGGER.handle();
     displayButtonController->handle();
 
     if (((heaterController->handle()) && !heaterController->isModelling())
-    || (heaterController->isModelling() && ((millis() - lastTimeDisplayed) > 3000))){
+        || (heaterController->isModelling() && ((millis() - lastTimeDisplayed) > 3000))) {
+
+        reset_wdt();
+
         lastTimeDisplayed = millis();
         TelemetryDataRecord *telemetryDataRecord = heaterController->getTelemetryRecord();
         display->updateInfo(telemetryDataRecord);
+        if ((millis() - last_report_to_mqtt) >= 20000) {
+            last_report_to_mqtt = millis();
+
+            mqtt->sendToCustomTopic("sensor0", String(telemetryDataRecord->core_temp_sma));
+            mqtt->sendToCustomTopic("sensor1", String(telemetryDataRecord->output_temp_sma));
+            mqtt->sendToCustomTopic("sensor2", String(telemetryDataRecord->core_EMA_power));
+            mqtt->sendToCustomTopic("sensor3", String(telemetryDataRecord->input_temp_sma));
+            mqtt->sendToCustomTopic("sensor4", String(telemetryDataRecord->accumulator_top_temp_sma));
+            mqtt->sendToCustomTopic("sensor5", String(telemetryDataRecord->accumulator_bottom_temp_sma));
+            mqtt->sendToCustomTopic("sensor6", String(telemetryDataRecord->accumulator_lower_temp_sma));
+            mqtt->sendToCustomTopic("sensor7", String(telemetryDataRecord->accumulator_bottom_temp_sma));
+            mqtt->sendToCustomTopic("sensor8", String(telemetryDataRecord->forwar_flow_temp_sma));
+            mqtt->sendToCustomTopic("sensor9", String(telemetryDataRecord->internal_temp));
+            mqtt->sendToCustomTopic("pump1", telemetryDataRecord->pump_1_state ? "ON" : "OFF");
+            mqtt->sendToCustomTopic("pump2", telemetryDataRecord->pump_2_state ? "ON" : "OFF");
+        }
     }
 
-//    if (sensorController->data_ready) {
-//        sensorController->data_ready = false;
-//        for (int index = 0; index < MAX_SENSORS_COUNT; index++) {
-//            if (sensorController->sensor_data[index].data_ready) {
-//                sensorController->sensor_data[index].data_ready = false;
-//                mqtt->sendToCustomTopic("sensor" + String(index), String(sensorController->sensor_data[index].value));
-//                LOGGER.info(String(index) + " = " + String(sensorController->sensor_data[index].value));
-//            }
-//        }
-//    }
 
 }

@@ -79,7 +79,7 @@ private:
 
     long flow_ticks;
 
-    bool standby_cooling_active;
+  //  bool standby_cooling_active;
     long cycle_index;
 
     HeaterMode mode;

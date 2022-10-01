@@ -20,6 +20,10 @@ private:
 
     bool door_opened;
 
+    bool invert_smoke;
+    bool invert_oxygen;
+    bool invert_upper;
+
     ServosHardwareSettings *servos_hardware_settings;
 
     void applyStatus();
@@ -38,7 +42,7 @@ public:
     double getUpperDoorValue();
     double getUpperDoorAngle();
 
-    void setDoopOpened(bool door_opened);
+    void setDoorOpened(bool door_opened);
     bool isDoorOpened();
 };
 

@@ -24,7 +24,7 @@ MqttClient::MqttClient(GlobalSettings *settings) {
 
 void MqttClient::checkConnection() {
     if ((lastCheckTime == 0)
-        || ((millis() - lastCheckTime) > 100)) {
+        || ((millis() - lastCheckTime) > 400)) {
         lastCheckTime = millis();
         if ((!client->connected()) &&
             ((millis() - lastReconnectTime > settings->mqttReconnectIntervalMs) || (lastReconnectTime == 0))) {

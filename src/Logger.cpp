@@ -18,7 +18,7 @@ Logger LOGGER;
 Logger::Logger() {
 #ifdef CON_DEBUG
     Serial.begin(921600);
-    Serial.println("Starting logger...\r\nTrying to initialize SD card...");
+    Serial.println("Starting logger...");
 #endif
     last_flushed_time = 0;
     collected_lines = LOGGER_SIZE;
@@ -30,30 +30,30 @@ Logger::Logger() {
 
 void Logger::initSD() {
     sd_presents = false;
-    if (!SD.begin(5)) {
-#ifdef CON_DEBUG
-        Serial.println("SD Card Mount Failed");
-#endif
-        return;
-    } else {
-        sd_presents = true;
-        uint8_t cardType = SD.cardType();
-#ifdef CON_DEBUG
-        Serial.printf("SD opened. fs = %i\0", cardType);
-#endif
-        if (!SD.exists(LOG_CAT_NAME)) {
-            SD.mkdir(LOG_CAT_NAME);
-        }
-        log_file = SD.open(LOG_FILE_NAME, FILE_APPEND);
-        const char *_init_message = "</br>--------------  new session started ---------------</br>";
-        int wrote = log_file.write((uint8_t *) _init_message, strlen(_init_message));
-        if (wrote == 0) {
-#ifdef CON_DEBUG
-            Serial.println("ERROR!!! - error write to log file");
-#endif
-            sd_presents = false;
-        }
-    }
+//    if (!SD.begin(5)) {
+//#ifdef CON_DEBUG
+//        Serial.println("SD Card Mount Failed");
+//#endif
+//        return;
+//    } else {
+//        sd_presents = true;
+//        uint8_t cardType = SD.cardType();
+//#ifdef CON_DEBUG
+//        Serial.printf("SD opened. fs = %i\0", cardType);
+//#endif
+//        if (!SD.exists(LOG_CAT_NAME)) {
+//            SD.mkdir(LOG_CAT_NAME);
+//        }
+//        log_file = SD.open(LOG_FILE_NAME, FILE_APPEND);
+//        const char *_init_message = "</br>--------------  new session started ---------------</br>";
+//        int wrote = log_file.write((uint8_t *) _init_message, strlen(_init_message));
+//        if (wrote == 0) {
+//#ifdef CON_DEBUG
+//            Serial.println("ERROR!!! - error write to log file");
+//#endif
+//            sd_presents = false;
+//        }
+//    }
 }
 //------------------------------------------------------------------------------
 

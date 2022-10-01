@@ -29,7 +29,8 @@ void DisplayButtonController::handle() {
     if (buttonEvent != DisplayButtonEvent::NONE) {
         LOGGER.info("++++++  Display button event " + String(buttonEvent));
         if ((buttonEvent == DisplayButtonEvent::LONG_CLICK) &&
-            (heaterController->getTelemetryRecord()->heaterMode == STAND_BY)) {
+            ((heaterController->getTelemetryRecord()->heaterMode == STAND_BY))
+            || (heaterController->getTelemetryRecord()->heaterMode == FINAL_COOLING)) {
             if (heaterController->isOxygenDoorOpenedForATime())
                 heaterController->closeOxygenDoor();
             else

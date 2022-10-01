@@ -41,7 +41,7 @@ Telemetry::Telemetry(GlobalSettings *settings) {
         file_store_active = false;
     }
 
-    save_buffer = (char *) malloc(1024);
+    save_buffer = (char *) malloc(2048);
     sprintf(save_buffer, "mask %x", mask_for_index);
     LOGGER.info(save_buffer);
 }

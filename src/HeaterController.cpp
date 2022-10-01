@@ -138,7 +138,7 @@
  *
 */
 
-HeaterController * HeaterController::instance = nullptr;
+HeaterController *HeaterController::instance = nullptr;
 
 HeaterController::HeaterController(GlobalSettings *settings, SensorController *sensorController,
                                    SettingsNavigator *settingsNavigator) {
@@ -229,12 +229,16 @@ void HeaterController::collectTelemetry(long last_cycle_length) {
     telemetryDataRecord.core_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_CORE);
     telemetryDataRecord.output_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_OUTPUT_FLOW);
     telemetryDataRecord.input_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_INPUT_FLOW);
-    telemetryDataRecord.accumulator_higher_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_ACC_MID_HI);
-    telemetryDataRecord.accumulator_lower_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_ACC_MID_LO);
-    telemetryDataRecord.accumulator_bottom_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_ACC_BOTTOM);
+    telemetryDataRecord.accumulator_higher_temp_sma = (float) sensorController->getNotNANSmaValue(
+            T_SENS_INDEX_ACC_MID_HI);
+    telemetryDataRecord.accumulator_lower_temp_sma = (float) sensorController->getNotNANSmaValue(
+            T_SENS_INDEX_ACC_MID_LO);
+    telemetryDataRecord.accumulator_bottom_temp_sma = (float) sensorController->getNotNANSmaValue(
+            T_SENS_INDEX_ACC_BOTTOM);
     telemetryDataRecord.accumulator_top_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_ACC_TOP);
     telemetryDataRecord.forwar_flow_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_FORWARD_FLOW);
-    telemetryDataRecord.backward_flow_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_BACKWARD_FLOW);
+    telemetryDataRecord.backward_flow_temp_sma = (float) sensorController->getNotNANSmaValue(
+            T_SENS_INDEX_BACKWARD_FLOW);
 
     telemetryDataRecord.avarage_backward_flow = 0;
     telemetryDataRecord.core_power = (float) mainCoreParams.current_core_power;
@@ -270,10 +274,15 @@ void HeaterController::calcMainCoreCharacteristics(long last_cycle_length) {
 
     } else {
         // sensor present. calc volume using sensor ticks.
-        mainCoreParams.core_flow = flow_ticks;
+        if (pumpsController->pump1->isOn() || pumpsController->pump2->isOn())
+            mainCoreParams.core_flow = flow_ticks > 99 ? mainCoreParams.core_flow : flow_ticks;
+        else
+            mainCoreParams.core_flow = 0;
         flow_ticks = 0;
         mainCoreParams.core_flow /= heaterSettings->two_pumps_settings.flow_sensor_ticks_per_litters;
     }
+
+    mainCoreParams.backward_flow = coreModel->radiator_flow_value;
 
     mainCoreParams.core_temperature = sensorController->getSmaValue(T_SENS_INDEX_CORE);
 
@@ -399,19 +408,21 @@ void HeaterController::handleModes() {
 //-------------------------------------------------------------------
 
 void HeaterController::openOxygenDoorForTime(long time_sec) {
-    if (mode == STAND_BY) {
+    if ((mode == STAND_BY) || (mode == FINAL_COOLING)) {
         LOGGER.info("Oxygen door for " + String(time_sec) + " seconds opened.");
         doorsController->setOxygenDoorValue(100);
+        doorsController->setSmokePipeValue(66);
         time_to_close_oxygen_door_in_stanby_mode = millis() + time_sec * 1000;
     }
 }
 //-------------------------------------------------------------------
 
 void HeaterController::closeOxygenDoor() {
-    if (mode == STAND_BY) {
+    if ((mode == STAND_BY) || (mode == FINAL_COOLING)) {
         LOGGER.info("Oxygen door closing...");
         if ((time_to_close_oxygen_door_in_stanby_mode != 0) && (millis() < time_to_close_oxygen_door_in_stanby_mode)) {
             doorsController->setOxygenDoorValue(0);
+            doorsController->setSmokePipeValue(33);
             time_to_close_oxygen_door_in_stanby_mode = 0;
             LOGGER.info("Oxygen door closed.");
         } else
@@ -455,20 +466,21 @@ bool HeaterController::handle() {
 
         collectTelemetry(last_cycle_length);
 
-        if (mode == STAND_BY) {
+        if ((mode == STAND_BY) || (mode == FINAL_COOLING)) {
             if (time_to_close_oxygen_door_in_stanby_mode
                 && (millis() > time_to_close_oxygen_door_in_stanby_mode)) {
                 LOGGER.info("Oxygen door for closed.");
                 time_to_close_oxygen_door_in_stanby_mode = 0;
                 doorsController->setOxygenDoorValue(0);
+                doorsController->setSmokePipeValue(33);
             }
         } else
             time_to_close_oxygen_door_in_stanby_mode = 0;
     }
 
+    doorsController->setDoorOpened(main_door_opened);
     if (main_door_opened != previous_main_door_opened) {
         LOGGER.info("Main door status has changed to " + String(main_door_opened ? "open" : "closed"));
-        doorsController->setDoopOpened(main_door_opened);
         previous_main_door_opened = main_door_opened;
     }
 
@@ -487,12 +499,12 @@ void HeaterController::switchTo_STAND_BY_mode() {
 
     // stop all pumps
     pumpsController->setOnPumpsCount(0);
-    standby_cooling_active = false;
+    //   standby_cooling_active = false;
 
     // close two doors and open smoke
     doorsController->setOxygenDoorValue(0);
     doorsController->setUpperDoorValue(0);
-    doorsController->setSmokePipeValue(66);
+    doorsController->setSmokePipeValue(33);
 }
 //-------------------------------------------------------------------
 
@@ -508,41 +520,45 @@ void HeaterController::handle_STAND_BY_mode() {
         // if power > burn power -  start warming mode
     if (mainCoreParams.core_EMA_power > heaterSettings->stadbyCoolingSettings.start_warming_cycle_on_power)
         switchTo_WARMING_mode();
-    else {
+    else if (mainCoreParams.core_temperature >
+             heaterSettings->finalCoolingSettings.max_temperature_to_switch_to_standBy) {
+        switchTo_FINAL_COOLING_mode();
     }
 }
 //-------------------------------------------------------------------
 
 void HeaterController::handlePumps() {
     if ((mode == STAND_BY) || (mode == FINAL_COOLING)) {
+        double core_temp = sensorController->getSmaValue(T_SENS_INDEX_CORE);
         // cooling only
         // if tempr > pid_on tempr then core need to be cooled
-        bool _cooling_expected = sensorController->getSmaValue(T_SENS_INDEX_CORE) >=
+        bool _cooling_expected = core_temp >=
                                  heaterSettings->coolingByPumpsSettings.start_pumps_temperature;
 
         // if cooling expected then check for input flow temperature is less than core for XX or more degrees
         if (_cooling_expected)
-            _cooling_expected = (sensorController->getSmaValue(T_SENS_INDEX_CORE) -
+            _cooling_expected = (core_temp -
                                  sensorController->getSmaValue(T_SENS_INDEX_INPUT_FLOW)) >=
                                 heaterSettings->coolingByPumpsSettings.min_delta_btw_core_and_input_to_start_pumps;
 
         // it is already on check that temp
         if (_cooling_expected)
-            _cooling_expected = !standby_cooling_active ||
-                                (standby_cooling_active
-                                 && ((heaterSettings->coolingByPumpsSettings.start_pumps_temperature
-                                      - sensorController->getSmaValue(T_SENS_INDEX_CORE)) <
-                                     heaterSettings->coolingByPumpsSettings.delta_btw_start_and_core_to_stop_pumps));
+            _cooling_expected = ((heaterSettings->coolingByPumpsSettings.start_pumps_temperature
+                                  - core_temp) <
+                                 heaterSettings->coolingByPumpsSettings.delta_btw_start_and_core_to_stop_pumps);
 
-        if (_cooling_expected) {
-            if (!standby_cooling_active) {
-                standby_cooling_active = true;
-                pumpsController->setOnPumpsCount(2);
-            }
-        } else if (standby_cooling_active) {
-            standby_cooling_active = false;
+        double delta_core_acc_bottom = core_temp - sensorController->getSmaValue(T_SENS_INDEX_ACC_BOTTOM);
+        if ((_cooling_expected)
+            || (core_temp >= 90)
+            || ((core_temp >= 75) && (delta_core_acc_bottom > 12))) {
+//            if (!standby_cooling_active) {
+//                standby_cooling_active = true;
+            pumpsController->setOnPumpsCount(2);
+//            }
+        } else // {if (standby_cooling_active) {
+//            standby_cooling_active = false;
             pumpsController->setOnPumpsCount(0);
-        }
+//        }
     } else if (heaterSettings->two_pumps_settings.enabled) {
         if (!two_pump_active_delta_core_input && !two_pump_active_delta_core_output) {
             // only one pump now active. Check if you need
@@ -590,7 +606,7 @@ void HeaterController::handle_WARMING_mode() {
         switchTo_PID_mode();
     else
         // check if time to reach target power is up
-    if (((millis() - entered_to_warming_mode_at) / 1000 >
+    if ((((millis() - entered_to_warming_mode_at) / 1000) >
          heaterSettings->warming_settings.time_to_reach_target_power_sec)
         || (modelling_is_active &&
             (((cycle_index - entered_to_warming_mode_at_cycle_index) * heaterSettings->scan_interval_ms / 1000.0)
@@ -605,7 +621,7 @@ void HeaterController::handle_WARMING_mode() {
 void HeaterController::switchTo_FINAL_COOLING_mode() {
     LOGGER.info("Entered to FINAL COOLING mode");
     mode = HeaterMode::FINAL_COOLING;
-    resetDEMAtimers();
+    //resetDEMAtimers();
 
     final_cooling_power_low_at = 0;
 
@@ -620,7 +636,7 @@ void HeaterController::switchTo_FINAL_COOLING_mode() {
     doorsController->setOxygenDoorValue(0);
 
     // open smoke door
-    doorsController->setSmokePipeValue(66);
+    doorsController->setSmokePipeValue(33);
 }
 //-------------------------------------------------------------------
 
@@ -637,7 +653,11 @@ void HeaterController::handle_FINAL_COOLING_mode() {
     } else {
         final_cooling_power_low_at = 0;
         // check for power up to power_to_switch_to_warming_mode. If it is true - switch to the warming mode
-        if (mainCoreParams.core_EMA_power >= heaterSettings->finalCoolingSettings.power_to_switch_to_warming_mode)
+        if ((mainCoreParams.core_EMA_power >= heaterSettings->finalCoolingSettings.power_to_switch_to_warming_mode)
+            // warming going more than 4 minutes
+//            && (mainCoreParams.DiffEMA_rose_above_zero_at)
+//            && ((millis() - mainCoreParams.DiffEMA_rose_above_zero_at)) >= 240000)
+                )
             switchTo_WARMING_mode();
     }
     // process
@@ -776,7 +796,7 @@ bool HeaterController::isModelling() {
 
 bool HeaterController::isOxygenDoorOpenedForATime() {
     return ((time_to_close_oxygen_door_in_stanby_mode != 0)
-        && (millis() < time_to_close_oxygen_door_in_stanby_mode));
+            && (millis() < time_to_close_oxygen_door_in_stanby_mode));
 }
 //-------------------------------------------------------------------
 
@@ -786,7 +806,8 @@ TelemetryDataRecord *HeaterController::getTelemetryRecord() {
 //-------------------------------------------------------------------
 
 void HeaterController::getTelemetry(char *buffer) {
-    int tToCloseOxygenDoor = !time_to_close_oxygen_door_in_stanby_mode ? 0 : (time_to_close_oxygen_door_in_stanby_mode - millis()) / 1000;
+    int tToCloseOxygenDoor = !time_to_close_oxygen_door_in_stanby_mode ? 0 :
+                             (time_to_close_oxygen_door_in_stanby_mode - millis()) / 1000;
     if (tToCloseOxygenDoor < 0)
         tToCloseOxygenDoor = 0;
 
@@ -817,13 +838,19 @@ void HeaterController::getTelemetry(char *buffer) {
                     "\"output\": \"%00.2f\""
                     "},"
                     "\"mode\":%d"
-                    "}", telemetryDataRecord.date_time_ms, telemetryDataRecord.interval_ms, telemetryDataRecord.core_temp_sma, telemetryDataRecord.input_temp_sma,
-            telemetryDataRecord.output_temp_sma, telemetryDataRecord.accumulator_top_temp_sma, telemetryDataRecord.accumulator_higher_temp_sma,
+                    "}", telemetryDataRecord.date_time_ms, telemetryDataRecord.interval_ms, telemetryDataRecord.core_temp_sma,
+            telemetryDataRecord.input_temp_sma,
+            telemetryDataRecord.output_temp_sma, telemetryDataRecord.accumulator_top_temp_sma,
+            telemetryDataRecord.accumulator_higher_temp_sma,
             telemetryDataRecord.accumulator_lower_temp_sma, telemetryDataRecord.accumulator_bottom_temp_sma,
-            telemetryDataRecord.forwar_flow_temp_sma, telemetryDataRecord.backward_flow_temp_sma, telemetryDataRecord.core_SMA_diff_tempr,
+            telemetryDataRecord.forwar_flow_temp_sma, telemetryDataRecord.backward_flow_temp_sma,
+            telemetryDataRecord.core_SMA_diff_tempr,
             telemetryDataRecord.pump_1_state ? "true" : "false", telemetryDataRecord.pump_2_state ? "true" : "false",
-            telemetryDataRecord.core_flow, (int)telemetryDataRecord.core_EMA_power, telemetryDataRecord.smoke_door_position,
-            telemetryDataRecord.oxygen_door_position, telemetryDataRecord.upper_door_position, main_door_opened ? "true" : "false", tToCloseOxygenDoor, telemetryDataRecord.pid_p, telemetryDataRecord.pid_i,
+            telemetryDataRecord.core_flow, (int) telemetryDataRecord.core_EMA_power,
+            telemetryDataRecord.smoke_door_position,
+            telemetryDataRecord.oxygen_door_position, telemetryDataRecord.upper_door_position,
+            main_door_opened ? "true" : "false", tToCloseOxygenDoor, telemetryDataRecord.pid_p,
+            telemetryDataRecord.pid_i,
             telemetryDataRecord.pid_d, telemetryDataRecord.pid_output, telemetryDataRecord.heaterMode);
 }
 

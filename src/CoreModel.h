@@ -41,7 +41,6 @@ private:
     double radiator_normal_temperature;
     double radiator_normal_power;
     double home_temperature;
-    double radiator_flow;
     double radiator_pow_coef;
 
     double current_core_power_doors_coef;
@@ -59,6 +58,7 @@ private:
     double calcEnergyLoose(double source_tempr);
 
     bool loadStage(int stage_index);
+    double radiator_flow;
 
 public:
     double forward_tempr;
@@ -69,6 +69,7 @@ public:
     double top_tempr;
     double output_tempr;
     double core_tempr;
+    double radiator_flow_value;
 
     int stage_index;
 

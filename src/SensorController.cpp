@@ -15,6 +15,8 @@ SensorController::SensorController(int one_wire_pin, SettingsManager *settingsMa
     oneWire = new OneWire(one_wire_pin);
     dallasTemperature = new DallasTemperature(oneWire);
 
+//    dallasTemperature->isParasitePowerMode()
+
     dallasTemperature->begin();
     found_sensors_count = dallasTemperature->getDS18Count();
 

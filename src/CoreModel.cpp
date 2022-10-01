@@ -244,6 +244,8 @@ void CoreModel::handle() {
 
         if (cycle_index < radiator_stop_after_cycle) {
 
+            radiator_flow_value = radiator_flow;
+
             // heating radiators
             double _energy_max = radiator_normal_power * settings->scan_interval_ms / 1000;
             println("_energy_max = " + String(_energy_max));
@@ -282,7 +284,8 @@ void CoreModel::handle() {
             println("_delta_tempr_acc_part = " + String(_delta_tempr_acc_part));
             top_tempr += _delta_tempr_acc_part;
             println("top_tempr = " + String(top_tempr));
-        }
+        } else
+            radiator_flow_value = 0;
     } else {
         // pumps is off. warming heater volume
         println("PUMPS ARE OFF");
