@@ -156,7 +156,7 @@ public:
 
     bool handle();
 
-    void openOxygenDoorForTime(long time_sec);
+    bool openOxygenDoorForTime(long time_sec);
 
     void closeOxygenDoor();
 

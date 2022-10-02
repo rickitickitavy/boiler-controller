@@ -10,6 +10,7 @@
 #include "lib/mqtt/PubSubClient.h"
 #include "lib/ESPAsyncWebServer/ESPAsyncWebServer.h"
 #include "GlobalSettings.h"
+#include "HeaterController.h"
 
 class MqttClient {
 private:
@@ -38,8 +39,6 @@ public:
     void setMessageCallback(MQTT_MESSAGE_CALLBACK messageCallback);
 
     bool sendToStateTopic(byte *payload, int len);
-
-    bool sendToStateTopic(int index, String payload);
 
     bool sendToCustomTopic(String topic, String payload);
 

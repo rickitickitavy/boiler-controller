@@ -18,13 +18,13 @@
 #include "ArduinoOTA.h"
 #include "WiFiController.h"
 #include "MqttClient.h"
-#include "SwitcherX4.h"
+#include "MqttCommandsReceiver.h"
 #include "Display.h"
 
 SettingsManager *settingsManager;
 WiFiController *wiFiController;
 MqttClient *mqtt;
-SwitcherX4 *switcher;
+MqttCommandsReceiver *mqttCommandsReceiver;
 SensorController *sensorController;
 HeaterController *heaterController;
 Display *display;
@@ -39,8 +39,9 @@ void towDeviceInfo(const char *msg) {
 }
 
 long last_wdt_reset = 0;
-void reset_wdt(){
-    if (millis() - last_wdt_reset > 3000){
+
+void reset_wdt() {
+    if (millis() - last_wdt_reset > 3000) {
         last_wdt_reset = millis();
         esp_task_wdt_reset();
     }
@@ -153,17 +154,21 @@ void setup() {
     towDeviceInfo("starting MqTT...");
     mqtt = new MqttClient(settingsManager->getSettings());
 
+    towDeviceInfo("starting MqTT controller...");
+    mqttCommandsReceiver = new MqttCommandsReceiver(settingsManager->getSettings(), mqtt, heaterController);
+    mqttCommandsReceiver->display = display;
+
     reset_wdt();
     towDeviceInfo("starting OTA");
     ArduinoOTA.onStart([]() {
-        Adafruit_ST7789 * tft = display->getTft();
+        Adafruit_ST7789 *tft = display->getTft();
         tft->fillScreen(COLOR_BACKGROUND);
         tft->setCursor(10, 60);
         tft->print("OTA Updating...");
         LOGGER.info("OTA begins...");
     });
-    ArduinoOTA.onProgress([](unsigned int progress, unsigned int total){
-        Adafruit_ST7789 * tft = display->getTft();
+    ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
+        Adafruit_ST7789 *tft = display->getTft();
 
         tft->fillRect(0, 120, 318, 100, COLOR_BACKGROUND);
         tft->setCursor(10, 160);
@@ -171,14 +176,11 @@ void setup() {
         LOGGER.info("OTA loading " + String(progress) + " of " + String(total));
         reset_wdt();
     });
-    ArduinoOTA.onError([](ota_error_t error){
+    ArduinoOTA.onError([](ota_error_t error) {
         display->setScreenIndex(0);
         display->drawScreen();
     });
     ArduinoOTA.begin();
-
-    towDeviceInfo("start device");
-    switcher = new SwitcherX4(settingsManager->getSettings(), mqtt);
 
     towDeviceInfo("start displayBtn controller");
     displayButtonController = new DisplayButtonController(heaterController, display);
@@ -212,7 +214,7 @@ void loop() {
         lastTimeDisplayed = millis();
         TelemetryDataRecord *telemetryDataRecord = heaterController->getTelemetryRecord();
         display->updateInfo(telemetryDataRecord);
-        if ((millis() - last_report_to_mqtt) >= 20000) {
+        if ((millis() - last_report_to_mqtt) >= settingsManager->getSettings()->send_data_to_mqtt_interval_ms) {
             last_report_to_mqtt = millis();
 
             mqtt->sendToCustomTopic("sensor0", String(telemetryDataRecord->core_temp_sma));
@@ -227,8 +229,32 @@ void loop() {
             mqtt->sendToCustomTopic("sensor9", String(telemetryDataRecord->internal_temp));
             mqtt->sendToCustomTopic("pump1", telemetryDataRecord->pump_1_state ? "ON" : "OFF");
             mqtt->sendToCustomTopic("pump2", telemetryDataRecord->pump_2_state ? "ON" : "OFF");
+            switch (telemetryDataRecord->heaterMode) {
+                case STAND_BY :
+                    mqtt->sendToCustomTopic("mode", "Выключен");
+                    break;
+                case WARMING :
+                    mqtt->sendToCustomTopic("mode", "Разогрев/выгорел");
+                    break;
+                case FINAL_COOLING :
+                    mqtt->sendToCustomTopic("mode", "Остужается");
+                    break;
+                case PID :
+                    mqtt->sendToCustomTopic("mode", "Горение");
+                    break;
+                case OVERHEATED :
+                    mqtt->sendToCustomTopic("mode", "Перегрев");
+                    break;
+                case CRITICAL :
+                    mqtt->sendToCustomTopic("mode", "КРИТИЧЕСКИЙ ПЕРЕГРЕВ");
+                    break;
+                default:
+                    mqtt->sendToCustomTopic("mode", "НЕВЕРНЫЙ РЕЖИМ " + String(telemetryDataRecord->heaterMode));
+            }
+            mqtt->sendToCustomTopic("smoke", String(telemetryDataRecord->smoke_door_position));
+            mqtt->sendToCustomTopic("upper", String(telemetryDataRecord->upper_door_position));
+            mqtt->sendToCustomTopic("oxygen", String(telemetryDataRecord->oxygen_door_position));
+            mqtt->sendToCustomTopic(settingsManager->getSettings()->deviceStateOutgoingTopicPrefix, heaterController->isOxygenDoorOpenedForATime() ? "ON" : "OFF");
         }
     }
-
-
 }

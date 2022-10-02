@@ -407,13 +407,16 @@ void HeaterController::handleModes() {
 }
 //-------------------------------------------------------------------
 
-void HeaterController::openOxygenDoorForTime(long time_sec) {
+bool HeaterController::openOxygenDoorForTime(long time_sec) {
     if ((mode == STAND_BY) || (mode == FINAL_COOLING)) {
         LOGGER.info("Oxygen door for " + String(time_sec) + " seconds opened.");
         doorsController->setOxygenDoorValue(100);
         doorsController->setSmokePipeValue(66);
         time_to_close_oxygen_door_in_stanby_mode = millis() + time_sec * 1000;
+        return true;
     }
+    else
+        return false;
 }
 //-------------------------------------------------------------------
 
@@ -427,7 +430,6 @@ void HeaterController::closeOxygenDoor() {
             LOGGER.info("Oxygen door closed.");
         } else
             LOGGER.info("Oxygen door already closed.");
-
     }
 }
 //-------------------------------------------------------------------

@@ -7,7 +7,6 @@
 
 MqttClient::MqttClient(GlobalSettings *settings) {
     this->settings = settings;
-    this->connectedCallback = connectedCallback;
 
     this->server = String(settings->mqttServer);
     this->port = settings->mqttPort;
@@ -45,19 +44,17 @@ void MqttClient::reconnect() {
                 this->connectedCallback();
             }
 
-            for (int index = 0; index < 4; index++){
-                String deviceInputTopic = String(settings->deviceIncomingCommandTopicPrefix) + String(index) + "/" +  String(settings->mqttDeviceName);
-                LOGGER.info("   MQTT connected. Subscribing to '" + deviceInputTopic + "'");
-                LOGGER.info(client->subscribe((deviceInputTopic).c_str())
-                            ? "   subscribed "
-                            : "   NOT subscribed");
-            }
-
-            LOGGER.info("   MQTT connected. Subscribing to '" + String(settings->mqttServerBornTopic) + "'");
-            LOGGER.info(client->subscribe(settings->mqttServerBornTopic)
+            String deviceInputTopic = String(settings->deviceIncomingCommandTopicPrefix) + "/" +  String(settings->mqttDeviceName);
+            LOGGER.info("   MQTT connected. Subscribing to '" + deviceInputTopic + "'");
+            LOGGER.info(client->subscribe((deviceInputTopic).c_str())
                         ? "   subscribed "
                         : "   NOT subscribed");
-            LOGGER.info("   sending 'have born' message...");
+
+//            LOGGER.info("   MQTT connected. Subscribing to '" + String(settings->mqttServerBornTopic) + "'");
+//            LOGGER.info(client->subscribe(settings->mqttServerBornTopic)
+//                        ? "   subscribed "
+//                        : "   NOT subscribed");
+//            LOGGER.info("   sending 'have born' message...");
             client->publish(settings->deviceIHaveBornTopic, settings->mqttDeviceName);
             // ... and resubscribe
         } else {
@@ -108,18 +105,6 @@ bool MqttClient::sendToStateTopic(byte *payload, int len) {
     } else {
         return false;
     }
-}
-//-------------------------------------------------------------
-
-bool MqttClient::sendToStateTopic(int index, String payload) {
-    lastCheckTime = 0;
-    checkConnection();
-    if (client->connected()){
-        String outTopic = String(settings->deviceStateOutgoingTopicPrefix) + String(index) + "/" + String(settings->mqttDeviceName);
-        client->publish(outTopic.c_str(), payload.c_str());
-        return true;
-    }
-    return false;
 }
 //-------------------------------------------------------------
 
