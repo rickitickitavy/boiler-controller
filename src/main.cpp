@@ -219,7 +219,7 @@ void loop() {
 
             mqtt->sendToCustomTopic("sensor0", String(telemetryDataRecord->core_temp_sma));
             mqtt->sendToCustomTopic("sensor1", String(telemetryDataRecord->output_temp_sma));
-            mqtt->sendToCustomTopic("sensor2", String(telemetryDataRecord->core_EMA_power));
+            mqtt->sendToCustomTopic("sensor2", String(lround(telemetryDataRecord->core_EMA_power)));
             mqtt->sendToCustomTopic("sensor3", String(telemetryDataRecord->input_temp_sma));
             mqtt->sendToCustomTopic("sensor4", String(telemetryDataRecord->accumulator_top_temp_sma));
             mqtt->sendToCustomTopic("sensor5", String(telemetryDataRecord->accumulator_bottom_temp_sma));

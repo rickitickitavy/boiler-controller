@@ -435,6 +435,7 @@ void HeaterController::closeOxygenDoor() {
 //-------------------------------------------------------------------
 
 bool HeaterController::handle() {
+    doorsController->handle();
     bool proceeded = false;
     if ((sensorController->isHasSensors() && (last_cycle_time == 0 || ((millis() - last_cycle_time) >
                                                                        heaterSettings->scan_interval_ms)))

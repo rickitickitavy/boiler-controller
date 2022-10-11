@@ -44,6 +44,8 @@ public:
 
     void setDoorOpened(bool door_opened);
     bool isDoorOpened();
+
+    void handle();
 };
 
 
