@@ -552,8 +552,8 @@ void HeaterController::handlePumps() {
 
         double delta_core_acc_bottom = core_temp - sensorController->getSmaValue(T_SENS_INDEX_ACC_BOTTOM);
         if ((_cooling_expected)
-            || (core_temp >= 90)
-            || ((core_temp >= 75) && (delta_core_acc_bottom > 12))) {
+            || (core_temp >= 87)
+            || ((core_temp >= 73) && (delta_core_acc_bottom > 12))) {
 //            if (!standby_cooling_active) {
 //                standby_cooling_active = true;
             pumpsController->setOnPumpsCount(2);

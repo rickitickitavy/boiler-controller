@@ -44,12 +44,12 @@ SettingsManager::SettingsManager(){
         settings.mqttReconnectIntervalMs = 1000;
 
         memset(settings.mqttDeviceName, 0, 8);
-        memcpy(settings.mqttDeviceName, String("heater2").c_str(), 7);
+        memcpy(settings.mqttDeviceName, String("heater").c_str(), 7);
 
         memcpy(settings.deviceStateOutgoingTopicPrefix, String("state").c_str(), 5);
         settings.deviceStateOutgoingTopicPrefix[5] = 0;
 
-        memcpy(settings.deviceIncomingCommandTopicPrefix, String("commands").c_str(), 8);
+        memcpy(settings.deviceIncomingCommandTopicPrefix, String("command").c_str(), 8);
         settings.deviceIncomingCommandTopicPrefix[7] = 0;
 
         memcpy(settings.deviceIHaveBornTopic, String("deviceReady").c_str(), 11);
@@ -69,9 +69,10 @@ SettingsManager::SettingsManager(){
         initServoConfig(&settings.heaterSettings.servos_hardware_settings.oxygen_servo_settings);
         initServoConfig(&settings.heaterSettings.servos_hardware_settings.smoke_servo_settings);
         initServoConfig(&settings.heaterSettings.servos_hardware_settings.upper_door_servo_settings);
+        settings.heaterSettings.servos_hardware_settings.oxygen_servo_settings.working_max_angle = 180;
 
         settings.heaterSettings.capacities_setting.boiler_ltr = 200;
-        settings.heaterSettings.capacities_setting.heater_core_ltr = 50;
+        settings.heaterSettings.capacities_setting.heater_core_ltr = 100;
         settings.heaterSettings.capacities_setting.accumulator_ltr = 1000;
         settings.heaterSettings.capacities_setting.pipes_and_radiators_ltr = 100;
 
@@ -83,9 +84,9 @@ SettingsManager::SettingsManager(){
         settings.heaterSettings.two_pumps_settings.start_on_delta_temperature_between_core_and_input = 28;
         settings.heaterSettings.two_pumps_settings.stop_on_delta_temperature_between_core_and_input = 20;
         settings.heaterSettings.two_pumps_settings.flow_senser_installed = false;
-        settings.heaterSettings.two_pumps_settings.first_pump_flow_litters_per_minute = 16;
-        settings.heaterSettings.two_pumps_settings.second_pump_flow_litters_per_minute = 16;
-        settings.heaterSettings.two_pumps_settings.flow_sensor_ticks_per_litters = 12;
+        settings.heaterSettings.two_pumps_settings.first_pump_flow_litters_per_minute = 14;
+        settings.heaterSettings.two_pumps_settings.second_pump_flow_litters_per_minute = 14;
+        settings.heaterSettings.two_pumps_settings.flow_sensor_ticks_per_litters = 27;
 
 
         settings.heaterSettings.stadbyCoolingSettings.start_warming_cycle_on_power = 1000;
@@ -94,7 +95,7 @@ SettingsManager::SettingsManager(){
         settings.heaterSettings.coolingByPumpsSettings.delta_btw_start_and_core_to_stop_pumps = 5;
 
         settings.heaterSettings.temperatureSettings.core_power_when_need_to_refuel = 20000;
-        settings.heaterSettings.temperatureSettings.core_target = 90;
+        settings.heaterSettings.temperatureSettings.core_target = 92;
         settings.heaterSettings.temperatureSettings.core_critical = 99;
         settings.heaterSettings.temperatureSettings.thermal_accumulator_target = 85;
         settings.heaterSettings.temperatureSettings.core_overheat = 96;
@@ -104,23 +105,23 @@ SettingsManager::SettingsManager(){
         settings.heaterSettings.temperatureSettings.core_temp_diff_EMA = 6;
         settings.heaterSettings.temperatureSettings.SMA_temperature_period_sec = 60;
 
-        settings.heaterSettings.warming_settings.time_to_reach_target_power_sec = 1800;
+        settings.heaterSettings.warming_settings.time_to_reach_target_power_sec = 320;
         settings.heaterSettings.warming_settings.start_pid_temperature = 70;
-        settings.heaterSettings.warming_settings.target_power_to_switch_to_the_PID_mode = 5000;
+        settings.heaterSettings.warming_settings.target_power_to_switch_to_the_PID_mode = 14900;
         settings.heaterSettings.warming_settings.smoke_door_value_prcnt = 66;
         settings.heaterSettings.warming_settings.upper_door_value_prcnt = 50;
 
         settings.heaterSettings.finalCoolingSettings.max_temperature_to_switch_to_standBy = 70;
-        settings.heaterSettings.finalCoolingSettings.delay_to_switch_to_standby_mode_sec = 300;
-        settings.heaterSettings.finalCoolingSettings.power_to_switch_to_warming_mode = 5000;
+        settings.heaterSettings.finalCoolingSettings.delay_to_switch_to_standby_mode_sec = 900;
+        settings.heaterSettings.finalCoolingSettings.power_to_switch_to_warming_mode = 6500;
 
-        settings.heaterSettings.burning_settings.p = 10;
-        settings.heaterSettings.burning_settings.i = 0.07;
-        settings.heaterSettings.burning_settings.d = 60;
-        settings.heaterSettings.burning_settings.max_i = 50;
-        settings.heaterSettings.burning_settings.min_i = -50;
+        settings.heaterSettings.burning_settings.p = 4;
+        settings.heaterSettings.burning_settings.i = 0.12;
+        settings.heaterSettings.burning_settings.d = 10;
+        settings.heaterSettings.burning_settings.max_i = 30;
+        settings.heaterSettings.burning_settings.min_i = -30;
         settings.heaterSettings.burning_settings.upper_door_value_prcnt = 100;
-        settings.heaterSettings.burning_settings.smoke_door_value_prcnt = 66;
+        settings.heaterSettings.burning_settings.smoke_door_value_prcnt = 60;
         settings.heaterSettings.burning_settings.power_to_switch_to_warming_mode = 15000;
         settings.heaterSettings.burning_settings.oxygen_door_val_to_warming_mode = 25;
 
@@ -133,7 +134,7 @@ SettingsManager::SettingsManager(){
         settings.heaterSettings.modellerSettings.radiators_home_temperature = 25;
         settings.heaterSettings.modellerSettings.additional_core_doors_coef = 1.7;
         settings.heaterSettings.modellerSettings.radiators_flow_lpm = 10;
-        settings.heaterSettings.modellerSettings.logging_modeller_info = true;
+        settings.heaterSettings.modellerSettings.logging_modeller_info = false;
         settings.heaterSettings.modellerSettings.power_fade_out_steps = 1000;
         settings.heaterSettings.modellerSettings.naturaly_cooling_coefficient_as_devider = 10000;
         settings.heaterSettings.modellerSettings.naturaly_cooling_pow = 1.5;
@@ -170,13 +171,13 @@ SettingsManager::SettingsManager(){
         }
 
         settings.version = 2;
-        settings.send_data_to_mqtt_interval_ms = 3000;
+        settings.send_data_to_mqtt_interval_ms = 6000;
 
         memcpy(settings.telemetrySettings.catName, "telemetry\0", 10);
         settings.telemetrySettings.flush_interval_ms = 240000;
         settings.telemetrySettings.flush_inteval_records = 40;
         settings.telemetrySettings.max_file_size_bytes = 20 * 1024 * 1024;
-        settings.telemetrySettings.log_gebug_to_UART = true;
+        settings.telemetrySettings.log_gebug_to_UART = false;
 
         logSettings();
 

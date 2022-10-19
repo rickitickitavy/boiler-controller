@@ -13,11 +13,11 @@ DoorsController::DoorsController(ServosHardwareSettings *servos_hardware_setting
     LOGGER.info("DoorsController starting...");
     this->servos_hardware_settings = servos_hardware_settings;
     smoke_pipe_control = new ServoController(SMOKE_SERVO_PIN, 0,
-                                             &servos_hardware_settings->smoke_servo_settings, invert_smoke, 40);
+                                             &servos_hardware_settings->smoke_servo_settings, invert_smoke, 60);
     oxygen_door_control = new ServoController(OXYGEN_SERVO_PIN, 1,
-                                              &servos_hardware_settings->oxygen_servo_settings, invert_oxygen, 40);
+                                              &servos_hardware_settings->oxygen_servo_settings, invert_oxygen, 60);
     upper_door_control = new ServoController(UPPER_SERVO_PIN, 2,
-                                             &servos_hardware_settings->upper_door_servo_settings, invert_upper, 40);
+                                             &servos_hardware_settings->upper_door_servo_settings, invert_upper, 60);
 
     smoke_pipe_value = 66;
     oxygen_door_value = 0;

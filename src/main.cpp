@@ -13,6 +13,7 @@
 #include <lib/adafruit/Fonts/Picopixel.h>
 #include <lib/adafruit/Fonts/Org_01.h>
 #include <esp_task_wdt.h>
+#include <lib/math/Intervals.h>
 #include "Logger.h"
 #include "SettingsManager.h"
 #include "ArduinoOTA.h"
@@ -29,6 +30,7 @@ SensorController *sensorController;
 HeaterController *heaterController;
 Display *display;
 DisplayButtonController *displayButtonController;
+Intervals *power_balance;
 
 long lastTimeDisplayed;
 
@@ -195,6 +197,8 @@ void setup() {
 
     lastTimeDisplayed = 0;
 
+    power_balance = new Intervals(40);
+
 }
 
 long last_report_to_mqtt = 0;
@@ -254,7 +258,27 @@ void loop() {
             mqtt->sendToCustomTopic("smoke", String(telemetryDataRecord->smoke_door_position));
             mqtt->sendToCustomTopic("upper", String(telemetryDataRecord->upper_door_position));
             mqtt->sendToCustomTopic("oxygen", String(telemetryDataRecord->oxygen_door_position));
-            mqtt->sendToCustomTopic(settingsManager->getSettings()->deviceStateOutgoingTopicPrefix, heaterController->isOxygenDoorOpenedForATime() ? "ON" : "OFF");
+
+            Interval interval;
+            interval.time = millis();
+            interval.value = (telemetryDataRecord->accumulator_top_temp_sma
+                              + telemetryDataRecord->accumulator_bottom_temp_sma
+                              + telemetryDataRecord->accumulator_lower_temp_sma
+                              + telemetryDataRecord->accumulator_higher_temp_sma) / 4.0
+                             * WATER_ENERGY_PER_LTR_PER_GRAD
+                             *
+                             (double) settingsManager->getSettings()->heaterSettings.capacities_setting.accumulator_ltr;
+
+            power_balance->addValue(&interval);
+            if (power_balance->getCount() > 5)
+                mqtt->sendToCustomTopic("balance", String(lround(
+                        (power_balance->getInterval(0)->value
+                         - power_balance->getInterval(39)->value) /
+                                (double)(power_balance->getInterval(0)->time
+                                 - power_balance->getInterval(39)->time) * 1000.0D)));
+
+            mqtt->sendToCustomTopic(settingsManager->getSettings()->deviceStateOutgoingTopicPrefix,
+                                    heaterController->isOxygenDoorOpenedForATime() ? "ON" : "OFF");
         }
     }
 }
