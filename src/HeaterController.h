@@ -18,7 +18,7 @@
 #include "MainCoreParams.h"
 #include "DoorsController.h"
 #include "FlowSensor.h"
-
+#include <lib/math/Intervals.h>
 
 #define MODE_WARMING_TIME_TO_WAIT_FOR_REACHED_PID_MODE_SEC 1200
 
@@ -115,6 +115,8 @@ private:
      * reset al timers to zero
      */
     void resetDEMAtimers();
+
+    Intervals *power_balance;
 
     bool two_pump_active_delta_core_output;
     bool two_pump_active_delta_core_input;

@@ -30,7 +30,6 @@ SensorController *sensorController;
 HeaterController *heaterController;
 Display *display;
 DisplayButtonController *displayButtonController;
-Intervals *power_balance;
 
 long lastTimeDisplayed;
 
@@ -196,9 +195,6 @@ void setup() {
     display->setScreenIndex(0);
 
     lastTimeDisplayed = 0;
-
-    power_balance = new Intervals(40);
-
 }
 
 long last_report_to_mqtt = 0;
@@ -259,39 +255,10 @@ void loop() {
             mqtt->sendToCustomTopic("upper", String(telemetryDataRecord->upper_door_position));
             mqtt->sendToCustomTopic("oxygen", String(telemetryDataRecord->oxygen_door_position));
 
-            Interval interval;
-            interval.time = millis();
-            double avg_temp = (telemetryDataRecord->accumulator_top_temp_sma
-                               + telemetryDataRecord->accumulator_bottom_temp_sma
-                               + telemetryDataRecord->accumulator_lower_temp_sma
-                               + telemetryDataRecord->accumulator_higher_temp_sma) / 4.0;
-            interval.value = (avg_temp
-                             *
-                             (double) settingsManager->getSettings()->heaterSettings.capacities_setting.accumulator_ltr
-                             +
-                             telemetryDataRecord->accumulator_top_temp_sma
-                             *
-                             (double) settingsManager->getSettings()->heaterSettings.capacities_setting.boiler_ltr)
-                             * WATER_ENERGY_PER_LTR_PER_GRAD;
+            if (telemetryDataRecord->power_balance_ready)
+                    mqtt->sendToCustomTopic("balance", String(telemetryDataRecord->power_balance_kwt_hour));
 
-            power_balance->addValue(&interval);
-            if (power_balance->getCount() > 5) {
-                double balance =
-                        (power_balance->getInterval(0)->value
-                         - power_balance->getInterval(39)->value) /
-                        (double) (power_balance->getInterval(0)->time
-                                  - power_balance->getInterval(39)->time) * 1000.0D;
-                if (abs(balance) < 40000)
-                    mqtt->sendToCustomTopic("balance", String(lround(balance)));
-            }
-
-            mqtt->sendToCustomTopic("energy", String(((telemetryDataRecord->accumulator_top_temp_sma -
-                                                       LOWEST_TEMPERATURE_FOR_ACCUMULATOR)
-                                                      *
-                                                      (double) settingsManager->getSettings()->heaterSettings.capacities_setting.boiler_ltr
-                                                      + (avg_temp - LOWEST_TEMPERATURE_FOR_ACCUMULATOR) *
-                                                        (double) settingsManager->getSettings()->heaterSettings.capacities_setting.accumulator_ltr)
-                                                     * WATER_ENERGY_PER_LTR_PER_GRAD / JOUL_PER_KWTCH));
+            mqtt->sendToCustomTopic("energy", String(telemetryDataRecord->accumulated_energy_kwt_hour));
 
 
             mqtt->sendToCustomTopic(settingsManager->getSettings()->deviceStateOutgoingTopicPrefix,

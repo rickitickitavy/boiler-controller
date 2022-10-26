@@ -58,6 +58,10 @@ struct TelemetryDataRecord{
     bool main_door_opened;
 
     long time_to_close_oxygen_door_in_stanby_mode;
+
+    float accumulated_energy_kwt_hour;
+    float power_balance_kwt_hour;
+    bool power_balance_ready;
 };
 
 class Telemetry {
