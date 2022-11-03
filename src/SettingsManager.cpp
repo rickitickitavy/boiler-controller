@@ -44,7 +44,7 @@ SettingsManager::SettingsManager(){
         settings.mqttReconnectIntervalMs = 1000;
 
         memset(settings.mqttDeviceName, 0, 8);
-        memcpy(settings.mqttDeviceName, String("heater").c_str(), 7);
+        memcpy(settings.mqttDeviceName, String("heater-test").c_str(), 7);
 
         memcpy(settings.deviceStateOutgoingTopicPrefix, String("state").c_str(), 5);
         settings.deviceStateOutgoingTopicPrefix[5] = 0;
@@ -115,11 +115,11 @@ SettingsManager::SettingsManager(){
         settings.heaterSettings.finalCoolingSettings.delay_to_switch_to_standby_mode_sec = 900;
         settings.heaterSettings.finalCoolingSettings.power_to_switch_to_warming_mode = 6500;
 
-        settings.heaterSettings.burning_settings.p = 4;
-        settings.heaterSettings.burning_settings.i = 0.12;
-        settings.heaterSettings.burning_settings.d = 10;
-        settings.heaterSettings.burning_settings.max_i = 30;
-        settings.heaterSettings.burning_settings.min_i = -30;
+        settings.heaterSettings.burning_settings.p = 5.2;
+        settings.heaterSettings.burning_settings.i = 0.3;
+        settings.heaterSettings.burning_settings.d = 110;
+        settings.heaterSettings.burning_settings.max_i = 15;
+        settings.heaterSettings.burning_settings.min_i = -15;
         settings.heaterSettings.burning_settings.upper_door_value_prcnt = 100;
         settings.heaterSettings.burning_settings.smoke_door_value_prcnt = 60;
         settings.heaterSettings.burning_settings.power_to_switch_to_warming_mode = 15000;

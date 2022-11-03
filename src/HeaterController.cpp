@@ -153,7 +153,7 @@ void HeaterController::collectTelemetry(long last_cycle_length) {
                  - power_balance->getInterval(39)->value) /
                 (double) (power_balance->getInterval(0)->time
                           - power_balance->getInterval(39)->time) * JOUL_PER_KWTCH;
-        if (abs(balance) < 40000)
+        if (abs(balance) < 40)
             telemetryDataRecord.power_balance_kwt_hour = balance;
 
         telemetryDataRecord.power_balance_ready = true;
@@ -711,6 +711,11 @@ TelemetryDataRecord *HeaterController::getTelemetryRecord() {
 }
 //-------------------------------------------------------------------
 
+void HeaterController::getRawCsvSensors(char* buffer) {
+    telemetry->getRawCsvSensors(&telemetryDataRecord, buffer);
+}
+//-------------------------------------------------------------------
+
 void HeaterController::getTelemetry(char *buffer) {
     int tToCloseOxygenDoor = !time_to_close_oxygen_door_in_stanby_mode ? 0 :
                              (time_to_close_oxygen_door_in_stanby_mode - millis()) / 1000;
@@ -733,6 +738,8 @@ void HeaterController::getTelemetry(char *buffer) {
                     "\"core_flow\": \"%00.2f\" "
                     "}, "
                     "\"core_power\": \"%d\", "
+                    "\"power_balance\": \"%0.2f\", "
+                    "\"accumulated_power\": \"%0.2f\", "
                     "\"doors\":{"
                     "\"smoke\": \"%00.2f\", \"oxygen\": \"%00.2f\", "
                     "\"upper\": \"%00.2f\", "
@@ -753,6 +760,7 @@ void HeaterController::getTelemetry(char *buffer) {
             telemetryDataRecord.core_SMA_diff_tempr,
             telemetryDataRecord.pump_1_state ? "true" : "false", telemetryDataRecord.pump_2_state ? "true" : "false",
             telemetryDataRecord.core_flow, (int) telemetryDataRecord.core_EMA_power,
+            telemetryDataRecord.power_balance_kwt_hour, telemetryDataRecord.accumulated_energy_kwt_hour,
             telemetryDataRecord.smoke_door_position,
             telemetryDataRecord.oxygen_door_position, telemetryDataRecord.upper_door_position,
             main_door_opened ? "true" : "false", tToCloseOxygenDoor, telemetryDataRecord.pid_p,

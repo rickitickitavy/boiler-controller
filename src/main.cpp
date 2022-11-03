@@ -200,6 +200,7 @@ void setup() {
 long last_report_to_mqtt = 0;
 
 void loop() {
+    char raw_csv_buffer[128];
     ArduinoOTA.handle();
     mqtt->dispatch();
     wiFiController->checkConnection();
@@ -210,6 +211,9 @@ void loop() {
         || (heaterController->isModelling() && ((millis() - lastTimeDisplayed) > 3000))) {
 
         reset_wdt();
+
+        heaterController->getRawCsvSensors(raw_csv_buffer);
+        mqtt->sendToCustomTopic("raw_sensors", raw_csv_buffer);
 
         lastTimeDisplayed = millis();
         TelemetryDataRecord *telemetryDataRecord = heaterController->getTelemetryRecord();
@@ -259,7 +263,6 @@ void loop() {
                     mqtt->sendToCustomTopic("balance", String(telemetryDataRecord->power_balance_kwt_hour));
 
             mqtt->sendToCustomTopic("energy", String(telemetryDataRecord->accumulated_energy_kwt_hour));
-
 
             mqtt->sendToCustomTopic(settingsManager->getSettings()->deviceStateOutgoingTopicPrefix,
                                     heaterController->isOxygenDoorOpenedForATime() ? "ON" : "OFF");

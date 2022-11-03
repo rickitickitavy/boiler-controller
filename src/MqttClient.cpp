@@ -120,6 +120,18 @@ bool MqttClient::sendToCustomTopic(String topic, String payload) {
 }
 //-------------------------------------------------------------
 
+bool MqttClient::sendToCustomTopic(String topic, char *payload) {
+    lastCheckTime = 0;
+    checkConnection();
+    if (client->connected()){
+        String outTopic = topic + "/" + String(settings->mqttDeviceName);
+        client->publish(outTopic.c_str(), payload);
+        return true;
+    }
+    return false;
+}
+//-------------------------------------------------------------
+
 bool MqttClient::sendToStateTopic(const char *payload) {
     lastCheckTime = 0;
     checkConnection();

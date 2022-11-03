@@ -101,6 +101,8 @@ public:
     bool addData(TelemetryDataRecord* dataRecord);
 
     void sendCsvHeader();
+
+    void getRawCsvSensors(TelemetryDataRecord *dataRecord, char* buffer);
 };
 
 

@@ -16,6 +16,10 @@ struct SensorData{
     double value;
     bool data_ready;
     long last_time_read;
+    int total_errors_count;
+    long total_success_count;
+    bool error_state;
+    int last_state_count;
 };
 
 class SensorController {

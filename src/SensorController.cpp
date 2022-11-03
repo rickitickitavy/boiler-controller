@@ -39,6 +39,14 @@ SensorController::SensorController(int one_wire_pin, SettingsManager *settingsMa
     for (int index = 0; index < MAX_SENSORS_COUNT; index++)
         smaSensors[index] = new Sma(intervals);
 
+    // reset sensors states
+    for (int index = 0; index < MAX_SENSORS_COUNT; index++){
+        sensor_data[index].error_state = false;
+        sensor_data[index].total_errors_count = 0;
+        sensor_data[index].total_success_count = 0;
+        sensor_data[index].last_state_count = 0;
+    }
+
     if (!found_sensors_count) {
         LOGGER.info("   temperature sensor NOT found");
         hasSensors = false;
@@ -148,6 +156,24 @@ void SensorController::fire() {
                     sensor_data[index].last_time_read = last_time_sensors_read;
                     sensor_data[index].data_ready = true;
                     smaSensors[index]->addValue(tempr);
+                }
+
+                if (sensor_data[index].data_ready){
+                    if (sensor_data[index].error_state)
+                        sensor_data[index].last_state_count = 1;
+                    else
+                        sensor_data[index].last_state_count++;
+
+                    sensor_data[index].error_state = false;
+                    sensor_data[index].total_success_count++;
+                } else {
+                    if (!sensor_data[index].error_state)
+                        sensor_data[index].last_state_count = 1;
+                    else
+                        sensor_data[index].last_state_count++;
+
+                    sensor_data[index].error_state = true;
+                    sensor_data[index].total_errors_count++;
                 }
             }
         }

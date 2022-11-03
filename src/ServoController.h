@@ -26,9 +26,10 @@ private:
 public:
     ServoController(uint8_t pin, uint8_t channel, ServoHardwareSettings *servoHardwareSettings, bool inverted, float max_speed_deg_per_sec);
 
-    double setAngle(double angle);
+    double setAngle(double angle, bool now);
     double getAngleGrad();
 
+    double setAnglePercentage(double percent, bool now);
     double setAnglePercentage(double percent);
 
     void handle();

@@ -313,6 +313,14 @@ html, body {
     /*font-weight: 100;*/
 }
 
+.svg-orange-text{
+    fill: orange;
+    stroke:orange;
+    stroke-width:1;
+    font-size: 35px;
+    /*font-weight: 100;*/
+}
+
 .svg-pid-text{
     fill: none;
     stroke:gray;

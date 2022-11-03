@@ -27,7 +27,7 @@ void ServoController::applySettings() {
     servo->set_rotation_grad(servoSettings->total_degrees);
 }
 
-double ServoController::setAngle(double angle) {
+double ServoController::setAngle(double angle, bool now) {
     applySettings();
     if (angle > servoSettings->working_max_angle)
         angle = servoSettings->working_max_angle;
@@ -35,8 +35,11 @@ double ServoController::setAngle(double angle) {
         angle = servoSettings->working_min_angle;
 
     purpose_angle = angle;
-//    this->angle = angle;
-//    servo->setAngle(angle);
+
+    if (now){
+        this->angle = angle;
+        servo->setAngle(angle);
+    }
 
     return angle;
 }
@@ -61,10 +64,18 @@ double ServoController::getAngleGrad() {
     return servo->get_angle_grad();
 }
 
+double ServoController::setAnglePercentage(double percent, bool now ) {
+    if (inverted)
+        percent = 100 - percent;
+    return setAngle(servoSettings->working_min_angle
+                    + (servoSettings->working_max_angle - servoSettings->working_min_angle)
+                      * percent / 100.0, now);
+}
+
 double ServoController::setAnglePercentage(double percent) {
     if (inverted)
         percent = 100 - percent;
     return setAngle(servoSettings->working_min_angle
                     + (servoSettings->working_max_angle - servoSettings->working_min_angle)
-                      * percent / 100.0);
+                      * percent / 100.0, false);
 }

@@ -46,7 +46,7 @@ Telemetry::Telemetry(GlobalSettings *settings) {
     LOGGER.info(save_buffer);
 }
 
-void Telemetry::sendCsvHeader(){
+void Telemetry::sendCsvHeader() {
     char *header = "csv->;date_time_ms;interval_ms;internal_temp;core_temp;core_temp_sma;input_temp;"
             "input_temp_sma;output_temp;output_temp_sma;accumulator_bottom_temp;"
             "accumulator_bottom_temp_sma;accumulator_lower_temp;accumulator_lower_temp_sma;"
@@ -106,8 +106,8 @@ void Telemetry::openDataFile() {
         file_store_active = true;
         stored_records_from_last_flush = 0;
         last_flush_time = millis();
-        if (_new_file){
-            data_file.write((uint8_t*)header, strlen(header));
+        if (_new_file) {
+            data_file.write((uint8_t *) header, strlen(header));
         }
     }
 }
@@ -123,45 +123,45 @@ void Telemetry::handleFlush() {
 }
 
 bool Telemetry::addData(TelemetryDataRecord *dataRecord) {
-  //  memcpy(&data[index_of_next++ & mask_for_index], telemetryDataRecord, sizeof(TelemetryDataRecord));
-        sprintf(save_buffer, "%d;%d;%f;"
-                        "%f;%f;%f;%f;"
-                        "%f;%f;"
-                        "%f;%f;"
-                        "%f;%f;"
-                        "%f;%f;"
-                        "%f;%f;"
-                        "%f;%f;"
-                        "%f;%f;"
-                        "%f;%f;"
-                        "%f;%f;"
-                        "%f;"
-                        "%f;%f;%f;%f;"
-                        "%f;%f;"
-                        "%f;"
-                        "%d;%d;"
-                        "%d;"
-                        "%f;%s\r\n",
-                dataRecord->date_time_ms, dataRecord->interval_ms, dataRecord->internal_temp,
-                dataRecord->core_temp, dataRecord->core_temp_sma, dataRecord->input_temp, dataRecord->input_temp_sma,
-                dataRecord->output_temp, dataRecord->output_temp_sma,
-                dataRecord->accumulator_bottom_temp, dataRecord->accumulator_bottom_temp_sma,
-                dataRecord->accumulator_lower_temp, dataRecord->accumulator_lower_temp_sma,
-                dataRecord->accumulator_higher_temp, dataRecord->accumulator_higher_temp_sma,
-                dataRecord->accumulator_top_temp, dataRecord->accumulator_top_temp_sma,
-                dataRecord->forwar_flow_temp, dataRecord->forwar_flow_temp_sma,
-                dataRecord->backward_flow_temp, dataRecord->backward_flow_temp_sma,
-                dataRecord->avarage_backward_flow, dataRecord->core_flow,
-                dataRecord->core_power, dataRecord->core_EMA_power,
+    //  memcpy(&data[index_of_next++ & mask_for_index], telemetryDataRecord, sizeof(TelemetryDataRecord));
+    sprintf(save_buffer, "%d;%d;%f;"
+                    "%f;%f;%f;%f;"
+                    "%f;%f;"
+                    "%f;%f;"
+                    "%f;%f;"
+                    "%f;%f;"
+                    "%f;%f;"
+                    "%f;%f;"
+                    "%f;%f;"
+                    "%f;%f;"
+                    "%f;%f;"
+                    "%f;"
+                    "%f;%f;%f;%f;"
+                    "%f;%f;"
+                    "%f;"
+                    "%d;%d;"
+                    "%d;"
+                    "%f;%s\r\n",
+            dataRecord->date_time_ms, dataRecord->interval_ms, dataRecord->internal_temp,
+            dataRecord->core_temp, dataRecord->core_temp_sma, dataRecord->input_temp, dataRecord->input_temp_sma,
+            dataRecord->output_temp, dataRecord->output_temp_sma,
+            dataRecord->accumulator_bottom_temp, dataRecord->accumulator_bottom_temp_sma,
+            dataRecord->accumulator_lower_temp, dataRecord->accumulator_lower_temp_sma,
+            dataRecord->accumulator_higher_temp, dataRecord->accumulator_higher_temp_sma,
+            dataRecord->accumulator_top_temp, dataRecord->accumulator_top_temp_sma,
+            dataRecord->forwar_flow_temp, dataRecord->forwar_flow_temp_sma,
+            dataRecord->backward_flow_temp, dataRecord->backward_flow_temp_sma,
+            dataRecord->avarage_backward_flow, dataRecord->core_flow,
+            dataRecord->core_power, dataRecord->core_EMA_power,
 
-                dataRecord->pid_raw_output,
-                dataRecord->pid_d, dataRecord->pid_i, dataRecord->pid_p, dataRecord->pid_output,
-                dataRecord->oxygen_door_position, dataRecord->smoke_door_position,
-                dataRecord->upper_door_position,
-                dataRecord->pump_1_state, dataRecord->pump_2_state,
-                dataRecord->heaterMode,
-                dataRecord->core_SMA_diff_tempr,
-                dataRecord->main_door_opened ? "true" : "false");
+            dataRecord->pid_raw_output,
+            dataRecord->pid_d, dataRecord->pid_i, dataRecord->pid_p, dataRecord->pid_output,
+            dataRecord->oxygen_door_position, dataRecord->smoke_door_position,
+            dataRecord->upper_door_position,
+            dataRecord->pump_1_state, dataRecord->pump_2_state,
+            dataRecord->heaterMode,
+            dataRecord->core_SMA_diff_tempr,
+            dataRecord->main_door_opened ? "true" : "false");
     Serial.print("csv->;");
     Serial.println(save_buffer);
     if (file_store_active) {
@@ -173,7 +173,7 @@ bool Telemetry::addData(TelemetryDataRecord *dataRecord) {
             handleFlush();
             return true;
         }
-    } else if ((save_buffer) && settings->telemetrySettings.log_gebug_to_UART){
+    } else if ((save_buffer) && settings->telemetrySettings.log_gebug_to_UART) {
         sprintf(save_buffer, "----------\r\n time ms = %d; interval ms = %d\r\n"
                         " internal t = %f \r\n"
                         " core t = %f (%f); inp t = %f (%f) \r\n"
@@ -193,9 +193,12 @@ bool Telemetry::addData(TelemetryDataRecord *dataRecord) {
                 dataRecord->date_time_ms, dataRecord->interval_ms, dataRecord->internal_temp,
                 dataRecord->core_temp, dataRecord->core_temp_sma, dataRecord->input_temp, dataRecord->input_temp_sma,
                 dataRecord->output_temp, dataRecord->output_temp_sma,
-                dataRecord->accumulator_bottom_temp, dataRecord->accumulator_bottom_temp_sma, dataRecord->accumulator_lower_temp, dataRecord->accumulator_lower_temp_sma,
-                dataRecord->accumulator_higher_temp, dataRecord->accumulator_higher_temp_sma, dataRecord->accumulator_top_temp, dataRecord->accumulator_top_temp_sma,
-                dataRecord->forwar_flow_temp, dataRecord->forwar_flow_temp_sma, dataRecord->backward_flow_temp, dataRecord->backward_flow_temp_sma,
+                dataRecord->accumulator_bottom_temp, dataRecord->accumulator_bottom_temp_sma,
+                dataRecord->accumulator_lower_temp, dataRecord->accumulator_lower_temp_sma,
+                dataRecord->accumulator_higher_temp, dataRecord->accumulator_higher_temp_sma,
+                dataRecord->accumulator_top_temp, dataRecord->accumulator_top_temp_sma,
+                dataRecord->forwar_flow_temp, dataRecord->forwar_flow_temp_sma, dataRecord->backward_flow_temp,
+                dataRecord->backward_flow_temp_sma,
                 dataRecord->avarage_backward_flow, dataRecord->core_flow,
                 dataRecord->core_power, dataRecord->core_EMA_power,
                 dataRecord->pid_p, dataRecord->pid_i, dataRecord->pid_d,
@@ -208,3 +211,10 @@ bool Telemetry::addData(TelemetryDataRecord *dataRecord) {
     }
 }
 
+void Telemetry::getRawCsvSensors(TelemetryDataRecord *dataRecord, char *buffer) {
+    sprintf(buffer, " %0.3f;%0.3f;%0.3f;%0.3f;%0.3f;%0.3f;%0.3f;%0.3f",
+            dataRecord->internal_temp, dataRecord->core_temp
+            , dataRecord->input_temp, dataRecord->output_temp
+            , dataRecord->accumulator_bottom_temp, dataRecord->accumulator_lower_temp
+            , dataRecord->accumulator_higher_temp, dataRecord->accumulator_top_temp);
+}

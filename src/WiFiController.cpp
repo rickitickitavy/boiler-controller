@@ -28,7 +28,7 @@ void WiFiController::initNTP() {
     timeClient->setUpdateInterval(1800000);
 
     long started_at = millis();
-    while (!timeClient->update() && ((millis() - started_at) < 20000)) {
+    while (!timeClient->update() && ((millis() - started_at) < 5000)) {
         timeClient->forceUpdate();
     }
 

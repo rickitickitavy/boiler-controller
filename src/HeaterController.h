@@ -166,6 +166,7 @@ public:
     void stopModelling();
     void getTelemetry(char *buffer);
     TelemetryDataRecord *getTelemetryRecord();
+    void getRawCsvSensors(char* buffer);
     bool isModelling();
 
     bool isOxygenDoorOpenedForATime();

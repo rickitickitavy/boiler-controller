@@ -29,10 +29,14 @@
         function updateGraph(response) {
             document.getElementById("core_temperature").innerHTML = "T= " + response.temperature.core;
             document.getElementById("core_power").innerHTML = "P= " + response.core_power;
-            document.getElementById("core_flow").innerHTML = "Q= " + response.pumps.core_flow;
-            document.getElementById("oxygen_door").innerHTML = "A= " + response.doors.oxygen;
-            document.getElementById("upper_door").innerHTML = "A= " + response.doors.upper;
-            document.getElementById("smoke_door").innerHTML = "A= " + response.doors.smoke;
+
+            document.getElementById("power_balance").innerHTML = "+накоп/-расх= " + response.power_balance + "kW";
+            document.getElementById("accumulated_power").innerHTML = "Aккум.= " + response.accumulated_power + "kW*h";
+
+            document.getElementById("core_flow").innerHTML = "Q= " + response.pumps.core_flow + "л/мин";
+            document.getElementById("oxygen_door").innerHTML = "A= " + response.doors.oxygen + "%%";
+            document.getElementById("upper_door").innerHTML = "A= " + response.doors.upper + "%%";
+            document.getElementById("smoke_door").innerHTML = "A= " + response.doors.smoke + "%%";
 
             document.getElementById("acc_top_t").innerHTML = "T= " + response.temperature.acc_top;
             document.getElementById("acc_upper_t").innerHTML = "T= " + response.temperature.acc_upper;
@@ -56,7 +60,7 @@
             } else if (oxy_door_text.classList.contains("svg-oxy-door-control-red-text")) {
                 oxy_door_text.classList.remove("svg-oxy-door-control-red-text");
                 oxy_door_text.classList.add("svg-oxy-door-control-green-text");
-                oxy_door_text.innerHTML = "Open for 15 min";
+                oxy_door_text.innerHTML = "Откр. на 15 мин";
             }
 
             var pump1 = document.getElementById("pump1");
@@ -92,26 +96,26 @@
             var mode;
             switch (response.mode) {
                 case 1:
-                    mode = "STAND BY";
+                    mode = "ХОЛОДНЫЙ";
                     break;
                 case 2:
-                    mode = "WARMING";
+                    mode = "РАЗОГРЕВ";
                     break;
                 case 4:
-                    mode = "BURNING";
+                    mode = "ОТОПЛЕНИЕ";
                     break;
                 case 8:
-                    mode = "FINAL COOLING";
+                    mode = "ОСТУЖЕНИЕ";
                     break;
                 case 16:
-                    mode = "OVERHEATED";
+                    mode = "ПЕРЕГРЕВ";
                     break;
                 case 32:
-                    mode = "CRITICAL OVERHEATED";
+                    mode = "КРИТИЧЕСКИЙ ПЕРЕГРЕВ";
                     break;
 
             }
-            document.getElementById("core_mode").innerHTML = "Mode: " + mode;
+            document.getElementById("core_mode").innerHTML = "Режим: " + mode;
         }
 
         function getTelemetry() {
@@ -214,16 +218,23 @@
             </text>
 
             <text id="acc_top_t" class="svg-hot-text"
-                  x="750" y="95">T= 0.00
+                  x="800" y="95">T= 0.00
             </text>
             <text id="acc_upper_t" class="svg-hot-text"
-                  x="750" y="225">T= 0.00
+                  x="800" y="205">T= 0.00
             </text>
             <text id="acc_lower_t" class="svg-hot-text"
-                  x="750" y="355">T= 0.00
+                  x="800" y="315">T= 0.00
             </text>
             <text id="acc_bottom_t" class="svg-hot-text"
-                  x="750" y="500">T= 0.00
+                  x="800" y="440">T= 0.00
+            </text>
+
+            <text id="power_balance" class="svg-orange-text"
+                  x="660" y="500">+накоп/-расх= 0.00 kW
+            </text>
+            <text id="accumulated_power" class="svg-orange-text"
+                  x="680" y="540">Аккум.= 0.00 kW*h
             </text>
 
             <circle id="pump1" class="svg-pump-off" r="25" cx="525" cy="540"/>

@@ -122,6 +122,9 @@ void Display::initScreen0() {
     tft->fillRoundRect(230, 65, 87, 75, 4, SCREEN_COLOR_LIGHT_LIGHT_RED);
     tft->drawRoundRect(230, 65, 87, 75, 4, ST77XX_RED);
 
+    tft->fillRoundRect(110, 170, 107, 60, 10, COLOR_CONTOUR_ACCUMULATED);
+    tft->fillRoundRect(111, 171, 105, 58, 10, COLOR_ACCUMULATED);
+
 
     if (telemetry_initialized)
         drawScreen0(&savedDataRecord);
@@ -205,6 +208,18 @@ void Display::drawScreen0(TelemetryDataRecord *telemetryDataRecord) {
     drawFloatField("%0.2fC", telemetryDataRecord->forwar_flow_temp_sma, 236, 86, 77, ST77XX_RED, SCREEN_COLOR_LIGHT_LIGHT_RED);
     drawFloatField("%0.1f L/m", telemetryDataRecord->avarage_backward_flow, 236, 110, 77, ST77XX_BLUE, SCREEN_COLOR_LIGHT_LIGHT_RED);
     drawFloatField("%0.2fC", telemetryDataRecord->backward_flow_temp_sma, 236, 134, 77, ST77XX_BLUE, SCREEN_COLOR_LIGHT_LIGHT_RED);
+
+    if (telemetryDataRecord->power_balance_ready) {
+        int _color = telemetryDataRecord->power_balance_kwt_hour > 0
+                     ? ST77XX_RED
+                     : ST77XX_BLUE;
+        drawFloatField("%0.2fkw", telemetryDataRecord->power_balance_kwt_hour, 112, 196, 100, _color, COLOR_ACCUMULATED);
+    }
+    else
+        drawFloatField("%0.2fkw", 0, 112, 196, 100, ST77XX_BLUE, COLOR_ACCUMULATED);
+
+    drawFloatField("%0.2fkwh", telemetryDataRecord->accumulated_energy_kwt_hour, 112, 216, 100, ST77XX_RED, COLOR_ACCUMULATED);
+
 }
 
 void Display::drawPumpState(int index, bool is_on) {

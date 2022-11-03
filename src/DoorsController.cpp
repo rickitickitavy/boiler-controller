@@ -32,7 +32,7 @@ DoorsController::DoorsController(ServosHardwareSettings *servos_hardware_setting
 void DoorsController::applyStatus() {
     if (door_opened){
         smoke_pipe_control->setAnglePercentage(100);
-        oxygen_door_control->setAnglePercentage(0);
+        oxygen_door_control->setAnglePercentage(0, true);
         upper_door_control->setAnglePercentage(100);
     } else {
         smoke_pipe_control->setAnglePercentage(smoke_pipe_value);
