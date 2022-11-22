@@ -212,9 +212,34 @@ bool Telemetry::addData(TelemetryDataRecord *dataRecord) {
 }
 
 void Telemetry::getRawCsvSensors(TelemetryDataRecord *dataRecord, char *buffer) {
-    sprintf(buffer, " %0.3f;%0.3f;%0.3f;%0.3f;%0.3f;%0.3f;%0.3f;%0.3f",
+    sprintf(buffer, " %0.3f;%0.3f;%0.3f;%0.3f;%0.3f;%0.3f;%0.3f;%0.3f;%0.3f;%0.1f",
             dataRecord->internal_temp, dataRecord->core_temp
             , dataRecord->input_temp, dataRecord->output_temp
             , dataRecord->accumulator_bottom_temp, dataRecord->accumulator_lower_temp
-            , dataRecord->accumulator_higher_temp, dataRecord->accumulator_top_temp);
+            , dataRecord->accumulator_higher_temp, dataRecord->accumulator_top_temp
+            , dataRecord->forwar_flow_temp, dataRecord->core_flow);
 }
+
+void Telemetry::getCsvCalculates(TelemetryDataRecord *dataRecord, char *buffer) {
+    sprintf(buffer, "%d;%d;%0.2f;"
+            "%d;%0.2f;%0.2f;"
+            "%s"
+            , dataRecord->smoke_door_position, dataRecord->upper_door_position
+            , dataRecord->oxygen_door_position
+
+            , dataRecord->core_power, dataRecord->power_balance_ready ? dataRecord->power_balance_kwt_hour : NAN
+            , dataRecord->accumulated_energy_kwt_hour
+
+            , dataRecord->pump_1_state | dataRecord->pump_1_state ? "ON" : "OFF"
+    );
+}
+
+void Telemetry::getCsvSensors(TelemetryDataRecord *dataRecord, char *buffer) {
+    sprintf(buffer, " %0.2f;%0.2f;%0.2f;%0.2f;%0.2f;%0.2f;%0.2f;%0.2f;%0.2f;%0.1f;",
+            dataRecord->internal_temp, dataRecord->core_temp_sma
+            , dataRecord->input_temp_sma, dataRecord->output_temp_sma
+            , dataRecord->accumulator_bottom_temp_sma, dataRecord->accumulator_lower_temp_sma
+            , dataRecord->accumulator_higher_temp_sma, dataRecord->accumulator_top_temp_sma
+            , dataRecord->forwar_flow_temp_sma, dataRecord->core_flow);
+}
+

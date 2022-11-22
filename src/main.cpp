@@ -200,7 +200,7 @@ void setup() {
 long last_report_to_mqtt = 0;
 
 void loop() {
-    char raw_csv_buffer[128];
+//    char raw_csv_buffer[1280]; // FIXME
     ArduinoOTA.handle();
     mqtt->dispatch();
     wiFiController->checkConnection();
@@ -212,57 +212,11 @@ void loop() {
 
         reset_wdt();
 
-        heaterController->getRawCsvSensors(raw_csv_buffer);
-        mqtt->sendToCustomTopic("raw_sensors", raw_csv_buffer);
-
         lastTimeDisplayed = millis();
         TelemetryDataRecord *telemetryDataRecord = heaterController->getTelemetryRecord();
         display->updateInfo(telemetryDataRecord);
         if ((millis() - last_report_to_mqtt) >= settingsManager->getSettings()->send_data_to_mqtt_interval_ms) {
             last_report_to_mqtt = millis();
-
-            mqtt->sendToCustomTopic("sensor0", String(telemetryDataRecord->core_temp_sma));
-            mqtt->sendToCustomTopic("sensor1", String(telemetryDataRecord->output_temp_sma));
-            mqtt->sendToCustomTopic("sensor2", String(lround(telemetryDataRecord->core_EMA_power)));
-            mqtt->sendToCustomTopic("sensor3", String(telemetryDataRecord->input_temp_sma));
-            mqtt->sendToCustomTopic("sensor4", String(telemetryDataRecord->accumulator_top_temp_sma));
-            mqtt->sendToCustomTopic("sensor5", String(telemetryDataRecord->accumulator_bottom_temp_sma));
-            mqtt->sendToCustomTopic("sensor6", String(telemetryDataRecord->accumulator_lower_temp_sma));
-            mqtt->sendToCustomTopic("sensor7", String(telemetryDataRecord->accumulator_bottom_temp_sma));
-            mqtt->sendToCustomTopic("sensor8", String(telemetryDataRecord->forwar_flow_temp_sma));
-            mqtt->sendToCustomTopic("sensor9", String(telemetryDataRecord->internal_temp));
-            mqtt->sendToCustomTopic("pump1", telemetryDataRecord->pump_1_state ? "ON" : "OFF");
-            mqtt->sendToCustomTopic("pump2", telemetryDataRecord->pump_2_state ? "ON" : "OFF");
-            switch (telemetryDataRecord->heaterMode) {
-                case STAND_BY :
-                    mqtt->sendToCustomTopic("mode", "Выключен");
-                    break;
-                case WARMING :
-                    mqtt->sendToCustomTopic("mode", "Разогрев/выгорел");
-                    break;
-                case FINAL_COOLING :
-                    mqtt->sendToCustomTopic("mode", "Остужается");
-                    break;
-                case PID :
-                    mqtt->sendToCustomTopic("mode", "Горение");
-                    break;
-                case OVERHEATED :
-                    mqtt->sendToCustomTopic("mode", "Перегрев");
-                    break;
-                case CRITICAL :
-                    mqtt->sendToCustomTopic("mode", "КРИТИЧЕСКИЙ ПЕРЕГРЕВ");
-                    break;
-                default:
-                    mqtt->sendToCustomTopic("mode", "НЕВЕРНЫЙ РЕЖИМ " + String(telemetryDataRecord->heaterMode));
-            }
-            mqtt->sendToCustomTopic("smoke", String(telemetryDataRecord->smoke_door_position));
-            mqtt->sendToCustomTopic("upper", String(telemetryDataRecord->upper_door_position));
-            mqtt->sendToCustomTopic("oxygen", String(telemetryDataRecord->oxygen_door_position));
-
-            if (telemetryDataRecord->power_balance_ready)
-                    mqtt->sendToCustomTopic("balance", String(telemetryDataRecord->power_balance_kwt_hour));
-
-            mqtt->sendToCustomTopic("energy", String(telemetryDataRecord->accumulated_energy_kwt_hour));
 
             mqtt->sendToCustomTopic(settingsManager->getSettings()->deviceStateOutgoingTopicPrefix,
                                     heaterController->isOxygenDoorOpenedForATime() ? "ON" : "OFF");

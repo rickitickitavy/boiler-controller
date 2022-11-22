@@ -152,6 +152,10 @@ private:
 
     static void IRAM_ATTR MAIN_DOOR_ISR();
 
+    double checkBound(double src, double min, double max);
+
+    int heaterModeToSimpleMode(HeaterMode mode);
+
 public:
     HeaterController(GlobalSettings *settings,
                      SensorController *sensorController, SettingsNavigator *settingsNavigator);
@@ -167,6 +171,8 @@ public:
     void getTelemetry(char *buffer);
     TelemetryDataRecord *getTelemetryRecord();
     void getRawCsvSensors(char* buffer);
+    void getCsvSensors(char* buffer);
+    void getCsvCalculates(char* buffer);
     bool isModelling();
 
     bool isOxygenDoorOpenedForATime();

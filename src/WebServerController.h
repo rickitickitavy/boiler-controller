@@ -42,6 +42,8 @@ public:
 
     static void closeDoor(AsyncWebServerRequest *request);
 
+    static void manualWarmControl(AsyncWebServerRequest *request);
+
     static void getTelemetry(AsyncWebServerRequest *request);
 
 };

@@ -103,6 +103,10 @@ public:
     void sendCsvHeader();
 
     void getRawCsvSensors(TelemetryDataRecord *dataRecord, char* buffer);
+
+    void getCsvSensors(TelemetryDataRecord *dataRecord, char* buffer);
+
+    void getCsvCalculates(TelemetryDataRecord *dataRecord, char* buffer);
 };
 
 

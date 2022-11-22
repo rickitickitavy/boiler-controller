@@ -49,6 +49,8 @@ WebServerController::WebServerController(SettingsManager *settingsManager) {
     webServer->on("/stopModelling", HTTP_GET, stopModelling);
     webServer->on("/openDoorFor15Min", HTTP_GET, openDoorFor15Min);
     webServer->on("/closeDoor", HTTP_GET, closeDoor);
+    webServer->on("/manualWarmControl", HTTP_GET | HTTP_POST, manualWarmControl);
+//    webServer->on("/manualWarmControl", HTTP_POST, manualWarmControl);
     webServer->on("/getTelemetry", HTTP_GET, getTelemetry);
 
     webServer->onNotFound(loadFileByUrl);
@@ -195,6 +197,22 @@ void WebServerController::closeDoor(AsyncWebServerRequest *request) {
     } else
         request->send(200, TEXT_JSON, "{\"status\":0, \"error\":\"heaterController is not initialized\"}");
 
+}
+//----------------------------------------------------------------------
+
+void WebServerController::manualWarmControl(AsyncWebServerRequest *request) {
+    if (request->arg("action") == "open")
+        openDoorFor15Min(request);
+    else if (request->arg("action") == "close")
+        closeDoor(request);
+    else {
+        char buf[128];
+        bool opened = heaterController ? heaterController->isOxygenDoorOpenedForATime() : false;
+
+        printf(buf, "{\"status\":0, \"opened\":%s}", opened);
+
+        request->send(200, TEXT_JSON, buf);
+    }
 }
 //----------------------------------------------------------------------
 

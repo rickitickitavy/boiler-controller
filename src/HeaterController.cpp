@@ -317,8 +317,7 @@ bool HeaterController::openOxygenDoorForTime(long time_sec) {
         doorsController->setSmokePipeValue(66);
         time_to_close_oxygen_door_in_stanby_mode = millis() + time_sec * 1000;
         return true;
-    }
-    else
+    } else
         return false;
 }
 //-------------------------------------------------------------------
@@ -711,10 +710,48 @@ TelemetryDataRecord *HeaterController::getTelemetryRecord() {
 }
 //-------------------------------------------------------------------
 
-void HeaterController::getRawCsvSensors(char* buffer) {
+void HeaterController::getRawCsvSensors(char *buffer) {
     telemetry->getRawCsvSensors(&telemetryDataRecord, buffer);
 }
 //-------------------------------------------------------------------
+
+void HeaterController::getCsvSensors(char *buffer) {
+    telemetry->getCsvSensors(&telemetryDataRecord, buffer);
+}
+//-------------------------------------------------------------------
+
+void HeaterController::getCsvCalculates(char *buffer) {
+    telemetry->getCsvCalculates(&telemetryDataRecord, buffer);
+}
+//-------------------------------------------------------------------
+
+double HeaterController::checkBound(double src, double min, double max) {
+    if (src > max)
+        return max;
+    if (src < min)
+        return min;
+    return src;
+}
+//-------------------------------------------------------------------
+
+int HeaterController::heaterModeToSimpleMode(HeaterMode mode) {
+    switch (mode) {
+        case STAND_BY :
+            return 1;
+        case WARMING:
+            return 2;
+        case FINAL_COOLING:
+            return 3;
+        case PID:
+            return 4;
+        case OVERHEATED:
+            return 5;
+        case CRITICAL:
+            return 6;
+        default:
+            return 0;
+    }
+}
 
 void HeaterController::getTelemetry(char *buffer) {
     int tToCloseOxygenDoor = !time_to_close_oxygen_door_in_stanby_mode ? 0 :
@@ -725,46 +762,62 @@ void HeaterController::getTelemetry(char *buffer) {
     sprintf(buffer, "{"
                     "\"date_time_ms\":\"%d\", \"interval_ms\": \"%d\","
                     "\"temperature\":{"
-                    "\"core\": \"%00.2f\", \"input_t\": \"%00.2f\", "
-                    "\"output_t\": \"%00.2f\", \"acc_top\": \"%00.2f\", "
-                    "\"acc_upper\": \"%00.2f\", \"acc_low\": \"%00.2f\", "
-                    "\"acc_bottom\": \"%00.2f\","
-                    "\"forward_to_home\": \"%00.2f\", \"backward_from_home\": \"%00.2f\","
-                    "\"core_sma_diff\":\"%00.2f\""
+                    "\"keys\": \"%0.2f\", "
+                    "\"core\": \"%0.2f\", \"input_t\": \"%0.2f\", "
+                    "\"output_t\": \"%0.2f\", \"acc_top\": \"%0.2f\", "
+                    "\"acc_upper\": \"%0.2f\", \"acc_low\": \"%0.2f\", "
+                    "\"acc_bottom\": \"%0.2f\","
+                    "\"forward_to_home\": \"%0.2f\", \"backward_from_home\": \"%0.2f\","
+                    "\"core_sma_diff\":\"%0.2f\""
                     "}, "
                     "\"pumps\": {"
-                    "\"pump_1_on\":%s, "
-                    "\"pump_2_on\":%s, "
-                    "\"core_flow\": \"%00.2f\" "
+                    "\"pump_1_on\":\"%s\", "
+                    "\"pump_2_on\":\"%s\", "
+                    "\"manual_warming\":\"%s\", "
+                    "\"core_flow\": \"%0.2f\" "
                     "}, "
                     "\"core_power\": \"%d\", "
                     "\"power_balance\": \"%0.2f\", "
                     "\"accumulated_power\": \"%0.2f\", "
                     "\"doors\":{"
-                    "\"smoke\": \"%00.2f\", \"oxygen\": \"%00.2f\", "
-                    "\"upper\": \"%00.2f\", "
-                    "\"main_door\": %s, "
+                    "\"smoke\": \"%0.2f\", \"oxygen\": \"%0.2f\", "
+                    "\"upper\": \"%0.2f\", "
+                    "\"main_door\": \"%s\", "
                     "\"oxygenManualTimer\": \"%i\" "
                     "},"
                     "\"pid\":{"
-                    "\"p\":\"%00.2f\", \"i\":\"%00.2f\", \"d\":\"%00.2f\", "
-                    "\"output\": \"%00.2f\""
+                    "\"p\":\"%0.2f\", \"i\":\"%0.2f\", \"d\":\"%0.2f\", "
+                    "\"output\": \"%0.2f\""
                     "},"
-                    "\"mode\":%d"
-                    "}", telemetryDataRecord.date_time_ms, telemetryDataRecord.interval_ms, telemetryDataRecord.core_temp_sma,
-            telemetryDataRecord.input_temp_sma,
-            telemetryDataRecord.output_temp_sma, telemetryDataRecord.accumulator_top_temp_sma,
-            telemetryDataRecord.accumulator_higher_temp_sma,
-            telemetryDataRecord.accumulator_lower_temp_sma, telemetryDataRecord.accumulator_bottom_temp_sma,
-            telemetryDataRecord.forwar_flow_temp_sma, telemetryDataRecord.backward_flow_temp_sma,
-            telemetryDataRecord.core_SMA_diff_tempr,
-            telemetryDataRecord.pump_1_state ? "true" : "false", telemetryDataRecord.pump_2_state ? "true" : "false",
-            telemetryDataRecord.core_flow, (int) telemetryDataRecord.core_EMA_power,
-            telemetryDataRecord.power_balance_kwt_hour, telemetryDataRecord.accumulated_energy_kwt_hour,
+                    "\"mode\":%d,"
+                    "\"simpleMode\":%d"
+                    "}",
+            telemetryDataRecord.date_time_ms, telemetryDataRecord.interval_ms,
+            checkBound(telemetryDataRecord.internal_temp, -20, 200),
+            checkBound(telemetryDataRecord.core_temp_sma, -20, 200),
+            checkBound(telemetryDataRecord.input_temp_sma, -20, 200),
+            checkBound(telemetryDataRecord.output_temp_sma, -20, 200),
+            checkBound(telemetryDataRecord.accumulator_top_temp_sma, -20, 200),
+            checkBound(telemetryDataRecord.accumulator_higher_temp_sma, -20, 200),
+            checkBound(telemetryDataRecord.accumulator_lower_temp_sma, -20, 200),
+            checkBound(telemetryDataRecord.accumulator_bottom_temp_sma, -20, 200),
+            checkBound(telemetryDataRecord.forwar_flow_temp_sma, -20, 200),
+            checkBound(telemetryDataRecord.backward_flow_temp_sma, -20, 200),
+            checkBound(telemetryDataRecord.core_SMA_diff_tempr, -20, 200),
+            telemetryDataRecord.pump_1_state ? "ON" : "OFF",
+            telemetryDataRecord.pump_2_state ? "ON" : "OFF",
+            telemetryDataRecord.time_to_close_oxygen_door_in_stanby_mode ? "ON" : "OFF",
+            checkBound(telemetryDataRecord.core_flow, 0, 100),
+            (int) checkBound(telemetryDataRecord.core_EMA_power, -40000, 200000),
+            checkBound(telemetryDataRecord.power_balance_kwt_hour, -800, 800),
+            checkBound(telemetryDataRecord.accumulated_energy_kwt_hour, -800, 800),
             telemetryDataRecord.smoke_door_position,
             telemetryDataRecord.oxygen_door_position, telemetryDataRecord.upper_door_position,
-            main_door_opened ? "true" : "false", tToCloseOxygenDoor, telemetryDataRecord.pid_p,
-            telemetryDataRecord.pid_i,
-            telemetryDataRecord.pid_d, telemetryDataRecord.pid_output, telemetryDataRecord.heaterMode);
+            main_door_opened ? "ON" : "OFF", tToCloseOxygenDoor, checkBound(telemetryDataRecord.pid_p, -2000, 2000),
+            checkBound(telemetryDataRecord.pid_i, -2000, 2000),
+            checkBound(telemetryDataRecord.pid_d, -2000, 2000),
+            checkBound(telemetryDataRecord.pid_output, -2000, 2000),
+            telemetryDataRecord.heaterMode,
+            heaterModeToSimpleMode((HeaterMode)telemetryDataRecord.heaterMode));
 }
 
