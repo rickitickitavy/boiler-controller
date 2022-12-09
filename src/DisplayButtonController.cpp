@@ -21,7 +21,7 @@ DisplayButtonController::DisplayButtonController(HeaterController *heaterControl
 
 void DisplayButtonController::handle() {
 
-    if ((button_pressed) && (millis() - buttonChangedAt) > 1500) {
+    if ((button_pressed) && (millis() - buttonChangedAt) > 500) {
         button_pressed = false;
         buttonEvent = DisplayButtonEvent::LONG_CLICK;
     }
@@ -48,7 +48,7 @@ void IRAM_ATTR DisplayButtonController::DISPLAY_BUTTON_ISR() {
 
     if ((!new_state) && (instance->button_pressed)) {
         // button was released
-        if ((millis() - instance->buttonChangedAt) > 1500)
+        if ((millis() - instance->buttonChangedAt) > 500)
             instance->buttonEvent = DisplayButtonEvent::LONG_CLICK;
         else if ((millis() - instance->buttonChangedAt) > 50)
             instance->buttonEvent = DisplayButtonEvent::SHORT_CLICK;

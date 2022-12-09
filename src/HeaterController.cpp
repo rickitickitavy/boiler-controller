@@ -789,6 +789,8 @@ void HeaterController::getTelemetry(char *buffer) {
                     "\"p\":\"%0.2f\", \"i\":\"%0.2f\", \"d\":\"%0.2f\", "
                     "\"output\": \"%0.2f\""
                     "},"
+                    "\"postCounter\":%d,"
+                    "\"flags\":%d,"
                     "\"mode\":%d,"
                     "\"simpleMode\":%d"
                     "}",
@@ -817,6 +819,8 @@ void HeaterController::getTelemetry(char *buffer) {
             checkBound(telemetryDataRecord.pid_i, -2000, 2000),
             checkBound(telemetryDataRecord.pid_d, -2000, 2000),
             checkBound(telemetryDataRecord.pid_output, -2000, 2000),
+            postCounter,
+            telemetryDataRecord.flags,
             telemetryDataRecord.heaterMode,
             heaterModeToSimpleMode((HeaterMode)telemetryDataRecord.heaterMode));
 }

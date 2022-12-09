@@ -62,6 +62,7 @@ struct TelemetryDataRecord{
     float accumulated_energy_kwt_hour;
     float power_balance_kwt_hour;
     bool power_balance_ready;
+    int flags;
 };
 
 class Telemetry {

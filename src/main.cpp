@@ -18,14 +18,10 @@
 #include "SettingsManager.h"
 #include "ArduinoOTA.h"
 #include "WiFiController.h"
-#include "MqttClient.h"
-#include "MqttCommandsReceiver.h"
 #include "Display.h"
 
 SettingsManager *settingsManager;
 WiFiController *wiFiController;
-MqttClient *mqtt;
-MqttCommandsReceiver *mqttCommandsReceiver;
 SensorController *sensorController;
 HeaterController *heaterController;
 Display *display;
@@ -49,8 +45,6 @@ void reset_wdt() {
 }
 
 void setup() {
-//    byte i;
-//    byte addr[8];
 
 #ifdef CON_DEBUG
     Serial.begin(921600);
@@ -60,68 +54,6 @@ void setup() {
 #endif
     display = new Display();
 
-//    TelemetryDataRecord temp;
-//    temp.heaterMode = STAND_BY;
-//    temp.internal_temp = 35.45;
-//    temp.main_door_opened = false;
-//    temp.accumulator_bottom_temp_sma = 40.88;
-//    temp.accumulator_lower_temp_sma = 50.88;
-//    temp.accumulator_higher_temp_sma = 60.88;
-//    temp.accumulator_top_temp_sma = 70.88;
-//    temp.core_flow = 32.65;
-//    temp.output_temp_sma = 80.88;
-//    temp.input_temp_sma = 55.88;
-//    temp.core_temp_sma = 90.88;
-//    temp.core_EMA_power = 88888.99;
-//    temp.upper_door_position = 68.88;
-//    temp.oxygen_door_position = 88.88;
-//    temp.smoke_door_position = 98.88;
-//    temp.pid_p = 888.888;
-//    temp.pid_i = 999.888;
-//    temp.pid_d = 555.888;
-//    temp.pump_1_state = 0;
-//    temp.pump_2_state = 1;
-//
-//    display->setScreenIndex(0);
-////    delay(1000);
-//
-//    display->updateInfo(&temp);
-//    delay(1000);
-//
-//    temp.heaterMode = WARMING;
-//    display->updateInfo(&temp);
-//    delay(1000);
-//
-//    temp.heaterMode = PID;
-//    temp.time_to_close_oxygen_door_in_stanby_mode = millis() + 660000;
-//    display->updateInfo(&temp);
-//    delay(1000);
-//
-//    temp.heaterMode = OVERHEATED;
-//    temp.main_door_opened = true;
-//    display->updateInfo(&temp);
-//    delay(1000);
-//
-//    temp.heaterMode = CRITICAL;
-//    temp.main_door_opened = false;
-//    display->updateInfo(&temp);
-//    delay(1000);
-//
-//    temp.pump_1_state = true;
-//    display->updateInfo(&temp);
-//    delay(1000);
-//
-//    temp.pump_1_state = true;
-//    display->updateInfo(&temp);
-//    delay(1000);
-//
-//    temp.pump_2_state = false;
-//    display->updateInfo(&temp);
-//    delay(1000);
-//
-////    Adafruit_ST7789 *tft = display->getTft();
-//    delay(10000);
-//
     esp_task_wdt_init(20, true); //enable panic so ESP32 restarts
     esp_task_wdt_add(NULL); //add current thread to WDT watch
 
@@ -151,13 +83,6 @@ void setup() {
 
     towDeviceInfo("starting HeaterController...");
     wiFiController->setHeaterController(heaterController);
-
-    towDeviceInfo("starting MqTT...");
-    mqtt = new MqttClient(settingsManager->getSettings());
-
-    towDeviceInfo("starting MqTT controller...");
-    mqttCommandsReceiver = new MqttCommandsReceiver(settingsManager->getSettings(), mqtt, heaterController);
-    mqttCommandsReceiver->display = display;
 
     reset_wdt();
     towDeviceInfo("starting OTA");
@@ -197,14 +122,9 @@ void setup() {
     lastTimeDisplayed = 0;
 }
 
-long last_report_to_mqtt = 0;
-
 void loop() {
-//    char raw_csv_buffer[1280]; // FIXME
     ArduinoOTA.handle();
-    mqtt->dispatch();
     wiFiController->checkConnection();
-//    LOGGER.handle();
     displayButtonController->handle();
 
     if (((heaterController->handle()) && !heaterController->isModelling())
@@ -215,11 +135,5 @@ void loop() {
         lastTimeDisplayed = millis();
         TelemetryDataRecord *telemetryDataRecord = heaterController->getTelemetryRecord();
         display->updateInfo(telemetryDataRecord);
-        if ((millis() - last_report_to_mqtt) >= settingsManager->getSettings()->send_data_to_mqtt_interval_ms) {
-            last_report_to_mqtt = millis();
-
-            mqtt->sendToCustomTopic(settingsManager->getSettings()->deviceStateOutgoingTopicPrefix,
-                                    heaterController->isOxygenDoorOpenedForATime() ? "ON" : "OFF");
-        }
     }
 }

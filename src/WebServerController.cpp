@@ -162,7 +162,7 @@ void WebServerController::settingsApiProcessor(AsyncWebServerRequest *request) {
 //----------------------------------------------------------------------
 
 void WebServerController::startModelling(AsyncWebServerRequest *request) {
-    if (heaterController){
+    if (heaterController) {
         heaterController->startModelling();
         request->send(200, TEXT_JSON, OK_RESPONSE_JSON);
     } else
@@ -201,17 +201,14 @@ void WebServerController::closeDoor(AsyncWebServerRequest *request) {
 //----------------------------------------------------------------------
 
 void WebServerController::manualWarmControl(AsyncWebServerRequest *request) {
+    heaterController->postCounter++;
     if (request->arg("action") == "open")
         openDoorFor15Min(request);
     else if (request->arg("action") == "close")
         closeDoor(request);
     else {
-        char buf[128];
-        bool opened = heaterController ? heaterController->isOxygenDoorOpenedForATime() : false;
-
-        printf(buf, "{\"status\":0, \"opened\":%s}", opened);
-
-        request->send(200, TEXT_JSON, buf);
+        request->send(200, TEXT_JSON, ((heaterController) && (heaterController->isOxygenDoorOpenedForATime())) ?
+                  "{\"status\":0, \"opened\": \"true\"}": "{\"status\":0, \"opened\": \"false\"}");
     }
 }
 //----------------------------------------------------------------------

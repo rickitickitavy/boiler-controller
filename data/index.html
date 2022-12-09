@@ -48,7 +48,7 @@
             document.getElementById("backward_temperature").innerHTML = "T= " + response.temperature.backward_from_home;
             document.getElementById("forward_temperature").innerHTML = "T= " + response.temperature.forward_to_home;
 
-            main_door_opened = response.doors.main_door;
+            main_door_opened = response.doors.main_door == "ON";
             manual_oxygen_door_opened_for_sec = response.doors.oxygenManualTimer;
             var oxy_door_text = document.getElementById("open_close_oxy_text");
             if (manual_oxygen_door_opened_for_sec != 0){

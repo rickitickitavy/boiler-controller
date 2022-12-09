@@ -356,17 +356,17 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
                                                                            (void *) &settings->heaterSettings.temperatureSettings.core_power_when_need_to_refuel,
                                                                            (void *) &settings->heaterSettings.temperatureSettings.core_power_when_need_to_refuel);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>temperature>core_target", FLOAT, 70,
-                                                                           93,
+                                                                           95,
                                                                            (void *) &settings->heaterSettings.temperatureSettings.core_target,
                                                                            (void *) &settings->heaterSettings.temperatureSettings.core_target);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>temperature>core_overheat", FLOAT,
                                                                            85,
-                                                                           98,
+                                                                           99,
                                                                            (void *) &settings->heaterSettings.temperatureSettings.core_overheat,
                                                                            (void *) &settings->heaterSettings.temperatureSettings.core_overheat);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>temperature>core_critical", FLOAT,
                                                                            90,
-                                                                           98,
+                                                                           100,
                                                                            (void *) &settings->heaterSettings.temperatureSettings.core_critical,
                                                                            (void *) &settings->heaterSettings.temperatureSettings.core_critical);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>temperature>term_accumulator_target",
