@@ -7,6 +7,7 @@
 
 #include <HeaterController.h>
 #include <Display.h>
+#include "lib/xpt2046/xpt2046.h"
 
 enum DisplayButtonEvent{
     NONE = 0,
@@ -20,12 +21,13 @@ private:
     static DisplayButtonController *instance;
     HeaterController *heaterController;
     Display *display;
+    XPT2046 *touch;
 
     long buttonChangedAt;
     bool button_pressed;
     DisplayButtonEvent buttonEvent;
 
-    static void IRAM_ATTR DISPLAY_BUTTON_ISR();
+    static void DISPLAY_BUTTON_ISR();
 
 public:
     DisplayButtonController(HeaterController *heaterController, Display *display);

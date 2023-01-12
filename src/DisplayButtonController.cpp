@@ -2,6 +2,7 @@
 // Created by dsporykhin on 03.08.22.
 //
 
+#include <lib/xpt2046/xpt2046.h>
 #include "DisplayButtonController.h"
 
 DisplayButtonController *DisplayButtonController::instance = nullptr;
@@ -10,13 +11,16 @@ DisplayButtonController::DisplayButtonController(HeaterController *heaterControl
     this->display = display;
     this->heaterController = heaterController;
 
+    touch = new XPT2046(TOUCH_CS, TOUCH_PEN);
+    touch->begin(320, 480);  // Must be done before setting rotation
+    touch->setCalibration(181, 249, 1840, 1800);
+    touch->setRotation(touch->ROT90);
+
+
     button_pressed = false;
     buttonEvent = DisplayButtonEvent::NONE;
 
     instance = this;
-
-    pinMode(DISPLAY_BUTTON_PIN, INPUT_PULLUP);
-    attachInterrupt(DISPLAY_BUTTON_PIN, DISPLAY_BUTTON_ISR, CHANGE);
 }
 
 void DisplayButtonController::handle() {
@@ -40,20 +44,21 @@ void DisplayButtonController::handle() {
     }
 }
 
-void IRAM_ATTR DisplayButtonController::DISPLAY_BUTTON_ISR() {
+void DisplayButtonController::DISPLAY_BUTTON_ISR() {
     if (!instance)
         return;
 
-    bool new_state = !(bool) digitalRead(DISPLAY_BUTTON_PIN);
-
-    if ((!new_state) && (instance->button_pressed)) {
-        // button was released
-        if ((millis() - instance->buttonChangedAt) > 500)
-            instance->buttonEvent = DisplayButtonEvent::LONG_CLICK;
-        else if ((millis() - instance->buttonChangedAt) > 50)
-            instance->buttonEvent = DisplayButtonEvent::SHORT_CLICK;
-    }
-
-    instance->buttonChangedAt = millis();
-    instance->button_pressed = new_state;
+//
+//    bool new_state = !(bool) digitalRead(DISPLAY_BUTTON_PIN);
+//
+//    if ((!new_state) && (instance->button_pressed)) {
+//        // button was released
+//        if ((millis() - instance->buttonChangedAt) > 500)
+//            instance->buttonEvent = DisplayButtonEvent::LONG_CLICK;
+//        else if ((millis() - instance->buttonChangedAt) > 50)
+//            instance->buttonEvent = DisplayButtonEvent::SHORT_CLICK;
+//    }
+//
+//    instance->buttonChangedAt = millis();
+//    instance->button_pressed = new_state;
 }

@@ -93,14 +93,14 @@ void setup() {
     reset_wdt();
     towDeviceInfo("starting OTA");
     ArduinoOTA.onStart([]() {
-        Adafruit_ST7789 *tft = display->getTft();
+        ILI9488 *tft = display->getTft();
         tft->fillScreen(COLOR_BACKGROUND);
         tft->setCursor(10, 60);
         tft->print("OTA Updating...");
         LOGGER.info("OTA begins...");
     });
     ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-        Adafruit_ST7789 *tft = display->getTft();
+        ILI9488 *tft = display->getTft();
 
         tft->fillRect(0, 120, 318, 100, COLOR_BACKGROUND);
         tft->setCursor(10, 160);

@@ -43,6 +43,7 @@
 //0000 0    110 000    0 1001
 
 // 217 255 203
+#include <lib/adafruit/ILI9488.h>
 #include "lib/adafruit/Adafruit_GFX.h"
 #include "lib/adafruit/Adafruit_ST7789.h"
 #include "lib/adafruit/Fonts/FreeMonoBoldOblique18pt7b.h"
@@ -50,7 +51,7 @@
 
 class Display {
 private:
-    Adafruit_ST7789 *tft;
+    ILI9488 *tft;
 
     int screen_index = -1;
     TelemetryDataRecord savedDataRecord;
@@ -73,7 +74,7 @@ public:
 
     void updateInfo(TelemetryDataRecord *telemetryDataRecord);
 
-    Adafruit_ST7789 *getTft();
+    ILI9488 *getTft();
 };
 
 

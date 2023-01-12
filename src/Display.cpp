@@ -11,9 +11,9 @@
 
 Display::Display() {
     telemetry_initialized = false;
-    tft = new Adafruit_ST7789(DISPLAY_CS_PIN, DISPLAY_DC_PIN, DISPLAY_RST_PIN);
-    tft->init(240, 320, SPI_MODE0);
-    tft->setRotation(3);
+    tft = new ILI9488(DISPLAY_CS_PIN, DISPLAY_DC_PIN, DISPLAY_RST_PIN);
+    tft->begin();
+    tft->setRotation(1);
     tft->fillScreen(0);
 
     tft->setFont(&FreeSans12pt7b);
@@ -238,6 +238,6 @@ void Display::drawPumpState(int index, bool is_on) {
     tft->fillTriangle(x + 4 + index * 45, y - 7, x - 10 + index * 45, y, x + 4 + index * 45, y + 7, outer_color);
 }
 
-Adafruit_ST7789 *Display::getTft() {
+ILI9488 *Display::getTft() {
     return tft;
 }
