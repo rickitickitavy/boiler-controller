@@ -41,6 +41,9 @@ void reset_wdt() {
     if (millis() - last_wdt_reset > 3000) {
         last_wdt_reset = millis();
         esp_task_wdt_reset();
+        digitalWrite(5, LOW);
+        delay(1);
+        digitalWrite(5, HIGH);
     }
 }
 
@@ -52,6 +55,9 @@ void setup() {
 
     LOGGER.info("Started UART at 115200");
 #endif
+    pinMode(5, OUTPUT);
+    reset_wdt();
+
     display = new Display();
 
     esp_task_wdt_init(20, true); //enable panic so ESP32 restarts
@@ -65,14 +71,14 @@ void setup() {
     settingsManager->getNavigator()->setSensorList(sensorController->buildSensorsList());
 
     towDeviceInfo("Starting I2C");
-    Wire.begin(4, 5);
+    Wire.begin(21, 22);
     Wire.setClock(400000);
 
     towDeviceInfo("Starting heater controller...");
     heaterController = new HeaterController(settingsManager->getSettings(), sensorController,
                                             settingsManager->getNavigator());
 
-    towDeviceInfo("Mounting SD...");
+    towDeviceInfo("Mounting internal flash...");
     if (!SPIFFS.begin(false)) {
         LOGGER.error(" Mount Failed");
     }
