@@ -19,6 +19,7 @@
 #include "ArduinoOTA.h"
 #include "WiFiController.h"
 #include "Display.h"
+#include "Gauge.h"
 
 SettingsManager *settingsManager;
 WiFiController *wiFiController;
@@ -83,36 +84,36 @@ void setup() {
         LOGGER.error(" Mount Failed");
     }
 
+//    reset_wdt();
+//    towDeviceInfo("starting WiFi...");
+//    wiFiController = new WiFiController(settingsManager);
+//
+//    towDeviceInfo("starting HeaterController...");
+//    wiFiController->setHeaterController(heaterController);
+//
     reset_wdt();
-    towDeviceInfo("starting WiFi...");
-    wiFiController = new WiFiController(settingsManager);
-
-    towDeviceInfo("starting HeaterController...");
-    wiFiController->setHeaterController(heaterController);
-
-    reset_wdt();
-    towDeviceInfo("starting OTA");
-    ArduinoOTA.onStart([]() {
-        ILI9488 *tft = display->getTft();
-        tft->fillScreen(COLOR_BACKGROUND);
-        tft->setCursor(10, 60);
-        tft->print("OTA Updating...");
-        LOGGER.info("OTA begins...");
-    });
-    ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-        ILI9488 *tft = display->getTft();
-
-        tft->fillRect(0, 120, 318, 100, COLOR_BACKGROUND);
-        tft->setCursor(10, 160);
-        tft->print("Loading " + String(progress) + " of " + String(total));
-        LOGGER.info("OTA loading " + String(progress) + " of " + String(total));
-        reset_wdt();
-    });
-    ArduinoOTA.onError([](ota_error_t error) {
-        display->setScreenIndex(0);
-        display->drawScreen();
-    });
-    ArduinoOTA.begin();
+//    towDeviceInfo("starting OTA");
+//    ArduinoOTA.onStart([]() {
+//        ILI9488 *tft = display->getTft();
+//        tft->fillScreen(COLOR_BACKGROUND);
+//        tft->setCursor(10, 60);
+//        tft->print("OTA Updating...");
+//        LOGGER.info("OTA begins...");
+//    });
+//    ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
+//        ILI9488 *tft = display->getTft();
+//
+//        tft->fillRect(0, 120, 318, 100, COLOR_BACKGROUND);
+//        tft->setCursor(10, 160);
+//        tft->print("Loading " + String(progress) + " of " + String(total));
+//        LOGGER.info("OTA loading " + String(progress) + " of " + String(total));
+//        reset_wdt();
+//    });
+//    ArduinoOTA.onError([](ota_error_t error) {
+//        display->setScreenIndex(0);
+//        display->drawScreen();
+//    });
+//    ArduinoOTA.begin();
 
     towDeviceInfo("start displayBtn controller");
     displayButtonController = new DisplayButtonController(heaterController, display);
@@ -126,20 +127,31 @@ void setup() {
     display->setScreenIndex(0);
 
     lastTimeDisplayed = 0;
+
+//    Gauge *gauge = new Gauge(display->getTft(), 3, 3, 100, 100, ILI9488_BLACK,
+//                             0xffffff, NULL, 0, -100, 100, new ColorPart(ILI9488_BLUE, -10,
+//                                                                         new ColorPart(ILI9488_GREEN, 50,
+//                                                                                       new ColorPart(
+//                                                                                               ILI9488_RED,
+//                                                                                               0, NULL))));
+//    gauge->init();
+//    gauge->draw(true);
+
 }
 
 void loop() {
-    ArduinoOTA.handle();
-    wiFiController->checkConnection();
+//    ArduinoOTA.handle();
+//    wiFiController->checkConnection();
     displayButtonController->handle();
+
+    reset_wdt();
 
     if (((heaterController->handle()) && !heaterController->isModelling())
         || (heaterController->isModelling() && ((millis() - lastTimeDisplayed) > 3000))) {
 
-        reset_wdt();
 
         lastTimeDisplayed = millis();
         TelemetryDataRecord *telemetryDataRecord = heaterController->getTelemetryRecord();
-        display->updateInfo(telemetryDataRecord);
+//        display->updateInfo(telemetryDataRecord);
     }
 }

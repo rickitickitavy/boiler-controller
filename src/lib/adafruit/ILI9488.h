@@ -117,6 +117,7 @@ typedef volatile uint32 RwReg;
 #define ILI9488_LIGHTGREY   0xC618      /* 192, 192, 192 */
 #define ILI9488_DARKGREY    0x7BEF      /* 128, 128, 128 */
 #define ILI9488_BLUE        0x001F      /*   0,   0, 255 */
+#define ILI9488_BLUE_32        0x00FF0000      /*   0,   0, 255 */
 #define ILI9488_GREEN       0x07E0      /*   0, 255,   0 */
 #define ILI9488_CYAN        0x07FF      /*   0, 255, 255 */
 #define ILI9488_RED         0xF800      /* 255,   0,   0 */
@@ -156,6 +157,7 @@ public:
             invertDisplay(boolean i);
 
     uint16_t color565(uint8_t r, uint8_t g, uint8_t b);
+    uint16_t color24To16(int color24);
 
     /* These are not for current use, 8-bit protocol only! */
     uint8_t readdata(void),

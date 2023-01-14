@@ -19,7 +19,7 @@
 #  define SWAP_AXES 1
 #endif
 
-#define XPT2046_SPI_FREQ 500000
+#define XPT2046_SPI_FREQ 1000000
 
 class XPT2046 {
 public:

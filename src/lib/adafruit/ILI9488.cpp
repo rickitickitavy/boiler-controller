@@ -485,17 +485,11 @@ void ILI9488::drawImage(const uint8_t *img, uint16_t x, uint16_t y, uint16_t w, 
     for (uint16_t i = 0; i < h; i++) {
         uint16_t pixcount = 0;
         for (uint16_t o = 0; o < w; o++) {
-            uint8_t b1 = img[count];
-            count++;
-            uint8_t b2 = img[count];
-            count++;
-            uint16_t color = b1 << 8 | b2;
-            linebuff[pixcount] = (((color & 0xF800) >> 11) * 255) / 31;
-            pixcount++;
-            linebuff[pixcount] = (((color & 0x07E0) >> 5) * 255) / 63;
-            pixcount++;
-            linebuff[pixcount] = ((color & 0x001F) * 255) / 31;
-            pixcount++;
+            uint16_t _temp = img[count + 1] ;
+            _temp = (_temp << 8) + img[count];
+            color15ToColor24((((uint16_t)img[count + 1]) << 8) + img[count], &linebuff[pixcount]);
+            count += 2 ;
+            pixcount += 3;
         } // for row
 #if defined (__STM32F1__)
         SPI.dmaSend(linebuff, w*3);
@@ -759,6 +753,12 @@ uint16_t ILI9488::color565(uint8_t r, uint8_t g, uint8_t b) {
     return ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
 }
 
+uint16_t  ILI9488::color24To16(int color24) {
+    uint16_t r = (color24 & 0x00f80000) >> 8;
+    uint16_t g = (color24 & 0x0000fc00) >> 5;
+    uint16_t b = (color24 & 0x000000ff) >> 3;
+    return r | g | b ;
+}
 
 #define MADCTL_MY  0x80
 #define MADCTL_MX  0x40

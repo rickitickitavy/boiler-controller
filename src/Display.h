@@ -27,15 +27,13 @@
 
 #define COLOR_BACKGROUND ST77XX_WHITE
 #define COLOR_CORE SCREEN_COLOR_LIGHT_GRAY
-#define COLOR_CONTOUR_ACCUMULATOR ST77XX_BLUE
 #define COLOR_ACCUMULATOR SCREEN_COLOR_LIGHT_LIGHT_BLUE
 #define COLOR_CONTROLLER SCREEN_LIGHT_LIGHT_GREEN
-#define COLOR_CONTOUR_CONTROLLER SCREEN_GREEN
 
 #define COLOR_ACCUMULATED SCREEN_LIGHT_ORANGE
-#define COLOR_CONTOUR_ACCUMULATED SCREEN_ORANGE
 
-#define COLOR_RADIATOR SCREEN_GREEN
+#define UI_PAGE_0_COLOR_MAIN_BACKGROUND ILI9488_BLACK
+#define UI_PAGE_0_COLOR_GAUGE_BACKGROUND 0x333333
 
 
 //1111 1    111 111    1 1111
@@ -48,6 +46,7 @@
 #include "lib/adafruit/Adafruit_ST7789.h"
 #include "lib/adafruit/Fonts/FreeMonoBoldOblique18pt7b.h"
 #include "Telemetry.h"
+#include "Gauge.h"
 
 class Display {
 private:
@@ -56,6 +55,7 @@ private:
     int screen_index = -1;
     TelemetryDataRecord savedDataRecord;
     bool telemetry_initialized;
+    Gauge *gauge[9];
 
     void drawScreen0(TelemetryDataRecord *telemetryDataRecord);
     void drawPumpState(int index, bool is_on);

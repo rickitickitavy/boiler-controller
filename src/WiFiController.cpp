@@ -137,16 +137,16 @@ bool WiFiController::isClientConnected() {
 }
 
 void WiFiController::checkConnection() {
-    if (millis() - lastConnectedTime > 40000) {
-        if (!WiFi.isConnected() && !isClientConnected()) {
-            LOGGER.warning("trying to reconnect to AP");
-
-            ESP.restart();
-
-            this->lastConnectedTime = millis();
-
-        } else {
-            this->lastConnectedTime = millis();
-        }
-    }
+//    if (millis() - lastConnectedTime > 40000) {
+//        if (!WiFi.isConnected() && !isClientConnected()) {
+//            LOGGER.warning("trying to reconnect to AP");
+//
+//            ESP.restart();
+//
+//            this->lastConnectedTime = millis();
+//
+//        } else {
+//            this->lastConnectedTime = millis();
+//        }
+//    }
 }
