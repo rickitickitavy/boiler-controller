@@ -23,6 +23,20 @@ Display::Display() {
     tft->setTextColor(0xff00, 0x00ff);
     tft->fillScreen(COLOR_BACKGROUND);
 
+    for (int i = 0; i < 3; i++)
+        for (int j = 0; j < 3; j++) {
+            gauge[i * 3 + j] = new Gauge(tft, 3 + i * 113, 3 + j * 104, 110, 100,
+                                         tft->color24To16(UI_PAGE_0_COLOR_GAUGE_BACKGROUND),
+                                         0xffffff, NULL, 0, -100, 100, new ColorPart(ILI9488_BLUE, -10,
+                                                                                     new ColorPart(ILI9488_GREEN, 50,
+                                                                                                   new ColorPart(
+                                                                                                           ILI9488_RED,
+                                                                                                           0, NULL))));
+            gauge[i * 3 + j]->setValue((i * 3 + j)*20 - 100);
+            gauge[i * 3 + j]->init();
+        }
+
+//    tft->fillTriangle()
 }
 
 void Display::printStatus(const char *status) {
@@ -77,17 +91,9 @@ void Display::drawField(const char *msg, int txt_x, int txt_y, int width, int fo
 
 void Display::initScreen0() {
     tft->fillScreen(UI_PAGE_0_COLOR_MAIN_BACKGROUND);
-    for (int i = 0; i < 3; i++)
-        for (int j = 0; j < 3; j++) {
-            gauge[i * 3 + j] = new Gauge(tft, 3 + i * 113, 3 + j * 104, 110, 100, tft->color24To16(UI_PAGE_0_COLOR_GAUGE_BACKGROUND),
-                                         0xffffff, NULL, 0, -100, 100, new ColorPart(ILI9488_BLUE, -10,
-                                                                                     new ColorPart(ILI9488_GREEN, 50,
-                                                                                                   new ColorPart(
-                                                                                                           ILI9488_RED,
-                                                                                                           0, NULL))));
-            gauge[i * 3 + j]->init();
-            gauge[i * 3 + j]->draw();
-        }
+    for (int i = 0; i < 9; i++) {
+        gauge[i]->draw();
+    }
 
     if (telemetry_initialized)
         drawScreen0(&savedDataRecord);
