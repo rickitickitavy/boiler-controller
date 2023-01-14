@@ -2,6 +2,7 @@
 // Created by dsporykhin on 12.01.23.
 //
 
+#include <lib/gauge/BufferedGraphic.h>
 #include "lib/adafruit/Fonts/FreeSans12pt7b.h"
 #include "Gauge.h"
 
@@ -56,74 +57,10 @@ float Gauge::setValue(float value) {
     this->value = value;
 }
 
-void Gauge::drawArc(uint16_t *buffer, float cx, float cy, float r, float start_angle, float theta, int points,
-                    int color) {
-    float px = cx - r * cos(start_angle);
-    float py = cy - r * sin(start_angle);
-
-    float dx = px - cx;
-    float dy = py - cy;
-    float ctheta = cos(theta / (points - 1));
-    float stheta = sin(theta / (points - 1));
-    for (int i = 1; i != points; ++i) {
-        float dxtemp = ctheta * dx - stheta * dy;
-        dy = stheta * dx + ctheta * dy;
-        dx = dxtemp;
-        buffer[(int)(cy + dy) * width + (int)(cx + dx)] = (uint16_t)color;
-    }
-}
-
-void Gauge::_swap_int16_t(uint16_t &op1, uint16_t &op2) {
-    uint16_t  temp = op1;
-    op1 = op2;
-    op2 =temp;
-}
-
-void Gauge::drawLine(uint16_t *buffer, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color) {
-#if defined(ESP8266)
-    yield();
-#endif
-    int16_t steep = abs(y1 - y0) > abs(x1 - x0);
-    if (steep) {
-        _swap_int16_t(x0, y0);
-        _swap_int16_t(x1, y1);
-    }
-
-    if (x0 > x1) {
-        _swap_int16_t(x0, x1);
-        _swap_int16_t(y0, y1);
-    }
-
-    int16_t dx, dy;
-    dx = x1 - x0;
-    dy = abs(y1 - y0);
-
-    int16_t err = dx / 2;
-    int16_t ystep;
-
-    if (y0 < y1) {
-        ystep = 1;
-    } else {
-        ystep = -1;
-    }
-
-    for (; x0 <= x1; x0++) {
-        if (steep) {
-            buffer[(int)x0 * width + (int)y0] = color;
-        } else {
-            buffer[(int)y0 * width + (int)x0] = color;
-        }
-        err -= dy;
-        if (err < 0) {
-            y0 += ystep;
-            err += dx;
-        }
-    }
-}
-
 void Gauge::draw() {
     int buf_el_size = width * height;
     uint16_t *buffer = (uint16_t*)malloc(2 * buf_el_size);
+    FrameBuffer framebuffer(buffer, width, height);
 
     for (int i = 0; i < buf_el_size; buffer[i++] = (uint16_t)bg_color);
 
@@ -132,7 +69,7 @@ void Gauge::draw() {
     if (!colorParts){
         // no parts. then all gauge will be of blue color
         for (int i = graph_width; i > 0; i--)
-            drawArc(buffer, (width >> 1), GAUGE_GRAPH_MARGIN_TOP + base_radius, base_radius - i, 0, PI,
+            BufferedGraphic::drawArc(framebuffer, (width >> 1), GAUGE_GRAPH_MARGIN_TOP + base_radius, base_radius - i, 0, PI,
                     half_arc_len << 1, ILI9488_BLUE);
     } else {
         float start_angle = 0;
@@ -147,7 +84,7 @@ void Gauge::draw() {
 
             // draw
             for (int i = graph_width; i > 0; i--)
-                drawArc(buffer, (width >> 1), GAUGE_GRAPH_MARGIN_TOP + base_radius, base_radius - i, start_angle, theta,
+                BufferedGraphic::drawArc(framebuffer, (width >> 1), GAUGE_GRAPH_MARGIN_TOP + base_radius, base_radius - i, start_angle, theta,
                         half_arc_len << 1, _colorParts->color);
 
             // next arc if exists
@@ -167,15 +104,9 @@ void Gauge::draw() {
         float _min_radius = base_radius - GAUGE_GRAPH_DEFAULT_WIDTH - 10;
         float _max_radius = base_radius + 2;
 
-        int x0 = _min_radius * _sin + (width >> 1);
         int x1 = _max_radius * _sin + (width >> 1);
 
-        int y0 = base_radius + GAUGE_GRAPH_MARGIN_TOP - _min_radius * _cos;
         int y1 = base_radius + GAUGE_GRAPH_MARGIN_TOP - _max_radius * _cos;
-
-//        drawLine(buffer, x0, y0, x1, y1, font_color);
-//        drawLine(buffer, x0 - 1, y0, x1 - 1, y1, font_color);
-//        drawLine(buffer, x0 + 1, y0, x1 + 1, y1, font_color);
 
         float _sin_l = sin(theta - GAUGE_GRAPH_ARROW_ANGLE / 2);
         float _sin_r = sin(theta + GAUGE_GRAPH_ARROW_ANGLE / 2);
@@ -187,14 +118,26 @@ void Gauge::draw() {
         int x_r = _min_radius * _sin_r + (width >> 1);
         int y_r = base_radius + GAUGE_GRAPH_MARGIN_TOP - _min_radius * _cos_r;
 
-        drawLine(buffer, x1, y1, x_l, y_l, font_color);
-        drawLine(buffer, x1, y1, x_r, y_r, font_color);
-        drawLine(buffer, x_l, y_l, x_r, y_r, font_color);
-
+        BufferedGraphic::fillTriangle(framebuffer, x1, y1, x_l, y_l, x_r, y_r, font_color);
     }
 
     display->drawImage((uint8_t*)buffer, x, y, width, height);
 
     free(buffer);
+
+    // draw arrow
+    if (initialized) {
+        // draw value
+        uint8_t  charBuffer[20];
+        memset(charBuffer, 0, 20);
+        display->setFont(font);
+
+//        display->setCursor(x + (width >> 1))
+        display->setTextColor(font_color);
+        display->setCursor(x, y + height - GAUGE_GRAPH_MARGIN_BOTTOM);
+
+//        sprintf("")
+        display->print('1');
+    }
 
 }

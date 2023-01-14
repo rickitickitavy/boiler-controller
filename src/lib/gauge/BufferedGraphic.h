@@ -8,21 +8,39 @@
 
 #include <stdint.h>
 
+#ifndef _swap_int16_t
+#define _swap_int16_t(a, b)                                                    \
+  {                                                                            \
+    int16_t t = a;                                                             \
+    a = b;                                                                     \
+    b = t;                                                                     \
+  }
+#endif
+
+
 struct FrameBuffer {
     uint16_t *buffer;
     int width;
     int height;
+    FrameBuffer(uint16_t *buffer, int width, int height){
+        this->buffer = buffer;
+        this->width = width;
+        this->height = height;
+    }
 };
 
 class BufferedGraphic {
-private:
-    static void _swap_int16_t(uint16_t &op1, uint16_t &op2);
-
 public:
+
+    static void drawHLine(FrameBuffer &frameBuffer, uint16_t x, uint16_t y, uint16_t width, uint16_t color);
+
     static void drawLine(FrameBuffer &frameBuffer, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color);
 
-    static void fillTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
-                             int16_t x2, int16_t y2, uint16_t color);
+    static void drawArc(FrameBuffer &frameBuffer, float cx, float cy, float r, float start_angle, float theta, int points,
+    int color);
+
+    static void fillTriangle(FrameBuffer &frameBuffer, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1,
+                             uint16_t x2, uint16_t y2, uint16_t color);
 
 };
 

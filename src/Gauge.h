@@ -13,7 +13,7 @@
 #define GAUGE_GRAPH_MARGIN_TOP 10
 #define GAUGE_GRAPH_MARGIN_LF_RG 4
 #define GAUGE_GRAPH_DEFAULT_WIDTH 15
-#define GAUGE_GRAPH_ARROW_ANGLE (PI / 20)
+#define GAUGE_GRAPH_ARROW_ANGLE (PI / 15)
 
 struct ColorPart {
     int color;
@@ -47,11 +47,6 @@ private:
     int half_arc_len;
     float arc_coef;
 
-    void drawArc(uint16_t *buffer, float cx, float cy, float r, float start_angle, float theta, int points, int color);
-    void drawLine(uint16_t *buffer, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color);
-    void fillTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
-            int16_t x2, int16_t y2, uint16_t color);
-    void _swap_int16_t(uint16_t &op1, uint16_t &op2);
 public:
     int graph_width = GAUGE_GRAPH_DEFAULT_WIDTH;
 
