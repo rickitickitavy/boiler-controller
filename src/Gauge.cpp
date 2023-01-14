@@ -6,7 +6,7 @@
 #include "Gauge.h"
 
 Gauge::Gauge(ILI9488 *display, int x, int y, int width, int height, int bg_color, int font_color, GFXfont *font,
-             int display_digits_count, float min, float max, ColorPart *colorParts) {
+             int display_decimal_digits_count, float min, float max, ColorPart *colorParts) {
 
     this->x = x;
     this->y = y;
@@ -16,7 +16,7 @@ Gauge::Gauge(ILI9488 *display, int x, int y, int width, int height, int bg_color
     this->bg_color = bg_color;
     this->font_color = font_color;
     this->font = font ? font : &FreeSans12pt7b;
-    this->display_digits_count = display_digits_count;
+    this->display_decimal_digits_count = display_decimal_digits_count;
 
     this->min = min;
     this->max = max;
@@ -32,8 +32,6 @@ Gauge::Gauge(ILI9488 *display, int x, int y, int width, int height, int bg_color
 
     half_arc_len = (int)(PI * base_radius);
     arc_coef = (max - min) / (PI * (float) base_radius);
-    center_y = GAUGE_GRAPH_MARGIN_TOP + base_radius;
-
 
     Serial.println("----------------------");
     Serial.println("base_radius = " + String(base_radius));
@@ -77,16 +75,11 @@ void Gauge::draw_arc(uint16_t *buffer, float cx, float cy, float r, float start_
     }
 }
 
-void Gauge::draw_part(int color, int start_value, float end_value) {
-//    display->drawRoundRect()
-}
-
-void Gauge::draw(bool draw_background) {
+void Gauge::draw() {
     int buf_el_size = width * height;
     uint16_t *buffer = (uint16_t*)malloc(2 * buf_el_size);
 
-    if (draw_background)
-        for (int i = 0; i < buf_el_size; buffer[i++] = (uint16_t)bg_color);
+    for (int i = 0; i < buf_el_size; buffer[i++] = (uint16_t)bg_color);
 
     ColorPart *_colorParts = colorParts;
 
@@ -94,7 +87,7 @@ void Gauge::draw(bool draw_background) {
         // no parts. then all gauge will be of blue color
         for (int i = graph_width; i > 0; i--)
             draw_arc(buffer, (width >> 1)
-                    , center_y
+                    , GAUGE_GRAPH_MARGIN_TOP + base_radius
                     , base_radius - i
                     , 0 , PI, half_arc_len << 1, ILI9488_BLUE);
     } else {
@@ -111,7 +104,7 @@ void Gauge::draw(bool draw_background) {
             // draw
             for (int i = graph_width; i > 0; i--)
                 draw_arc(buffer, (width >> 1)
-                        , center_y
+                        , GAUGE_GRAPH_MARGIN_TOP + base_radius
                         , base_radius - i
                         , start_angle , theta, half_arc_len << 1, _colorParts->color);
 

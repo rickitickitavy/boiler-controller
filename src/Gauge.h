@@ -33,7 +33,7 @@ private:
     int x, y, width, height;
     int bg_color, font_color;
     const GFXfont *font;
-    int display_digits_count;
+    int display_decimal_digits_count;
 
     float value;
 
@@ -43,8 +43,6 @@ private:
     bool initialized;
 
     int base_radius;
-    int center_y;
-    int arrow_position;
     int half_arc_len;
     float arc_coef;
 
@@ -52,15 +50,13 @@ private:
 
     void drawArrow();
 
-    void draw_part(int color, int start_value, float end_value);
-
     void draw_arc(uint16_t *buffer, float cx, float cy, float r, float start_angle, float theta, int points, int color);
 
 public:
     int graph_width = GAUGE_GRAPH_DEFAULT_WIDTH;
 
     Gauge(ILI9488 *display, int x, int y, int width, int height, int bg_color, int font_color, GFXfont *font,
-          int display_digits_count, float min, float max, ColorPart *colorParts);
+          int display_decimal_digits_count, float min, float max, ColorPart *colorParts);
 
     void init();
 
@@ -68,7 +64,7 @@ public:
 
     float getValue();
 
-    void draw(bool draw_background);
+    void draw();
 };
 
 

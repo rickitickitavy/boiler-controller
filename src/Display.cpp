@@ -86,7 +86,7 @@ void Display::initScreen0() {
                                                                                                            ILI9488_RED,
                                                                                                            0, NULL))));
             gauge[i * 3 + j]->init();
-            gauge[i * 3 + j]->draw(true);
+            gauge[i * 3 + j]->draw();
         }
 
     if (telemetry_initialized)
