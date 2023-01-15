@@ -10,7 +10,7 @@
 #include "lib/adafruit/ILI9488.h"
 
 #define GAUGE_GRAPH_MARGIN_BOTTOM 10
-#define GAUGE_GRAPH_MARGIN_TOP 10
+#define GAUGE_GRAPH_MARGIN_TOP 2
 #define GAUGE_GRAPH_MARGIN_LF_RG 4
 #define GAUGE_GRAPH_DEFAULT_WIDTH 15
 #define GAUGE_GRAPH_ARROW_ANGLE (PI / 15)
@@ -47,10 +47,12 @@ private:
     int half_arc_len;
     float arc_coef;
 
+    const char *title;
+
 public:
     int graph_width = GAUGE_GRAPH_DEFAULT_WIDTH;
 
-    Gauge(ILI9488 *display, int x, int y, int width, int height, int bg_color, int font_color, GFXfont *font,
+    Gauge(ILI9488 *display, const char *title, int x, int y, int width, int height, int bg_color, int font_color, GFXfont *font,
           int display_decimal_digits_count, float min, float max, ColorPart *colorParts);
 
     void init();

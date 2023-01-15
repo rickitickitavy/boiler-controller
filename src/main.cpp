@@ -125,7 +125,7 @@ void setup() {
     delay(500);
 
     reset_wdt();
-//    display->setScreenIndex(0);
+    display->setScreenIndex(0);
 
     lastTimeDisplayed = 0;
 
@@ -138,23 +138,23 @@ void setup() {
 //    gauge->init();
 //    gauge->draw(true);
 
-    DisplayBuffer *displayBuffer = new DisplayBuffer(100, 100);
-
-    displayBuffer->fillScreen(ILI9488_BLUE);
-    displayBuffer->drawLine(5,5,95,95, ILI9488_WHITE);
-    displayBuffer->drawCircle(50, 50, 40, ILI9488_GREEN);
-    displayBuffer->fillRect(30, 30, 40, 40, ILI9488_CYAN);
-    displayBuffer->fillTriangle(40, 50, 60, 40, 60, 60, ILI9488_RED);
-    displayBuffer->setFont(&FreeSans12pt7b);
-    displayBuffer->setTextColor(ILI9488_GREEN);
-    displayBuffer->setCursor(10, 95);
-    displayBuffer->print("test text");
-    displayBuffer->drawArc(50, 70, 45, 0, PI, 250, ILI9488_WHITE);
-
-    display->getTft()->drawImage((uint8_t*)displayBuffer->buffer, 10, 10, displayBuffer->width(), displayBuffer->height());
-
-    displayBuffer->freeBuffer();
-    free(displayBuffer);
+//    DisplayBuffer *displayBuffer = new DisplayBuffer(100, 100);
+//
+//    displayBuffer->fillScreen(ILI9488_BLUE);
+//    displayBuffer->drawLine(5,5,95,95, ILI9488_WHITE);
+//    displayBuffer->drawCircle(50, 50, 40, ILI9488_GREEN);
+//    displayBuffer->fillRect(30, 30, 40, 40, ILI9488_CYAN);
+//    displayBuffer->fillTriangle(40, 50, 60, 40, 60, 60, ILI9488_RED);
+//    displayBuffer->setFont(&FreeSans12pt7b);
+//    displayBuffer->setTextColor(ILI9488_GREEN);
+//    displayBuffer->setCursor(10, 95);
+//    displayBuffer->print("test text");
+//    displayBuffer->drawArc(50, 70, 45, 0, PI, 250, ILI9488_WHITE);
+//
+//    display->getTft()->drawImage((uint8_t*)displayBuffer->buffer, 10, 10, displayBuffer->width(), displayBuffer->height());
+//
+//    displayBuffer->freeBuffer();
+//    free(displayBuffer);
 }
 
 void loop() {

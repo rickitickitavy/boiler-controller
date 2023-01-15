@@ -2,6 +2,7 @@
 // Created by dsporykhin on 15.01.23.
 //
 
+#include <lib/adafruit/gfxfont.h>
 #include "DisplayBuffer.h"
 
 DisplayBuffer::DisplayBuffer(int width, int height) : Adafruit_GFX(width, height) {
@@ -63,3 +64,23 @@ void DisplayBuffer::drawArc(uint16_t cx, uint16_t cy, uint16_t r, float start_an
     }
 }
 
+void DisplayBuffer::fillScreen(uint16_t color) {
+    int buf_el_size = _width * _height;
+    for (int i = 0; i < buf_el_size; buffer[i++] = color);
+}
+
+uint16_t DisplayBuffer::calcTextWidth(const char *msg) {
+    if (!gfxFont)
+        return 0;
+
+    int index = 0;
+    uint16_t text_width = 0;
+    while (msg[index]) {
+        if ((msg[index] >= gfxFont->first) && (msg[index] <= gfxFont->last)) {
+            // symbol presents in char table
+            text_width += gfxFont->glyph[msg[index] - gfxFont->first].width;
+        }
+        index++;
+    }
+    return text_width;
+}

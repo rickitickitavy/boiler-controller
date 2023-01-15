@@ -2,13 +2,16 @@
 // Created by dsporykhin on 12.01.23.
 //
 
-#include <lib/bufferedGraphics/BufferedGraphic.h>
+#include <lib/bufferedGraphics/DisplayBuffer.h>
+#include <lib/adafruit/gfxfont.h>
 #include "lib/adafruit/Fonts/FreeSans12pt7b.h"
 #include "Gauge.h"
 
-Gauge::Gauge(ILI9488 *display, int x, int y, int width, int height, int bg_color, int font_color, GFXfont *font,
+Gauge::Gauge(ILI9488 *display, const char *title, int x, int y, int width, int height, int bg_color, int font_color, GFXfont *font,
              int display_decimal_digits_count, float min, float max, ColorPart *colorParts) {
 
+
+    this->title = title;
     this->x = x;
     this->y = y;
     this->width = width;
@@ -59,17 +62,15 @@ float Gauge::setValue(float value) {
 
 void Gauge::draw() {
     int buf_el_size = width * height;
-    uint16_t *buffer = (uint16_t*)malloc(2 * buf_el_size);
-    FrameBuffer framebuffer(buffer, width, height);
-
-    for (int i = 0; i < buf_el_size; buffer[i++] = (uint16_t)bg_color);
+    DisplayBuffer *displayBuffer = new DisplayBuffer(width, height);
+    displayBuffer->fillScreen(bg_color);
 
     ColorPart *_colorParts = colorParts;
 
     if (!colorParts){
         // no parts. then all gauge will be of blue color
         for (int i = graph_width; i > 0; i--)
-            BufferedGraphic::drawArc(framebuffer, (width >> 1), GAUGE_GRAPH_MARGIN_TOP + base_radius, base_radius - i, 0, PI,
+            displayBuffer->drawArc((width >> 1), GAUGE_GRAPH_MARGIN_TOP + base_radius, base_radius - i, 0, PI,
                     half_arc_len << 1, ILI9488_BLUE);
     } else {
         float start_angle = 0;
@@ -84,7 +85,7 @@ void Gauge::draw() {
 
             // draw
             for (int i = graph_width; i > 0; i--)
-                BufferedGraphic::drawArc(framebuffer, (width >> 1), GAUGE_GRAPH_MARGIN_TOP + base_radius, base_radius - i, start_angle, theta,
+                displayBuffer->drawArc((width >> 1), GAUGE_GRAPH_MARGIN_TOP + base_radius, base_radius - i, start_angle, theta,
                         half_arc_len << 1, _colorParts->color);
 
             // next arc if exists
@@ -118,31 +119,31 @@ void Gauge::draw() {
         int x_r = _min_radius * _sin_r + (width >> 1);
         int y_r = base_radius + GAUGE_GRAPH_MARGIN_TOP - _min_radius * _cos_r;
 
-        BufferedGraphic::fillTriangle(framebuffer, x1, y1, x_l, y_l, x_r, y_r, font_color);
+        displayBuffer->fillTriangle(x1, y1, x_l, y_l, x_r, y_r, font_color);
     }
 
-    display->drawImage((uint8_t*)buffer, x, y, width, height);
-
-    free(buffer);
+    //draw caption
+    displayBuffer->setFont(font);
+    displayBuffer->setTextColor(font_color);
+    displayBuffer->setCursor((width - displayBuffer->calcTextWidth(title)) >> 1, height - 3);
+    displayBuffer->print(title);
 
     // draw arrow
     if (initialized) {
         // draw value
         char  charBuffer[20];
         memset(charBuffer, 0, 20);
-        display->setFont(font);
-
-//        display->setCursor(x + (width >> 1))
-        display->setTextColor(font_color);
-        display->setCursor(x, y + height - GAUGE_GRAPH_MARGIN_BOTTOM);
-
         String format = "%0." + String(display_decimal_digits_count) + "f";
-
-        Serial.println("draw value " + String(value));
-        Serial.println("format= " + format);
         sprintf(charBuffer, format.c_str(), value);
-        Serial.println("buf= " + String(charBuffer));
-        display->print(charBuffer);
+
+        displayBuffer->setCursor((width - displayBuffer->calcTextWidth(charBuffer)) >> 1,
+                                GAUGE_GRAPH_MARGIN_TOP + base_radius + (font->yAdvance >> 1));
+
+        displayBuffer->print(charBuffer);
     }
+
+    display->drawImage((uint8_t*)displayBuffer->buffer, x, y, width, height);
+    displayBuffer->freeBuffer();
+    free(displayBuffer);
 
 }

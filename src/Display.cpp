@@ -25,7 +25,7 @@ Display::Display() {
 
     for (int i = 0; i < 3; i++)
         for (int j = 0; j < 3; j++) {
-            gauge[i * 3 + j] = new Gauge(tft, 3 + i * 113, 3 + j * 104, 110, 100,
+            gauge[i * 3 + j] = new Gauge(tft, "Test gauge", i * 123, j * 103, 120, 100,
                                          tft->color24To16(UI_PAGE_0_COLOR_GAUGE_BACKGROUND),
                                          0xffffff, NULL, 0, -100, 100, new ColorPart(ILI9488_BLUE, -10,
                                                                                      new ColorPart(ILI9488_GREEN, 50,
