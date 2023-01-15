@@ -57,6 +57,22 @@ private:
     bool telemetry_initialized;
     Gauge *gauge[9];
 
+    // row 1
+    Gauge *gauge_core_tempr;
+    Gauge *gauge_core_power;
+    Gauge *gauge_warm_flow_tempr;
+
+    // row 2
+    Gauge *gauge_core_output_tempr;
+    Gauge *gauge_power_balance;
+    Gauge *gauge_acc_top_tempr;
+
+    // row 3
+    Gauge *gauge_core_input_tempr;
+    Gauge *gauge_power;
+    Gauge *gauge_acc_bottom_tempr;
+
+
     void drawScreen0(TelemetryDataRecord *telemetryDataRecord);
     void drawPumpState(int index, bool is_on);
 

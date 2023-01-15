@@ -2,7 +2,7 @@
 // Created by dsporykhin on 12.01.23.
 //
 
-#include <lib/gauge/BufferedGraphic.h>
+#include <lib/bufferedGraphics/BufferedGraphic.h>
 #include "lib/adafruit/Fonts/FreeSans12pt7b.h"
 #include "Gauge.h"
 
@@ -128,7 +128,7 @@ void Gauge::draw() {
     // draw arrow
     if (initialized) {
         // draw value
-        uint8_t  charBuffer[20];
+        char  charBuffer[20];
         memset(charBuffer, 0, 20);
         display->setFont(font);
 
@@ -136,8 +136,13 @@ void Gauge::draw() {
         display->setTextColor(font_color);
         display->setCursor(x, y + height - GAUGE_GRAPH_MARGIN_BOTTOM);
 
-//        sprintf("")
-        display->print('1');
+        String format = "%0." + String(display_decimal_digits_count) + "f";
+
+        Serial.println("draw value " + String(value));
+        Serial.println("format= " + format);
+        sprintf(charBuffer, format.c_str(), value);
+        Serial.println("buf= " + String(charBuffer));
+        display->print(charBuffer);
     }
 
 }
