@@ -15,7 +15,7 @@ public:
 
     DisplayBuffer(int width, int height);
 
-    uint16_t color24To16(int color24);
+    static uint16_t color24To16(int color24);
 
     void freeBuffer(),
         drawPixel(int16_t x, int16_t y, uint16_t color) override,

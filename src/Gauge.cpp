@@ -36,11 +36,6 @@ Gauge::Gauge(ILI9488 *display, const char *title, int x, int y, int width, int h
 
     half_arc_len = (int)(PI * base_radius);
     arc_coef = (max - min) / (PI * (float) base_radius);
-
-    Serial.println("----------------------");
-    Serial.println("base_radius = " + String(base_radius));
-    Serial.println("half_arc_len = " + String(half_arc_len));
-    Serial.println("arc_coef = " + String(arc_coef));
 }
 
 void Gauge::init() {
@@ -52,16 +47,10 @@ float Gauge::getValue() {
 }
 
 float Gauge::setValue(float value) {
-    if (value < min)
-        value = min;
-    else if (value > max)
-        value = max;
-
     this->value = value;
 }
 
 void Gauge::draw() {
-    int buf_el_size = width * height;
     DisplayBuffer *displayBuffer = new DisplayBuffer(width, height);
     displayBuffer->fillScreen(bg_color);
 
@@ -98,8 +87,14 @@ void Gauge::draw() {
 
     // draw arrow
     if (initialized){
+        float temp_value = value;
+        if (temp_value < min)
+            temp_value = min;
+        else if (temp_value > max)
+            temp_value = max;
 
-        float theta = (value - min) * PI / (max - min) - PI / 2;
+
+        float theta = (temp_value - min) * PI / (max - min) - PI / 2;
         float _sin = sin(theta);
         float _cos = cos(theta);
         float _min_radius = base_radius - GAUGE_GRAPH_DEFAULT_WIDTH - 10;
@@ -125,10 +120,14 @@ void Gauge::draw() {
     //draw caption
     displayBuffer->setFont(font);
     displayBuffer->setTextColor(font_color);
-    displayBuffer->setCursor((width - displayBuffer->calcTextWidth(title)) >> 1, height - 3);
+    int x_t = (int)width - (int)displayBuffer->calcTextWidth(title);
+    if (x_t < 0)
+        x_t = 0;
+
+    x_t = 2;
+    displayBuffer->setCursor(x_t >> 1, height - 3);
     displayBuffer->print(title);
 
-    // draw arrow
     if (initialized) {
         // draw value
         char  charBuffer[20];

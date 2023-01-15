@@ -336,6 +336,14 @@ void HeaterController::closeOxygenDoor() {
 }
 //-------------------------------------------------------------------
 
+void printSensors(String title, SensorController *sensorController){
+    Serial.println("------------" + title + "--------------");
+    for (int i = 0; i < MAX_SENSORS_COUNT; i++){
+        Serial.println("   sens" + String(i) + " = " + String(sensorController->sensor_data[i].value));
+    }
+    Serial.println("--------------------------");
+}
+
 bool HeaterController::handle() {
     doorsController->handle();
     bool proceeded = false;
@@ -358,8 +366,9 @@ bool HeaterController::handle() {
 
         last_cycle_time = millis();
 
-        last_cycle_length = 3001;
+//        last_cycle_length = 3001;
         sensorController->fire();
+
 
         LOGGER.info(" last_cycle_length = " + String(last_cycle_length));
 
@@ -368,7 +377,6 @@ bool HeaterController::handle() {
         handleModes();
 
         handlePumps();
-
         collectTelemetry(last_cycle_length);
 
         if ((mode == STAND_BY) || (mode == FINAL_COOLING)) {

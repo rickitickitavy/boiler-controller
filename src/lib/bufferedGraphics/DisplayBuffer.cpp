@@ -3,10 +3,15 @@
 //
 
 #include <lib/adafruit/gfxfont.h>
+#include <Logger.h>
 #include "DisplayBuffer.h"
 
 DisplayBuffer::DisplayBuffer(int width, int height) : Adafruit_GFX(width, height) {
     buffer = (uint16_t*)malloc(2 * width * height);
+    if (!buffer) {
+        LOGGER.info("!!!!!!!!!!!!!!!!!!!!!!!! Display buffer NULL");
+        Serial.flush();
+    }
 }
 
 void DisplayBuffer::freeBuffer() {
@@ -78,7 +83,8 @@ uint16_t DisplayBuffer::calcTextWidth(const char *msg) {
     while (msg[index]) {
         if ((msg[index] >= gfxFont->first) && (msg[index] <= gfxFont->last)) {
             // symbol presents in char table
-            text_width += gfxFont->glyph[msg[index] - gfxFont->first].width;
+            text_width += gfxFont->glyph[msg[index] - gfxFont->first].width
+                          + gfxFont->glyph[msg[index] - gfxFont->first].xOffset;
         }
         index++;
     }

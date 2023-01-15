@@ -34,7 +34,13 @@
 
 #define UI_PAGE_0_COLOR_MAIN_BACKGROUND ILI9488_BLACK
 #define UI_PAGE_0_COLOR_GAUGE_BACKGROUND 0x444444
+#define UI_PAGE_0_SIZE_GAUGE_WIDTH 128
+#define UI_PAGE_0_SIZE_GAUGE_HEIGHT 100
 
+#define UI_COLOR_GAUGE_GREEN 0x009815
+#define UI_COLOR_GAUGE_BLUE 0x0000ff
+#define UI_COLOR_GAUGE_YELLOW 0xFFB32F
+#define UI_COLOR_GAUGE_RED 0x00ff0000
 
 //1111 1    111 111    1 1111
 //1111 1    011 111    0 1111
@@ -55,7 +61,6 @@ private:
     int screen_index = -1;
     TelemetryDataRecord savedDataRecord;
     bool telemetry_initialized;
-    Gauge *gauge[9];
 
     // row 1
     Gauge *gauge_core_tempr;
@@ -75,6 +80,7 @@ private:
 
     void drawScreen0(TelemetryDataRecord *telemetryDataRecord);
     void drawPumpState(int index, bool is_on);
+    void drawGauges();
 
     void initScreen0();
     void drawField(const char *msg, int txt_x, int txt_y, int width, int font_color, int bg_color);
