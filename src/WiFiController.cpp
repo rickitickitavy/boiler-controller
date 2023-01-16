@@ -116,7 +116,7 @@ void WiFiController::init() {
             MDNS.addService("http", "tcp", 80);
 
             LOGGER.info("Getting real date and time from NTP");
-            initNTP();
+//            initNTP();
 
         }
 

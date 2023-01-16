@@ -19,12 +19,15 @@ void DisplayBuffer::freeBuffer() {
 }
 
 void DisplayBuffer::drawPixel(int16_t x, int16_t y, uint16_t color) {
-    if (x > _width || y > _height)
+    if (x >= _width || y >= _height)
         return;
     buffer[y * _width + x] = color;
 }
 
 void DisplayBuffer::drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color) {
+    if ((y >= _height) || (x >= _width))
+        return;
+
     int shift = y * _width + x;
     if ((x + w) > _width)
         w = _width - x;
@@ -33,7 +36,7 @@ void DisplayBuffer::drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t colo
 }
 
 void DisplayBuffer::drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color) {
-    if (y >= _height)
+    if ((y >= _height) || (x >= _width))
         return;
 
     int shift = y * _width + x;

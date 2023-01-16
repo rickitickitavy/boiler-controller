@@ -46,18 +46,16 @@ private:
 
     int base_radius;
     int half_arc_len;
-    float arc_coef;
 
 
 public:
     int graph_width = GAUGE_GRAPH_DEFAULT_WIDTH;
     int x, y;
     const char *title;
+    DisplayBuffer *defaultDisplayBuffer = nullptr;
 
     Gauge(ILI9488 *display, const char *title, int x, int y, int width, int height, int bg_color, int font_color, GFXfont *font,
           int display_decimal_digits_count, float min, float max, ColorPart *colorParts);
-
-    void init();
 
     float setValue(float value);
 

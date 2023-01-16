@@ -77,6 +77,8 @@ private:
     Gauge *gauge_power;
     Gauge *gauge_acc_bottom_tempr;
 
+    DisplayBuffer *defaultDisplayBuffer;
+
 
     void drawScreen0(TelemetryDataRecord *telemetryDataRecord);
     void drawPumpState(int index, bool is_on);

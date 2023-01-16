@@ -35,11 +35,7 @@ Gauge::Gauge(ILI9488 *display, const char *title, int x, int y, int width, int h
     base_radius = radius_h > radius_w ? radius_w : radius_h;
 
     half_arc_len = (int)(PI * base_radius);
-    arc_coef = (max - min) / (PI * (float) base_radius);
-}
-
-void Gauge::init() {
-    initialized = true;
+    initialized = false;
 }
 
 float Gauge::getValue() {
@@ -48,10 +44,11 @@ float Gauge::getValue() {
 
 float Gauge::setValue(float value) {
     this->value = value;
+    initialized = true;
 }
 
 void Gauge::draw() {
-    DisplayBuffer *displayBuffer = new DisplayBuffer(width, height);
+    DisplayBuffer *displayBuffer = defaultDisplayBuffer ? defaultDisplayBuffer : new DisplayBuffer(width, height);
     displayBuffer->fillScreen(bg_color);
 
     ColorPart *_colorParts = colorParts;
@@ -75,7 +72,7 @@ void Gauge::draw() {
             // draw
             for (int i = graph_width; i > 0; i--)
                 displayBuffer->drawArc((width >> 1), GAUGE_GRAPH_MARGIN_TOP + base_radius, base_radius - i, start_angle, theta,
-                        half_arc_len << 1, _colorParts->color);
+                                       (int)(half_arc_len * theta / PI) << 1, _colorParts->color);
 
             // next arc if exists
             start_angle += theta;
@@ -84,6 +81,9 @@ void Gauge::draw() {
             _colorParts = _colorParts->next;
         }
     }
+
+    displayBuffer->setFont(font);
+    displayBuffer->setTextColor(font_color);
 
     // draw arrow
     if (initialized){
@@ -115,11 +115,21 @@ void Gauge::draw() {
         int y_r = base_radius + GAUGE_GRAPH_MARGIN_TOP - _min_radius * _cos_r;
 
         displayBuffer->fillTriangle(x1, y1, x_l, y_l, x_r, y_r, font_color);
+
+        // draw value
+        char  charBuffer[20];
+        memset(charBuffer, 0, 20);
+        String format = "%0." + String(display_decimal_digits_count) + "f";
+        sprintf(charBuffer, format.c_str(), value);
+
+        displayBuffer->setCursor((width - displayBuffer->calcTextWidth(charBuffer)) >> 1,
+                                 GAUGE_GRAPH_MARGIN_TOP + base_radius + (font->yAdvance >> 1));
+
+        displayBuffer->print(charBuffer);
+
     }
 
     //draw caption
-    displayBuffer->setFont(font);
-    displayBuffer->setTextColor(font_color);
     int x_t = (int)width - (int)displayBuffer->calcTextWidth(title);
     if (x_t < 0)
         x_t = 0;
@@ -128,21 +138,10 @@ void Gauge::draw() {
     displayBuffer->setCursor(x_t >> 1, height - 3);
     displayBuffer->print(title);
 
-    if (initialized) {
-        // draw value
-        char  charBuffer[20];
-        memset(charBuffer, 0, 20);
-        String format = "%0." + String(display_decimal_digits_count) + "f";
-        sprintf(charBuffer, format.c_str(), value);
-
-        displayBuffer->setCursor((width - displayBuffer->calcTextWidth(charBuffer)) >> 1,
-                                GAUGE_GRAPH_MARGIN_TOP + base_radius + (font->yAdvance >> 1));
-
-        displayBuffer->print(charBuffer);
-    }
-
     display->drawImage((uint8_t*)displayBuffer->buffer, x, y, width, height);
-    displayBuffer->freeBuffer();
-    free(displayBuffer);
+    if (!defaultDisplayBuffer) {
+        displayBuffer->freeBuffer();
+        free(displayBuffer);
+    }
 
 }

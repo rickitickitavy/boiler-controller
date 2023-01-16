@@ -143,13 +143,13 @@ void loop() {
 
         lastTimeDisplayed = millis();
         TelemetryDataRecord *telemetryDataRecord = heaterController->getTelemetryRecord();
-
-        LOGGER.info("before display->updateInfo(telemetryDataRecord)");
-        Serial.flush();
-
+//
+//        LOGGER.info("before display->updateInfo(telemetryDataRecord)");
+//        Serial.flush();
+//
         display->updateInfo(telemetryDataRecord);
-
-        LOGGER.info("after display->updateInfo(telemetryDataRecord)");
-        Serial.flush();
+//
+//        LOGGER.info("after display->updateInfo(telemetryDataRecord)");
+//        Serial.flush();
     }
 }
