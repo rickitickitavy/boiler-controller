@@ -26,6 +26,7 @@ Button::Button(ILI9488 *display, int x, int y, int width, int height,
     this->bg_color = DisplayBuffer::color24To16(bg_color);
     this->display = display;
 
+    need_redraw = true;
     state = false;
 }
 
@@ -35,9 +36,14 @@ Button::Button(ILI9488 *display, int x, int y, int width, int height,
 //
 float Button::setState(bool state) {
     this->state = state;
+    need_redraw = true;
 }
 
 void Button::draw() {
+    if (!need_redraw)
+        return;
+    need_redraw = false;
+
     DisplayBuffer *displayBuffer = defaultDisplayBuffer ? defaultDisplayBuffer : new DisplayBuffer(width, height);
     displayBuffer->fillScreen(bg_color);
 

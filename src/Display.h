@@ -56,7 +56,7 @@
 #include "lib/ui/gauge/Gauge.h"
 
 class Display {
-private:
+protected:
     ILI9488 *tft;
 
     int screen_index = -1;
@@ -96,11 +96,6 @@ private:
     void drawFloatField(const char *msg, float value, int txt_x, int txt_y, int width, int font_color, int bg_color);
 
 public:
-    uint8_t *init_fire_off;
-    uint8_t *init_fire_on;
-    uint8_t *pumps_off;
-    uint8_t *pumps_on;
-
     Display();
     void printStatus(const char *status);
 

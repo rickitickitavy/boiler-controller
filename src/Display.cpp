@@ -25,11 +25,6 @@ Display::Display() {
     tft->setTextColor(0xff00, 0x00ff);
     tft->fillScreen(COLOR_BACKGROUND);
 
-//    init_fire_off = loadImage("/img/init_fire_off.bmp", 74, 77);
-//    init_fire_on = loadImage("/img/init_fire_on.bmp", 74, 77);
-//    pumps_off = loadImage("/img/pumps_off.bmp", 86, 62);
-//    pumps_on = loadImage("/img/pumps_on.bmp", 86, 62);
-
     defaultDisplayBuffer = new DisplayBuffer(UI_PAGE_0_SIZE_GAUGE_WIDTH, UI_PAGE_0_SIZE_GAUGE_HEIGHT);
     // core temperature
     gauge_core_tempr = new Gauge(tft, "Core T (C)", 0, 0, UI_PAGE_0_SIZE_GAUGE_WIDTH, UI_PAGE_0_SIZE_GAUGE_HEIGHT,
@@ -165,6 +160,15 @@ Display::Display() {
                               UI_PAGE_0_COLOR_GAUGE_BACKGROUND);
 
     button_pumps->defaultDisplayBuffer = defaultDisplayBuffer;
+
+    button_init_fire = new Button(tft,
+                              378,
+                              (UI_PAGE_0_SIZE_GAUGE_HEIGHT + 3) * 1,
+                              100, UI_PAGE_0_SIZE_GAUGE_HEIGHT,
+                              "/img/init_fire_on.bmp", "/img/init_fire_off.bmp", 74, 77,
+                              UI_PAGE_0_COLOR_GAUGE_BACKGROUND);
+
+    button_init_fire->defaultDisplayBuffer = defaultDisplayBuffer;
 }
 
 void Display::printStatus(const char *status) {
@@ -231,6 +235,7 @@ void Display::drawGauges() {
     gauge_core_power->draw();
     gauge_power->draw();
     button_pumps->draw();
+    button_init_fire->draw();
 }
 
 void Display::initScreen0() {

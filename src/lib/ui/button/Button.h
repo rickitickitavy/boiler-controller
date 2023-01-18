@@ -26,6 +26,7 @@ private:
     int icon_width;
     int icon_height;
     bool state;
+    bool need_redraw;
 
 public:
     int graph_width = BUTTON_GRAPH_DEFAULT_WIDTH;
