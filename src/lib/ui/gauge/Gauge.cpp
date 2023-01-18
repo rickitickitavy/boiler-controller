@@ -2,8 +2,8 @@
 // Created by dsporykhin on 12.01.23.
 //
 
-#include <lib/bufferedGraphics/DisplayBuffer.h>
 #include <lib/adafruit/gfxfont.h>
+#include <lib/ui/bufferedGraphics/DisplayBuffer.h>
 #include "lib/adafruit/Fonts/FreeSans12pt7b.h"
 #include "Gauge.h"
 
@@ -17,8 +17,8 @@ Gauge::Gauge(ILI9488 *display, const char *title, int x, int y, int width, int h
     this->width = width;
     this->height = height;
 
-    this->bg_color = bg_color;
-    this->font_color = font_color;
+    this->bg_color = DisplayBuffer::color24To16(bg_color);
+    this->font_color = DisplayBuffer::color24To16(font_color);
     this->font = font ? font : &FreeSans12pt7b;
     this->display_decimal_digits_count = display_decimal_digits_count;
 

@@ -2,14 +2,15 @@
 // Created by dsporykhin on 24.07.22.
 //
 
-#include <lib/bufferedGraphics/DisplayBuffer.h>
+#include <SPIFFS.h>
+#include <lib/ui/bufferedGraphics/DisplayBuffer.h>
 #include "Display.h"
 #include "Defines.h"
 #include "lib/adafruit/Fonts/FreeSans12pt7b.h"
 #include "lib/adafruit/Fonts/FreeSerif9pt7b.h"
 #include "lib/adafruit/Fonts/FreeMono12pt7b.h"
 #include "HeaterController.h"
-#include "Gauge.h"
+#include "lib/ui/gauge/Gauge.h"
 
 Display::Display() {
     telemetry_initialized = false;
@@ -24,133 +25,146 @@ Display::Display() {
     tft->setTextColor(0xff00, 0x00ff);
     tft->fillScreen(COLOR_BACKGROUND);
 
+//    init_fire_off = loadImage("/img/init_fire_off.bmp", 74, 77);
+//    init_fire_on = loadImage("/img/init_fire_on.bmp", 74, 77);
+//    pumps_off = loadImage("/img/pumps_off.bmp", 86, 62);
+//    pumps_on = loadImage("/img/pumps_on.bmp", 86, 62);
+
     defaultDisplayBuffer = new DisplayBuffer(UI_PAGE_0_SIZE_GAUGE_WIDTH, UI_PAGE_0_SIZE_GAUGE_HEIGHT);
     // core temperature
     gauge_core_tempr = new Gauge(tft, "Core T (C)", 0, 0, UI_PAGE_0_SIZE_GAUGE_WIDTH, UI_PAGE_0_SIZE_GAUGE_HEIGHT,
-                                 tft->color24To16(UI_PAGE_0_COLOR_GAUGE_BACKGROUND),
-                                 0xffffff, NULL, 2, 40, 103, new ColorPart(UI_COLOR_GAUGE_BLUE, 55,
+                                 UI_PAGE_0_COLOR_GAUGE_BACKGROUND, 0xffffff, NULL, 2, 40, 103, new ColorPart(UI_COLOR_GAUGE_BLUE, 55,
                                                                            new ColorPart(UI_COLOR_GAUGE_GREEN, 90,
-                                                                                         new ColorPart(UI_COLOR_GAUGE_YELLOW,
+                                                                                         new ColorPart(
+                                                                                                 UI_COLOR_GAUGE_YELLOW,
                                                                                                  96, new ColorPart(
                                                                                                          UI_COLOR_GAUGE_RED,
                                                                                                          0, NULL)))));
     gauge_core_tempr->defaultDisplayBuffer = defaultDisplayBuffer;
-//    gauge_core_tempr->setValue(30);
 
     // core power
     gauge_core_power = new Gauge(tft, "Core P(W)", (UI_PAGE_0_SIZE_GAUGE_WIDTH + 3), 0, UI_PAGE_0_SIZE_GAUGE_WIDTH,
                                  UI_PAGE_0_SIZE_GAUGE_HEIGHT,
-                                 tft->color24To16(UI_PAGE_0_COLOR_GAUGE_BACKGROUND),
+                                 UI_PAGE_0_COLOR_GAUGE_BACKGROUND,
                                  0xffffff, NULL, 0, 3000, 45000, new ColorPart(UI_COLOR_GAUGE_BLUE, 15000,
                                                                                new ColorPart(UI_COLOR_GAUGE_GREEN,
                                                                                              35000,
-                                                                                             new ColorPart(UI_COLOR_GAUGE_YELLOW,
+                                                                                             new ColorPart(
+                                                                                                     UI_COLOR_GAUGE_YELLOW,
                                                                                                      43000,
                                                                                                      new ColorPart(
                                                                                                              UI_COLOR_GAUGE_RED,
                                                                                                              0,
                                                                                                              NULL)))));
     gauge_core_power->defaultDisplayBuffer = defaultDisplayBuffer;
-//    gauge_core_power->setValue(23000);
 
     // warming tempr
     gauge_warm_flow_tempr = new Gauge(tft, "Warm T(C)", (UI_PAGE_0_SIZE_GAUGE_WIDTH + 3) * 2, 0,
                                       UI_PAGE_0_SIZE_GAUGE_WIDTH, UI_PAGE_0_SIZE_GAUGE_HEIGHT,
-                                      tft->color24To16(UI_PAGE_0_COLOR_GAUGE_BACKGROUND),
+                                      UI_PAGE_0_COLOR_GAUGE_BACKGROUND,
                                       0xffffff, NULL, 2, 30, 90, new ColorPart(UI_COLOR_GAUGE_BLUE, 50,
                                                                                new ColorPart(UI_COLOR_GAUGE_GREEN, 75,
-                                                                                             new ColorPart(UI_COLOR_GAUGE_YELLOW,
+                                                                                             new ColorPart(
+                                                                                                     UI_COLOR_GAUGE_YELLOW,
                                                                                                      83, new ColorPart(
                                                                                                              UI_COLOR_GAUGE_RED,
                                                                                                              0,
                                                                                                              NULL)))));
     gauge_acc_top_tempr->defaultDisplayBuffer = defaultDisplayBuffer;
-//    gauge_acc_top_tempr->setValue(55);
 
     // core output flow tempr
     gauge_core_output_tempr = new Gauge(tft, "Output T", (UI_PAGE_0_SIZE_GAUGE_WIDTH + 3) * 0,
                                         (UI_PAGE_0_SIZE_GAUGE_HEIGHT + 3) * 1, UI_PAGE_0_SIZE_GAUGE_WIDTH,
                                         UI_PAGE_0_SIZE_GAUGE_HEIGHT,
-                                        tft->color24To16(UI_PAGE_0_COLOR_GAUGE_BACKGROUND),
+                                        UI_PAGE_0_COLOR_GAUGE_BACKGROUND,
                                         0xffffff, NULL, 2, 40, 105, new ColorPart(UI_COLOR_GAUGE_BLUE, 60,
                                                                                   new ColorPart(UI_COLOR_GAUGE_GREEN,
                                                                                                 87,
-                                                                                                new ColorPart(UI_COLOR_GAUGE_YELLOW,
+                                                                                                new ColorPart(
+                                                                                                        UI_COLOR_GAUGE_YELLOW,
                                                                                                         96,
                                                                                                         new ColorPart(
                                                                                                                 UI_COLOR_GAUGE_RED,
                                                                                                                 0,
                                                                                                                 NULL)))));
     gauge_core_output_tempr->defaultDisplayBuffer = defaultDisplayBuffer;
-//    gauge_core_output_tempr->setValue(68);
-
 
     // power balance
     gauge_power_balance = new Gauge(tft, "Pwr P(kW)", (UI_PAGE_0_SIZE_GAUGE_WIDTH + 3) * 1,
                                     (UI_PAGE_0_SIZE_GAUGE_HEIGHT + 3) * 1, UI_PAGE_0_SIZE_GAUGE_WIDTH,
                                     UI_PAGE_0_SIZE_GAUGE_HEIGHT,
-                                    tft->color24To16(UI_PAGE_0_COLOR_GAUGE_BACKGROUND),
+                                    UI_PAGE_0_COLOR_GAUGE_BACKGROUND,
                                     0xffffff, NULL, 1, -20, 40, new ColorPart(UI_COLOR_GAUGE_BLUE, 0,
-                                                                              new ColorPart(UI_COLOR_GAUGE_RED, 0, NULL)));
+                                                                              new ColorPart(UI_COLOR_GAUGE_RED, 0,
+                                                                                            NULL)));
     gauge_power_balance->defaultDisplayBuffer = defaultDisplayBuffer;
-//    gauge_power_balance->setValue(-4);
 
 
     // acc top
     gauge_acc_top_tempr = new Gauge(tft, "Top T(C)", (UI_PAGE_0_SIZE_GAUGE_WIDTH + 3) * 2,
                                     (UI_PAGE_0_SIZE_GAUGE_HEIGHT + 3) * 1, UI_PAGE_0_SIZE_GAUGE_WIDTH,
                                     UI_PAGE_0_SIZE_GAUGE_HEIGHT,
-                                    tft->color24To16(UI_PAGE_0_COLOR_GAUGE_BACKGROUND),
+                                    UI_PAGE_0_COLOR_GAUGE_BACKGROUND,
                                     0xffffff, NULL, 2, 30, 90, new ColorPart(UI_COLOR_GAUGE_BLUE, 45,
                                                                              new ColorPart(UI_COLOR_GAUGE_GREEN, 75,
-                                                                                           new ColorPart(UI_COLOR_GAUGE_YELLOW,
+                                                                                           new ColorPart(
+                                                                                                   UI_COLOR_GAUGE_YELLOW,
                                                                                                    80, new ColorPart(
                                                                                                            UI_COLOR_GAUGE_RED,
                                                                                                            0, NULL)))));
     gauge_acc_top_tempr->defaultDisplayBuffer = defaultDisplayBuffer;
-//    gauge_acc_top_tempr->setValue(68);
 
     // input flow tempr
     gauge_core_input_tempr = new Gauge(tft, "Input T", (UI_PAGE_0_SIZE_GAUGE_WIDTH + 3) * 0,
                                        (UI_PAGE_0_SIZE_GAUGE_HEIGHT + 3) * 2, UI_PAGE_0_SIZE_GAUGE_WIDTH,
                                        UI_PAGE_0_SIZE_GAUGE_HEIGHT,
-                                       tft->color24To16(UI_PAGE_0_COLOR_GAUGE_BACKGROUND),
+                                       UI_PAGE_0_COLOR_GAUGE_BACKGROUND,
                                        0xffffff, NULL, 2, 30, 85, new ColorPart(UI_COLOR_GAUGE_BLUE, 50,
                                                                                 new ColorPart(UI_COLOR_GAUGE_GREEN, 75,
-                                                                                              new ColorPart(UI_COLOR_GAUGE_YELLOW,
+                                                                                              new ColorPart(
+                                                                                                      UI_COLOR_GAUGE_YELLOW,
                                                                                                       83, new ColorPart(
                                                                                                               UI_COLOR_GAUGE_RED,
-                                                                                                              0, NULL)))));
+                                                                                                              0,
+                                                                                                              NULL)))));
     gauge_core_input_tempr->defaultDisplayBuffer = defaultDisplayBuffer;
-//    gauge_core_input_tempr->setValue(54);
 
     // accumulated power
     gauge_power = new Gauge(tft, "Energy kWh", (UI_PAGE_0_SIZE_GAUGE_WIDTH + 3) * 1,
-                                       (UI_PAGE_0_SIZE_GAUGE_HEIGHT + 3) * 2, UI_PAGE_0_SIZE_GAUGE_WIDTH,
-                                       UI_PAGE_0_SIZE_GAUGE_HEIGHT,
-                                       tft->color24To16(UI_PAGE_0_COLOR_GAUGE_BACKGROUND),
-                                       0xffffff, NULL, 2, -15, 70, new ColorPart(UI_COLOR_GAUGE_BLUE, 0,
-                                                                                new ColorPart(UI_COLOR_GAUGE_GREEN, 56,
-                                                                                              new ColorPart(UI_COLOR_GAUGE_YELLOW,
-                                                                                                      65, new ColorPart(
-                                                                                                              UI_COLOR_GAUGE_RED,
-                                                                                                              0, NULL)))));
+                            (UI_PAGE_0_SIZE_GAUGE_HEIGHT + 3) * 2, UI_PAGE_0_SIZE_GAUGE_WIDTH,
+                            UI_PAGE_0_SIZE_GAUGE_HEIGHT,
+                            UI_PAGE_0_COLOR_GAUGE_BACKGROUND,
+                            0xffffff, NULL, 2, -15, 70, new ColorPart(UI_COLOR_GAUGE_BLUE, 0,
+                                                                      new ColorPart(UI_COLOR_GAUGE_GREEN, 56,
+                                                                                    new ColorPart(UI_COLOR_GAUGE_YELLOW,
+                                                                                                  65, new ColorPart(
+                                                                                                    UI_COLOR_GAUGE_RED,
+                                                                                                    0, NULL)))));
     gauge_power->defaultDisplayBuffer = defaultDisplayBuffer;
-//    gauge_power->setValue(23.567);
 
     // acc bottom
     gauge_acc_bottom_tempr = new Gauge(tft, "Bottom T", (UI_PAGE_0_SIZE_GAUGE_WIDTH + 3) * 2,
-                                    (UI_PAGE_0_SIZE_GAUGE_HEIGHT + 3) * 2, UI_PAGE_0_SIZE_GAUGE_WIDTH,
-                                    UI_PAGE_0_SIZE_GAUGE_HEIGHT,
-                                    tft->color24To16(UI_PAGE_0_COLOR_GAUGE_BACKGROUND),
-                                    0xffffff, NULL, 2, 30, 80, new ColorPart(UI_COLOR_GAUGE_BLUE, 35,
-                                                                             new ColorPart(UI_COLOR_GAUGE_GREEN, 68,
-                                                                                           new ColorPart(UI_COLOR_GAUGE_YELLOW,
-                                                                                                   75, new ColorPart(
-                                                                                                           UI_COLOR_GAUGE_RED,
-                                                                                                           0, NULL)))));
+                                       (UI_PAGE_0_SIZE_GAUGE_HEIGHT + 3) * 2, UI_PAGE_0_SIZE_GAUGE_WIDTH,
+                                       UI_PAGE_0_SIZE_GAUGE_HEIGHT,
+                                       UI_PAGE_0_COLOR_GAUGE_BACKGROUND,
+                                       0xffffff, NULL, 2, 30, 80, new ColorPart(UI_COLOR_GAUGE_BLUE, 35,
+                                                                                new ColorPart(UI_COLOR_GAUGE_GREEN, 68,
+                                                                                              new ColorPart(
+                                                                                                      UI_COLOR_GAUGE_YELLOW,
+                                                                                                      75, new ColorPart(
+                                                                                                              UI_COLOR_GAUGE_RED,
+                                                                                                              0,
+                                                                                                              NULL)))));
     gauge_acc_bottom_tempr->defaultDisplayBuffer = defaultDisplayBuffer;
-//    gauge_acc_bottom_tempr->setValue(56);
+
+    button_pumps = new Button(tft,
+                              378,
+                              (UI_PAGE_0_SIZE_GAUGE_HEIGHT + 3) * 0,
+                              100, UI_PAGE_0_SIZE_GAUGE_HEIGHT,
+                              "/img/pumps_on.bmp", "/img/pumps_off.bmp", 86, 62,
+                              UI_PAGE_0_COLOR_GAUGE_BACKGROUND);
+
+    button_pumps->defaultDisplayBuffer = defaultDisplayBuffer;
 }
 
 void Display::printStatus(const char *status) {
@@ -216,6 +230,7 @@ void Display::drawGauges() {
     gauge_acc_top_tempr->draw();
     gauge_core_power->draw();
     gauge_power->draw();
+    button_pumps->draw();
 }
 
 void Display::initScreen0() {
@@ -227,34 +242,45 @@ void Display::initScreen0() {
         drawScreen0(&savedDataRecord);
 }
 
-void Display::drawScreen0(TelemetryDataRecord *telemetryDataRecord) {
+uint8_t *Display::loadImage(const char *file_name, uint16_t width, uint16_t height) {
+    uint8_t *buffer;
+    File file = SPIFFS.open(file_name, "r");
+    if (!file)
+        Serial.println("Failed to open the file");
+    else {
+        buffer = (uint8_t *) malloc(width * height * 2);
 
-LOGGER.info("drawScreen0 1");
-Serial.flush();
+        if (!buffer) {
+            Serial.print("Buffer allocation error for file ");
+            Serial.println(file_name);
+
+        } else
+            for (int row = height - 1; row >= 0; row--) {
+                file.readBytes((char *) &buffer[row * 2 * width], width * 2);
+            }
+    }
+    file.close();
+    return buffer;
+}
+
+void Display::drawScreen0(TelemetryDataRecord *telemetryDataRecord) {
 
     gauge_core_tempr->setValue(telemetryDataRecord->core_temp_sma);
     gauge_core_power->setValue(telemetryDataRecord->core_EMA_power);
     gauge_warm_flow_tempr->setValue(telemetryDataRecord->forwar_flow_temp_sma);
 
-LOGGER.info("drawScreen0 2");
-Serial.flush();
     gauge_core_output_tempr->setValue(telemetryDataRecord->output_temp_sma);
-
-LOGGER.info("drawScreen0 3");
-Serial.flush();
     if (telemetryDataRecord->power_balance_ready)
         gauge_power_balance->setValue(telemetryDataRecord->power_balance_kwt_hour);
 
     gauge_acc_top_tempr->setValue(telemetryDataRecord->accumulator_top_temp_sma);
-LOGGER.info("drawScreen0 4");
-Serial.flush();
 
     gauge_core_input_tempr->setValue(telemetryDataRecord->input_temp_sma);
     gauge_power->setValue(telemetryDataRecord->accumulated_energy_kwt_hour);
     gauge_acc_bottom_tempr->setValue(telemetryDataRecord->accumulator_bottom_temp_sma);
 
-LOGGER.info("before drawGauges");
-Serial.flush();
+    button_pumps->setState(telemetryDataRecord->pump_1_state || telemetryDataRecord->pump_2_state);
+
     drawGauges();
 
 //    char buffer[30];

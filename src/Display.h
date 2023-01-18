@@ -34,7 +34,7 @@
 
 #define UI_PAGE_0_COLOR_MAIN_BACKGROUND ILI9488_BLACK
 #define UI_PAGE_0_COLOR_GAUGE_BACKGROUND 0x444444
-#define UI_PAGE_0_SIZE_GAUGE_WIDTH 128
+#define UI_PAGE_0_SIZE_GAUGE_WIDTH 123
 #define UI_PAGE_0_SIZE_GAUGE_HEIGHT 100
 
 #define UI_COLOR_GAUGE_GREEN 0x009815
@@ -48,11 +48,12 @@
 
 // 217 255 203
 #include <lib/adafruit/ILI9488.h>
+#include <lib/ui/button/Button.h>
 #include "lib/adafruit/Adafruit_GFX.h"
 #include "lib/adafruit/Adafruit_ST7789.h"
 #include "lib/adafruit/Fonts/FreeMonoBoldOblique18pt7b.h"
 #include "Telemetry.h"
-#include "Gauge.h"
+#include "lib/ui/gauge/Gauge.h"
 
 class Display {
 private:
@@ -77,8 +78,13 @@ private:
     Gauge *gauge_power;
     Gauge *gauge_acc_bottom_tempr;
 
+    Button *button_pumps;
+    Button *button_init_fire;
+
     DisplayBuffer *defaultDisplayBuffer;
 
+
+    uint8_t *loadImage(const char *file_name, uint16_t width, uint16_t height);
 
     void drawScreen0(TelemetryDataRecord *telemetryDataRecord);
     void drawPumpState(int index, bool is_on);
@@ -90,6 +96,11 @@ private:
     void drawFloatField(const char *msg, float value, int txt_x, int txt_y, int width, int font_color, int bg_color);
 
 public:
+    uint8_t *init_fire_off;
+    uint8_t *init_fire_on;
+    uint8_t *pumps_off;
+    uint8_t *pumps_on;
+
     Display();
     void printStatus(const char *status);
 

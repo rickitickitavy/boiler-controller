@@ -8,26 +8,14 @@
 
 #include "lib/adafruit/gfxfont.h"
 #include "lib/adafruit/ILI9488.h"
-#include "lib/bufferedGraphics/DisplayBuffer.h"
+#include <lib/ui/bufferedGraphics/DisplayBuffer.h>
+#include <lib/ui/bufferedGraphics/ui_struct.h>
 
 #define GAUGE_GRAPH_MARGIN_BOTTOM 10
 #define GAUGE_GRAPH_MARGIN_TOP 2
 #define GAUGE_GRAPH_MARGIN_LF_RG 4
 #define GAUGE_GRAPH_DEFAULT_WIDTH 15
 #define GAUGE_GRAPH_ARROW_ANGLE (PI / 15)
-
-struct ColorPart {
-    uint16_t color;
-    float ends_at;
-    ColorPart *next; // if next is NULL then this part extends to the end
-    ColorPart(int color,
-              float ends_at,
-              ColorPart *next) {
-        this->next = next;
-        this->ends_at = ends_at;
-        this->color = DisplayBuffer::color24To16(color);
-    }
-};
 
 class Gauge {
 private:

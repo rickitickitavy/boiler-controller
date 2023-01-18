@@ -14,13 +14,11 @@
 #include <lib/adafruit/Fonts/Org_01.h>
 #include <esp_task_wdt.h>
 #include <lib/math/Intervals.h>
-#include <lib/bufferedGraphics/DisplayBuffer.h>
 #include "Logger.h"
 #include "SettingsManager.h"
 #include "ArduinoOTA.h"
 #include "WiFiController.h"
 #include "Display.h"
-#include "Gauge.h"
 
 SettingsManager *settingsManager;
 WiFiController *wiFiController;
@@ -31,7 +29,7 @@ DisplayButtonController *displayButtonController;
 
 long lastTimeDisplayed;
 
-void towDeviceInfo(const char *msg) {
+void twoDeviceInfo(const char *msg) {
     LOGGER.info(msg);
     display->printStatus(msg);
 
@@ -42,7 +40,7 @@ long last_wdt_reset = 0;
 void reset_wdt() {
     if (millis() - last_wdt_reset > 3000) {
         last_wdt_reset = millis();
-//        esp_task_wdt_reset();
+        esp_task_wdt_reset();
         digitalWrite(5, LOW);
         delay(1);
         digitalWrite(5, HIGH);
@@ -62,38 +60,47 @@ void setup() {
 
     display = new Display();
 
-//    esp_task_wdt_init(25, true); //enable panic so ESP32 restarts
-//    esp_task_wdt_add(NULL); //add current thread to WDT watch
 
-    towDeviceInfo("Starting...");
+    esp_task_wdt_init(25, true); //enable panic so ESP32 restarts
+    esp_task_wdt_add(NULL); //add current thread to WDT watch
+
+    twoDeviceInfo("Starting...");
     settingsManager = new SettingsManager();
 
-    towDeviceInfo("starting DS18D20...");
+    twoDeviceInfo("starting DS18D20...");
     sensorController = new SensorController(ONE_WIRE_PIN, settingsManager);
     settingsManager->getNavigator()->setSensorList(sensorController->buildSensorsList());
 
-    towDeviceInfo("Starting I2C");
+    twoDeviceInfo("Starting I2C");
     Wire.begin(21, 22);
     Wire.setClock(400000);
 
-    towDeviceInfo("Starting heater controller...");
+    twoDeviceInfo("Starting heater controller...");
     heaterController = new HeaterController(settingsManager->getSettings(), sensorController,
                                             settingsManager->getNavigator());
 
-    towDeviceInfo("Mounting internal flash...");
-    if (!SPIFFS.begin(false)) {
+//    display->getTft()->drawImage(display->init_fire_off, 10, 10, 74, 77);
+//    display->getTft()->drawImage(display->init_fire_on, 10, 100, 74, 77);
+//    display->getTft()->drawImage(display->pumps_off, 100, 10, 86, 62);
+//    display->getTft()->drawImage(display->pumps_on, 100, 100, 86, 62);
+
+
+    LOGGER.info("Mounting internal flash...");
+    if (!SPIFFS.begin(false, "/spiffs", 5)) {
         LOGGER.error(" Mount Failed");
-    }
+    } else
+    LOGGER.error("   mounted");
+
 
     reset_wdt();
-    towDeviceInfo("starting WiFi...");
+    twoDeviceInfo("starting WiFi...");
     wiFiController = new WiFiController(settingsManager);
 
-    towDeviceInfo("starting HeaterController...");
+    twoDeviceInfo("starting HeaterController...");
     wiFiController->setHeaterController(heaterController);
 
     reset_wdt();
-    towDeviceInfo("starting OTA");
+    twoDeviceInfo("starting OTA");
     ArduinoOTA.onStart([]() {
         ILI9488 *tft = display->getTft();
         tft->fillScreen(COLOR_BACKGROUND);
@@ -116,14 +123,14 @@ void setup() {
     });
     ArduinoOTA.begin();
 
-    towDeviceInfo("start displayBtn controller");
+    twoDeviceInfo("start displayBtn controller");
     displayButtonController = new DisplayButtonController(heaterController, display);
 
     LOGGER.info("lib has " + String(settingsManager->getNavigator()->getParamDescriptorCounter()));
     delay(500);
 
     reset_wdt();
-    towDeviceInfo("all done");
+    twoDeviceInfo("all done");
 
     display->setScreenIndex(0);
     lastTimeDisplayed = 0;
