@@ -459,15 +459,19 @@ bool TouchDisplayController::read_x_y(uint16_t &x, uint16_t &y) {
 
     for (int i = 0; i < BUTTON_DETECT_X_Y_COUNT; i++) {
         if (touch->isTouching()) {
-            succ_count++;
             uint16_t _x_t, _y_t;
             touch->getPosition(_x_t, _y_t);
-            _x += _x_t;
-            _y += _y_t;
+            if ((_x_t <= 480) && (_y_t <=320)) {
+                _x += _x_t;
+                _y += _y_t;
+                succ_count++;
+            }
         }
     }
-    x = _x / succ_count;
-    y = _y / succ_count;
+    if (succ_count > 0) {
+        x = _x / succ_count;
+        y = _y / succ_count;
+    }
 
     bool succ = ((float) succ_count / (float) BUTTON_DETECT_X_Y_COUNT > 0.7);
     return succ;
