@@ -4,34 +4,25 @@
 #include <Wire.h>
 #include <HardwareSerial.h>
 #include <SPIFFS.h>
-#include <SD.h>
-#include <DisplayButtonController.h>
-#include <lib/adafruit/Fonts/FreeSerif12pt7b.h>
-#include <lib/adafruit/Fonts/FreeSans12pt7b.h>
-#include <lib/adafruit/Fonts/FreeMono12pt7b.h>
-#include <lib/adafruit/Fonts/TomThumb.h>
-#include <lib/adafruit/Fonts/Picopixel.h>
-#include <lib/adafruit/Fonts/Org_01.h>
 #include <esp_task_wdt.h>
-#include <lib/math/Intervals.h>
 #include "Logger.h"
 #include "SettingsManager.h"
 #include "ArduinoOTA.h"
 #include "WiFiController.h"
-#include "Display.h"
+#include "TouchDisplayController.h"
 
 SettingsManager *settingsManager;
 WiFiController *wiFiController;
 SensorController *sensorController;
 HeaterController *heaterController;
-Display *display;
-DisplayButtonController *displayButtonController;
+TouchDisplayController *touchDisplayController;
+//TouchController *displayButtonController;
 
 long lastTimeDisplayed;
 
 void twoDeviceInfo(const char *msg) {
     LOGGER.info(msg);
-    display->printStatus(msg);
+    touchDisplayController->printStatus(msg);
 
 }
 
@@ -58,8 +49,7 @@ void setup() {
     pinMode(5, OUTPUT);
     reset_wdt();
 
-    display = new Display();
-
+    touchDisplayController = new TouchDisplayController();
 
     esp_task_wdt_init(25, true); //enable panic so ESP32 restarts
     esp_task_wdt_add(NULL); //add current thread to WDT watch
@@ -78,6 +68,8 @@ void setup() {
     twoDeviceInfo("Starting heater controller...");
     heaterController = new HeaterController(settingsManager->getSettings(), sensorController,
                                             settingsManager->getNavigator());
+
+    touchDisplayController->setHeaterController(heaterController);
 
 //    display->getTft()->drawImage(display->init_fire_off, 10, 10, 74, 77);
 //    display->getTft()->drawImage(display->init_fire_on, 10, 100, 74, 77);
@@ -102,14 +94,14 @@ void setup() {
     reset_wdt();
     twoDeviceInfo("starting OTA");
     ArduinoOTA.onStart([]() {
-        ILI9488 *tft = display->getTft();
+        ILI9488 *tft = touchDisplayController->getTft();
         tft->fillScreen(COLOR_BACKGROUND);
         tft->setCursor(10, 60);
         tft->print("OTA Updating...");
         LOGGER.info("OTA begins...");
     });
     ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-        ILI9488 *tft = display->getTft();
+        ILI9488 *tft = touchDisplayController->getTft();
 
         tft->fillRect(0, 120, 318, 100, COLOR_BACKGROUND);
         tft->setCursor(10, 160);
@@ -118,13 +110,13 @@ void setup() {
         reset_wdt();
     });
     ArduinoOTA.onError([](ota_error_t error) {
-        display->setScreenIndex(0);
-        display->drawScreen();
+        touchDisplayController->setScreenIndex(0);
+        touchDisplayController->drawScreen();
     });
     ArduinoOTA.begin();
 
     twoDeviceInfo("start displayBtn controller");
-    displayButtonController = new DisplayButtonController(heaterController, display);
+//    displayButtonController = new TouchController(heaterController, display);
 
     LOGGER.info("lib has " + String(settingsManager->getNavigator()->getParamDescriptorCounter()));
     delay(500);
@@ -132,7 +124,7 @@ void setup() {
     reset_wdt();
     twoDeviceInfo("all done");
 
-    display->setScreenIndex(0);
+    touchDisplayController->setScreenIndex(0);
     lastTimeDisplayed = 0;
     LOGGER.info("display->setScreenIndex(0) done ");
     delay(500);
@@ -141,7 +133,7 @@ void setup() {
 void loop() {
     ArduinoOTA.handle();
     wiFiController->checkConnection();
-    displayButtonController->handle();
+    touchDisplayController->handle();
     reset_wdt();
 
     if (((heaterController->handle()) && !heaterController->isModelling())
@@ -154,7 +146,7 @@ void loop() {
 //        LOGGER.info("before display->updateInfo(telemetryDataRecord)");
 //        Serial.flush();
 //
-        display->updateInfo(telemetryDataRecord);
+        touchDisplayController->updateInfo(telemetryDataRecord);
 //
 //        LOGGER.info("after display->updateInfo(telemetryDataRecord)");
 //        Serial.flush();

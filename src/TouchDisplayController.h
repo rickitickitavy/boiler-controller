@@ -2,8 +2,8 @@
 // Created by dsporykhin on 24.07.22.
 //
 
-#ifndef BASE_ESP8266_MQTT_DISPLAY_H
-#define BASE_ESP8266_MQTT_DISPLAY_H
+#ifndef BASE_ESP8266_MQTT_TouchDisplayController_H
+#define BASE_ESP8266_MQTT_TouchDisplayController_H
 
 #define SCREEN_COLOR_GRAY 0x8410
 #define SCREEN_COLOR_LIGHT_GRAY 0xCE79
@@ -42,6 +42,10 @@
 #define UI_COLOR_GAUGE_YELLOW 0xFFB32F
 #define UI_COLOR_GAUGE_RED 0x00ff0000
 
+#define BUTTON_DELAY_ANTI_BUZZLE 370
+#define BUTTON_DETECT_X_Y_COUNT 20
+#define BUTTONS_MAX_COUNT 10
+
 //1111 1    111 111    1 1111
 //1111 1    011 111    0 1111
 //0000 0    110 000    0 1001
@@ -54,10 +58,18 @@
 #include "lib/adafruit/Fonts/FreeMonoBoldOblique18pt7b.h"
 #include "Telemetry.h"
 #include "lib/ui/gauge/Gauge.h"
+#include "HeaterController.h"
+#include <lib/xpt2046/xpt2046.h>
 
-class Display {
+
+class TouchDisplayController {
 protected:
+    HeaterController *heaterController;
+
     ILI9488 *tft;
+    XPT2046 *touch;
+
+    uint16_t _touch_x, _touch_y;
 
     int screen_index = -1;
     TelemetryDataRecord savedDataRecord;
@@ -84,6 +96,15 @@ protected:
     DisplayBuffer *defaultDisplayBuffer;
 
 
+    long last_state_changed_at;
+    bool button_pressed;
+
+    Button *_buttons[BUTTONS_MAX_COUNT];
+    int _buttons_count;
+
+    void handleTouchAction(DisplayButtonEvent event);
+    bool read_x_y(uint16_t &x, uint16_t &y);
+
     uint8_t *loadImage(const char *file_name, uint16_t width, uint16_t height);
 
     void drawScreen0(TelemetryDataRecord *telemetryDataRecord);
@@ -95,8 +116,13 @@ protected:
     void drawIntField(const char *msg, int value, int txt_x, int txt_y, int width, int font_color, int bg_color);
     void drawFloatField(const char *msg, float value, int txt_x, int txt_y, int width, int font_color, int bg_color);
 
+    static void initFireButtonAction(DisplayButtonEvent event);
+    void addButton(Button *button);
+
 public:
-    Display();
+    TouchDisplayController();
+    void handle();
+
     void printStatus(const char *status);
 
     void setScreenIndex(int index);
@@ -105,7 +131,9 @@ public:
     void updateInfo(TelemetryDataRecord *telemetryDataRecord);
 
     ILI9488 *getTft();
+
+    void setHeaterController(HeaterController *heaterController);
 };
 
 
-#endif //BASE_ESP8266_MQTT_DISPLAY_H
+#endif //BASE_ESP8266_MQTT_TouchDisplayController_H

@@ -4,7 +4,8 @@
 
 #include <SPIFFS.h>
 #include <lib/ui/bufferedGraphics/DisplayBuffer.h>
-#include "Display.h"
+#include <lib/xpt2046/xpt2046.h>
+#include "TouchDisplayController.h"
 #include "Defines.h"
 #include "lib/adafruit/Fonts/FreeSans12pt7b.h"
 #include "lib/adafruit/Fonts/FreeSerif9pt7b.h"
@@ -12,7 +13,8 @@
 #include "HeaterController.h"
 #include "lib/ui/gauge/Gauge.h"
 
-Display::Display() {
+TouchDisplayController::TouchDisplayController() {
+
     telemetry_initialized = false;
     tft = new ILI9488(DISPLAY_CS_PIN, DISPLAY_DC_PIN, DISPLAY_RST_PIN);
     tft->begin();
@@ -25,16 +27,25 @@ Display::Display() {
     tft->setTextColor(0xff00, 0x00ff);
     tft->fillScreen(COLOR_BACKGROUND);
 
+    touch = new XPT2046(TOUCH_CS, TOUCH_PEN);
+    touch->begin(320, 480);  // Must be done before setting rotation
+    touch->setCalibration(181, 249, 1840, 1800);
+    touch->setRotation(touch->ROT90);
+
+    button_pressed = false;
+    _buttons_count = 0;
+
     defaultDisplayBuffer = new DisplayBuffer(UI_PAGE_0_SIZE_GAUGE_WIDTH, UI_PAGE_0_SIZE_GAUGE_HEIGHT);
     // core temperature
     gauge_core_tempr = new Gauge(tft, "Core T (C)", 0, 0, UI_PAGE_0_SIZE_GAUGE_WIDTH, UI_PAGE_0_SIZE_GAUGE_HEIGHT,
-                                 UI_PAGE_0_COLOR_GAUGE_BACKGROUND, 0xffffff, NULL, 2, 40, 103, new ColorPart(UI_COLOR_GAUGE_BLUE, 55,
-                                                                           new ColorPart(UI_COLOR_GAUGE_GREEN, 90,
-                                                                                         new ColorPart(
-                                                                                                 UI_COLOR_GAUGE_YELLOW,
-                                                                                                 96, new ColorPart(
-                                                                                                         UI_COLOR_GAUGE_RED,
-                                                                                                         0, NULL)))));
+                                 UI_PAGE_0_COLOR_GAUGE_BACKGROUND, 0xffffff, NULL, 2, 40, 103,
+                                 new ColorPart(UI_COLOR_GAUGE_BLUE, 55,
+                                               new ColorPart(UI_COLOR_GAUGE_GREEN, 90,
+                                                             new ColorPart(
+                                                                     UI_COLOR_GAUGE_YELLOW,
+                                                                     96, new ColorPart(
+                                                                             UI_COLOR_GAUGE_RED,
+                                                                             0, NULL)))));
     gauge_core_tempr->defaultDisplayBuffer = defaultDisplayBuffer;
 
     // core power
@@ -65,7 +76,7 @@ Display::Display() {
                                                                                                              UI_COLOR_GAUGE_RED,
                                                                                                              0,
                                                                                                              NULL)))));
-    gauge_acc_top_tempr->defaultDisplayBuffer = defaultDisplayBuffer;
+    gauge_warm_flow_tempr->defaultDisplayBuffer = defaultDisplayBuffer;
 
     // core output flow tempr
     gauge_core_output_tempr = new Gauge(tft, "Output T", (UI_PAGE_0_SIZE_GAUGE_WIDTH + 3) * 0,
@@ -162,22 +173,44 @@ Display::Display() {
     button_pumps->defaultDisplayBuffer = defaultDisplayBuffer;
 
     button_init_fire = new Button(tft,
-                              378,
-                              (UI_PAGE_0_SIZE_GAUGE_HEIGHT + 3) * 1,
-                              100, UI_PAGE_0_SIZE_GAUGE_HEIGHT,
-                              "/img/init_fire_on.bmp", "/img/init_fire_off.bmp", 74, 77,
-                              UI_PAGE_0_COLOR_GAUGE_BACKGROUND);
+                                  378,
+                                  (UI_PAGE_0_SIZE_GAUGE_HEIGHT + 3) * 1,
+                                  100, UI_PAGE_0_SIZE_GAUGE_HEIGHT,
+                                  "/img/init_fire_on.bmp", "/img/init_fire_off.bmp", 74, 77,
+                                  UI_PAGE_0_COLOR_GAUGE_BACKGROUND);
 
     button_init_fire->defaultDisplayBuffer = defaultDisplayBuffer;
+    button_init_fire->action = initFireButtonAction;
+    addButton(button_init_fire);
 }
 
-void Display::printStatus(const char *status) {
+void TouchDisplayController::setHeaterController(HeaterController *heaterController) {
+    this->heaterController = heaterController;
+}
+
+void TouchDisplayController::initFireButtonAction(DisplayButtonEvent event) {
+    if (event == DisplayButtonEvent::DOWN)
+        LOGGER.info("init fire down");
+
+//    if (((heaterController->getTelemetryRecord()->heaterMode == STAND_BY))
+//        || (heaterController->getTelemetryRecord()->heaterMode == FINAL_COOLING)) {
+//        if (heaterController->isOxygenDoorOpenedForATime()) {
+//            heaterController->closeOxygenDoor();
+//            _buttons[button_index]->setState(false);
+//        }
+//        else {
+//            heaterController->openOxygenDoorForTime(900);
+//            _buttons[button_index]->setState(true);
+//        }
+
+    }
+
+void TouchDisplayController::printStatus(const char *status) {
     tft->setTextColor(SCREEN_COLOR_LIGHT_RED);
     tft->println(status);
 }
 
-void Display::updateInfo(TelemetryDataRecord *telemetryDataRecord) {
-    LOGGER.info("drawScreen0(telemetryDataRecord)");
+void TouchDisplayController::updateInfo(TelemetryDataRecord *telemetryDataRecord) {
     Serial.flush();
 
     drawScreen0(telemetryDataRecord);
@@ -185,7 +218,7 @@ void Display::updateInfo(TelemetryDataRecord *telemetryDataRecord) {
     telemetry_initialized = true;
 }
 
-void Display::drawScreen() {
+void TouchDisplayController::drawScreen() {
     switch (screen_index) {
         case 0:
             drawScreen0(&savedDataRecord);
@@ -193,7 +226,7 @@ void Display::drawScreen() {
     }
 }
 
-void Display::setScreenIndex(int index) {
+void TouchDisplayController::setScreenIndex(int index) {
     if (screen_index != index) {
         screen_index = index;
         switch (screen_index) {
@@ -204,27 +237,29 @@ void Display::setScreenIndex(int index) {
     }
 }
 
-void Display::drawFloatField(const char *msg, float value, int txt_x, int txt_y, int width, int font_color,
-                             int bg_color) {
+void
+TouchDisplayController::drawFloatField(const char *msg, float value, int txt_x, int txt_y, int width, int font_color,
+                                       int bg_color) {
     char buffer[32];
     sprintf(buffer, msg, value);
     drawField(buffer, txt_x, txt_y, width, font_color, bg_color);
 }
 
-void Display::drawIntField(const char *msg, int value, int txt_x, int txt_y, int width, int font_color, int bg_color) {
+void TouchDisplayController::drawIntField(const char *msg, int value, int txt_x, int txt_y, int width, int font_color,
+                                          int bg_color) {
     char buffer[32];
     sprintf(buffer, msg, value);
     drawField(buffer, txt_x, txt_y, width, font_color, bg_color);
 }
 
-void Display::drawField(const char *msg, int txt_x, int txt_y, int width, int font_color, int bg_color) {
+void TouchDisplayController::drawField(const char *msg, int txt_x, int txt_y, int width, int font_color, int bg_color) {
     tft->fillRect(txt_x, txt_y - 17, width, 19, bg_color);
     tft->setCursor(txt_x, txt_y);
     tft->setTextColor(font_color);
     tft->print(msg);
 }
 
-void Display::drawGauges() {
+void TouchDisplayController::drawGauges() {
     gauge_core_tempr->draw();
     gauge_acc_bottom_tempr->draw();
     gauge_warm_flow_tempr->draw();
@@ -238,7 +273,7 @@ void Display::drawGauges() {
     button_init_fire->draw();
 }
 
-void Display::initScreen0() {
+void TouchDisplayController::initScreen0() {
     tft->fillScreen(UI_PAGE_0_COLOR_MAIN_BACKGROUND);
 
     drawGauges();
@@ -247,7 +282,7 @@ void Display::initScreen0() {
         drawScreen0(&savedDataRecord);
 }
 
-uint8_t *Display::loadImage(const char *file_name, uint16_t width, uint16_t height) {
+uint8_t *TouchDisplayController::loadImage(const char *file_name, uint16_t width, uint16_t height) {
     uint8_t *buffer;
     File file = SPIFFS.open(file_name, "r");
     if (!file)
@@ -268,7 +303,7 @@ uint8_t *Display::loadImage(const char *file_name, uint16_t width, uint16_t heig
     return buffer;
 }
 
-void Display::drawScreen0(TelemetryDataRecord *telemetryDataRecord) {
+void TouchDisplayController::drawScreen0(TelemetryDataRecord *telemetryDataRecord) {
 
     gauge_core_tempr->setValue(telemetryDataRecord->core_temp_sma);
     gauge_core_power->setValue(telemetryDataRecord->core_EMA_power);
@@ -403,6 +438,71 @@ void Display::drawScreen0(TelemetryDataRecord *telemetryDataRecord) {
 //    tft->fillTriangle(x + 4 + index * 45, y - 7, x - 10 + index * 45, y, x + 4 + index * 45, y + 7, outer_color);
 }
 
-ILI9488 *Display::getTft() {
+ILI9488 *TouchDisplayController::getTft() {
     return tft;
 }
+
+bool TouchDisplayController::read_x_y(uint16_t &x, uint16_t &y) {
+    Serial.println("enter to read_x_y");
+    uint16_t succ_count = 0;
+    uint16_t _x = 0;
+    uint16_t _y = 0;
+
+    for (int i = 0; i < BUTTON_DETECT_X_Y_COUNT; i++) {
+        if (touch->isTouching()) {
+            succ_count++;
+            uint16_t _x_t, _y_t;
+            touch->getPosition(_x_t, _y_t);
+            _x += _x_t;
+            _y += _y_t;
+        }
+    }
+    x = _x / succ_count;
+    y = _y / succ_count;
+
+    Serial.println("result read_x_y x=" + String(x) + ", y = " + String(y) + ", succ_count = " + String(succ_count));
+
+    bool succ = ((float) succ_count / (float) BUTTON_DETECT_X_Y_COUNT > 0.7);
+    return succ;
+}
+
+void TouchDisplayController::addButton(Button *button) {
+    if (_buttons_count < BUTTONS_MAX_COUNT) {
+        _buttons[_buttons_count++] = button;
+    }
+}
+
+void TouchDisplayController::handleTouchAction(DisplayButtonEvent event) {
+    for (int button_index = 0; button_index < _buttons_count; button_index++) {
+        uint16_t b_x, b_y, b_w, b_h;
+        _buttons[button_index]->getXY(b_x, b_y);
+        _buttons[button_index]->getWH(b_w, b_h);
+        if ((_touch_x >= b_x) && (_touch_x <= (b_x + b_w)) && (_touch_y >= b_y) && (_touch_y <= (b_y + b_h)))
+            if (_buttons[button_index]->action)
+                _buttons[button_index]->action(event);
+    }
+}
+
+void TouchDisplayController::handle() {
+    if (touch->isTouching()) {
+        // touch screen was touched
+        if (!button_pressed) {
+            if ((millis() - last_state_changed_at) > BUTTON_DELAY_ANTI_BUZZLE) {
+                // first touch
+                button_pressed = read_x_y(_touch_x, _touch_y);
+                if (button_pressed)
+                    handleTouchAction(DisplayButtonEvent::DOWN);
+                last_state_changed_at = millis();
+            }
+        }
+    } else {
+        // touch screen is not touched
+        if (button_pressed) {
+            // touch screen was released
+            button_pressed = false;
+            last_state_changed_at = millis();
+            handleTouchAction(DisplayButtonEvent::UP);
+        }
+    }
+}
+

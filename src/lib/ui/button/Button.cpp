@@ -12,7 +12,6 @@ Button::Button(ILI9488 *display, int x, int y, int width, int height,
                const char *icon_file_name_on, const char *icon_file_name_off, int icon_width, int icon_height,
                int bg_color) {
 
-
     this->icon_file_name_on = icon_file_name_on;
     this->icon_file_name_off = icon_file_name_off;
     this->icon_width = icon_width;
@@ -20,8 +19,8 @@ Button::Button(ILI9488 *display, int x, int y, int width, int height,
 
     this->x = x;
     this->y = y;
-    this->width = width;
-    this->height = height;
+    this->_width = width;
+    this->_height = height;
 
     this->bg_color = DisplayBuffer::color24To16(bg_color);
     this->display = display;
@@ -44,7 +43,7 @@ void Button::draw() {
         return;
     need_redraw = false;
 
-    DisplayBuffer *displayBuffer = defaultDisplayBuffer ? defaultDisplayBuffer : new DisplayBuffer(width, height);
+    DisplayBuffer *displayBuffer = defaultDisplayBuffer ? defaultDisplayBuffer : new DisplayBuffer(_width, _height);
     displayBuffer->fillScreen(bg_color);
 
 
@@ -62,23 +61,33 @@ void Button::draw() {
         return;
     }
 
-    int x_icon = (width - icon_width) >> 1;
+    int x_icon = (_width - icon_width) >> 1;
     int y_icon = BUTTON_GRAPH_MARGIN_TOP + icon_height;
-    int shift = y_icon * width + x_icon;
+    int shift = y_icon * _width + x_icon;
 
     Serial.println("free mem = " + String(esp_get_free_heap_size()));
 
-    for (int row = height - 1; row >= 0; row--) {
+    for (int row = _height - 1; row >= 0; row--) {
         file.readBytes((char *) &displayBuffer->buffer[shift], icon_width * 2);
-        shift -= width;
+        shift -= _width;
     }
 
     file.close();
 
-    display->drawImage((uint8_t*)displayBuffer->buffer, x, y, width, height);
+    display->drawImage((uint8_t*)displayBuffer->buffer, x, y, _width, _height);
     if (!defaultDisplayBuffer) {
         displayBuffer->freeBuffer();
         free(displayBuffer);
     }
 
+}
+
+void Button::getXY(uint16_t &x, uint16_t &y) {
+    x = this->x;
+    y = this->y;
+}
+
+void Button::getWH(uint16_t &w, uint16_t &h) {
+    w = _width;
+    h = _height;
 }
