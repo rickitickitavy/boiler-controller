@@ -13,7 +13,10 @@
 #include "HeaterController.h"
 #include "lib/ui/gauge/Gauge.h"
 
+TouchDisplayController *TouchDisplayController::instance;
+
 TouchDisplayController::TouchDisplayController() {
+    instance = this;
 
     telemetry_initialized = false;
     tft = new ILI9488(DISPLAY_CS_PIN, DISPLAY_DC_PIN, DISPLAY_RST_PIN);
@@ -32,7 +35,9 @@ TouchDisplayController::TouchDisplayController() {
     touch->setCalibration(181, 249, 1840, 1800);
     touch->setRotation(touch->ROT90);
 
-    button_pressed = false;
+    _need_redraw = false;
+
+    screen_touched = false;
     _buttons_count = 0;
 
     defaultDisplayBuffer = new DisplayBuffer(UI_PAGE_0_SIZE_GAUGE_WIDTH, UI_PAGE_0_SIZE_GAUGE_HEIGHT);
@@ -182,6 +187,7 @@ TouchDisplayController::TouchDisplayController() {
     button_init_fire->defaultDisplayBuffer = defaultDisplayBuffer;
     button_init_fire->action = initFireButtonAction;
     addButton(button_init_fire);
+    screen_index = -1;
 }
 
 void TouchDisplayController::setHeaterController(HeaterController *heaterController) {
@@ -189,21 +195,23 @@ void TouchDisplayController::setHeaterController(HeaterController *heaterControl
 }
 
 void TouchDisplayController::initFireButtonAction(DisplayButtonEvent event) {
-    if (event == DisplayButtonEvent::DOWN)
-        LOGGER.info("init fire down");
+    if (event == DisplayButtonEvent::DOWN) {
 
-//    if (((heaterController->getTelemetryRecord()->heaterMode == STAND_BY))
-//        || (heaterController->getTelemetryRecord()->heaterMode == FINAL_COOLING)) {
-//        if (heaterController->isOxygenDoorOpenedForATime()) {
-//            heaterController->closeOxygenDoor();
-//            _buttons[button_index]->setState(false);
-//        }
-//        else {
-//            heaterController->openOxygenDoorForTime(900);
-//            _buttons[button_index]->setState(true);
-//        }
+        HeaterController *heaterController = instance->heaterController;
 
+        if (((heaterController->getTelemetryRecord()->heaterMode == STAND_BY))
+            || (heaterController->getTelemetryRecord()->heaterMode == FINAL_COOLING)) {
+            if (heaterController->isOxygenDoorOpenedForATime()) {
+                heaterController->closeOxygenDoor();
+                instance->button_init_fire->setState(false);
+            } else {
+                heaterController->openOxygenDoorForTime(900);
+                instance->button_init_fire->setState(true);
+            }
+            instance->dirty();
+        }
     }
+}
 
 void TouchDisplayController::printStatus(const char *status) {
     tft->setTextColor(SCREEN_COLOR_LIGHT_RED);
@@ -211,14 +219,13 @@ void TouchDisplayController::printStatus(const char *status) {
 }
 
 void TouchDisplayController::updateInfo(TelemetryDataRecord *telemetryDataRecord) {
-    Serial.flush();
-
-    drawScreen0(telemetryDataRecord);
     memcpy(&this->savedDataRecord, telemetryDataRecord, sizeof(TelemetryDataRecord));
     telemetry_initialized = true;
+    drawScreen();
 }
 
 void TouchDisplayController::drawScreen() {
+    _need_redraw = false;
     switch (screen_index) {
         case 0:
             drawScreen0(&savedDataRecord);
@@ -238,21 +245,24 @@ void TouchDisplayController::setScreenIndex(int index) {
 }
 
 void
-TouchDisplayController::drawFloatField(const char *msg, float value, int txt_x, int txt_y, int width, int font_color,
+TouchDisplayController::drawFloatField(const char *msg, float value, int txt_x, int txt_y, int width,
+                                       int font_color,
                                        int bg_color) {
     char buffer[32];
     sprintf(buffer, msg, value);
     drawField(buffer, txt_x, txt_y, width, font_color, bg_color);
 }
 
-void TouchDisplayController::drawIntField(const char *msg, int value, int txt_x, int txt_y, int width, int font_color,
-                                          int bg_color) {
+void
+TouchDisplayController::drawIntField(const char *msg, int value, int txt_x, int txt_y, int width, int font_color,
+                                     int bg_color) {
     char buffer[32];
     sprintf(buffer, msg, value);
     drawField(buffer, txt_x, txt_y, width, font_color, bg_color);
 }
 
-void TouchDisplayController::drawField(const char *msg, int txt_x, int txt_y, int width, int font_color, int bg_color) {
+void
+TouchDisplayController::drawField(const char *msg, int txt_x, int txt_y, int width, int font_color, int bg_color) {
     tft->fillRect(txt_x, txt_y - 17, width, 19, bg_color);
     tft->setCursor(txt_x, txt_y);
     tft->setTextColor(font_color);
@@ -304,7 +314,6 @@ uint8_t *TouchDisplayController::loadImage(const char *file_name, uint16_t width
 }
 
 void TouchDisplayController::drawScreen0(TelemetryDataRecord *telemetryDataRecord) {
-
     gauge_core_tempr->setValue(telemetryDataRecord->core_temp_sma);
     gauge_core_power->setValue(telemetryDataRecord->core_EMA_power);
     gauge_warm_flow_tempr->setValue(telemetryDataRecord->forwar_flow_temp_sma);
@@ -320,6 +329,7 @@ void TouchDisplayController::drawScreen0(TelemetryDataRecord *telemetryDataRecor
     gauge_acc_bottom_tempr->setValue(telemetryDataRecord->accumulator_bottom_temp_sma);
 
     button_pumps->setState(telemetryDataRecord->pump_1_state || telemetryDataRecord->pump_2_state);
+    button_init_fire->setState(heaterController->isOxygenDoorOpenedForATime());
 
     drawGauges();
 
@@ -443,7 +453,6 @@ ILI9488 *TouchDisplayController::getTft() {
 }
 
 bool TouchDisplayController::read_x_y(uint16_t &x, uint16_t &y) {
-    Serial.println("enter to read_x_y");
     uint16_t succ_count = 0;
     uint16_t _x = 0;
     uint16_t _y = 0;
@@ -459,8 +468,6 @@ bool TouchDisplayController::read_x_y(uint16_t &x, uint16_t &y) {
     }
     x = _x / succ_count;
     y = _y / succ_count;
-
-    Serial.println("result read_x_y x=" + String(x) + ", y = " + String(y) + ", succ_count = " + String(succ_count));
 
     bool succ = ((float) succ_count / (float) BUTTON_DETECT_X_Y_COUNT > 0.7);
     return succ;
@@ -478,31 +485,39 @@ void TouchDisplayController::handleTouchAction(DisplayButtonEvent event) {
         _buttons[button_index]->getXY(b_x, b_y);
         _buttons[button_index]->getWH(b_w, b_h);
         if ((_touch_x >= b_x) && (_touch_x <= (b_x + b_w)) && (_touch_y >= b_y) && (_touch_y <= (b_y + b_h)))
-            if (_buttons[button_index]->action)
+            if (_buttons[button_index]->action) {
                 _buttons[button_index]->action(event);
+            }
     }
 }
 
 void TouchDisplayController::handle() {
     if (touch->isTouching()) {
         // touch screen was touched
-        if (!button_pressed) {
-            if ((millis() - last_state_changed_at) > BUTTON_DELAY_ANTI_BUZZLE) {
+        if (!screen_touched) {
+            if ((millis() - last_touch_state_changed_at) > BUTTON_DELAY_ANTI_BUZZLE) {
                 // first touch
-                button_pressed = read_x_y(_touch_x, _touch_y);
-                if (button_pressed)
+                screen_touched = read_x_y(_touch_x, _touch_y);
+                if (screen_touched)
                     handleTouchAction(DisplayButtonEvent::DOWN);
-                last_state_changed_at = millis();
+                last_touch_state_changed_at = millis();
             }
         }
     } else {
         // touch screen is not touched
-        if (button_pressed) {
+        if (screen_touched) {
             // touch screen was released
-            button_pressed = false;
-            last_state_changed_at = millis();
+            screen_touched = false;
+            last_touch_state_changed_at = millis();
             handleTouchAction(DisplayButtonEvent::UP);
         }
     }
 }
 
+void TouchDisplayController::dirty() {
+    _need_redraw = true;
+}
+
+bool TouchDisplayController::isDirty() {
+    return _need_redraw;
+}

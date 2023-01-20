@@ -19,10 +19,6 @@ private:
 
     void init();
 
-//    String getTextErrorStatus();
-
-//    void tryToConnect();
-
     void initNTP();
 
     WiFiUDP *ntpUDP;
@@ -36,6 +32,7 @@ public:
     void setApMode(IPAddress *ipAddress);
     bool isClientConnected();
     void setHeaterController(HeaterController *heaterController);
+    WebServerController *getWebServerController();
 };
 
 extern WiFiController *wiFiController;

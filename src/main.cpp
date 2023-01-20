@@ -71,22 +71,16 @@ void setup() {
 
     touchDisplayController->setHeaterController(heaterController);
 
-//    display->getTft()->drawImage(display->init_fire_off, 10, 10, 74, 77);
-//    display->getTft()->drawImage(display->init_fire_on, 10, 100, 74, 77);
-//    display->getTft()->drawImage(display->pumps_off, 100, 10, 86, 62);
-//    display->getTft()->drawImage(display->pumps_on, 100, 100, 86, 62);
-
-
     LOGGER.info("Mounting internal flash...");
     if (!SPIFFS.begin(false, "/spiffs", 5)) {
         LOGGER.error(" Mount Failed");
     } else
     LOGGER.error("   mounted");
 
-
     reset_wdt();
     twoDeviceInfo("starting WiFi...");
     wiFiController = new WiFiController(settingsManager);
+    wiFiController->getWebServerController()->setTouchDisplayController(touchDisplayController);
 
     twoDeviceInfo("starting HeaterController...");
     wiFiController->setHeaterController(heaterController);
@@ -116,7 +110,6 @@ void setup() {
     ArduinoOTA.begin();
 
     twoDeviceInfo("start displayBtn controller");
-//    displayButtonController = new TouchController(heaterController, display);
 
     LOGGER.info("lib has " + String(settingsManager->getNavigator()->getParamDescriptorCounter()));
     delay(500);
@@ -142,13 +135,9 @@ void loop() {
 
         lastTimeDisplayed = millis();
         TelemetryDataRecord *telemetryDataRecord = heaterController->getTelemetryRecord();
-//
-//        LOGGER.info("before display->updateInfo(telemetryDataRecord)");
-//        Serial.flush();
-//
+
         touchDisplayController->updateInfo(telemetryDataRecord);
-//
-//        LOGGER.info("after display->updateInfo(telemetryDataRecord)");
-//        Serial.flush();
     }
+    if (touchDisplayController->isDirty())
+        touchDisplayController->drawScreen();
 }

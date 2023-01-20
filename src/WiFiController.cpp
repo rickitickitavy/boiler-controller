@@ -132,6 +132,10 @@ void WiFiController::setHeaterController(HeaterController *heaterController) {
     this->serverController->heaterController = heaterController;
 }
 
+WebServerController *WiFiController::getWebServerController() {
+    return serverController;
+}
+
 bool WiFiController::isClientConnected() {
     return WiFi.isConnected();
 }

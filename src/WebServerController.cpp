@@ -17,6 +17,11 @@ String PROFILES_PARAMETER_ATTR_NAME = "parameter";
 
 SettingsManager *WebServerController::settingsManager;
 HeaterController *WebServerController::heaterController;
+TouchDisplayController *WebServerController::touchDisplayController;
+
+void WebServerController::setTouchDisplayController(TouchDisplayController *touchDisplayController) {
+    this->touchDisplayController = touchDisplayController;
+}
 
 WebServerController::WebServerController(SettingsManager *settingsManager) {
     WebServerController::settingsManager = settingsManager;
@@ -167,7 +172,6 @@ void WebServerController::startModelling(AsyncWebServerRequest *request) {
         request->send(200, TEXT_JSON, OK_RESPONSE_JSON);
     } else
         request->send(200, TEXT_JSON, "{\"status\":0, \"error\":\"heaterController is not initialized\"}");
-
 }
 //----------------------------------------------------------------------
 
@@ -184,6 +188,7 @@ void WebServerController::openDoorFor15Min(AsyncWebServerRequest *request) {
     if (heaterController) {
         heaterController->openOxygenDoorForTime(900);
         request->send(200, TEXT_JSON, OK_RESPONSE_JSON);
+        touchDisplayController->dirty();
     } else
         request->send(200, TEXT_JSON, "{\"status\":0, \"error\":\"heaterController is not initialized\"}");
 
@@ -194,6 +199,7 @@ void WebServerController::closeDoor(AsyncWebServerRequest *request) {
     if (heaterController) {
         heaterController->closeOxygenDoor();
         request->send(200, TEXT_JSON, OK_RESPONSE_JSON);
+        touchDisplayController->dirty();
     } else
         request->send(200, TEXT_JSON, "{\"status\":0, \"error\":\"heaterController is not initialized\"}");
 

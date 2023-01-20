@@ -64,6 +64,7 @@
 
 class TouchDisplayController {
 protected:
+    static TouchDisplayController *instance;
     HeaterController *heaterController;
 
     ILI9488 *tft;
@@ -95,9 +96,10 @@ protected:
 
     DisplayBuffer *defaultDisplayBuffer;
 
+    bool _need_redraw;
 
-    long last_state_changed_at;
-    bool button_pressed;
+    long last_touch_state_changed_at;
+    bool screen_touched;
 
     Button *_buttons[BUTTONS_MAX_COUNT];
     int _buttons_count;
@@ -133,6 +135,10 @@ public:
     ILI9488 *getTft();
 
     void setHeaterController(HeaterController *heaterController);
+
+    void dirty();
+
+    bool isDirty();
 };
 
 

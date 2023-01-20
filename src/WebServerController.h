@@ -18,15 +18,19 @@
 #include "lib/ESPAsyncWebServer/ESPAsyncWebServer.h"
 #include "SettingsManager.h"
 #include "HeaterController.h"
+#include "TouchDisplayController.h"
 
 class WebServerController {
 private:
     AsyncWebServer* webServer;
+    static TouchDisplayController *touchDisplayController;
 public:
     static SettingsManager* settingsManager;
     static HeaterController *heaterController;
 
     WebServerController(SettingsManager* settingsManager);
+
+    void setTouchDisplayController(TouchDisplayController *touchDisplayController);
 
     static String systemSettingsProcessor(const String& paramName);
 
