@@ -14,6 +14,11 @@ SettingsManager::SettingsManager(){
     EEPROM.begin(4096);
     LOGGER.info("Load settings...");
     readSettings();
+
+    LOGGER.info("------------------ read ------------- ");
+    LOGGER.info("      scan_interval_ms: " + String(settings.heaterSettings.scan_interval_ms));
+    LOGGER.info("      SMA_temperature_period_sec: " + String(settings.heaterSettings.temperatureSettings.SMA_temperature_period_sec));
+
     LOGGER.info("b0 = " + String((byte)settings.initMarker[0]));
     LOGGER.info("b1 = " + String((byte)settings.initMarker[1]));
     LOGGER.info("b2 = " + String((byte)settings.initMarker[2]));
@@ -280,6 +285,8 @@ void SettingsManager::logSettings() {
     LOGGER.info("      server has born topic: " + String(settings.mqttServerBornTopic));
 
     LOGGER.info("   sensors: ");
+    LOGGER.info("      scan_interval_ms: " + String(settings.heaterSettings.scan_interval_ms));
+    LOGGER.info("      SMA_temperature_period_sec: " + String(settings.heaterSettings.temperatureSettings.SMA_temperature_period_sec));
     LOGGER.info("      heater: ");
 
     char buffer[SENSORS_ADDR_SIZE * 2 + 1];

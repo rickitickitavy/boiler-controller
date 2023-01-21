@@ -33,7 +33,9 @@
 #define COLOR_ACCUMULATED SCREEN_LIGHT_ORANGE
 
 #define UI_PAGE_0_COLOR_MAIN_BACKGROUND ILI9488_BLACK
-#define UI_PAGE_0_COLOR_GAUGE_BACKGROUND 0x444444
+#define UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL 0x444444
+#define UI_PAGE_0_COLOR_GAUGE_BACKGROUND_ERROR 0x67000D
+#define UI_PAGE_0_COLOR_GAUGE_BACKGROUND_OPENED 0xFF4444
 #define UI_PAGE_0_SIZE_GAUGE_WIDTH 123
 #define UI_PAGE_0_SIZE_GAUGE_HEIGHT 100
 
@@ -88,7 +90,7 @@ protected:
 
     // row 3
     Gauge *gauge_core_input_tempr;
-    Gauge *gauge_power;
+    Gauge *gauge_accumulated_energy;
     Gauge *gauge_acc_bottom_tempr;
 
     Button *button_pumps;

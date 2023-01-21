@@ -110,6 +110,20 @@ void HeaterController::collectTelemetry(long last_cycle_length) {
     telemetryDataRecord.backward_flow_temp_sma = (float) sensorController->getNotNANSmaValue(
             T_SENS_INDEX_BACKWARD_FLOW);
 
+    telemetryDataRecord.sensor_data_ready[T_SENS_INDEX_CORE] = sensorController->sensor_data[T_SENS_INDEX_CORE].data_ready;
+    telemetryDataRecord.sensor_data_ready[T_SENS_INDEX_OUTPUT_FLOW] = sensorController->sensor_data[T_SENS_INDEX_OUTPUT_FLOW].data_ready;
+    telemetryDataRecord.sensor_data_ready[T_SENS_INDEX_INPUT_FLOW] = sensorController->sensor_data[T_SENS_INDEX_INPUT_FLOW].data_ready;
+
+    telemetryDataRecord.sensor_data_ready[T_SENS_INDEX_ACC_MID_HI] = sensorController->sensor_data[T_SENS_INDEX_ACC_MID_HI].data_ready;
+    telemetryDataRecord.sensor_data_ready[T_SENS_INDEX_ACC_MID_LO] = sensorController->sensor_data[T_SENS_INDEX_ACC_MID_LO].data_ready;
+    telemetryDataRecord.sensor_data_ready[T_SENS_INDEX_ACC_BOTTOM] = sensorController->sensor_data[T_SENS_INDEX_ACC_BOTTOM].data_ready;
+    telemetryDataRecord.sensor_data_ready[T_SENS_INDEX_ACC_TOP] = sensorController->sensor_data[T_SENS_INDEX_ACC_TOP].data_ready;
+
+    telemetryDataRecord.sensor_data_ready[T_SENS_INDEX_FORWARD_FLOW] = sensorController->sensor_data[T_SENS_INDEX_FORWARD_FLOW].data_ready;
+    telemetryDataRecord.sensor_data_ready[T_SENS_INDEX_BACKWARD_FLOW] = sensorController->sensor_data[T_SENS_INDEX_BACKWARD_FLOW].data_ready;
+
+    telemetryDataRecord.sensor_data_ready[T_SENS_INDEX_INTERNAL] = sensorController->sensor_data[T_SENS_INDEX_INTERNAL].data_ready;
+
     telemetryDataRecord.avarage_backward_flow = 0;
     telemetryDataRecord.core_power = (float) mainCoreParams.current_core_power;
     telemetryDataRecord.core_EMA_power = (float) mainCoreParams.core_EMA_power;

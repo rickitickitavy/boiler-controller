@@ -21,7 +21,6 @@ class Gauge {
 private:
     ILI9488 *display;
     int width, height;
-    int bg_color, font_color;
     const GFXfont *font;
     int display_decimal_digits_count;
 
@@ -34,12 +33,14 @@ private:
 
     int base_radius;
     int half_arc_len;
+    int bg_color, font_color;
 
 
 public:
     int graph_width = GAUGE_GRAPH_DEFAULT_WIDTH;
     int x, y;
     const char *title;
+
     DisplayBuffer *defaultDisplayBuffer = nullptr;
 
     Gauge(ILI9488 *display, const char *title, int x, int y, int width, int height, int bg_color, int font_color, GFXfont *font,
@@ -50,6 +51,8 @@ public:
     float getValue();
 
     void draw();
+
+    void setBgColor(int color);
 };
 
 

@@ -38,6 +38,10 @@ Gauge::Gauge(ILI9488 *display, const char *title, int x, int y, int width, int h
     initialized = false;
 }
 
+void Gauge::setBgColor(int color) {
+    bg_color = DisplayBuffer::color24To16(color);
+}
+
 float Gauge::getValue() {
     return value;
 }

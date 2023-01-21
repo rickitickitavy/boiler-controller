@@ -23,6 +23,8 @@ SensorController::SensorController(int one_wire_pin, SettingsManager *settingsMa
     char addr_ascii_hex_buffer[SENSORS_ADDR_SIZE * 2 + 1];
     String sens_addr;
 
+    LOGGER.info("   found " + String(found_sensors_count) + " sensors.");
+
     for (int termo_index = 0; termo_index < found_sensors_count; termo_index++) {
         dallasTemperature->getAddress(&found_sensors_addr[termo_index * SENSORS_ADDR_SIZE], termo_index);
         Converter::bytesToAsciiHex(addr_ascii_hex_buffer, &found_sensors_addr[termo_index * SENSORS_ADDR_SIZE],
@@ -34,8 +36,11 @@ SensorController::SensorController(int one_wire_pin, SettingsManager *settingsMa
 
     // SMA for all sensors values
     smaSensors = (Sma **) malloc(sizeof(Sma *) * MAX_SENSORS_COUNT);
+
     int intervals = settingsManager->getSettings()->heaterSettings.temperatureSettings.SMA_temperature_period_sec * 1000
-                    / settingsManager->getSettings()->heaterSettings.scan_interval_ms + 1;
+                            / settingsManager->getSettings()->heaterSettings.scan_interval_ms + 1;
+    LOGGER.info("   SMA intervals = " + String(intervals));
+
     for (int index = 0; index < MAX_SENSORS_COUNT; index++)
         smaSensors[index] = new Sma(intervals);
 

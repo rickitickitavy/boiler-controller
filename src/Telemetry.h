@@ -63,6 +63,7 @@ struct TelemetryDataRecord{
     float power_balance_kwt_hour;
     bool power_balance_ready;
     int flags;
+    bool sensor_data_ready[MAX_SENSORS_COUNT];
 };
 
 class Telemetry {

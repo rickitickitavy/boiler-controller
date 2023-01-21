@@ -53,6 +53,7 @@ public:
     void draw();
     void getXY(uint16_t &x, uint16_t &y);
     void getWH(uint16_t &w, uint16_t &h);
+    void setBgColor(int color);
 };
 
 

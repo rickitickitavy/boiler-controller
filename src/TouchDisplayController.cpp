@@ -43,7 +43,7 @@ TouchDisplayController::TouchDisplayController() {
     defaultDisplayBuffer = new DisplayBuffer(UI_PAGE_0_SIZE_GAUGE_WIDTH, UI_PAGE_0_SIZE_GAUGE_HEIGHT);
     // core temperature
     gauge_core_tempr = new Gauge(tft, "Core T (C)", 0, 0, UI_PAGE_0_SIZE_GAUGE_WIDTH, UI_PAGE_0_SIZE_GAUGE_HEIGHT,
-                                 UI_PAGE_0_COLOR_GAUGE_BACKGROUND, 0xffffff, NULL, 2, 40, 103,
+                                 UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL, 0xffffff, NULL, 2, 40, 103,
                                  new ColorPart(UI_COLOR_GAUGE_BLUE, 55,
                                                new ColorPart(UI_COLOR_GAUGE_GREEN, 90,
                                                              new ColorPart(
@@ -56,7 +56,7 @@ TouchDisplayController::TouchDisplayController() {
     // core power
     gauge_core_power = new Gauge(tft, "Core P(W)", (UI_PAGE_0_SIZE_GAUGE_WIDTH + 3), 0, UI_PAGE_0_SIZE_GAUGE_WIDTH,
                                  UI_PAGE_0_SIZE_GAUGE_HEIGHT,
-                                 UI_PAGE_0_COLOR_GAUGE_BACKGROUND,
+                                 UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL,
                                  0xffffff, NULL, 0, 3000, 45000, new ColorPart(UI_COLOR_GAUGE_BLUE, 15000,
                                                                                new ColorPart(UI_COLOR_GAUGE_GREEN,
                                                                                              35000,
@@ -72,7 +72,7 @@ TouchDisplayController::TouchDisplayController() {
     // warming tempr
     gauge_warm_flow_tempr = new Gauge(tft, "Warm T(C)", (UI_PAGE_0_SIZE_GAUGE_WIDTH + 3) * 2, 0,
                                       UI_PAGE_0_SIZE_GAUGE_WIDTH, UI_PAGE_0_SIZE_GAUGE_HEIGHT,
-                                      UI_PAGE_0_COLOR_GAUGE_BACKGROUND,
+                                      UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL,
                                       0xffffff, NULL, 2, 30, 90, new ColorPart(UI_COLOR_GAUGE_BLUE, 50,
                                                                                new ColorPart(UI_COLOR_GAUGE_GREEN, 75,
                                                                                              new ColorPart(
@@ -87,7 +87,7 @@ TouchDisplayController::TouchDisplayController() {
     gauge_core_output_tempr = new Gauge(tft, "Output T", (UI_PAGE_0_SIZE_GAUGE_WIDTH + 3) * 0,
                                         (UI_PAGE_0_SIZE_GAUGE_HEIGHT + 3) * 1, UI_PAGE_0_SIZE_GAUGE_WIDTH,
                                         UI_PAGE_0_SIZE_GAUGE_HEIGHT,
-                                        UI_PAGE_0_COLOR_GAUGE_BACKGROUND,
+                                        UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL,
                                         0xffffff, NULL, 2, 40, 105, new ColorPart(UI_COLOR_GAUGE_BLUE, 60,
                                                                                   new ColorPart(UI_COLOR_GAUGE_GREEN,
                                                                                                 87,
@@ -104,7 +104,7 @@ TouchDisplayController::TouchDisplayController() {
     gauge_power_balance = new Gauge(tft, "Pwr P(kW)", (UI_PAGE_0_SIZE_GAUGE_WIDTH + 3) * 1,
                                     (UI_PAGE_0_SIZE_GAUGE_HEIGHT + 3) * 1, UI_PAGE_0_SIZE_GAUGE_WIDTH,
                                     UI_PAGE_0_SIZE_GAUGE_HEIGHT,
-                                    UI_PAGE_0_COLOR_GAUGE_BACKGROUND,
+                                    UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL,
                                     0xffffff, NULL, 1, -20, 40, new ColorPart(UI_COLOR_GAUGE_BLUE, 0,
                                                                               new ColorPart(UI_COLOR_GAUGE_RED, 0,
                                                                                             NULL)));
@@ -115,7 +115,7 @@ TouchDisplayController::TouchDisplayController() {
     gauge_acc_top_tempr = new Gauge(tft, "Top T(C)", (UI_PAGE_0_SIZE_GAUGE_WIDTH + 3) * 2,
                                     (UI_PAGE_0_SIZE_GAUGE_HEIGHT + 3) * 1, UI_PAGE_0_SIZE_GAUGE_WIDTH,
                                     UI_PAGE_0_SIZE_GAUGE_HEIGHT,
-                                    UI_PAGE_0_COLOR_GAUGE_BACKGROUND,
+                                    UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL,
                                     0xffffff, NULL, 2, 30, 90, new ColorPart(UI_COLOR_GAUGE_BLUE, 45,
                                                                              new ColorPart(UI_COLOR_GAUGE_GREEN, 75,
                                                                                            new ColorPart(
@@ -129,7 +129,7 @@ TouchDisplayController::TouchDisplayController() {
     gauge_core_input_tempr = new Gauge(tft, "Input T", (UI_PAGE_0_SIZE_GAUGE_WIDTH + 3) * 0,
                                        (UI_PAGE_0_SIZE_GAUGE_HEIGHT + 3) * 2, UI_PAGE_0_SIZE_GAUGE_WIDTH,
                                        UI_PAGE_0_SIZE_GAUGE_HEIGHT,
-                                       UI_PAGE_0_COLOR_GAUGE_BACKGROUND,
+                                       UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL,
                                        0xffffff, NULL, 2, 30, 85, new ColorPart(UI_COLOR_GAUGE_BLUE, 50,
                                                                                 new ColorPart(UI_COLOR_GAUGE_GREEN, 75,
                                                                                               new ColorPart(
@@ -141,23 +141,23 @@ TouchDisplayController::TouchDisplayController() {
     gauge_core_input_tempr->defaultDisplayBuffer = defaultDisplayBuffer;
 
     // accumulated power
-    gauge_power = new Gauge(tft, "Energy kWh", (UI_PAGE_0_SIZE_GAUGE_WIDTH + 3) * 1,
+    gauge_accumulated_energy = new Gauge(tft, "Energy kWh", (UI_PAGE_0_SIZE_GAUGE_WIDTH + 3) * 1,
                             (UI_PAGE_0_SIZE_GAUGE_HEIGHT + 3) * 2, UI_PAGE_0_SIZE_GAUGE_WIDTH,
                             UI_PAGE_0_SIZE_GAUGE_HEIGHT,
-                            UI_PAGE_0_COLOR_GAUGE_BACKGROUND,
+                            UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL,
                             0xffffff, NULL, 2, -15, 70, new ColorPart(UI_COLOR_GAUGE_BLUE, 0,
                                                                       new ColorPart(UI_COLOR_GAUGE_GREEN, 56,
                                                                                     new ColorPart(UI_COLOR_GAUGE_YELLOW,
                                                                                                   65, new ColorPart(
                                                                                                     UI_COLOR_GAUGE_RED,
                                                                                                     0, NULL)))));
-    gauge_power->defaultDisplayBuffer = defaultDisplayBuffer;
+    gauge_accumulated_energy->defaultDisplayBuffer = defaultDisplayBuffer;
 
     // acc bottom
     gauge_acc_bottom_tempr = new Gauge(tft, "Bottom T", (UI_PAGE_0_SIZE_GAUGE_WIDTH + 3) * 2,
                                        (UI_PAGE_0_SIZE_GAUGE_HEIGHT + 3) * 2, UI_PAGE_0_SIZE_GAUGE_WIDTH,
                                        UI_PAGE_0_SIZE_GAUGE_HEIGHT,
-                                       UI_PAGE_0_COLOR_GAUGE_BACKGROUND,
+                                       UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL,
                                        0xffffff, NULL, 2, 30, 80, new ColorPart(UI_COLOR_GAUGE_BLUE, 35,
                                                                                 new ColorPart(UI_COLOR_GAUGE_GREEN, 68,
                                                                                               new ColorPart(
@@ -173,7 +173,7 @@ TouchDisplayController::TouchDisplayController() {
                               (UI_PAGE_0_SIZE_GAUGE_HEIGHT + 3) * 0,
                               100, UI_PAGE_0_SIZE_GAUGE_HEIGHT,
                               "/img/pumps_on.bmp", "/img/pumps_off.bmp", 86, 62,
-                              UI_PAGE_0_COLOR_GAUGE_BACKGROUND);
+                              UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL);
 
     button_pumps->defaultDisplayBuffer = defaultDisplayBuffer;
 
@@ -182,7 +182,7 @@ TouchDisplayController::TouchDisplayController() {
                                   (UI_PAGE_0_SIZE_GAUGE_HEIGHT + 3) * 1,
                                   100, UI_PAGE_0_SIZE_GAUGE_HEIGHT,
                                   "/img/init_fire_on.bmp", "/img/init_fire_off.bmp", 74, 77,
-                                  UI_PAGE_0_COLOR_GAUGE_BACKGROUND);
+                                  UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL);
 
     button_init_fire->defaultDisplayBuffer = defaultDisplayBuffer;
     button_init_fire->action = initFireButtonAction;
@@ -270,17 +270,29 @@ TouchDisplayController::drawField(const char *msg, int txt_x, int txt_y, int wid
 }
 
 void TouchDisplayController::drawGauges() {
+    handle();
     gauge_core_tempr->draw();
+    handle();
     gauge_acc_bottom_tempr->draw();
+    handle();
     gauge_warm_flow_tempr->draw();
+    handle();
     gauge_core_input_tempr->draw();
+    handle();
     gauge_power_balance->draw();
+    handle();
     gauge_core_output_tempr->draw();
+    handle();
     gauge_acc_top_tempr->draw();
+    handle();
     gauge_core_power->draw();
-    gauge_power->draw();
+    handle();
+    gauge_accumulated_energy->draw();
+    handle();
     button_pumps->draw();
+    handle();
     button_init_fire->draw();
+    handle();
 }
 
 void TouchDisplayController::initScreen0() {
@@ -315,21 +327,57 @@ uint8_t *TouchDisplayController::loadImage(const char *file_name, uint16_t width
 
 void TouchDisplayController::drawScreen0(TelemetryDataRecord *telemetryDataRecord) {
     gauge_core_tempr->setValue(telemetryDataRecord->core_temp_sma);
+    gauge_core_tempr->setBgColor(telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_CORE]
+                                 ? UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL
+                                 : UI_PAGE_0_COLOR_GAUGE_BACKGROUND_ERROR);
+
     gauge_core_power->setValue(telemetryDataRecord->core_EMA_power);
     gauge_warm_flow_tempr->setValue(telemetryDataRecord->forwar_flow_temp_sma);
+    gauge_warm_flow_tempr->setBgColor(telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_FORWARD_FLOW]
+                                      ? UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL
+                                      : UI_PAGE_0_COLOR_GAUGE_BACKGROUND_ERROR);
 
     gauge_core_output_tempr->setValue(telemetryDataRecord->output_temp_sma);
-    if (telemetryDataRecord->power_balance_ready)
+    gauge_core_output_tempr->setBgColor(telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_OUTPUT_FLOW]
+                                        ? UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL
+                                        : UI_PAGE_0_COLOR_GAUGE_BACKGROUND_ERROR);
+    if (telemetryDataRecord->power_balance_ready) {
         gauge_power_balance->setValue(telemetryDataRecord->power_balance_kwt_hour);
+        gauge_power_balance->setBgColor(telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_ACC_MID_HI]
+                                            ? UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL
+                                            : UI_PAGE_0_COLOR_GAUGE_BACKGROUND_ERROR);
+
+    }
 
     gauge_acc_top_tempr->setValue(telemetryDataRecord->accumulator_top_temp_sma);
+    gauge_acc_top_tempr->setBgColor(telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_ACC_TOP]
+                                        ? UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL
+                                        : UI_PAGE_0_COLOR_GAUGE_BACKGROUND_ERROR);
 
     gauge_core_input_tempr->setValue(telemetryDataRecord->input_temp_sma);
-    gauge_power->setValue(telemetryDataRecord->accumulated_energy_kwt_hour);
+    gauge_core_input_tempr->setBgColor(telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_INPUT_FLOW]
+                                    ? UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL
+                                    : UI_PAGE_0_COLOR_GAUGE_BACKGROUND_ERROR);
+
+    gauge_accumulated_energy->setValue(telemetryDataRecord->accumulated_energy_kwt_hour);
+    gauge_accumulated_energy->setBgColor(telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_ACC_MID_LO]
+                                    ? UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL
+                                    : UI_PAGE_0_COLOR_GAUGE_BACKGROUND_ERROR);
+
     gauge_acc_bottom_tempr->setValue(telemetryDataRecord->accumulator_bottom_temp_sma);
+    gauge_acc_bottom_tempr->setBgColor(telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_ACC_BOTTOM]
+                                       ? UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL
+                                       : UI_PAGE_0_COLOR_GAUGE_BACKGROUND_ERROR);
+
+    int btn_color = telemetryDataRecord->main_door_opened
+                    ? UI_PAGE_0_COLOR_GAUGE_BACKGROUND_OPENED
+                    : UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL;
 
     button_pumps->setState(telemetryDataRecord->pump_1_state || telemetryDataRecord->pump_2_state);
+    button_pumps->setBgColor(btn_color);
+
     button_init_fire->setState(heaterController->isOxygenDoorOpenedForATime());
+    button_init_fire->setBgColor(btn_color);
 
     drawGauges();
 

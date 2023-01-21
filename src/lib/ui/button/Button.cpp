@@ -91,3 +91,9 @@ void Button::getWH(uint16_t &w, uint16_t &h) {
     w = _width;
     h = _height;
 }
+
+void Button::setBgColor(int color) {
+    bg_color = DisplayBuffer::color24To16(color);
+}
+
+
