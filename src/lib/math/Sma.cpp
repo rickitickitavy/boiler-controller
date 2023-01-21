@@ -9,18 +9,18 @@
 
 
 Sma::Sma(int intervals) {
-    values = (double *) malloc(SMA_STORAGE_SIZE * sizeof(double));
+    values = (float *) malloc(SMA_STORAGE_SIZE * sizeof(float));
     stored_values_count = 0;
 
     setIntervals(intervals);
 }
 
-double Sma::getSma() {
+float Sma::getSma() {
     return sma;
 }
 
-double Sma::addValue(double value) {
-    memmove(&values[1], &values[0], (SMA_STORAGE_SIZE - 1) * sizeof(double));
+float Sma::addValue(float value) {
+    memmove(&values[1], &values[0], (SMA_STORAGE_SIZE - 1) * sizeof(float));
     values[0] = value;
     if (stored_values_count < SMA_STORAGE_SIZE)
         stored_values_count++;
@@ -30,19 +30,19 @@ double Sma::addValue(double value) {
     return getSma();
 }
 
-double Sma::calcSma(int intervals) {
+float Sma::calcSma(int intervals) {
     if ((stored_values_count < intervals) && (stored_values_count > 0))
         intervals = stored_values_count;
 
     if (stored_values_count >= intervals){
-        double sum = 0;
+        float sum = 0;
         for (int index = 0; index < intervals; sum += values[index++]);
-        return sum / (double)intervals;
+        return sum / (float)intervals;
     } else
         return NAN;
 }
 
-double Sma::setIntervals(int intervals) {
+float Sma::setIntervals(int intervals) {
     if (intervals > SMA_STORAGE_SIZE)
         intervals = SMA_STORAGE_SIZE;
     this->intervals = intervals;

@@ -4,23 +4,23 @@
 
 #ifndef BASE_ESP8266_MQTT_EMA_H
 #define BASE_ESP8266_MQTT_EMA_H
-#define SMA_STORAGE_SIZE 64
+#define SMA_STORAGE_SIZE 32
 
 #include <cmath>
 
 class Sma {
 private:
-    double *values;
-    double sma;
+    float *values;
+    float sma;
     int intervals;
     int stored_values_count;
 public:
     Sma(int intervals);
-    double addValue(double value);
-    double getSma();
+    float addValue(float value);
+    float getSma();
     bool isReady();
-    double setIntervals(int intervals);
-    double calcSma(int intervals);
+    float setIntervals(int intervals);
+    float calcSma(int intervals);
 };
 
 

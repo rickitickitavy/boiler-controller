@@ -187,18 +187,18 @@ void SensorController::fire() {
     data_ready = true;
 }
 
-double SensorController::getSmaValue(int sensorIndex) {
+float SensorController::getSmaValue(int sensorIndex) {
     int intervals = settingsManager->getSettings()->heaterSettings.temperatureSettings.SMA_temperature_period_sec * 1000
                     / settingsManager->getSettings()->heaterSettings.scan_interval_ms + 1;
     return smaSensors[sensorIndex]->calcSma(intervals);
 }
 
-double SensorController::getNotNANSmaValue(int sensorIndex) {
-    double val = getSmaValue(sensorIndex);
+float SensorController::getNotNANSmaValue(int sensorIndex) {
+    float val = getSmaValue(sensorIndex);
     return isnan(val) ? 0 : val;
 }
 
-double SensorController::getNotNANValue(int sensorIndex) {
-    double val = sensor_data[sensorIndex].value;
+float SensorController::getNotNANValue(int sensorIndex) {
+    float val = sensor_data[sensorIndex].value;
     return isnan(val) ? 0 : val;
 }

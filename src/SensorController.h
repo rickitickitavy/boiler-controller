@@ -50,9 +50,9 @@ public:
     void handle();
     void fire();
     bool isHasSensors();
-    double getSmaValue(int sensorIndex);
-    double getNotNANSmaValue(int sensorIndex);
-    double getNotNANValue(int sensorIndex);
+    float getSmaValue(int sensorIndex);
+    float getNotNANSmaValue(int sensorIndex);
+    float getNotNANValue(int sensorIndex);
     String buildSensorsList();
 };
 

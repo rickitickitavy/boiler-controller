@@ -95,19 +95,19 @@ void HeaterController::collectTelemetry(long last_cycle_length) {
     telemetryDataRecord.forwar_flow_temp = (float) sensorController->sensor_data[T_SENS_INDEX_FORWARD_FLOW].value;
     telemetryDataRecord.backward_flow_temp = (float) sensorController->sensor_data[T_SENS_INDEX_BACKWARD_FLOW].value;
 
-    telemetryDataRecord.internal_temp = (float) sensorController->getNotNANValue(T_SENS_INDEX_INTERNAL);
-    telemetryDataRecord.core_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_CORE);
-    telemetryDataRecord.output_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_OUTPUT_FLOW);
-    telemetryDataRecord.input_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_INPUT_FLOW);
-    telemetryDataRecord.accumulator_higher_temp_sma = (float) sensorController->getNotNANSmaValue(
+    telemetryDataRecord.internal_temp = sensorController->getNotNANValue(T_SENS_INDEX_INTERNAL);
+    telemetryDataRecord.core_temp_sma = sensorController->getNotNANSmaValue(T_SENS_INDEX_CORE);
+    telemetryDataRecord.output_temp_sma = sensorController->getNotNANSmaValue(T_SENS_INDEX_OUTPUT_FLOW);
+    telemetryDataRecord.input_temp_sma = sensorController->getNotNANSmaValue(T_SENS_INDEX_INPUT_FLOW);
+    telemetryDataRecord.accumulator_higher_temp_sma = sensorController->getNotNANSmaValue(
             T_SENS_INDEX_ACC_MID_HI);
-    telemetryDataRecord.accumulator_lower_temp_sma = (float) sensorController->getNotNANSmaValue(
+    telemetryDataRecord.accumulator_lower_temp_sma = sensorController->getNotNANSmaValue(
             T_SENS_INDEX_ACC_MID_LO);
-    telemetryDataRecord.accumulator_bottom_temp_sma = (float) sensorController->getNotNANSmaValue(
+    telemetryDataRecord.accumulator_bottom_temp_sma = sensorController->getNotNANSmaValue(
             T_SENS_INDEX_ACC_BOTTOM);
-    telemetryDataRecord.accumulator_top_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_ACC_TOP);
-    telemetryDataRecord.forwar_flow_temp_sma = (float) sensorController->getNotNANSmaValue(T_SENS_INDEX_FORWARD_FLOW);
-    telemetryDataRecord.backward_flow_temp_sma = (float) sensorController->getNotNANSmaValue(
+    telemetryDataRecord.accumulator_top_temp_sma = sensorController->getNotNANSmaValue(T_SENS_INDEX_ACC_TOP);
+    telemetryDataRecord.forwar_flow_temp_sma = sensorController->getNotNANSmaValue(T_SENS_INDEX_FORWARD_FLOW);
+    telemetryDataRecord.backward_flow_temp_sma = sensorController->getNotNANSmaValue(
             T_SENS_INDEX_BACKWARD_FLOW);
 
     telemetryDataRecord.sensor_data_ready[T_SENS_INDEX_CORE] = sensorController->sensor_data[T_SENS_INDEX_CORE].data_ready;
@@ -145,7 +145,7 @@ void HeaterController::collectTelemetry(long last_cycle_length) {
 
     Interval interval;
     interval.time = millis();
-    double avg_temp = (telemetryDataRecord.accumulator_top_temp_sma
+    float avg_temp = (telemetryDataRecord.accumulator_top_temp_sma
                        + telemetryDataRecord.accumulator_bottom_temp_sma
                        + telemetryDataRecord.accumulator_lower_temp_sma
                        + telemetryDataRecord.accumulator_higher_temp_sma) / 4.0;
@@ -153,19 +153,19 @@ void HeaterController::collectTelemetry(long last_cycle_length) {
     interval.value = ((telemetryDataRecord.accumulator_top_temp_sma -
                        LOWEST_TEMPERATURE_FOR_ACCUMULATOR)
                       *
-                      (double) settings->heaterSettings.capacities_setting.boiler_ltr
+                      (float) settings->heaterSettings.capacities_setting.boiler_ltr
                       + (avg_temp - LOWEST_TEMPERATURE_FOR_ACCUMULATOR) *
-                        (double) settings->heaterSettings.capacities_setting.accumulator_ltr)
+                        (float) settings->heaterSettings.capacities_setting.accumulator_ltr)
                      * WATER_ENERGY_PER_LTR_PER_GRAD / JOUL_PER_KWTCH;
 
     power_balance->addValue(&interval);
     telemetryDataRecord.accumulated_energy_kwt_hour = interval.value;
 
     if (power_balance->getCount() > 5) {
-        double balance =
+        float balance =
                 (power_balance->getInterval(0)->value
                  - power_balance->getInterval(39)->value) /
-                (double) (power_balance->getInterval(0)->time
+                (float) (power_balance->getInterval(0)->time
                           - power_balance->getInterval(39)->time) * JOUL_PER_KWTCH;
         if (abs(balance) < 40)
             telemetryDataRecord.power_balance_kwt_hour = balance;
@@ -212,7 +212,7 @@ void HeaterController::calcMainCoreCharacteristics(long last_cycle_length) {
         mainCoreParams.core_DEMA_power = 0;
     } else {
 
-        double _delta_core_temperature = mainCoreParams.core_temperature - previous_core_temperature;
+        float _delta_core_temperature = mainCoreParams.core_temperature - previous_core_temperature;
 //        Serial.println(" --- debug in: _delta_core_temperature = " + String( _delta_core_temperature));
 
         mainCoreParams.core_DEMA_temperature =
@@ -227,13 +227,13 @@ void HeaterController::calcMainCoreCharacteristics(long last_cycle_length) {
             // all pumps turned off. Calc power as temperature change for core and core volume
             mainCoreParams.current_core_power =
                     _delta_core_temperature * heaterSettings->capacities_setting.heater_core_ltr *
-                    WATER_ENERGY_PER_LTR_PER_GRAD / (double) last_cycle_length * 1000;
+                    WATER_ENERGY_PER_LTR_PER_GRAD / (float) last_cycle_length * 1000;
         } else {
             // calc power using flow and delta between temperatures of input and output flows
             mainCoreParams.current_core_power = (sensorController->getSmaValue(T_SENS_INDEX_OUTPUT_FLOW) -
                                                  sensorController->getSmaValue(T_SENS_INDEX_INPUT_FLOW))
                                                 * WATER_ENERGY_PER_LTR_PER_GRAD * mainCoreParams.core_flow
-                                                / (double) last_cycle_length * 1000;
+                                                / (float) last_cycle_length * 1000;
         }
 
         // calc DEMA POWER
@@ -456,7 +456,7 @@ void HeaterController::handle_STAND_BY_mode() {
 
 void HeaterController::handlePumps() {
     if ((mode == STAND_BY) || (mode == FINAL_COOLING)) {
-        double core_temp = sensorController->getSmaValue(T_SENS_INDEX_CORE);
+        float core_temp = sensorController->getSmaValue(T_SENS_INDEX_CORE);
         // cooling only
         // if tempr > pid_on tempr then core need to be cooled
         bool _cooling_expected = core_temp >=
@@ -474,7 +474,7 @@ void HeaterController::handlePumps() {
                                   - core_temp) <
                                  heaterSettings->coolingByPumpsSettings.delta_btw_start_and_core_to_stop_pumps);
 
-        double delta_core_acc_bottom = core_temp - sensorController->getSmaValue(T_SENS_INDEX_ACC_BOTTOM);
+        float delta_core_acc_bottom = core_temp - sensorController->getSmaValue(T_SENS_INDEX_ACC_BOTTOM);
         if ((_cooling_expected)
             || (core_temp >= 87)
             || ((core_temp >= 73) && (delta_core_acc_bottom > 12))) {
@@ -747,7 +747,7 @@ void HeaterController::getCsvCalculates(char *buffer) {
 }
 //-------------------------------------------------------------------
 
-double HeaterController::checkBound(double src, double min, double max) {
+float HeaterController::checkBound(float src, float min, float max) {
     if (src > max)
         return max;
     if (src < min)

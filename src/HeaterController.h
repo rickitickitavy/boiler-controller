@@ -69,13 +69,13 @@ private:
     PidRegulator *pidRegulator;
     long last_cycle_time;
     long last_cycle_length;
-    double previous_core_temperature;
+    float previous_core_temperature;
 
     int estimated_modelling_cycle_counter;
 
     MainCoreParams mainCoreParams;
 
-    double previous_core_power;
+    float previous_core_power;
 
     long flow_ticks;
 
@@ -152,7 +152,7 @@ private:
 
     static void IRAM_ATTR MAIN_DOOR_ISR();
 
-    double checkBound(double src, double min, double max);
+    float checkBound(float src, float min, float max);
 
     int heaterModeToSimpleMode(HeaterMode mode);
 
