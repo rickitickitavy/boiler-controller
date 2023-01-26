@@ -18,10 +18,12 @@
 enum DisplayButtonEvent{
     NONE = 0,
     DOWN = 1,
-    UP = 2
+    UP = 2,
+    REDRAW = 3
 };
 
 typedef std::function<void(DisplayButtonEvent event)> ButtonAction;
+typedef std::function<void(DisplayBuffer * canvas)> ButtonDrawAction;
 
 
 class Button {
@@ -42,6 +44,7 @@ public:
 
     DisplayBuffer *defaultDisplayBuffer = nullptr;
     ButtonAction action = nullptr;
+    ButtonDrawAction drawAction = nullptr;
 
     Button(ILI9488 *display, int x, int y, int width, int height,
            const char *icon_file_name_on, const char *icon_file_name_off, int icon_width, int icon_height,
@@ -53,6 +56,7 @@ public:
     void draw();
     void getXY(uint16_t &x, uint16_t &y);
     void getWH(uint16_t &w, uint16_t &h);
+    void _setWHOnly(uint16_t w, uint16_t h);
     void setBgColor(int color);
 };
 

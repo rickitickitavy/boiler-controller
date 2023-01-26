@@ -93,3 +93,9 @@ uint16_t DisplayBuffer::calcTextWidth(const char *msg) {
     }
     return text_width;
 }
+
+void DisplayBuffer::_setWHOnly(uint16_t w, uint16_t h) {
+    _width = w;
+    _height = h;
+}
+

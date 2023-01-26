@@ -26,7 +26,7 @@ public:
     uint16_t calcTextWidth(const char *msg);
 
 
-
+    void _setWHOnly(uint16_t w, uint16_t h);
 
 
 };

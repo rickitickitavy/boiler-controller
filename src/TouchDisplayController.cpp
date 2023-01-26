@@ -186,6 +186,7 @@ TouchDisplayController::TouchDisplayController() {
 
     button_init_fire->defaultDisplayBuffer = defaultDisplayBuffer;
     button_init_fire->action = initFireButtonAction;
+    button_init_fire->drawAction = initFireButtonDrawAction;
     addButton(button_init_fire);
     screen_index = -1;
 }
@@ -194,18 +195,45 @@ void TouchDisplayController::setHeaterController(HeaterController *heaterControl
     this->heaterController = heaterController;
 }
 
+void TouchDisplayController::initFireButtonDrawAction(DisplayBuffer *canvas){
+    HeaterController *heaterController = instance->heaterController;
+    if (heaterController->isOxygenDoorOpenedForATime()){
+
+        int est = heaterController->getOxygenDoorOpenedForATime();
+        int prcnt = est * 100 / TIME_FOR_INIT_FIRE_SEC;
+        float theta = PI * (float)est / (float)TIME_FOR_INIT_FIRE_SEC;
+
+        Serial.println("theta = " + String(theta));
+
+        int _color;
+        if (prcnt > 33)
+            _color = UI_PAGE_0_COLOR_GAUGE_INITFIRE_EST_MANY;
+        else if (prcnt > 10)
+            _color = UI_PAGE_0_COLOR_GAUGE_INITFIRE_EST_LOW;
+        else
+            _color = UI_PAGE_0_COLOR_GAUGE_INITFIRE_EST_VERY_LOW;
+
+        uint16_t color = canvas->color24To16(_color);
+        uint16_t color_spent = canvas->color24To16(UI_PAGE_0_COLOR_GAUGE_INITFIRE_SPENT);
+        for (int i = 0; i < 7; i++) {
+            canvas->drawArc(50, UI_PAGE_0_SIZE_GAUGE_HEIGHT >> 1, 48 - i, 0.0, theta, 250, color);
+
+            canvas->drawArc(50, UI_PAGE_0_SIZE_GAUGE_HEIGHT >> 1, 48 - i, theta, PI - theta, 250,
+                            color_spent);
+        }
+    }
+}
+
 void TouchDisplayController::initFireButtonAction(DisplayButtonEvent event) {
     if (event == DisplayButtonEvent::DOWN) {
-
         HeaterController *heaterController = instance->heaterController;
-
         if (((heaterController->getTelemetryRecord()->heaterMode == STAND_BY))
             || (heaterController->getTelemetryRecord()->heaterMode == FINAL_COOLING)) {
             if (heaterController->isOxygenDoorOpenedForATime()) {
                 heaterController->closeOxygenDoor();
                 instance->button_init_fire->setState(false);
             } else {
-                heaterController->openOxygenDoorForTime(900);
+                heaterController->openOxygenDoorForTime(TIME_FOR_INIT_FIRE_SEC);
                 instance->button_init_fire->setState(true);
             }
             instance->dirty();
@@ -289,9 +317,12 @@ void TouchDisplayController::drawGauges() {
     handle();
     gauge_accumulated_energy->draw();
     handle();
+    uint16_t wdt = defaultDisplayBuffer->width();
+    defaultDisplayBuffer->_setWHOnly(100, defaultDisplayBuffer->height());
     button_pumps->draw();
     handle();
     button_init_fire->draw();
+    defaultDisplayBuffer->_setWHOnly(wdt, defaultDisplayBuffer->height());
     handle();
 }
 

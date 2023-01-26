@@ -36,6 +36,10 @@
 #define UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL 0x444444
 #define UI_PAGE_0_COLOR_GAUGE_BACKGROUND_ERROR 0x67000D
 #define UI_PAGE_0_COLOR_GAUGE_BACKGROUND_OPENED 0xFF4444
+#define UI_PAGE_0_COLOR_GAUGE_INITFIRE_EST_MANY 0x44FF44
+#define UI_PAGE_0_COLOR_GAUGE_INITFIRE_EST_LOW 0xBCBC00
+#define UI_PAGE_0_COLOR_GAUGE_INITFIRE_EST_VERY_LOW 0xFF4444
+#define UI_PAGE_0_COLOR_GAUGE_INITFIRE_SPENT 0x222222
 #define UI_PAGE_0_SIZE_GAUGE_WIDTH 123
 #define UI_PAGE_0_SIZE_GAUGE_HEIGHT 100
 
@@ -121,6 +125,7 @@ protected:
     void drawFloatField(const char *msg, float value, int txt_x, int txt_y, int width, int font_color, int bg_color);
 
     static void initFireButtonAction(DisplayButtonEvent event);
+    static void initFireButtonDrawAction(DisplayBuffer *canvas);
     void addButton(Button *button);
 
 public:

@@ -176,6 +176,7 @@ public:
     bool isModelling();
 
     bool isOxygenDoorOpenedForATime();
+    long getOxygenDoorOpenedForATime();
     bool postCounter;
 
 

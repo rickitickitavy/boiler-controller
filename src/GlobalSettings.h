@@ -12,6 +12,8 @@
 #define MAX_SENSORS_COUNT 10
 #define SENSORS_ADDR_SIZE 8
 
+#define TIME_FOR_INIT_FIRE_SEC 900
+
 struct NetworkSettings {
     /**
   * Настройки WiFi

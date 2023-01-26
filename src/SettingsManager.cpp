@@ -94,7 +94,7 @@ SettingsManager::SettingsManager(){
         settings.heaterSettings.two_pumps_settings.flow_sensor_ticks_per_litters = 27;
 
 
-        settings.heaterSettings.stadbyCoolingSettings.start_warming_cycle_on_power = 1000;
+        settings.heaterSettings.stadbyCoolingSettings.start_warming_cycle_on_power = 6500;
         settings.heaterSettings.coolingByPumpsSettings.min_delta_btw_core_and_input_to_start_pumps = 10;
         settings.heaterSettings.coolingByPumpsSettings.start_pumps_temperature = 90;
         settings.heaterSettings.coolingByPumpsSettings.delta_btw_start_and_core_to_stop_pumps = 5;

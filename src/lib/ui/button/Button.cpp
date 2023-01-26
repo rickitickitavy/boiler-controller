@@ -74,6 +74,9 @@ void Button::draw() {
 
     file.close();
 
+    if (drawAction)
+        drawAction(displayBuffer);
+
     display->drawImage((uint8_t*)displayBuffer->buffer, x, y, _width, _height);
     if (!defaultDisplayBuffer) {
         displayBuffer->freeBuffer();

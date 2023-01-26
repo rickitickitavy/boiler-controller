@@ -721,6 +721,14 @@ bool HeaterController::isModelling() {
 }
 //-------------------------------------------------------------------
 
+long HeaterController::getOxygenDoorOpenedForATime() {
+    return ((time_to_close_oxygen_door_in_stanby_mode != 0)
+            && (millis() < time_to_close_oxygen_door_in_stanby_mode))
+            ? (time_to_close_oxygen_door_in_stanby_mode - millis()) / 1000
+            : 0;
+}
+//-------------------------------------------------------------------
+
 bool HeaterController::isOxygenDoorOpenedForATime() {
     return ((time_to_close_oxygen_door_in_stanby_mode != 0)
             && (millis() < time_to_close_oxygen_door_in_stanby_mode));
