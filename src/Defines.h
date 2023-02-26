@@ -46,6 +46,7 @@
 #define PUMP_4_PIN 32
 
 #define ONE_WIRE_PIN 14
+#define ONE_WIRE_PIN_2 32
 #define FLOW_SENSOR_PIN 39
 
 #define DISPLAY_CS_PIN 17

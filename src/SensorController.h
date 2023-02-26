@@ -25,8 +25,10 @@ struct SensorData{
 class SensorController {
 private:
 
-    OneWire *oneWire;
+//    OneWire *oneWire;
+//    OneWire *oneWire2;
     DallasTemperature *dallasTemperature;
+    DallasTemperature *dallasTemperature2;
     SettingsManager *settingsManager;
 
     long last_time_sensors_read;
@@ -45,7 +47,9 @@ public:
     int found_sensors_count;
     SensorData sensor_data[MAX_SENSORS_COUNT];
 
-    SensorController(int one_wire_pin, SettingsManager *settingsManager);
+    SensorController(int one_wire_pin, int one_wire_pin_2, SettingsManager *settingsManager);
+    int countSensors(DallasTemperature *dallasTemperature);
+    void readDallas(DallasTemperature *dallasTemperature);
     void setModeller(CoreModel *coreModel);
     void handle();
     void fire();

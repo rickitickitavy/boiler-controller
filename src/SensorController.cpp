@@ -5,34 +5,42 @@
 #include "SensorController.h"
 #include "Converter.h"
 
-SensorController::SensorController(int one_wire_pin, SettingsManager *settingsManager) {
+SensorController::SensorController(int one_wire_pin, int one_wire_pin_2, SettingsManager *settingsManager) {
     this->coreModel = nullptr;
     this->settingsManager = settingsManager;
     this->last_time_sensors_read = 0;
     memset(sensor_data, 0, sizeof(sensor_data));
     data_ready = false;
 
-    oneWire = new OneWire(one_wire_pin);
-    dallasTemperature = new DallasTemperature(oneWire);
-
+    dallasTemperature = new DallasTemperature(new OneWire(one_wire_pin));
 //    dallasTemperature->isParasitePowerMode()
-
     dallasTemperature->begin();
-    found_sensors_count = dallasTemperature->getDS18Count();
+
+    dallasTemperature2 = one_wire_pin_2 ?
+                         new DallasTemperature(new OneWire(one_wire_pin_2))
+                                        : nullptr;
+    if (dallasTemperature2)
+        dallasTemperature2->begin();
+
+
+    LOGGER.info("   checking channel 0...");
+    int sensor_count_0 = countSensors(dallasTemperature);
+    found_sensors_count = sensor_count_0;
+
+    LOGGER.info("   checking channel 1...");
+    int sensor_count_1 = countSensors(dallasTemperature2);
+
+    found_sensors_count += sensor_count_1;
+
+    if ((!sensor_count_1) && (dallasTemperature2))
+        dallasTemperature2 = nullptr;
+
+    if ((sensor_count_1) && (!sensor_count_0))
+        dallasTemperature = nullptr;
 
     char addr_ascii_hex_buffer[SENSORS_ADDR_SIZE * 2 + 1];
+
     String sens_addr;
-
-    LOGGER.info("   found " + String(found_sensors_count) + " sensors.");
-
-    for (int termo_index = 0; termo_index < found_sensors_count; termo_index++) {
-        dallasTemperature->getAddress(&found_sensors_addr[termo_index * SENSORS_ADDR_SIZE], termo_index);
-        Converter::bytesToAsciiHex(addr_ascii_hex_buffer, &found_sensors_addr[termo_index * SENSORS_ADDR_SIZE],
-                                   SENSORS_ADDR_SIZE);
-        sens_addr = String(addr_ascii_hex_buffer);
-        LOGGER.info("   temperature sensor " + String(termo_index) + " found (" + sens_addr + ")");
-    }
-    dallasTemperature->setResolution(12);
 
     // SMA for all sensors values
     smaSensors = (Sma **) malloc(sizeof(Sma *) * MAX_SENSORS_COUNT);
@@ -86,6 +94,33 @@ SensorController::SensorController(int one_wire_pin, SettingsManager *settingsMa
     }
 }
 
+
+int SensorController::countSensors(DallasTemperature *dallasTemperature) {
+    if (!dallasTemperature){
+        LOGGER.info("   channel is absent.");
+        return 0;
+    }
+
+    int sensors_count = dallasTemperature->getDS18Count();
+    char addr_ascii_hex_buffer[SENSORS_ADDR_SIZE * 2 + 1];
+    String sens_addr;
+
+    LOGGER.info("   found " + String(sensors_count) + " sensors.");
+
+    for (int termo_index = 0; termo_index < sensors_count; termo_index++) {
+        dallasTemperature->getAddress(&found_sensors_addr[(found_sensors_count + termo_index) * SENSORS_ADDR_SIZE], termo_index);
+        Converter::bytesToAsciiHex(addr_ascii_hex_buffer, &found_sensors_addr[(found_sensors_count + termo_index) * SENSORS_ADDR_SIZE],
+                                   SENSORS_ADDR_SIZE);
+        sens_addr = String(addr_ascii_hex_buffer);
+        LOGGER.info("   temperature sensor " + String(termo_index) + " found (" + sens_addr + ")");
+    }
+    dallasTemperature->setResolution(12);
+
+    return sensors_count;
+}
+
+
+
 void SensorController::setModeller(CoreModel *coreModel) {
     this->coreModel = coreModel;
 }
@@ -135,6 +170,45 @@ void SensorController::handle() {
 
 }
 
+void SensorController::readDallas(DallasTemperature *dallasTemperature) {
+    if (!dallasTemperature)
+        return;
+
+    dallasTemperature->requestTemperatures();
+    for (int index = 0; index < MAX_SENSORS_COUNT; index++) {
+        if (hasData(&settingsManager->getSettings()->ds18D20Addresses[index * SENSORS_ADDR_SIZE],
+                    SENSORS_ADDR_SIZE)) {
+            float tempr = dallasTemperature->getTempC(
+                    (uint8_t *) &settingsManager->getSettings()->ds18D20Addresses[index * SENSORS_ADDR_SIZE]);
+            if (tempr != -127) {
+                sensor_data[index].value = tempr;
+                sensor_data[index].last_time_read = last_time_sensors_read;
+                sensor_data[index].data_ready = true;
+                smaSensors[index]->addValue(tempr);
+            }
+
+            if (sensor_data[index].data_ready){
+                if (sensor_data[index].error_state)
+                    sensor_data[index].last_state_count = 1;
+                else
+                    sensor_data[index].last_state_count++;
+
+                sensor_data[index].error_state = false;
+                sensor_data[index].total_success_count++;
+            } else {
+                if (!sensor_data[index].error_state)
+                    sensor_data[index].last_state_count = 1;
+                else
+                    sensor_data[index].last_state_count++;
+
+                sensor_data[index].error_state = true;
+                sensor_data[index].total_errors_count++;
+            }
+        }
+    }
+
+}
+
 void SensorController::fire() {
     if (coreModel) {
         coreModel->handle();
@@ -149,39 +223,11 @@ void SensorController::fire() {
         saveModelledSensorValue(T_SENS_INDEX_BACKWARD_FLOW, coreModel->backward_tempr);
     }
     else {
-        dallasTemperature->requestTemperatures();
-        for (int index = 0; index < MAX_SENSORS_COUNT; index++) {
+        for (int index = 0; index < MAX_SENSORS_COUNT; index++)
             sensor_data[index].data_ready = false;
-            if (hasData(&settingsManager->getSettings()->ds18D20Addresses[index * SENSORS_ADDR_SIZE],
-                        SENSORS_ADDR_SIZE)) {
-                float tempr = dallasTemperature->getTempC(
-                        (uint8_t *) &settingsManager->getSettings()->ds18D20Addresses[index * SENSORS_ADDR_SIZE]);
-                if (tempr != -127) {
-                    sensor_data[index].value = tempr;
-                    sensor_data[index].last_time_read = last_time_sensors_read;
-                    sensor_data[index].data_ready = true;
-                    smaSensors[index]->addValue(tempr);
-                }
 
-                if (sensor_data[index].data_ready){
-                    if (sensor_data[index].error_state)
-                        sensor_data[index].last_state_count = 1;
-                    else
-                        sensor_data[index].last_state_count++;
-
-                    sensor_data[index].error_state = false;
-                    sensor_data[index].total_success_count++;
-                } else {
-                    if (!sensor_data[index].error_state)
-                        sensor_data[index].last_state_count = 1;
-                    else
-                        sensor_data[index].last_state_count++;
-
-                    sensor_data[index].error_state = true;
-                    sensor_data[index].total_errors_count++;
-                }
-            }
-        }
+        readDallas(dallasTemperature);
+        readDallas(dallasTemperature2);
     }
 
     data_ready = true;

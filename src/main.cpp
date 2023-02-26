@@ -58,7 +58,7 @@ void setup() {
     settingsManager = new SettingsManager();
 
     twoDeviceInfo("starting DS18D20...");
-    sensorController = new SensorController(ONE_WIRE_PIN, settingsManager);
+    sensorController = new SensorController(ONE_WIRE_PIN, ONE_WIRE_PIN_2, settingsManager);
     settingsManager->getNavigator()->setSensorList(sensorController->buildSensorsList());
 
     twoDeviceInfo("Starting I2C");

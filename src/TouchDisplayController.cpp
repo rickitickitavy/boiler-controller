@@ -216,9 +216,9 @@ void TouchDisplayController::initFireButtonDrawAction(DisplayBuffer *canvas){
         uint16_t color = canvas->color24To16(_color);
         uint16_t color_spent = canvas->color24To16(UI_PAGE_0_COLOR_GAUGE_INITFIRE_SPENT);
         for (int i = 0; i < 7; i++) {
-            canvas->drawArc(50, UI_PAGE_0_SIZE_GAUGE_HEIGHT >> 1, 48 - i, 0.0, theta, 250, color);
+            canvas->drawArc(50, UI_PAGE_0_SIZE_GAUGE_HEIGHT >> 1, 48 - i, 0.0, theta, 350, color);
 
-            canvas->drawArc(50, UI_PAGE_0_SIZE_GAUGE_HEIGHT >> 1, 48 - i, theta, PI - theta, 250,
+            canvas->drawArc(50, UI_PAGE_0_SIZE_GAUGE_HEIGHT >> 1, 48 - i, theta, PI - theta, 350,
                             color_spent);
         }
     }
@@ -356,67 +356,12 @@ uint8_t *TouchDisplayController::loadImage(const char *file_name, uint16_t width
     return buffer;
 }
 
-void TouchDisplayController::drawScreen0(TelemetryDataRecord *telemetryDataRecord) {
-    gauge_core_tempr->setValue(telemetryDataRecord->core_temp_sma);
-    gauge_core_tempr->setBgColor(telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_CORE]
-                                 ? UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL
-                                 : UI_PAGE_0_COLOR_GAUGE_BACKGROUND_ERROR);
+void TouchDisplayController::drawScreen1(TelemetryDataRecord *telemetryDataRecord) {
+    char buffer[30];
 
-    gauge_core_power->setValue(telemetryDataRecord->core_EMA_power);
-    gauge_warm_flow_tempr->setValue(telemetryDataRecord->forwar_flow_temp_sma);
-    gauge_warm_flow_tempr->setBgColor(telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_FORWARD_FLOW]
-                                      ? UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL
-                                      : UI_PAGE_0_COLOR_GAUGE_BACKGROUND_ERROR);
+    tft->setFont(&FreeSans12pt7b);
 
-    gauge_core_output_tempr->setValue(telemetryDataRecord->output_temp_sma);
-    gauge_core_output_tempr->setBgColor(telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_OUTPUT_FLOW]
-                                        ? UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL
-                                        : UI_PAGE_0_COLOR_GAUGE_BACKGROUND_ERROR);
-    if (telemetryDataRecord->power_balance_ready) {
-        gauge_power_balance->setValue(telemetryDataRecord->power_balance_kwt_hour);
-        gauge_power_balance->setBgColor(telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_ACC_MID_HI]
-                                            ? UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL
-                                            : UI_PAGE_0_COLOR_GAUGE_BACKGROUND_ERROR);
-
-    }
-
-    gauge_acc_top_tempr->setValue(telemetryDataRecord->accumulator_top_temp_sma);
-    gauge_acc_top_tempr->setBgColor(telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_ACC_TOP]
-                                        ? UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL
-                                        : UI_PAGE_0_COLOR_GAUGE_BACKGROUND_ERROR);
-
-    gauge_core_input_tempr->setValue(telemetryDataRecord->input_temp_sma);
-    gauge_core_input_tempr->setBgColor(telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_INPUT_FLOW]
-                                    ? UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL
-                                    : UI_PAGE_0_COLOR_GAUGE_BACKGROUND_ERROR);
-
-    gauge_accumulated_energy->setValue(telemetryDataRecord->accumulated_energy_kwt_hour);
-    gauge_accumulated_energy->setBgColor(telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_ACC_MID_LO]
-                                    ? UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL
-                                    : UI_PAGE_0_COLOR_GAUGE_BACKGROUND_ERROR);
-
-    gauge_acc_bottom_tempr->setValue(telemetryDataRecord->accumulator_bottom_temp_sma);
-    gauge_acc_bottom_tempr->setBgColor(telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_ACC_BOTTOM]
-                                       ? UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL
-                                       : UI_PAGE_0_COLOR_GAUGE_BACKGROUND_ERROR);
-
-    int btn_color = telemetryDataRecord->main_door_opened
-                    ? UI_PAGE_0_COLOR_GAUGE_BACKGROUND_OPENED
-                    : UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL;
-
-    button_pumps->setState(telemetryDataRecord->pump_1_state || telemetryDataRecord->pump_2_state);
-    button_pumps->setBgColor(btn_color);
-
-    button_init_fire->setState(heaterController->isOxygenDoorOpenedForATime());
-    button_init_fire->setBgColor(btn_color);
-
-    drawGauges();
-
-//    char buffer[30];
-//
-//    tft->setFont(&FreeSans12pt7b);
-//
-//    drawIntField("%d%%", (int) telemetryDataRecord->smoke_door_position, 5, 20, 97, SCREEN_COLOR_GRAY, COLOR_CORE);
+    drawIntField("%d%%", (int) telemetryDataRecord->smoke_door_position, 5, 20, 97, SCREEN_COLOR_GRAY, COLOR_CORE);
 //    drawFloatField("%0.2fC", telemetryDataRecord->output_temp_sma, 5, 45, 77, ST77XX_RED, COLOR_CORE);
 //    drawIntField("%d L/m", (int) telemetryDataRecord->core_flow, 5, 64, 77, ST77XX_RED, COLOR_CORE);
 //
@@ -525,6 +470,64 @@ void TouchDisplayController::drawScreen0(TelemetryDataRecord *telemetryDataRecor
 //    tft->fillCircle(x + index * 45, y, 16, outer_color);
 //    tft->fillCircle(x + index * 45, y, 14, inner_color);
 //    tft->fillTriangle(x + 4 + index * 45, y - 7, x - 10 + index * 45, y, x + 4 + index * 45, y + 7, outer_color);
+}
+
+void TouchDisplayController::drawScreen0(TelemetryDataRecord *telemetryDataRecord) {
+    gauge_core_tempr->setValue(telemetryDataRecord->core_temp_sma);
+    gauge_core_tempr->setBgColor(telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_CORE]
+                                 ? UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL
+                                 : UI_PAGE_0_COLOR_GAUGE_BACKGROUND_ERROR);
+
+    gauge_core_power->setValue(telemetryDataRecord->core_EMA_power);
+    gauge_warm_flow_tempr->setValue(telemetryDataRecord->forwar_flow_temp_sma);
+    gauge_warm_flow_tempr->setBgColor(telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_FORWARD_FLOW]
+                                      ? UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL
+                                      : UI_PAGE_0_COLOR_GAUGE_BACKGROUND_ERROR);
+
+    gauge_core_output_tempr->setValue(telemetryDataRecord->output_temp_sma);
+    gauge_core_output_tempr->setBgColor(telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_OUTPUT_FLOW]
+                                        ? UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL
+                                        : UI_PAGE_0_COLOR_GAUGE_BACKGROUND_ERROR);
+    if (telemetryDataRecord->power_balance_ready) {
+        gauge_power_balance->setValue(telemetryDataRecord->power_balance_kwt_hour);
+        gauge_power_balance->setBgColor(telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_ACC_MID_HI]
+                                            ? UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL
+                                            : UI_PAGE_0_COLOR_GAUGE_BACKGROUND_ERROR);
+
+    }
+
+    gauge_acc_top_tempr->setValue(telemetryDataRecord->accumulator_top_temp_sma);
+    gauge_acc_top_tempr->setBgColor(telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_ACC_TOP]
+                                        ? UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL
+                                        : UI_PAGE_0_COLOR_GAUGE_BACKGROUND_ERROR);
+
+    gauge_core_input_tempr->setValue(telemetryDataRecord->input_temp_sma);
+    gauge_core_input_tempr->setBgColor(telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_INPUT_FLOW]
+                                    ? UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL
+                                    : UI_PAGE_0_COLOR_GAUGE_BACKGROUND_ERROR);
+
+    gauge_accumulated_energy->setValue(telemetryDataRecord->accumulated_energy_kwt_hour);
+    gauge_accumulated_energy->setBgColor(telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_ACC_MID_LO]
+                                    ? UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL
+                                    : UI_PAGE_0_COLOR_GAUGE_BACKGROUND_ERROR);
+
+    gauge_acc_bottom_tempr->setValue(telemetryDataRecord->accumulator_bottom_temp_sma);
+    gauge_acc_bottom_tempr->setBgColor(telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_ACC_BOTTOM]
+                                       ? UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL
+                                       : UI_PAGE_0_COLOR_GAUGE_BACKGROUND_ERROR);
+
+    int btn_color = telemetryDataRecord->main_door_opened
+                    ? UI_PAGE_0_COLOR_GAUGE_BACKGROUND_OPENED
+                    : UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL;
+
+    button_pumps->setState(telemetryDataRecord->pump_1_state || telemetryDataRecord->pump_2_state);
+    button_pumps->setBgColor(btn_color);
+
+    button_init_fire->setState(heaterController->isOxygenDoorOpenedForATime());
+    button_init_fire->setBgColor(btn_color);
+
+    drawGauges();
+
 }
 
 ILI9488 *TouchDisplayController::getTft() {

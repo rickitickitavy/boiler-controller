@@ -116,6 +116,7 @@ protected:
     uint8_t *loadImage(const char *file_name, uint16_t width, uint16_t height);
 
     void drawScreen0(TelemetryDataRecord *telemetryDataRecord);
+    void drawScreen1(TelemetryDataRecord *telemetryDataRecord);
     void drawPumpState(int index, bool is_on);
     void drawGauges();
 
