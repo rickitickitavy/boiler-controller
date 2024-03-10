@@ -12,6 +12,10 @@
 #include "SettingsManager.h"
 #include "CoreModel.h"
 
+enum SensorControllerStatus{
+    STATUS_CYCLE_AWAITING, STATUS_CYCLE_STARTED, STATUS_CYCLE_DONE
+};
+
 struct SensorData{
     double value;
     bool data_ready;
@@ -47,9 +51,17 @@ public:
     int found_sensors_count;
     SensorData sensor_data[MAX_SENSORS_COUNT];
 
+    SensorControllerStatus cycle_status;
+    int cycle_current_dallas_block;
+    long cycle_conversion_started_at;
+    DallasTemperature* cycle_dallas_temperature;
+
     SensorController(int one_wire_pin, int one_wire_pin_2, SettingsManager *settingsManager);
     int countSensors(DallasTemperature *dallasTemperature);
-    void readDallas(DallasTemperature *dallasTemperature);
+//    void readDallas(DallasTemperature *dallasTemperature);
+    bool readDallasSensor(int sensor_index);
+    void startAsyncConversion();
+    void readNextBlockOfSensors();
     void setModeller(CoreModel *coreModel);
     void handle();
     void fire();

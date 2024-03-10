@@ -66,7 +66,7 @@ HeaterController::HeaterController(GlobalSettings *settings, SensorController *s
                                                               (void *) &coreModel->stage_index,
                                                               (void *) nullptr));
 
-    pinMode(MAIN_DOOR_SENSOR_PIN, INPUT_PULLDOWN);
+    pinMode(MAIN_DOOR_SENSOR_PIN, INPUT_PULLUP);
     attachInterrupt(MAIN_DOOR_SENSOR_PIN, MAIN_DOOR_ISR, CHANGE);
     MAIN_DOOR_ISR();
     previous_main_door_opened = false;
@@ -79,7 +79,7 @@ void HeaterController::resetDEMAtimers() {
 
 void IRAM_ATTR HeaterController::MAIN_DOOR_ISR() {
     bool door_mode = digitalRead(MAIN_DOOR_SENSOR_PIN);
-    instance->main_door_opened = !door_mode;
+    instance->main_door_opened = door_mode;
 }
 
 void HeaterController::collectTelemetry(long last_cycle_length) {
@@ -139,7 +139,7 @@ void HeaterController::collectTelemetry(long last_cycle_length) {
     telemetryDataRecord.core_SMA_diff_tempr = (float) mainCoreParams.core_DEMA_temperature;
     telemetryDataRecord.pump_1_state = pumpsController->pump1->getStateName();
     telemetryDataRecord.pump_2_state = pumpsController->pump2 ? pumpsController->pump2->getStateName() : (uint8_t) -1;
-    telemetry->addData(&telemetryDataRecord);
+//    telemetry->addData(&telemetryDataRecord);
     telemetryDataRecord.main_door_opened = main_door_opened;
     telemetryDataRecord.time_to_close_oxygen_door_in_stanby_mode = time_to_close_oxygen_door_in_stanby_mode;
 
@@ -362,7 +362,9 @@ bool HeaterController::handle() {
     doorsController->handle();
     bool proceeded = false;
     if ((sensorController->isHasSensors() && (last_cycle_time == 0 || ((millis() - last_cycle_time) >
-                                                                       heaterSettings->scan_interval_ms)))
+                                                                       heaterSettings->scan_interval_ms))
+                                                                       // check if all sensors data is ready
+                                               && (sensorController->cycle_status == STATUS_CYCLE_DONE))
         || modelling_is_active) {
         proceeded = true;
         cycle_index++;
@@ -407,7 +409,7 @@ bool HeaterController::handle() {
 
     doorsController->setDoorOpened(main_door_opened);
     if (main_door_opened != previous_main_door_opened) {
-        LOGGER.info("Main door status has changed to " + String(main_door_opened ? "open" : "closed"));
+//        LOGGER.info("Main door status has changed to " + String(main_door_opened ? "open" : "closed"));
         previous_main_door_opened = main_door_opened;
     }
 

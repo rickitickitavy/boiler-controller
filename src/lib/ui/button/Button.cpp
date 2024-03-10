@@ -3,7 +3,6 @@
 //
 
 #include <lib/ui/bufferedGraphics/DisplayBuffer.h>
-#include <lib/adafruit/gfxfont.h>
 #include <SPIFFS.h>
 #include "lib/adafruit/Fonts/FreeSans12pt7b.h"
 #include "Button.h"
@@ -29,10 +28,6 @@ Button::Button(ILI9488 *display, int x, int y, int width, int height,
     state = false;
 }
 
-//float Button::getValue() {
-//    return state;
-//}
-//
 float Button::setState(bool state) {
     this->state = state;
     need_redraw = true;
@@ -64,8 +59,6 @@ void Button::draw() {
     int x_icon = (_width - icon_width) >> 1;
     int y_icon = BUTTON_GRAPH_MARGIN_TOP + icon_height;
     int shift = y_icon * _width + x_icon;
-
-    Serial.println("free mem = " + String(esp_get_free_heap_size()));
 
     for (int row = _height - 1; row >= 0; row--) {
         file.readBytes((char *) &displayBuffer->buffer[shift], icon_width * 2);
