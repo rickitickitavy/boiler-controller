@@ -19,6 +19,7 @@ SensorController::SensorController(int one_wire_pin, int one_wire_pin_2, Setting
     dallasTemperature2 = one_wire_pin_2 ?
                          new DallasTemperature(new OneWire(one_wire_pin_2))
                                         : nullptr;
+
     if (dallasTemperature2)
         dallasTemperature2->begin();
 
@@ -92,6 +93,8 @@ SensorController::SensorController(int one_wire_pin, int one_wire_pin_2, Setting
         } else
             LOGGER.info("Sensors was configured fully or partial. Using present config.");
     }
+
+    cycle_status = STATUS_CYCLE_AWAITING;
 }
 
 
@@ -170,43 +173,106 @@ void SensorController::handle() {
 
 }
 
-void SensorController::readDallas(DallasTemperature *dallasTemperature) {
-    if (!dallasTemperature)
-        return;
+bool SensorController::readDallasSensor(int sensor_index){
 
-    dallasTemperature->requestTemperatures();
-    for (int index = 0; index < MAX_SENSORS_COUNT; index++) {
-        if (hasData(&settingsManager->getSettings()->ds18D20Addresses[index * SENSORS_ADDR_SIZE],
-                    SENSORS_ADDR_SIZE)) {
-            float tempr = dallasTemperature->getTempC(
-                    (uint8_t *) &settingsManager->getSettings()->ds18D20Addresses[index * SENSORS_ADDR_SIZE]);
-            if (tempr != -127) {
-                sensor_data[index].value = tempr;
-                sensor_data[index].last_time_read = last_time_sensors_read;
-                sensor_data[index].data_ready = true;
-                smaSensors[index]->addValue(tempr);
-            }
+    if (hasData(&settingsManager->getSettings()->ds18D20Addresses[sensor_index * SENSORS_ADDR_SIZE],
+                SENSORS_ADDR_SIZE)) {
+        float tempr = cycle_dallas_temperature->getTempC(
+                (uint8_t *) &settingsManager->getSettings()->ds18D20Addresses[sensor_index * SENSORS_ADDR_SIZE]);
+        if (tempr != -127) {
+            sensor_data[sensor_index].value = tempr;
+            sensor_data[sensor_index].last_time_read = last_time_sensors_read;
+            sensor_data[sensor_index].data_ready = true;
+            smaSensors[sensor_index]->addValue(tempr);
+        }
 
-            if (sensor_data[index].data_ready){
-                if (sensor_data[index].error_state)
-                    sensor_data[index].last_state_count = 1;
-                else
-                    sensor_data[index].last_state_count++;
+        if (sensor_data[sensor_index].data_ready){
+            if (sensor_data[sensor_index].error_state)
+                sensor_data[sensor_index].last_state_count = 1;
+            else
+                sensor_data[sensor_index].last_state_count++;
 
-                sensor_data[index].error_state = false;
-                sensor_data[index].total_success_count++;
+            sensor_data[sensor_index].error_state = false;
+            sensor_data[sensor_index].total_success_count++;
+        } else {
+            if (!sensor_data[sensor_index].error_state)
+                sensor_data[sensor_index].last_state_count = 1;
+            else
+                sensor_data[sensor_index].last_state_count++;
+
+            sensor_data[sensor_index].error_state = true;
+            sensor_data[sensor_index].total_errors_count++;
+        }
+        return true;
+    } else
+        return false;
+}
+
+void SensorController::startAsyncConversion(){
+
+    // init async conversion
+    cycle_dallas_temperature->setWaitForConversion(false);
+    cycle_dallas_temperature->requestTemperatures();
+    cycle_conversion_started_at = millis();
+
+}
+void SensorController::readNextBlockOfSensors(){
+    if (cycle_status == STATUS_CYCLE_AWAITING){
+
+        cycle_status = STATUS_CYCLE_STARTED;
+
+        for (auto & index : sensor_data)
+            index.data_ready = false;
+
+        // select first block
+        if (dallasTemperature != nullptr)
+            cycle_current_dallas_block = 0;
+        else if (dallasTemperature2 != nullptr)
+            cycle_current_dallas_block = 1;
+        else {
+            cycle_status = STATUS_CYCLE_DONE;
+            return;
+        }
+
+        // select sensorsDriver
+        cycle_dallas_temperature = cycle_current_dallas_block == 0
+                ? dallasTemperature
+                : dallasTemperature2;
+
+        startAsyncConversion();
+
+    }
+
+    if (cycle_status == STATUS_CYCLE_STARTED){
+
+        bool go_to_next_block = false;
+
+        if (cycle_dallas_temperature->isConversionComplete()){
+
+            cycle_dallas_temperature->blockTillConversionComplete(cycle_dallas_temperature->getResolution());
+
+            for (int i =0; i < MAX_SENSORS_COUNT; readDallasSensor(i++));
+
+            go_to_next_block = true;
+
+        } else if ((millis() - cycle_conversion_started_at) > 1000){
+            // timed out
+            Serial.printf("   DS18B20: TIMED OUT FOR: %d.\n", cycle_current_dallas_block);
+            go_to_next_block = true;
+        }
+
+        if (go_to_next_block) {
+            if ((cycle_current_dallas_block == 0) && dallasTemperature2) {
+                // the next block of dallas sensor is present;
+                cycle_current_dallas_block = 1;
+                cycle_dallas_temperature = dallasTemperature2;
+                startAsyncConversion();
             } else {
-                if (!sensor_data[index].error_state)
-                    sensor_data[index].last_state_count = 1;
-                else
-                    sensor_data[index].last_state_count++;
-
-                sensor_data[index].error_state = true;
-                sensor_data[index].total_errors_count++;
+                // there is no more sensors. The cycle is done
+                cycle_status = STATUS_CYCLE_DONE;
             }
         }
     }
-
 }
 
 void SensorController::fire() {
@@ -223,11 +289,11 @@ void SensorController::fire() {
         saveModelledSensorValue(T_SENS_INDEX_BACKWARD_FLOW, coreModel->backward_tempr);
     }
     else {
-        for (int index = 0; index < MAX_SENSORS_COUNT; index++)
-            sensor_data[index].data_ready = false;
+        // data ALREADY ready. see
+        if (cycle_status == STATUS_CYCLE_DONE) {
+            cycle_status = STATUS_CYCLE_AWAITING;
+        }
 
-        readDallas(dallasTemperature);
-        readDallas(dallasTemperature2);
     }
 
     data_ready = true;

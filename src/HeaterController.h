@@ -91,6 +91,8 @@ private:
 
     bool modelling_is_active;
 
+    float* core_power_history = nullptr;
+
 
     /**
      * calc core flow, core_DEMA_temperature, current_core_power, core_DEMA_power, core_EMA_power,

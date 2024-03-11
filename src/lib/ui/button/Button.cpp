@@ -3,10 +3,10 @@
 //
 
 #include <lib/ui/bufferedGraphics/DisplayBuffer.h>
-#include <lib/adafruit/gfxfont.h>
 #include <SPIFFS.h>
 #include "lib/adafruit/Fonts/FreeSans12pt7b.h"
 #include "Button.h"
+#include <sys/param.h>
 
 Button::Button(ILI9488 *display, int x, int y, int width, int height,
                const char *icon_file_name_on, const char *icon_file_name_off, int icon_width, int icon_height,
@@ -29,13 +29,20 @@ Button::Button(ILI9488 *display, int x, int y, int width, int height,
     state = false;
 }
 
-//float Button::getValue() {
-//    return state;
-//}
-//
 float Button::setState(bool state) {
     this->state = state;
     need_redraw = true;
+}
+
+void Button::setCaption(const char* new_caption){
+
+    if (!caption)
+        caption = (char *)malloc(BUTTON_MAX_CAPTION_LENGTH + 1);
+
+    int new_caption_len = MIN(strlen(new_caption), BUTTON_MAX_CAPTION_LENGTH);
+    caption[new_caption_len] = 0;
+    memcpy(caption, new_caption, new_caption_len);
+
 }
 
 void Button::draw() {
@@ -65,8 +72,6 @@ void Button::draw() {
     int y_icon = BUTTON_GRAPH_MARGIN_TOP + icon_height;
     int shift = y_icon * _width + x_icon;
 
-    Serial.println("free mem = " + String(esp_get_free_heap_size()));
-
     for (int row = _height - 1; row >= 0; row--) {
         file.readBytes((char *) &displayBuffer->buffer[shift], icon_width * 2);
         shift -= _width;
@@ -76,6 +81,11 @@ void Button::draw() {
 
     if (drawAction)
         drawAction(displayBuffer);
+
+    if (caption){
+        displayBuffer->setCursor(5, _height - 8);
+        displayBuffer->write(caption);
+    }
 
     display->drawImage((uint8_t*)displayBuffer->buffer, x, y, _width, _height);
     if (!defaultDisplayBuffer) {

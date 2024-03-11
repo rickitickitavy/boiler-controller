@@ -38,6 +38,9 @@ void reset_wdt() {
     }
 }
 
+long setup_finished_at = 0;
+bool screen_setup_finished = false;
+
 void setup() {
 
 #ifdef CON_DEBUG
@@ -58,6 +61,7 @@ void setup() {
     settingsManager = new SettingsManager();
 
     twoDeviceInfo("starting DS18D20...");
+    delay(500);
     sensorController = new SensorController(ONE_WIRE_PIN, ONE_WIRE_PIN_2, settingsManager);
     settingsManager->getNavigator()->setSensorList(sensorController->buildSensorsList());
 
@@ -117,17 +121,31 @@ void setup() {
     reset_wdt();
     twoDeviceInfo("all done");
 
-    touchDisplayController->setScreenIndex(0);
-    lastTimeDisplayed = 0;
-    LOGGER.info("display->setScreenIndex(0) done ");
-    delay(500);
+    touchDisplayController->getTft()->fillScreen(COLOR_BACKGROUND);
+    touchDisplayController->getTft()->setCursor(10, 160);
+    twoDeviceInfo("WAITING FOR OTA FOR 6 SECONDS...");
+    setup_finished_at = millis();
 }
 
 void loop() {
     ArduinoOTA.handle();
     wiFiController->checkConnection();
-    touchDisplayController->handle();
     reset_wdt();
+
+    // give first 3 seconds work OTA only
+    if ((millis() - setup_finished_at) < 6000)
+        return;
+    else if (!screen_setup_finished){
+        twoDeviceInfo("DONE.");
+        delay(500);
+        touchDisplayController->setScreenIndex(0);
+        lastTimeDisplayed = 0;
+        LOGGER.info("display->setScreenIndex(0) done ");
+        screen_setup_finished = true;
+    }
+
+    touchDisplayController->handle();
+    sensorController->readNextBlockOfSensors();
 
     if (((heaterController->handle()) && !heaterController->isModelling())
         || (heaterController->isModelling() && ((millis() - lastTimeDisplayed) > 3000))) {
@@ -136,8 +154,11 @@ void loop() {
         lastTimeDisplayed = millis();
         TelemetryDataRecord *telemetryDataRecord = heaterController->getTelemetryRecord();
 
+        touchDisplayController->setTimeToLiveValue(millis());
+
         touchDisplayController->updateInfo(telemetryDataRecord);
     }
     if (touchDisplayController->isDirty())
         touchDisplayController->drawScreen();
+
 }
