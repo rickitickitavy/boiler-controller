@@ -530,6 +530,12 @@ void TouchDisplayController::drawScreen0(TelemetryDataRecord *telemetryDataRecor
 
 }
 
+void TouchDisplayController::setTimeToLiveValue(long value) {
+    char caption[BUTTON_MAX_CAPTION_LENGTH + 1];
+    sprintf(caption, "%d", value / 1000L);
+    button_pumps->setCaption(caption);
+}
+
 ILI9488 *TouchDisplayController::getTft() {
     return tft;
 }

@@ -14,6 +14,7 @@
 #define BUTTON_GRAPH_MARGIN_BOTTOM 10
 #define BUTTON_GRAPH_MARGIN_TOP 10
 #define BUTTON_GRAPH_DEFAULT_WIDTH 15
+#define BUTTON_MAX_CAPTION_LENGTH 64
 
 enum DisplayButtonEvent{
     NONE = 0,
@@ -38,6 +39,7 @@ private:
     int icon_height;
     bool state;
     bool need_redraw;
+    char* caption = nullptr;
 
 public:
     int graph_width = BUTTON_GRAPH_DEFAULT_WIDTH;
@@ -53,6 +55,7 @@ public:
     float setState(bool state);
 //    float getValue();
 
+    void setCaption(const char* new_caption);
     void draw();
     void getXY(uint16_t &x, uint16_t &y);
     void getWH(uint16_t &w, uint16_t &h);

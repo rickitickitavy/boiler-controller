@@ -154,6 +154,8 @@ void loop() {
         lastTimeDisplayed = millis();
         TelemetryDataRecord *telemetryDataRecord = heaterController->getTelemetryRecord();
 
+        touchDisplayController->setTimeToLiveValue(millis());
+
         touchDisplayController->updateInfo(telemetryDataRecord);
     }
     if (touchDisplayController->isDirty())

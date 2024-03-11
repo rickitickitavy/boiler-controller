@@ -147,6 +147,8 @@ public:
     void dirty();
 
     bool isDirty();
+
+    void setTimeToLiveValue(long value);
 };
 
 
