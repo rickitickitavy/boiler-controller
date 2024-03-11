@@ -22,8 +22,8 @@ Logger::Logger() {
 #endif
     last_flushed_time = 0;
     collected_lines = LOGGER_SIZE;
-    datetime_buffer = (char*)malloc(150);
-    mini_datetime_buffer = (char*)malloc(48);
+    datetime_buffer = (char*)malloc(256);
+    mini_datetime_buffer = (char*)malloc(256);
     initSD();
 }
 //------------------------------------------------------------------------------

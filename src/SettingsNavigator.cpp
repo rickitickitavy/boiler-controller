@@ -349,6 +349,20 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
                                                                            360,
                                                                            (void *) &settings->heaterSettings.servos_hardware_settings.upper_door_servo_settings.working_max_angle,
                                                                            (void *) &settings->heaterSettings.servos_hardware_settings.upper_door_servo_settings.working_max_angle);
+
+    // Settings for the upper doors control
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>interval_for_calc_power_acc_sec",
+                                                                           INTEGER, 30,
+                                                                           300,
+                                                                           (void *) &settings->interval_for_calc_power_different_sec,
+                                                                           (void *) &settings->interval_for_calc_power_different_sec);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>core_power_to_close_upper_door_W",
+                                                                           INTEGER, 15000,
+                                                                           40000,
+                                                                           (void *) &settings->core_power_to_close_upper_door_if_ICPD_W,
+                                                                           (void *) &settings->core_power_to_close_upper_door_if_ICPD_W);
+
+
     // Temperature settings
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("heater>temperature>core_pwr_to_refuel",
                                                                            FLOAT, 5000,

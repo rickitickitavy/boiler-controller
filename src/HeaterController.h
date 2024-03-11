@@ -92,6 +92,7 @@ private:
     bool modelling_is_active;
 
     float* core_power_history = nullptr;
+    int core_power_history_size = 0;
 
 
     /**
@@ -157,6 +158,8 @@ private:
     float checkBound(float src, float min, float max);
 
     int heaterModeToSimpleMode(HeaterMode mode);
+
+    void calculateUpperDoorValue(double required_value);
 
 public:
     HeaterController(GlobalSettings *settings,

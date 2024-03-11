@@ -20,8 +20,7 @@ void Converter::bytesToAsciiHex(char *buf, uint8_t *src, int src_size) {
 }
 
 bool Converter::asciiHexDigitToInt4(uint8_t &dst, const char *src) {
-    char data = src[0];
-    LOGGER.info("char " + String(data) + "\"");
+
     if (*src >= '0' && *src <= '9') {
         // decimal digit
         dst = (uint8_t) (*src - '0');
@@ -31,8 +30,6 @@ bool Converter::asciiHexDigitToInt4(uint8_t &dst, const char *src) {
         dst = (uint8_t) (*src - 'A' + 0x0A);
     } else
         return false;
-
-    LOGGER.info("converted to  " + String(dst));
 
     return true;
 }
@@ -44,10 +41,7 @@ bool Converter::asciiHexToBytes(uint8_t *dst, const char *src, int byte_data_len
         if ((!asciiHexDigitToInt4(temp, &src[(index << 1) + 1]))
             || (!asciiHexDigitToInt4(dst[index], &src[index << 1])))
             return false;
-        LOGGER.info("  dst eq " + String(dst[index]));
-        LOGGER.info("  temp eq " + String(temp));
         dst[index] = (dst[index] << 4) | temp;
-        LOGGER.info("byte eq " + String(dst[index]));
     }
     return true;
 }

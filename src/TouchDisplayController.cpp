@@ -474,47 +474,32 @@ void TouchDisplayController::drawScreen1(TelemetryDataRecord *telemetryDataRecor
 
 void TouchDisplayController::drawScreen0(TelemetryDataRecord *telemetryDataRecord) {
     gauge_core_tempr->setValue(telemetryDataRecord->core_temp_sma);
-    gauge_core_tempr->setBgColor(telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_CORE]
-                                 ? UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL
-                                 : UI_PAGE_0_COLOR_GAUGE_BACKGROUND_ERROR);
+    gauge_core_tempr->setDataIsBad(!telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_CORE]);
 
     gauge_core_power->setValue(telemetryDataRecord->core_EMA_power);
+
     gauge_warm_flow_tempr->setValue(telemetryDataRecord->forwar_flow_temp_sma);
-    gauge_warm_flow_tempr->setBgColor(telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_FORWARD_FLOW]
-                                      ? UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL
-                                      : UI_PAGE_0_COLOR_GAUGE_BACKGROUND_ERROR);
+    gauge_warm_flow_tempr->setDataIsBad(!telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_FORWARD_FLOW]);
 
     gauge_core_output_tempr->setValue(telemetryDataRecord->output_temp_sma);
-    gauge_core_output_tempr->setBgColor(telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_OUTPUT_FLOW]
-                                        ? UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL
-                                        : UI_PAGE_0_COLOR_GAUGE_BACKGROUND_ERROR);
+    gauge_core_output_tempr->setDataIsBad(!telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_OUTPUT_FLOW]);
+
     if (telemetryDataRecord->power_balance_ready) {
         gauge_power_balance->setValue(telemetryDataRecord->power_balance_kwt_hour);
-        gauge_power_balance->setBgColor(telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_ACC_MID_HI]
-                                            ? UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL
-                                            : UI_PAGE_0_COLOR_GAUGE_BACKGROUND_ERROR);
-
+        gauge_power_balance->setDataIsBad(!telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_ACC_MID_HI]);
     }
 
     gauge_acc_top_tempr->setValue(telemetryDataRecord->accumulator_top_temp_sma);
-    gauge_acc_top_tempr->setBgColor(telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_ACC_TOP]
-                                        ? UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL
-                                        : UI_PAGE_0_COLOR_GAUGE_BACKGROUND_ERROR);
+    gauge_acc_top_tempr->setDataIsBad(!telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_ACC_TOP]);
 
     gauge_core_input_tempr->setValue(telemetryDataRecord->input_temp_sma);
-    gauge_core_input_tempr->setBgColor(telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_INPUT_FLOW]
-                                    ? UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL
-                                    : UI_PAGE_0_COLOR_GAUGE_BACKGROUND_ERROR);
+    gauge_core_input_tempr->setDataIsBad(!telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_INPUT_FLOW]);
 
     gauge_accumulated_energy->setValue(telemetryDataRecord->accumulated_energy_kwt_hour);
-    gauge_accumulated_energy->setBgColor(telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_ACC_MID_LO]
-                                    ? UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL
-                                    : UI_PAGE_0_COLOR_GAUGE_BACKGROUND_ERROR);
+    gauge_accumulated_energy->setDataIsBad(!telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_ACC_MID_LO]);
 
     gauge_acc_bottom_tempr->setValue(telemetryDataRecord->accumulator_bottom_temp_sma);
-    gauge_acc_bottom_tempr->setBgColor(telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_ACC_BOTTOM]
-                                       ? UI_PAGE_0_COLOR_GAUGE_BACKGROUND_NORMAL
-                                       : UI_PAGE_0_COLOR_GAUGE_BACKGROUND_ERROR);
+    gauge_acc_bottom_tempr->setDataIsBad(!telemetryDataRecord->sensor_data_ready[T_SENS_INDEX_ACC_BOTTOM]);
 
     int btn_color = telemetryDataRecord->main_door_opened
                     ? UI_PAGE_0_COLOR_GAUGE_BACKGROUND_OPENED

@@ -104,9 +104,9 @@ int SensorController::countSensors(DallasTemperature *dallasTemperature) {
         return 0;
     }
 
+    dallasTemperature->setWaitForConversion(true);
     int sensors_count = dallasTemperature->getDS18Count();
     char addr_ascii_hex_buffer[SENSORS_ADDR_SIZE * 2 + 1];
-    String sens_addr;
 
     LOGGER.info("   found " + String(sensors_count) + " sensors.");
 
@@ -114,8 +114,7 @@ int SensorController::countSensors(DallasTemperature *dallasTemperature) {
         dallasTemperature->getAddress(&found_sensors_addr[(found_sensors_count + termo_index) * SENSORS_ADDR_SIZE], termo_index);
         Converter::bytesToAsciiHex(addr_ascii_hex_buffer, &found_sensors_addr[(found_sensors_count + termo_index) * SENSORS_ADDR_SIZE],
                                    SENSORS_ADDR_SIZE);
-        sens_addr = String(addr_ascii_hex_buffer);
-        LOGGER.info("   temperature sensor " + String(termo_index) + " found (" + sens_addr + ")");
+        Serial.printf("   temperature sensor %d found (%s)\n", termo_index, addr_ascii_hex_buffer);
     }
     dallasTemperature->setResolution(12);
 
@@ -216,6 +215,7 @@ void SensorController::startAsyncConversion(){
     cycle_conversion_started_at = millis();
 
 }
+
 void SensorController::readNextBlockOfSensors(){
     if (cycle_status == STATUS_CYCLE_AWAITING){
 
