@@ -34,7 +34,7 @@ private:
     int base_radius;
     int half_arc_len;
     int bg_color, font_color;
-
+    bool data_is_bad = false;
 
 public:
     int graph_width = GAUGE_GRAPH_DEFAULT_WIDTH;
@@ -53,6 +53,8 @@ public:
     void draw();
 
     void setBgColor(int color);
+
+    void setDataIsBad(bool data_is_bad);
 };
 
 

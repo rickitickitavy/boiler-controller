@@ -19,10 +19,6 @@ SettingsManager::SettingsManager(){
     LOGGER.info("      scan_interval_ms: " + String(settings.heaterSettings.scan_interval_ms));
     LOGGER.info("      SMA_temperature_period_sec: " + String(settings.heaterSettings.temperatureSettings.SMA_temperature_period_sec));
 
-    LOGGER.info("b0 = " + String((byte)settings.initMarker[0]));
-    LOGGER.info("b1 = " + String((byte)settings.initMarker[1]));
-    LOGGER.info("b2 = " + String((byte)settings.initMarker[2]));
-    LOGGER.info("b3 = " + String((byte)settings.initMarker[3]));
     navigator = new SettingsNavigator(this);
 
     if ((settings.initMarker[0] != GLOBAL_SETTINGS_MARKER_0)
@@ -184,10 +180,23 @@ SettingsManager::SettingsManager(){
         settings.telemetrySettings.max_file_size_bytes = 20 * 1024 * 1024;
         settings.telemetrySettings.log_gebug_to_UART = false;
 
+        settings.core_power_to_close_upper_door_if_ICPD_W = 32000;
+        settings.interval_for_calc_power_different_sec = 120;
+
         logSettings();
 
         saveSetting(true);
         LOGGER.warning("Settings has never been initialized");
+    } else if (GLOBAL_CURRENT_SETTINGS_VERSION > settings.version) {
+        delay(4000);
+        if (settings.version == 1) {
+            settings.version = 2;
+            settings.core_power_to_close_upper_door_if_ICPD_W = 32000;
+            settings.interval_for_calc_power_different_sec = 120;
+            LOGGER.warning("Settings has been updated to version 2");
+        }
+
+        saveSetting(false);
     }
 
     logSettings();
@@ -204,8 +213,6 @@ void SettingsManager::readSettings(GlobalSettings* settings) {
     LOGGER.info("Loading " + String((int)sizeof(GlobalSettings)) + " bytes");
     for (int i = 0; i < sizeof(GlobalSettings); i++) {
         bufPtr[i] = EEPROM.read(i);
-        if ((i % 100) == 0) {
-        }
     }
     LOGGER.info("Settings read");
 }
@@ -269,6 +276,7 @@ GlobalSettings* SettingsManager::getSettings(){
 
 void SettingsManager::logSettings() {
     LOGGER.info("----- SETTINGS ----");
+    LOGGER.info("   version: " + String(settings.version));
     LOGGER.info("   wifw:");
     LOGGER.info("      SSID: " + String(settings.network.ssid));
     LOGGER.info("      password: " + String(settings.network.password));
@@ -291,20 +299,21 @@ void SettingsManager::logSettings() {
 
     char buffer[SENSORS_ADDR_SIZE * 2 + 1];
     Converter::bytesToAsciiHex(buffer, (uint8_t*)&settings.ds18D20Addresses[SENSORS_ADDR_SIZE * 0], SENSORS_ADDR_SIZE);
-    LOGGER.info("         core: " + String(buffer));
+    Serial.printf("         core: %s\n", buffer);
     Converter::bytesToAsciiHex(buffer, (uint8_t*)&settings.ds18D20Addresses[SENSORS_ADDR_SIZE * 1], SENSORS_ADDR_SIZE);
-    LOGGER.info("         output flow: " + String(buffer));
+    Serial.printf("         output flow: %s\n", buffer);
     Converter::bytesToAsciiHex(buffer, (uint8_t*)&settings.ds18D20Addresses[SENSORS_ADDR_SIZE * 2], SENSORS_ADDR_SIZE);
-    LOGGER.info("         input flow: " + String(buffer));
-    LOGGER.info("      termoaccumulator: ");
+    Serial.printf("         input flow: %s\n", buffer);
+    Serial.print("      termoaccumulator: \n");
     Converter::bytesToAsciiHex(buffer, (uint8_t*)&settings.ds18D20Addresses[SENSORS_ADDR_SIZE * 3], SENSORS_ADDR_SIZE);
-    LOGGER.info("         top: " + String(buffer));
+    Serial.printf("         top: %s\n", buffer);
     Converter::bytesToAsciiHex(buffer, (uint8_t*)&settings.ds18D20Addresses[SENSORS_ADDR_SIZE * 4], SENSORS_ADDR_SIZE);
-    LOGGER.info("         middle: " + String(buffer));
+    Serial.printf("         middle: %s\n", buffer);
     Converter::bytesToAsciiHex(buffer, (uint8_t*)&settings.ds18D20Addresses[SENSORS_ADDR_SIZE * 5], SENSORS_ADDR_SIZE);
-    LOGGER.info("         bottom: " + String(buffer));
-    LOGGER.info("   sensors scan interval (ms): " + String(settings.heaterSettings.scan_interval_ms));
-
+    Serial.printf("         bottom: %s", buffer);
+    Serial.printf("   sensors scan interval (ms): %d\n", settings.heaterSettings.scan_interval_ms);
+    Serial.printf("   core ICPD (sec): %d\n", settings.interval_for_calc_power_different_sec);
+    Serial.printf("   core power to close upper door if ICPD (Watts): %d\n", settings.core_power_to_close_upper_door_if_ICPD_W);
 }
 //--------------------------------------------------------------------
 

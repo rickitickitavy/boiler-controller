@@ -142,10 +142,32 @@ void Gauge::draw() {
     displayBuffer->setCursor(x_t >> 1, height - 3);
     displayBuffer->print(title);
 
+    // if data is bad then cross over gauge
+    if (data_is_bad){
+        int x_d = 20;
+        int y_d = 12;
+
+        displayBuffer->drawLine(x_d, height - x_d - y_d, width - x_d, x_d, 0xf800);
+        displayBuffer->drawLine(x_d, x_d, width - x_d, height - x_d - y_d, 0xf800);
+
+        for (int i = 0; i < 10; i++){
+            displayBuffer->drawLine(x_d, height - x_d - i - y_d, width - x_d - i, x_d, 0xf800);
+            displayBuffer->drawLine(x_d + i, height - x_d - y_d, width - x_d, x_d + i, 0xf800);
+
+            displayBuffer->drawLine(x_d + i, x_d, width - x_d, height - x_d - y_d - i, 0xf800);
+            displayBuffer->drawLine(x_d, x_d + i, width - x_d - i, height - x_d - y_d, 0xf800);
+        }
+    }
+
+    // draw gauge
     display->drawImage((uint8_t*)displayBuffer->buffer, x, y, width, height);
     if (!defaultDisplayBuffer) {
         displayBuffer->freeBuffer();
         free(displayBuffer);
     }
 
+}
+
+void Gauge::setDataIsBad(bool data_is_bad) {
+    this->data_is_bad = data_is_bad;
 }

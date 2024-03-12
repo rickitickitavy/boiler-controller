@@ -15,6 +15,7 @@ struct MainCoreParams{
     double core_flow;
     double backward_flow;
     double core_temperature;
+    float average_power_acceleration = 0;
 };
 
 

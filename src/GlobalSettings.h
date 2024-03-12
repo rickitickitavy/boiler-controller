@@ -3,7 +3,7 @@
 
 #include "HeaterSettings.h"
 
-#define GLOBAL_CURRENT_SETTINGS_VERSION 1
+#define GLOBAL_CURRENT_SETTINGS_VERSION 2
 #define GLOBAL_SETTINGS_MARKER_0 0x34
 #define GLOBAL_SETTINGS_MARKER_1 0x32
 #define GLOBAL_SETTINGS_MARKER_2 0x33
@@ -122,6 +122,18 @@ struct GlobalSettings {
      * Telemetry settings
      */
     TelemetrySettings telemetrySettings;
+
+    // all settings must be added to the end to guarantee update compatibility
+
+    /**
+     * ICPD
+     */
+    int interval_for_calc_power_different_sec = 180;
+
+    /*
+     * close upper door if the core power decreasing during the last ICPD seconds and has been fallen below this power
+     */
+    int core_power_to_close_upper_door_if_ICPD_W  = 32000;
 
 };
 

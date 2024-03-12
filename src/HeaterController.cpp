@@ -66,6 +66,11 @@ HeaterController::HeaterController(GlobalSettings *settings, SensorController *s
                                                               (void *) &coreModel->stage_index,
                                                               (void *) nullptr));
 
+    // init history buffer for the average power acceleration
+    core_power_history_size = settings->interval_for_calc_power_different_sec * 1000 / settings->heaterSettings.scan_interval_ms + 1;
+    core_power_history = (float *) malloc(sizeof (float) * core_power_history_size);
+    memset(core_power_history, 0, core_power_history_size * sizeof (float));
+
     pinMode(MAIN_DOOR_SENSOR_PIN, INPUT_PULLUP);
     attachInterrupt(MAIN_DOOR_SENSOR_PIN, MAIN_DOOR_ISR, CHANGE);
     MAIN_DOOR_ISR();
@@ -254,6 +259,11 @@ void HeaterController::calcMainCoreCharacteristics(long last_cycle_length) {
                   heaterSettings->temperatureSettings.core_power_EMA;
     }
 
+    // calc average core power acceleration for given period
+    memmove(core_power_history + 1, core_power_history, sizeof(float) * (core_power_history_size - 1)); // shift data
+    core_power_history[0] = mainCoreParams.core_EMA_power;
+    mainCoreParams.average_power_acceleration = core_power_history[0] - core_power_history[core_power_history_size - 1];
+
     // DEMA down bellow zero. Fix time or do nothing
     if (mainCoreParams.core_DEMA_temperature < 0) {
         if (!mainCoreParams.DiffEMA_down_bellow_zero_at)
@@ -385,9 +395,6 @@ bool HeaterController::handle() {
 //        last_cycle_length = 3001;
         sensorController->fire();
 
-
-        LOGGER.info(" last_cycle_length = " + String(last_cycle_length));
-
         calcMainCoreCharacteristics(last_cycle_length);
 
         handleModes();
@@ -518,7 +525,7 @@ void HeaterController::switchTo_WARMING_mode() {
     pumpsController->setOnPumpsCount(2);
     doorsController->setSmokePipeValue(heaterSettings->warming_settings.smoke_door_value_prcnt);
     doorsController->setOxygenDoorValue(100);
-    doorsController->setUpperDoorValue(heaterSettings->warming_settings.upper_door_value_prcnt);
+    calculateUpperDoorValue(heaterSettings->warming_settings.upper_door_value_prcnt);
     resetDEMAtimers();
 }
 //-------------------------------------------------------------------
@@ -543,6 +550,7 @@ void HeaterController::handle_WARMING_mode() {
         switchTo_FINAL_COOLING_mode();
     else {
         // process. if needed
+        calculateUpperDoorValue(heaterSettings->warming_settings.upper_door_value_prcnt);
     }
 }
 //-------------------------------------------------------------------
@@ -598,7 +606,7 @@ void HeaterController::switchTo_PID_mode() {
     LOGGER.info("Entered to PID mode");
     mode = HeaterMode::PID;
     doorsController->setSmokePipeValue(heaterSettings->burning_settings.smoke_door_value_prcnt);
-    doorsController->setUpperDoorValue(heaterSettings->burning_settings.upper_door_value_prcnt);
+    calculateUpperDoorValue(heaterSettings->burning_settings.upper_door_value_prcnt);
     resetDEMAtimers();
 }
 //-------------------------------------------------------------------
@@ -613,10 +621,11 @@ void HeaterController::handle_PID_mode() {
              && (pidRegulator->getValuePrcnt() > heaterSettings->burning_settings.oxygen_door_val_to_warming_mode))
         switchTo_WARMING_mode();
     else {
-//        pidRegulator->handle();
-        doorsController->setOxygenDoorValue(pidRegulator->getValuePrcnt());
-        // TODO
         // process
+        doorsController->setOxygenDoorValue(pidRegulator->getValuePrcnt());
+        calculateUpperDoorValue(heaterSettings->burning_settings.upper_door_value_prcnt);
+        doorsController->setSmokePipeValue(heaterSettings->burning_settings.smoke_door_value_prcnt);
+
     }
 }
 //-------------------------------------------------------------------
@@ -763,6 +772,16 @@ float HeaterController::checkBound(float src, float min, float max) {
     if (src < min)
         return min;
     return src;
+}
+//-------------------------------------------------------------------
+
+void HeaterController::calculateUpperDoorValue(double required_value) {
+    if ((mainCoreParams.average_power_acceleration <= 0) && (mainCoreParams.core_EMA_power < settings->core_power_to_close_upper_door_if_ICPD_W)){
+        // power is decreasing and has been fallen under critical value
+        doorsController->setUpperDoorValue(0);
+        Serial.printf("upper door is closed\n");
+    } else
+        doorsController->setUpperDoorValue(required_value);
 }
 //-------------------------------------------------------------------
 
