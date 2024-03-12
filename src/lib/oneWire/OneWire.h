@@ -1,20 +1,8 @@
 #ifndef OneWire_h
 #define OneWire_h
 
-#ifdef __cplusplus
-
-#include <stdint.h>
-
-#if defined(__AVR__)
-#include <util/crc16.h>
-#endif
-
-#if ARDUINO >= 100
-#include <Arduino.h>       // for delayMicroseconds, digitalPinToBitMask, etc
-#else
-#include "WProgram.h"      // for delayMicroseconds
-#include "pins_arduino.h"  // for digitalPinToBitMask, etc
-#endif
+#include <inttypes.h>
+#include "Arduino.h"       // for delayMicroseconds, digitalPinToBitMask, etc
 
 // You can exclude certain features from OneWire.  In theory, this
 // might save some space.  In practice, the compiler automatically
@@ -42,7 +30,7 @@
 // old versions of OneWire).  If you disable this, a slower
 // but very compact algorithm is used.
 #ifndef ONEWIRE_CRC8_TABLE
-#define ONEWIRE_CRC8_TABLE 1
+#define ONEWIRE_CRC8_TABLE 0
 #endif
 
 // You can allow 16-bit CRC checks by defining this to 1
@@ -51,27 +39,34 @@
 #define ONEWIRE_CRC16 1
 #endif
 
-// Board-specific macros for direct GPIO
-#include "util/OneWire_direct_regtype.h"
+#ifndef FALSE
+#define FALSE 0
+#endif
+#ifndef TRUE
+#define TRUE  1
+#endif
+
+#define IO_REG_TYPE uint32_t
 
 class OneWire
 {
-  private:
+private:
     IO_REG_TYPE bitmask;
     volatile IO_REG_TYPE *baseReg;
+    bool dual_mode;
+    IO_REG_TYPE bitmask_out;
+    volatile IO_REG_TYPE *baseReg_out;
 
 #if ONEWIRE_SEARCH
     // global search state
     unsigned char ROM_NO[8];
     uint8_t LastDiscrepancy;
     uint8_t LastFamilyDiscrepancy;
-    bool LastDeviceFlag;
+    uint8_t LastDeviceFlag;
 #endif
 
-  public:
-    OneWire() { }
-    OneWire(uint8_t pin) { begin(pin); }
-    void begin(uint8_t pin);
+public:
+    OneWire(uint8_t pin, int8_t pin_out = -1);
 
     // Perform a 1-Wire reset cycle. Returns 1 if a device responds
     // with a presence pulse.  Returns 0 if there is no device or the
@@ -99,10 +94,10 @@ class OneWire
 
     // Write a bit. The bus is always left powered at the end, see
     // note in write() about that.
-    void IRAM_ATTR write_bit(uint8_t v);
+    void write_bit(uint8_t v);
 
     // Read a bit.
-    uint8_t IRAM_ATTR read_bit(void);
+    uint8_t read_bit(void);
 
     // Stop forcing power onto the bus. You only need to do this if
     // you used the 'power' flag to write() or used a write_bit() call
@@ -125,7 +120,7 @@ class OneWire
     // might be a good idea to check the CRC to make sure you didn't
     // get garbage.  The order is deterministic. You will always get
     // the same devices in the same order.
-    bool search(uint8_t *newAddr, bool search_mode = true);
+    uint8_t search(uint8_t *newAddr, bool search_mode = true);
 #endif
 
 #if ONEWIRE_CRC
@@ -145,8 +140,8 @@ class OneWire
     //    ReadBytes(net, buf+3, 10);  // Read 6 data bytes, 2 0xFF, 2 CRC16
     //    if (!CheckCRC16(buf, 11, &buf[11])) {
     //        // Handle error.
-    //    }     
-    //          
+    //    }
+    //
     // @param input - Array of bytes to checksum.
     // @param len - How many bytes to use.
     // @param inverted_crc - The two CRC16 bytes in the received data.
@@ -173,10 +168,4 @@ class OneWire
 #endif
 };
 
-// Prevent this name from leaking into Arduino sketches
-#ifdef IO_REG_TYPE
-#undef IO_REG_TYPE
 #endif
-
-#endif // __cplusplus
-#endif // OneWire_h
