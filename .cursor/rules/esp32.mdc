@@ -5,4 +5,4 @@ alwaysApply: true
 
 # ESP32 skill
 
-Before editing firmware in this project, read and follow `.cursor/skills/esp32/SKILL.md` (and `patterns.md` when touching EEPROM, SPIFFS, OTA, servos/doors, or callbacks).
+Before editing firmware in this project, read and follow `.cursor/skills/esp32/SKILL.md` (and `patterns.md` when touching EEPROM, LittleFS, OTA, servos/doors, or callbacks).

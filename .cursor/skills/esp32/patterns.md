@@ -1,6 +1,6 @@
 # ESP32 patterns (boilercontroller)
 
-Project-derived detail only. Read when implementing persistence, SPIFFS assets, OTA, or door/servo control.
+Project-derived detail only. Read when implementing persistence, LittleFS assets, OTA, or door/servo control.
 
 ## Settings persistence
 
@@ -9,12 +9,12 @@ Project-derived detail only. Read when implementing persistence, SPIFFS assets, 
 - First boot (bad/missing marker): apply defaults, write marker/version, save.
 - On version mismatch, follow the existing upgrade path in `SettingsManager`; do not invent Preferences migration.
 
-## SPIFFS web assets
+## LittleFS web assets
 
-- Mount SPIFFS in `setup` (`SPIFFS.begin(...)`).
-- Serve static files from `data/` via the async web server; UI icons also load from SPIFFS (e.g. `/img/*.bmp`).
+- Mount LittleFS in `setup` (`LittleFS.begin(false)`).
+- Serve static files from `data/` via the async web server; UI icons also load from LittleFS (e.g. `/img/*.bmp`).
 - After changing `data/`, run `pio run -t uploadfs` in addition to firmware upload.
-- Do not switch to LittleFS unless the user explicitly requests it.
+- PlatformIO: `board_build.filesystem = littlefs`.
 
 ## OTA
 

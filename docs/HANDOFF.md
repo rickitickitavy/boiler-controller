@@ -46,7 +46,7 @@ Pins from [`src/Defines.h`](../src/Defines.h):
 - **Temps:** DS18x20 on two OneWire buses (`SensorController`); addresses in `GlobalSettings.ds18D20Addresses[]`
 - **Doors:** three LEDC PWM servos (`Servo` / `ServoController` / `DoorsController`); all inverted; ~60 °/s rate limit
 - **Pumps:** pumps 1–2 constructed in control path; 3–4 macros exist but are unused
-- **FS:** **SPIFFS** for web/`data/` assets (not LittleFS)
+- **FS:** **LittleFS** for web/`data/` assets (`board_build.filesystem = littlefs`)
 - **Settings:** EEPROM 4096 bytes, marker `0x34 0x32 0x33 0x31`, `GLOBAL_CURRENT_SETTINGS_VERSION` = 2
 
 **Pin clash:** `ONE_WIRE_PIN_2` and `PUMP_4_PIN` both use GPIO **32**.
@@ -127,7 +127,7 @@ E_kWh = ((T_top − 35) × boiler_ltr + (avg_acc − 35) × accumulator_ltr)
 - Gauges include Core T, Core P, Warm T, Output T, Pwr P, Top T, Input T, Energy kWh, Bottom T
 - Mid-acc sensors feed energy math but are not dedicated main gauges
 - `drawScreen1` (door % layout) largely commented out
-- BMP icons from SPIFFS (`/img/…`)
+- BMP icons from LittleFS (`/img/…`)
 - **No** multilevel TFT settings menu; configuration is **web** (`data/settings.html`, `/settingsApi`)
 
 ## Network / OTA / persistence
@@ -135,7 +135,7 @@ E_kWh = ((T_top − 35) × boiler_ltr + (avg_acc − 35) × accumulator_ltr)
 | Concern | As-is behavior |
 |---------|----------------|
 | WiFi | STA to `network.ssid/password`; fail → AP `{mqttDeviceName}-WiFi` / `00000000`, IP `192.168.0.1`, mDNS HTTP |
-| Web | Async server: `/`, `/settings.html`, `/settingsApi`, modelling / door / telemetry endpoints; files from SPIFFS |
+| Web | Async server (`ESPAsyncWebServer` via `lib_deps`): `/`, `/settings.html`, `/settingsApi`, modelling / door / telemetry endpoints; files from LittleFS |
 | MQTT | Fields + ParamDescriptors exist; `PubSubClient` vendored — **not constructed or looped in app code** |
 | OTA | `ArduinoOTA` in `main.cpp`; **6 s OTA-only window** after boot; TFT progress; no HTTP `/update` |
 | EEPROM | `SettingsManager`: versioned `GlobalSettings` + 4-byte marker |
@@ -160,7 +160,6 @@ E_kWh = ((T_top − 35) × boiler_ltr + (avg_acc − 35) × accumulator_ltr)
 ## Known gaps (do not “fix” unless asked)
 
 - MQTT runtime unused
-- SPIFFS (not LittleFS); no `board_build.filesystem` in `platformio.ini`
 - Pins live in `Defines.h` (no `include/pins.h`)
 - GPIO 32 shared by OW2 and `PUMP_4`
 - `EMERGENCY_VALVE_PIN == 0` makes some `if (EMERGENCY_VALVE_PIN)` setup paths skip

@@ -49,6 +49,7 @@ float Gauge::getValue() {
 float Gauge::setValue(float value) {
     this->value = value;
     initialized = true;
+    return this->value;
 }
 
 void Gauge::draw() {

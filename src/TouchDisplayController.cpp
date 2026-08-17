@@ -2,7 +2,7 @@
 // Created by dsporykhin on 24.07.22.
 //
 
-#include <SPIFFS.h>
+#include <LittleFS.h>
 #include <lib/ui/bufferedGraphics/DisplayBuffer.h>
 #include <lib/xpt2046/xpt2046.h>
 #include "TouchDisplayController.h"
@@ -337,7 +337,7 @@ void TouchDisplayController::initScreen0() {
 
 uint8_t *TouchDisplayController::loadImage(const char *file_name, uint16_t width, uint16_t height) {
     uint8_t *buffer;
-    File file = SPIFFS.open(file_name, "r");
+    File file = LittleFS.open(file_name, "r");
     if (!file)
         Serial.println("Failed to open the file");
     else {

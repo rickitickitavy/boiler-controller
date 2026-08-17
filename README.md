@@ -26,5 +26,6 @@ Board: `esp32dev`. Upload port defaults to `/dev/ttyUSB0` in [`platformio.ini`](
 - ILI9488 TFT + XPT2046 touch
 - DS18x20 on dual OneWire buses
 - LEDC PWM servos for three doors
-- SPIFFS web UI under [`data/`](data/)
+- LittleFS web UI under [`data/`](data/)
 - EEPROM versioned settings (`GlobalSettings`)
+- `ESPAsyncWebServer` + `AsyncTCP` via PlatformIO `lib_deps`

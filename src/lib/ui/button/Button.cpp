@@ -3,7 +3,7 @@
 //
 
 #include <lib/ui/bufferedGraphics/DisplayBuffer.h>
-#include <SPIFFS.h>
+#include <LittleFS.h>
 #include "lib/adafruit/Fonts/FreeSans12pt7b.h"
 #include "Button.h"
 #include <sys/param.h>
@@ -32,6 +32,7 @@ Button::Button(ILI9488 *display, int x, int y, int width, int height,
 float Button::setState(bool state) {
     this->state = state;
     need_redraw = true;
+    return state ? 1.0f : 0.0f;
 }
 
 void Button::setCaption(const char* new_caption){
@@ -56,9 +57,9 @@ void Button::draw() {
 
     File file;
     if (state)
-        file = SPIFFS.open(icon_file_name_on, "r");
+        file = LittleFS.open(icon_file_name_on, "r");
     else
-        file = SPIFFS.open(icon_file_name_off, "r");
+        file = LittleFS.open(icon_file_name_off, "r");
 
 
     if (!file) {

@@ -5,7 +5,7 @@ ESP32-WROOM wood boiler controller (PlatformIO / Arduino). Controls three damper
 ## Before changing firmware
 
 1. Read and follow [`.cursor/skills/esp32/SKILL.md`](.cursor/skills/esp32/SKILL.md).
-2. For EEPROM, SPIFFS, OTA, or servos/doors, also read [`.cursor/skills/esp32/patterns.md`](.cursor/skills/esp32/patterns.md).
+2. For EEPROM, LittleFS, OTA, or servos/doors, also read [`.cursor/skills/esp32/patterns.md`](.cursor/skills/esp32/patterns.md).
 3. For product/runtime context, use [`docs/HANDOFF.md`](docs/HANDOFF.md).
 
 ## Always-on project rules
@@ -35,7 +35,8 @@ Full glossary, FSM, pins, and energy formulas: [`docs/HANDOFF.md`](docs/HANDOFF.
 - Board: `esp32dev` (ESP32-WROOM) — see [`platformio.ini`](platformio.ini)
 - Pins: [`src/Defines.h`](src/Defines.h) (not `include/pins.h`)
 - Settings: EEPROM + versioned `GlobalSettings` — **not** Preferences/NVS
-- Web assets: **SPIFFS** under [`data/`](data/); flash with `pio run -t uploadfs`
+- Web assets: **LittleFS** under [`data/`](data/); flash with `pio run -t uploadfs`
+- Web server: PlatformIO `me-no-dev/ESPAsyncWebServer` + `AsyncTCP` (not vendored under `src/lib/`)
 - Display: ILI9488 + XPT2046, Adafruit GFX
 - Temps: DS18x20 / OneWire via `SensorController`
 - Doors: LEDC PWM servos via `DoorsController` / `ServoController`
@@ -55,7 +56,7 @@ pio device monitor     # 921600
 - **UI:** `setTextSize(1)` with GFXfonts; no bitmap upscaling at draw time.
 - **Callbacks:** do not add new fake class singletons; register handlers from owners (e.g. `main.cpp`). Existing `HeaterController::instance` / `TouchDisplayController::instance` are legacy — do not expand.
 - **Shared code:** extend neutral APIs / descriptor fields; do not add `if (paramName == "...")` lists in universal paths.
-- **Filesystem:** keep **SPIFFS** unless the user explicitly requests a migration.
+- **Filesystem:** **LittleFS** (`board_build.filesystem = littlefs`); keep SPIFFS out of new code.
 - **Pins:** change only in `Defines.h` with care (GPIO 32 is already contended).
 - **Persistence:** EEPROM versioned struct — do not switch to Preferences/NVS casually.
 

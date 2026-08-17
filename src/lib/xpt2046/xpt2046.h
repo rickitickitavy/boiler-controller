@@ -13,7 +13,7 @@
 
 // On my display driver ICs i,j mapped to (width-y),x
 //  Flipping can be handled by order of calibration points, but not swapping
-#include "../../../../../../../.platformio/packages/toolchain-xtensa32/xtensa-esp32-elf/include/c++/5.2.0/cstdint"
+#include <cstdint>
 #include "esp32-hal-gpio.h"
 #if !defined(SWAP_AXES)
 #  define SWAP_AXES 1

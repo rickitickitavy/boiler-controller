@@ -2,21 +2,21 @@
 name: esp32
 description: >-
   Applies ESP32 PlatformIO Arduino conventions for the wood boiler controller:
-  GFX UI rules, callback ownership, SPIFFS/OTA/EEPROM patterns, DS18x20 sensors,
+  GFX UI rules, callback ownership, LittleFS/OTA/EEPROM patterns, DS18x20 sensors,
   and LEDC servo doors. Use when working on ESP32-WROOM, PlatformIO, platformio.ini,
-  SPIFFS, ArduinoOTA, ILI9488/Adafruit GFX, DS18x20, PWM servos, WiFi/web firmware,
+  LittleFS, ArduinoOTA, ILI9488/Adafruit GFX, DS18x20, PWM servos, WiFi/web firmware,
   or when the user mentions the esp32 skill.
 ---
 
 # ESP32 (boilercontroller conventions)
 
-Rules below are from **this** project’s stack. Document as-is behavior; do not invent pressure-controller / LittleFS / C3 guidance here.
+Rules below are from **this** project’s stack. Document as-is behavior; do not invent pressure-controller / C3 guidance here.
 
 ## UI (GFX / ILI9488)
 
 - Never use `setTextSize(n)` with `n != 1` to enlarge text.
 - Choose a properly sized Adafruit GFX font; keep `setTextSize(1)` when using GFXfonts.
-- Never scale bitmap icons at draw time; draw native-resolution BMPs from SPIFFS 1:1.
+- Never scale bitmap icons at draw time; draw native-resolution BMPs from LittleFS 1:1.
 - Prefer partial gauge/widget redraws in normal updates; avoid full-screen clear in the hot path.
 
 ## Class instance references
@@ -35,8 +35,9 @@ Rules below are from **this** project’s stack. Document as-is behavior; do not
 ## Layout and stack
 
 - Pins as macros in [`src/Defines.h`](../../../src/Defines.h) (not `include/pins.h`).
-- PlatformIO `espressif32` + Arduino; board `esp32dev` — see `platformio.ini`.
-- Filesystem: **SPIFFS**; web assets under `data/`.
+- PlatformIO `platformio/espressif32@6.12.0` + Arduino; board `esp32dev` — see `platformio.ini`.
+- Filesystem: **LittleFS** (`board_build.filesystem = littlefs`); web assets under `data/`.
+- Web server: `me-no-dev/ESPAsyncWebServer@3.6.0` + `me-no-dev/AsyncTCP@3.3.2` via `lib_deps` (not under `src/lib/`).
 - Persistence: EEPROM + versioned `GlobalSettings` — **not** Preferences/NVS; do not switch casually.
 - Temps: DS18x20 via `SensorController` / Dallas + OneWire; addresses in settings.
 - Doors: LEDC PWM via `src/lib/servo/Servo.*`, rate-limited by `ServoController`, owned by `DoorsController`.
@@ -72,4 +73,4 @@ Settings and ParamDescriptors exist; no app-level MQTT client loop. Do not add p
 
 ## Deeper notes
 
-- For EEPROM / SPIFFS / door ownership detail, see [patterns.md](patterns.md).
+- For EEPROM / LittleFS / door ownership detail, see [patterns.md](patterns.md).

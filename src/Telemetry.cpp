@@ -209,6 +209,7 @@ bool Telemetry::addData(TelemetryDataRecord *dataRecord) {
                 dataRecord->core_SMA_diff_tempr, dataRecord->main_door_opened ? "true" : "false");
         LOGGER.info(save_buffer);
     }
+    return false;
 }
 
 void Telemetry::getRawCsvSensors(TelemetryDataRecord *dataRecord, char *buffer) {

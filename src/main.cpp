@@ -3,7 +3,7 @@
 //
 #include <Wire.h>
 #include <HardwareSerial.h>
-#include <SPIFFS.h>
+#include <LittleFS.h>
 #include <esp_task_wdt.h>
 #include "Logger.h"
 #include "SettingsManager.h"
@@ -76,10 +76,10 @@ void setup() {
     touchDisplayController->setHeaterController(heaterController);
 
     LOGGER.info("Mounting internal flash...");
-    if (!SPIFFS.begin(false, "/spiffs", 5)) {
+    if (!LittleFS.begin(false)) {
         LOGGER.error(" Mount Failed");
     } else
-    LOGGER.error("   mounted");
+        LOGGER.info("   mounted");
 
     reset_wdt();
     twoDeviceInfo("starting WiFi...");

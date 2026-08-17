@@ -7,7 +7,7 @@
 
 #include <EEPROM.h>
 #include <FS.h>
-#include <SPIFFS.h>
+#include <LittleFS.h>
 
 SettingsManager::SettingsManager(){
 
@@ -250,7 +250,7 @@ void SettingsManager::saveSetting(GlobalSettings* settingsToSave, bool restart) 
     delay(20);
     if (restart) {
         LOGGER.warning("RESTARTING...");
-        SPIFFS.end();
+        LittleFS.end();
         ESP.restart();
     }
 }
