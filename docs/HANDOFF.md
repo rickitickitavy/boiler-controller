@@ -47,6 +47,8 @@ Pins from [`src/Defines.h`](../src/Defines.h):
 - **Doors:** three LEDC PWM servos (`Servo` / `ServoController` / `DoorsController`); all inverted; ~60 °/s rate limit
 - **Pumps:** pumps 1–2 constructed in control path; 3–4 macros exist but are unused
 - **FS:** **LittleFS** for web/`data/` assets (`board_build.filesystem = littlefs`)
+- **Flash partitions:** custom [`partitions_4mb_ota_512fs.csv`](../partitions_4mb_ota_512fs.csv) — app0/app1 **1728 KB** each, LittleFS (`spiffs` subtype) **512 KB** (wired via `board_build.partitions` in `platformio.ini`). First cutover after changing this CSV needs a full reflash (`upload` + `uploadfs`), not app-only OTA.
+- **Web UI:** vanilla JS (`fetch`) in `data/index.html` / `data/settings.html` — **no jQuery**. TFT BMP icons remain under `data/img/`.
 - **Settings:** EEPROM 4096 bytes, marker `0x34 0x32 0x33 0x31`, `GLOBAL_CURRENT_SETTINGS_VERSION` = 2
 
 **Pin clash:** `ONE_WIRE_PIN_2` and `PUMP_4_PIN` both use GPIO **32**.
@@ -134,7 +136,8 @@ E_kWh = ((T_top − 35) × boiler_ltr + (avg_acc − 35) × accumulator_ltr)
 
 | Concern | As-is behavior |
 |---------|----------------|
-| WiFi | STA to `network.ssid/password`; fail → AP `{mqttDeviceName}-WiFi` / `00000000`, IP `192.168.0.1`, mDNS HTTP |
+| WiFi | STA to `network.ssid/password`; fail → AP `{mqttDeviceName}-WiFi` / `00000000`, IP `192.168.0.1`, mDNS HTTP; connect wait kicks `esp_task_wdt_reset()` |
+| TWDT | Arduino may pre-init TWDT; `setup` uses `esp_task_wdt_reconfigure` for **25 s** if `init` returns `ESP_ERR_INVALID_STATE` |
 | Web | Async server (`ESPAsyncWebServer` via `lib_deps`): `/`, `/settings.html`, `/settingsApi`, modelling / door / telemetry endpoints; files from LittleFS |
 | Display libs | Adafruit GFX + BusIO via `lib_deps`; customized driver in `lib/ILI9488/` |
 | Temps libs | `paulstoffregen/OneWire` + `milesburton/DallasTemperature` via `lib_deps` |
@@ -173,4 +176,5 @@ E_kWh = ((T_top − 35) × boiler_ltr + (avg_acc − 35) × accumulator_ltr)
 
 - Prefer small diffs; match existing naming.
 - After `data/` changes, flash filesystem (`pio run -t uploadfs`) as well as firmware.
+- After changing `partitions_4mb_ota_512fs.csv`, erase/full-flash once so app and FS offsets match.
 - Keep this handoff in sync when behavior or APIs change.

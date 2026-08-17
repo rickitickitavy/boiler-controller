@@ -4,12 +4,28 @@
     <meta charset="UTF-8">
     <title>Lamp WiFi settings</title>
     <link rel="stylesheet" type="text/css" href="css/all.css"/>
-    <script src="js/jq/jquery-3.4.1.js"></script>
     <script language="JavaScript">
 
         var manual_oxygen_door_opened_for_sec = 0;
         var main_door_opened = false;
         var main_door_element;
+
+        function requestJson(url, method, body) {
+            var opts = { method: method || "GET" };
+            if (body != null) {
+                opts.headers = { "Content-Type": "application/x-www-form-urlencoded" };
+                opts.body = body;
+            }
+            return fetch(url, opts).then(function (r) {
+                return r.text().then(function (text) {
+                    try {
+                        return { ok: true, status: r.status, json: JSON.parse(text), text: text };
+                    } catch (e) {
+                        return { ok: false, status: r.status, json: null, text: text };
+                    }
+                });
+            });
+        }
 
         function blinkMainDoor(){
             if (main_door_opened) {
@@ -119,18 +135,12 @@
         }
 
         function getTelemetry() {
-            $.ajax({
-                url: "/getTelemetry",
-                method: "GET",
-                data: "on=0",
-                success: function (response) {
-                    updateGraph(response);
-                }.bind(this),
-                error: function (error) {
-                    if (error.status == 200)
-                        alert("bad JSON");
-                }.bind(this),
-                dataType: "json"
+            requestJson("/getTelemetry?on=0", "GET", null).then(function (result) {
+                if (result.ok) {
+                    updateGraph(result.json);
+                } else if (result.status == 200) {
+                    alert("bad JSON");
+                }
             });
         }
 
@@ -142,18 +152,13 @@
         }
 
         function openOrCloseOxygenDoor() {
-            $.ajax({
-                url: manual_oxygen_door_opened_for_sec == 0 ? "/openDoorFor15Min" : "/closeDoor",
-                method: "GET",
-                data: "on=0",
-                success: function (response) {
+            var url = (manual_oxygen_door_opened_for_sec == 0 ? "/openDoorFor15Min" : "/closeDoor") + "?on=0";
+            requestJson(url, "GET", null).then(function (result) {
+                if (result.ok) {
                     getTelemetry();
-                }.bind(this),
-                error: function (error) {
-                    if (error.status == 200)
-                        alert("bad JSON");
-                }.bind(this),
-                dataType: "json"
+                } else if (result.status == 200) {
+                    alert("bad JSON");
+                }
             });
         }
 

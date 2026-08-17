@@ -81,7 +81,8 @@ ILI9488::ILI9488(int8_t cs, int8_t dc, int8_t rst) : Adafruit_GFX(ILI9488_TFTWID
     _dc = dc;
     _rst = rst;
     hwSPI = true;
-    _mosi = _sclk = 0;
+    // Not used in hw SPI; must not be 0 — digitalWrite(0) spam on modern ESP32 Arduino HAL
+    _mosi = _sclk = -1;
 }
 
 void ILI9488::spiwrite(uint8_t c) {
@@ -96,7 +97,8 @@ void ILI9488::writecommand(uint8_t c) {
     *csport &= ~cspinmask;
 #else
     digitalWrite(_dc, LOW);
-    digitalWrite(_sclk, LOW);
+    if (_sclk >= 0)
+        digitalWrite(_sclk, LOW);
     digitalWrite(_cs, LOW);
 #endif
 
@@ -867,7 +869,8 @@ uint8_t ILI9488::readcommand8(uint8_t c, uint8_t index) {
     digitalWrite(_cs, HIGH);
 
     digitalWrite(_dc, LOW);
-    digitalWrite(_sclk, LOW);
+    if (_sclk >= 0)
+        digitalWrite(_sclk, LOW);
     digitalWrite(_cs, LOW);
     spiwrite(c);
 

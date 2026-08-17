@@ -3,6 +3,7 @@
 //
 
 #include <ESPmDNS.h>
+#include <esp_task_wdt.h>
 #include "WiFiController.h"
 
 WiFiController::WiFiController(SettingsManager *settingsManager) {
@@ -84,6 +85,7 @@ void WiFiController::init() {
 
         long startedAt = millis();
         while (!WiFi.isConnected() && (millis() - startedAt < 10000)) {
+            esp_task_wdt_reset();
             delay(20);
         }
         if (!WiFi.isConnected()) {
@@ -92,19 +94,23 @@ void WiFiController::init() {
             LOGGER.error("Not connected. Switching to AP mode...");
 
             WiFi.mode(WIFI_OFF);
+            esp_task_wdt_reset();
             delay(300);
 
             WiFi.hostname(String(settings->mqttDeviceName));
 
             IPAddress ipAddress = IPAddress(192, 168, 0, 1);
             WiFi.mode(WIFI_AP);
+            esp_task_wdt_reset();
             delay(300);
             WiFi.softAP(String(String(settings->mqttDeviceName) + "-WiFi").c_str(), "00000000");
+            esp_task_wdt_reset();
             delay(20);
             WiFi.softAPConfig(ipAddress, ipAddress, IPAddress(255, 255, 255, 0));
             delay(20);
             MDNS.begin(settings->mqttDeviceName);
             MDNS.addService("http", "tcp", 80);
+            esp_task_wdt_reset();
             delay(400);
             LOGGER.info("    switched to AP mode. '" + String(settings->mqttDeviceName) +
                         "-WiFi'. password '00000000' (local IP " + WiFi.softAPIP().toString() + ")");

@@ -59,7 +59,10 @@ void setup() {
             .idle_core_mask = 0,
             .trigger_panic = true,
     };
-    esp_task_wdt_init(&wdt_config);
+    esp_err_t wdt_err = esp_task_wdt_init(&wdt_config);
+    if (wdt_err == ESP_ERR_INVALID_STATE) {
+        wdt_err = esp_task_wdt_reconfigure(&wdt_config);
+    }
     esp_task_wdt_add(NULL); //add current thread to WDT watch
 
     twoDeviceInfo("Starting...");
