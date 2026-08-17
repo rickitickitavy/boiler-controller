@@ -207,7 +207,7 @@ void WebServerController::closeDoor(AsyncWebServerRequest *request) {
 //----------------------------------------------------------------------
 
 void WebServerController::manualWarmControl(AsyncWebServerRequest *request) {
-    heaterController->postCounter++;
+    heaterController->postCounter = true;
     if (request->arg("action") == "open")
         openDoorFor15Min(request);
     else if (request->arg("action") == "close")

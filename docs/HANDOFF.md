@@ -142,7 +142,6 @@ E_kWh = ((T_top − 35) × boiler_ltr + (avg_acc − 35) × accumulator_ltr)
 | OTA | `ArduinoOTA` in `main.cpp`; **6 s OTA-only window** after boot; TFT progress; no HTTP `/update` |
 | EEPROM | `SettingsManager`: versioned `GlobalSettings` + 4-byte marker |
 | NTP | Implemented but call site commented out |
-| FTP | Vendored; not wired from `main` |
 
 ## Key sources
 
