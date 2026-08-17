@@ -25,7 +25,7 @@
 #define SCREEN_GREEN 0x0600
 #define SCREEN_LIGHT_LIGHT_GREEN 0xDFF9
 
-#define COLOR_BACKGROUND ST77XX_WHITE
+#define COLOR_BACKGROUND ILI9488_WHITE
 #define COLOR_CORE SCREEN_COLOR_LIGHT_GRAY
 #define COLOR_ACCUMULATOR SCREEN_COLOR_LIGHT_LIGHT_BLUE
 #define COLOR_CONTROLLER SCREEN_LIGHT_LIGHT_GREEN
@@ -57,11 +57,9 @@
 //0000 0    110 000    0 1001
 
 // 217 255 203
-#include <lib/adafruit/ILI9488.h>
+#include <ILI9488.h>
+#include <Adafruit_GFX.h>
 #include <lib/ui/button/Button.h>
-#include "lib/adafruit/Adafruit_GFX.h"
-#include "lib/adafruit/Adafruit_ST7789.h"
-#include "lib/adafruit/Fonts/FreeMonoBoldOblique18pt7b.h"
 #include "Telemetry.h"
 #include "lib/ui/gauge/Gauge.h"
 #include "HeaterController.h"

@@ -2,9 +2,9 @@
 // Created by dsporykhin on 12.01.23.
 //
 
-#include <lib/adafruit/gfxfont.h>
+#include <Adafruit_GFX.h>
 #include <lib/ui/bufferedGraphics/DisplayBuffer.h>
-#include "lib/adafruit/Fonts/FreeSans12pt7b.h"
+#include <Fonts/FreeSans12pt7b.h>
 #include "Gauge.h"
 
 Gauge::Gauge(ILI9488 *display, const char *title, int x, int y, int width, int height, int bg_color, int font_color, GFXfont *font,

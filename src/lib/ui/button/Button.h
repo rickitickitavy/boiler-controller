@@ -7,8 +7,8 @@
 
 
 #include <lib/ui/bufferedGraphics/DisplayBuffer.h>
-#include "lib/adafruit/gfxfont.h"
-#include "lib/adafruit/ILI9488.h"
+#include <Adafruit_GFX.h>
+#include <ILI9488.h>
 #include "lib/ui/bufferedGraphics/ui_struct.h"
 
 #define BUTTON_GRAPH_MARGIN_BOTTOM 10

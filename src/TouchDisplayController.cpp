@@ -7,9 +7,7 @@
 #include <lib/xpt2046/xpt2046.h>
 #include "TouchDisplayController.h"
 #include "Defines.h"
-#include "lib/adafruit/Fonts/FreeSans12pt7b.h"
-#include "lib/adafruit/Fonts/FreeSerif9pt7b.h"
-#include "lib/adafruit/Fonts/FreeMono12pt7b.h"
+#include <Fonts/FreeSans12pt7b.h>
 #include "HeaterController.h"
 #include "lib/ui/gauge/Gauge.h"
 

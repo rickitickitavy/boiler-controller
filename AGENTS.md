@@ -37,8 +37,8 @@ Full glossary, FSM, pins, and energy formulas: [`docs/HANDOFF.md`](docs/HANDOFF.
 - Settings: EEPROM + versioned `GlobalSettings` — **not** Preferences/NVS
 - Web assets: **LittleFS** under [`data/`](data/); flash with `pio run -t uploadfs`
 - Web server: PlatformIO `me-no-dev/ESPAsyncWebServer` + `AsyncTCP` (not vendored under `src/lib/`)
-- Display: ILI9488 + XPT2046, Adafruit GFX
-- Temps: DS18x20 / OneWire via `SensorController`
+- Display: custom local `lib/ILI9488` + XPT2046; Adafruit GFX / BusIO via `lib_deps`
+- Temps: DS18x20 via `SensorController` + `paulstoffregen/OneWire` + `milesburton/DallasTemperature` (`lib_deps`)
 - Doors: LEDC PWM servos via `DoorsController` / `ServoController`
 - MQTT: settings fields exist; **runtime client not wired** — do not invent a publish loop unless asked
 

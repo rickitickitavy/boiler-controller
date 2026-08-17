@@ -2,7 +2,7 @@
 // Created by dsporykhin on 15.01.23.
 //
 
-#include <lib/adafruit/gfxfont.h>
+#include <Adafruit_GFX.h>
 #include <Logger.h>
 #include "DisplayBuffer.h"
 
