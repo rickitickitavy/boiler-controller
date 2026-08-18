@@ -24,7 +24,7 @@ Primary goal: drive the three damper servos to burn safely (avoid overheating) a
 
 ## Hardware (current)
 
-Pins from [`src/Defines.h`](../src/Defines.h):
+Pins from [`include/pins.h`](../include/pins.h):
 
 | Function | Macro | GPIO |
 |----------|--------|------|
@@ -38,8 +38,8 @@ Pins from [`src/Defines.h`](../src/Defines.h):
 | TFT CS / DC / RST | `DISPLAY_*` | 17 / 15 / 16 |
 | Touch CS / PENIRQ | `TOUCH_CS`, `TOUCH_PEN` | 12 / 36 |
 | Fuel hatch sensor | `MAIN_DOOR_SENSOR_PIN` | 34 |
-| External WDT kick | (hardcoded in `main.cpp`) | 5 |
-| I2C | `Wire.begin(21, 22)` | 21 / 22 |
+| External WDT kick | `EXTERNAL_WDT_PIN` | 5 |
+| I2C SDA / SCL | `I2C_SDA_PIN`, `I2C_SCL_PIN` | 21 / 22 |
 
 - **MCU:** ESP32-WROOM (`esp32dev`)
 - **Display:** custom local `lib/ILI9488` + XPT2046 touch (`TouchDisplayController`), rotation 1; Adafruit GFX / BusIO via `lib_deps`
@@ -158,13 +158,13 @@ E_kWh = ((T_top − 35) × boiler_ltr + (avg_acc − 35) × accumulator_ltr)
 | TFT + gauges | `src/TouchDisplayController.*` |
 | Settings / EEPROM | `src/SettingsManager.*`, `src/GlobalSettings.h`, `src/SettingsNavigator.*` |
 | WiFi / web | `src/WiFiController.*`, `src/WebServerController.*` |
-| Pins / constants | `src/Defines.h` |
+| Pins | `include/pins.h` |
+| Constants / log / sensor indices | `src/Defines.h` |
 | Web assets | `data/` |
 
 ## Known gaps (do not “fix” unless asked)
 
 - MQTT runtime unused
-- Pins live in `Defines.h` (no `include/pins.h`)
 - GPIO 32 shared by OW2 and `PUMP_4`
 - `EMERGENCY_VALVE_PIN == 0` makes some `if (EMERGENCY_VALVE_PIN)` setup paths skip
 - `handle_DOOR_OPENED_mode` empty; ALARM / refuel UX incomplete

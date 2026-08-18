@@ -33,7 +33,7 @@ Full glossary, FSM, pins, and energy formulas: [`docs/HANDOFF.md`](docs/HANDOFF.
 ## Stack (as-is)
 
 - Board: `esp32dev` (ESP32-WROOM) — see [`platformio.ini`](platformio.ini)
-- Pins: [`src/Defines.h`](src/Defines.h) (not `include/pins.h`)
+- Pins: [`include/pins.h`](include/pins.h)
 - Settings: EEPROM + versioned `GlobalSettings` — **not** Preferences/NVS
 - Web assets: **LittleFS** under [`data/`](data/); flash with `pio run -t uploadfs`
 - Web server: PlatformIO `me-no-dev/ESPAsyncWebServer` + `AsyncTCP` (not vendored under `src/lib/`)
@@ -57,7 +57,7 @@ pio device monitor     # 921600
 - **Callbacks:** do not add new fake class singletons; register handlers from owners (e.g. `main.cpp`). Existing `HeaterController::instance` / `TouchDisplayController::instance` are legacy — do not expand.
 - **Shared code:** extend neutral APIs / descriptor fields; do not add `if (paramName == "...")` lists in universal paths.
 - **Filesystem:** **LittleFS** (`board_build.filesystem = littlefs`); keep SPIFFS out of new code.
-- **Pins:** change only in `Defines.h` with care (GPIO 32 is already contended).
+- **Pins:** change only in `include/pins.h` with care (GPIO 32 is already contended).
 - **Persistence:** EEPROM versioned struct — do not switch to Preferences/NVS casually.
 
 ## OTA (current)
@@ -77,7 +77,8 @@ pio device monitor     # 921600
 | TFT gauges | `src/TouchDisplayController.*` |
 | Settings / EEPROM | `src/SettingsManager.*`, `src/GlobalSettings.h`, `src/SettingsNavigator.*` |
 | WiFi / web | `src/WiFiController.*`, `src/WebServerController.*` |
-| Pins / constants | `src/Defines.h` |
+| Pins | `include/pins.h` |
+| Constants / log / sensor indices | `src/Defines.h` |
 
 ## Working style
 

@@ -32,9 +32,9 @@ void reset_wdt() {
     if (millis() - last_wdt_reset > 3000) {
         last_wdt_reset = millis();
         esp_task_wdt_reset();
-        digitalWrite(5, LOW);
+        digitalWrite(EXTERNAL_WDT_PIN, LOW);
         delay(1);
-        digitalWrite(5, HIGH);
+        digitalWrite(EXTERNAL_WDT_PIN, HIGH);
     }
 }
 
@@ -49,7 +49,7 @@ void setup() {
 
     LOGGER.info("Started UART at 115200");
 #endif
-    pinMode(5, OUTPUT);
+    pinMode(EXTERNAL_WDT_PIN, OUTPUT);
     reset_wdt();
 
     touchDisplayController = new TouchDisplayController();
@@ -74,7 +74,7 @@ void setup() {
     settingsManager->getNavigator()->setSensorList(sensorController->buildSensorsList());
 
     twoDeviceInfo("Starting I2C");
-    Wire.begin(21, 22);
+    Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN);
     Wire.setClock(400000);
 
     twoDeviceInfo("Starting heater controller...");

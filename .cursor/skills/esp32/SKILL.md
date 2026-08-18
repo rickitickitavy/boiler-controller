@@ -34,7 +34,7 @@ Rules below are from **this** project’s stack. Document as-is behavior; do not
 
 ## Layout and stack
 
-- Pins as macros in [`src/Defines.h`](../../../src/Defines.h) (not `include/pins.h`).
+- Pins as macros in [`include/pins.h`](../../../include/pins.h).
 - PlatformIO `espressif32` + Arduino; board `esp32dev` — see `platformio.ini`.
 - Filesystem: **LittleFS** (`board_build.filesystem = littlefs`); web assets under `data/`.
 - Web server: `me-no-dev/ESPAsyncWebServer@3.6.0` + `me-no-dev/AsyncTCP@3.3.2` via `lib_deps` (not under `src/lib/`).

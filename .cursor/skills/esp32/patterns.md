@@ -63,6 +63,6 @@ instance = this;
 
 ## Pin care
 
-- Edit pins only in `src/Defines.h`.
+- Edit pins only in `include/pins.h`.
 - GPIO **32** is assigned to both `ONE_WIRE_PIN_2` and `PUMP_4_PIN` — treat as contended; do not add a third use casually.
 - `EMERGENCY_VALVE_PIN` is `0`; some setup paths use truthiness checks and may skip `pinMode`.
