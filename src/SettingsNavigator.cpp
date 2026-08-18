@@ -823,6 +823,14 @@ int SettingsNavigator::getParamDescriptorCounter() {
     return activeParamDescriptors;
 }
 
+ParamDescriptor *SettingsNavigator::findParamDescriptor(const String &paramName) {
+    for (int i = 0; i < activeParamDescriptors; i++) {
+        if (paramDescriptors[i] && paramDescriptors[i]->paramName == paramName)
+            return paramDescriptors[i];
+    }
+    return nullptr;
+}
+
 void SettingsNavigator::setSensorList(String sensorsList) {
     this->sensorsList = (char *) malloc(sensorsList.length() + 1);
     memcpy(this->sensorsList, sensorsList.c_str(), sensorsList.length());

@@ -8,12 +8,41 @@
 #include <EEPROM.h>
 #include <FS.h>
 #include <LittleFS.h>
+#include <string.h>
+
+// Force a terminator and cut at the first non-printable byte.
+// Fixes legacy mqttServer init that memcpy'd "192.168.4.254" without '\0',
+// so strlen ran into trailing garbage and backspace seemed broken.
+static void sanitizeCString(char *buf, size_t buf_size) {
+    if (!buf || buf_size == 0)
+        return;
+    buf[buf_size - 1] = 0;
+    for (size_t i = 0; i < buf_size - 1; i++) {
+        unsigned char c = (unsigned char) buf[i];
+        if (c == 0)
+            return;
+        if (c < 32 || c > 126) {
+            buf[i] = 0;
+            return;
+        }
+    }
+}
 
 SettingsManager::SettingsManager(){
 
     EEPROM.begin(4096);
     LOGGER.info("Load settings...");
     readSettings();
+    sanitizeCString(settings.network.ssid, sizeof(settings.network.ssid));
+    sanitizeCString(settings.network.password, sizeof(settings.network.password));
+    sanitizeCString(settings.mqttServer, sizeof(settings.mqttServer));
+    sanitizeCString(settings.mqttDeviceName, sizeof(settings.mqttDeviceName));
+    sanitizeCString(settings.deviceStateOutgoingTopicPrefix, sizeof(settings.deviceStateOutgoingTopicPrefix));
+    sanitizeCString(settings.deviceIHaveBornTopic, sizeof(settings.deviceIHaveBornTopic));
+    sanitizeCString(settings.deviceIncomingCommandTopicPrefix, sizeof(settings.deviceIncomingCommandTopicPrefix));
+    sanitizeCString(settings.mqttServerBornTopic, sizeof(settings.mqttServerBornTopic));
+    sanitizeCString(settings.mqttInputToolTopic, sizeof(settings.mqttInputToolTopic));
+    sanitizeCString(settings.mqttOutputToolTopic, sizeof(settings.mqttOutputToolTopic));
 
     LOGGER.info("------------------ read ------------- ");
     LOGGER.info("      scan_interval_ms: " + String(settings.heaterSettings.scan_interval_ms));
@@ -40,12 +69,12 @@ SettingsManager::SettingsManager(){
         resetWiFi();
 
         settings.mqttPort = 1883;
-        memset(settings.mqttServer, 0, 13);
-        memcpy(settings.mqttServer, String("192.168.4.254").c_str(), 13);
+        memset(settings.mqttServer, 0, sizeof(settings.mqttServer));
+        strncpy(settings.mqttServer, "192.168.4.254", sizeof(settings.mqttServer) - 1);
         settings.mqttReconnectIntervalMs = 1000;
 
-        memset(settings.mqttDeviceName, 0, 8);
-        memcpy(settings.mqttDeviceName, String("heater-test").c_str(), 7);
+        memset(settings.mqttDeviceName, 0, sizeof(settings.mqttDeviceName));
+        strncpy(settings.mqttDeviceName, "heater-test", sizeof(settings.mqttDeviceName) - 1);
 
         memcpy(settings.deviceStateOutgoingTopicPrefix, String("state").c_str(), 5);
         settings.deviceStateOutgoingTopicPrefix[5] = 0;

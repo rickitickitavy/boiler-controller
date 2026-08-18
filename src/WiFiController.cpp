@@ -146,6 +146,33 @@ bool WiFiController::isClientConnected() {
     return WiFi.isConnected();
 }
 
+void WiFiController::reapplyNetworkSettings() {
+    GlobalSettings *settings = settingsManager->getSettings();
+    LOGGER.info("Reapplying WiFi settings (no restart)...");
+    WiFi.disconnect(true);
+    delay(100);
+    WiFi.mode(WIFI_STA);
+    WiFi.hostname(String(settings->mqttDeviceName));
+    WiFi.begin(settings->network.ssid, settings->network.password);
+
+    long startedAt = millis();
+    while (!WiFi.isConnected() && (millis() - startedAt < 10000)) {
+        esp_task_wdt_reset();
+        delay(20);
+    }
+    if (!WiFi.isConnected()) {
+        LOGGER.error("Reconnect failed; switching to AP mode...");
+        WiFi.mode(WIFI_OFF);
+        delay(200);
+        IPAddress ipAddress = IPAddress(192, 168, 0, 1);
+        WiFi.mode(WIFI_AP);
+        WiFi.softAP(String(String(settings->mqttDeviceName) + "-WiFi").c_str(), "00000000");
+        WiFi.softAPConfig(ipAddress, ipAddress, IPAddress(255, 255, 255, 0));
+    } else {
+        LOGGER.info("Reconnected. IP " + WiFi.localIP().toString());
+    }
+}
+
 void WiFiController::checkConnection() {
 //    if (millis() - lastConnectedTime > 40000) {
 //        if (!WiFi.isConnected() && !isClientConnected()) {

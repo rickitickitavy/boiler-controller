@@ -82,6 +82,8 @@ void setup() {
                                             settingsManager->getNavigator());
 
     touchDisplayController->setHeaterController(heaterController);
+    touchDisplayController->setSettingsManager(settingsManager);
+    touchDisplayController->setSensorController(sensorController);
 
     LOGGER.info("Mounting internal flash...");
     if (!LittleFS.begin(false)) {
@@ -93,6 +95,7 @@ void setup() {
     twoDeviceInfo("starting WiFi...");
     wiFiController = new WiFiController(settingsManager);
     wiFiController->getWebServerController()->setTouchDisplayController(touchDisplayController);
+    touchDisplayController->setWiFiController(wiFiController);
 
     twoDeviceInfo("starting HeaterController...");
     wiFiController->setHeaterController(heaterController);

@@ -43,6 +43,7 @@ void Button::setCaption(const char* new_caption){
     int new_caption_len = MIN(strlen(new_caption), BUTTON_MAX_CAPTION_LENGTH);
     caption[new_caption_len] = 0;
     memcpy(caption, new_caption, new_caption_len);
+    need_redraw = true;
 
 }
 
@@ -96,6 +97,10 @@ void Button::draw() {
 
 }
 
+void Button::invalidate() {
+    need_redraw = true;
+}
+
 void Button::getXY(uint16_t &x, uint16_t &y) {
     x = this->x;
     y = this->y;
@@ -107,7 +112,11 @@ void Button::getWH(uint16_t &w, uint16_t &h) {
 }
 
 void Button::setBgColor(int color) {
-    bg_color = DisplayBuffer::color24To16(color);
+    uint16_t next = DisplayBuffer::color24To16(color);
+    if (bg_color != next) {
+        bg_color = next;
+        need_redraw = true;
+    }
 }
 
 

@@ -125,18 +125,25 @@ E_kWh = ((T_top − 35) × boiler_ltr + (avg_acc − 35) × accumulator_ltr)
 
 ## TFT UI
 
-- Active path: `screen_index == 0` — 3×3 gauge grid + pump / init-fire buttons (`TouchDisplayController`)
+- Active path: `screen_index == 0` — 3×3 gauge grid + pump / init-fire / Settings buttons (`TouchDisplayController`)
+- `screen_index == 1` — Settings: left vertical tabs joined to page body (Info, WiFi, Mqtt, Sensors, Servo); idle **20 s** returns to main (unsaved drafts discarded); heater/sensors keep running while open
+- **Info** tab: WiFi MAC (`esp_read_mac` STA) + Status/RSSI (1 s per-line refresh)
+- **WiFi / MQTT / Sensors / Servo** tabs: scrollable forms via `SettingsTftForms` + `src/lib/ui/form/*`; on-screen keyboard `src/lib/ui/keyboard/OnScreenKeyboard.*` (may overlay footer)
+- Number / text field limits (min/max, string max len) come from `SettingsNavigator` `ParamDescriptor`s — same ranges as web settings
+- Full-width footer (**26 px**): Reload / Cancel / Save — Cancel closes without save; Save writes EEPROM **without restart** and calls `WiFiController::reapplyNetworkSettings()` (soft STA reconnect / AP fallback)
+- Sensors: 10 address dropdowns (discovered OneWire + `0000000000000000`); Servo order Smoke → Oxygen → Upper
 - Gauges include Core T, Core P, Warm T, Output T, Pwr P, Top T, Input T, Energy kWh, Bottom T
 - Mid-acc sensors feed energy math but are not dedicated main gauges
 - `drawScreen1` (door % layout) largely commented out
 - BMP icons from LittleFS (`/img/…`)
-- **No** multilevel TFT settings menu; configuration is **web** (`data/settings.html`, `/settingsApi`)
+- Web settings UI remains available (`data/settings.html`, `/settingsApi`) alongside TFT forms
 
 ## Network / OTA / persistence
 
 | Concern | As-is behavior |
 |---------|----------------|
 | WiFi | STA to `network.ssid/password`; fail → AP `{mqttDeviceName}-WiFi` / `00000000`, IP `192.168.0.1`, mDNS HTTP; connect wait kicks `esp_task_wdt_reset()` |
+| WiFi soft reapply | `WiFiController::reapplyNetworkSettings()` — disconnect + STA begin (or AP fallback); no restart; used by TFT Save |
 | TWDT | Arduino may pre-init TWDT; `setup` uses `esp_task_wdt_reconfigure` for **25 s** if `init` returns `ESP_ERR_INVALID_STATE` |
 | Web | Async server (`ESPAsyncWebServer` via `lib_deps`): `/`, `/settings.html`, `/settingsApi`, modelling / door / telemetry endpoints; files from LittleFS |
 | Display libs | Adafruit GFX + BusIO via `lib_deps`; customized driver in `lib/ILI9488/` |
@@ -156,6 +163,7 @@ E_kWh = ((T_top − 35) × boiler_ltr + (avg_acc − 35) × accumulator_ltr)
 | Servo PWM rate limit | `src/ServoController.*`, `src/lib/servo/Servo.*` |
 | DS18x20 | `src/SensorController.*` |
 | TFT + gauges | `src/TouchDisplayController.*` |
+| TFT Settings forms | `src/SettingsTftForms.*`, `src/lib/ui/form/*`, `src/lib/ui/keyboard/*` |
 | Settings / EEPROM | `src/SettingsManager.*`, `src/GlobalSettings.h`, `src/SettingsNavigator.*` |
 | WiFi / web | `src/WiFiController.*`, `src/WebServerController.*` |
 | Pins | `include/pins.h` |
