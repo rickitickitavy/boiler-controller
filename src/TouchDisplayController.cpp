@@ -9,6 +9,7 @@
 #include <lib/xpt2046/xpt2046.h>
 #include "TouchDisplayController.h"
 #include "SettingsTftForms.h"
+#include "MqttController.h"
 #include "Defines.h"
 #include <Fonts/FreeSans12pt7b.h>
 #include <Fonts/FreeSans9pt7b.h>
@@ -16,7 +17,7 @@
 #include "lib/ui/gauge/Gauge.h"
 
 static const char *const SETTINGS_TAB_LABELS[UI_SETTINGS_TAB_COUNT] = {
-        "Info", "WiFi", "Mqtt", "Sensors", "Servo"
+        "Info", "WiFi", "Mqtt", "Sensors", "Servo", "Capasit.", "Rules", "Modes"
 };
 
 TouchDisplayController *TouchDisplayController::instance;
@@ -25,6 +26,7 @@ TouchDisplayController::TouchDisplayController() {
     instance = this;
     settingsManager = nullptr;
     settingsForms = nullptr;
+    mqttController = nullptr;
 
     telemetry_initialized = false;
     tft = new ILI9488(DISPLAY_CS_PIN, DISPLAY_DC_PIN, DISPLAY_RST_PIN);
@@ -221,6 +223,7 @@ TouchDisplayController::TouchDisplayController() {
         drawSettingsJoinSeam();
         settings_info_mac_drawn[0] = 0;
         settings_info_status_drawn[0] = 0;
+        settings_info_mqtt_drawn[0] = 0;
         if (settings_tab_index == UI_SETTINGS_TAB_INFO) {
             drawSettingsInfoPage(true);
         } else if (settingsForms) {
@@ -253,6 +256,12 @@ void TouchDisplayController::setSensorController(SensorController *sensorControl
 void TouchDisplayController::setWiFiController(WiFiController *wiFiController) {
     if (settingsForms)
         settingsForms->setWiFiController(wiFiController);
+}
+
+void TouchDisplayController::setMqttController(MqttController *controller) {
+    mqttController = controller;
+    if (settingsForms)
+        settingsForms->setMqttController(controller);
 }
 
 void TouchDisplayController::initFireButtonDrawAction(DisplayBuffer *canvas){
@@ -533,9 +542,11 @@ void TouchDisplayController::drawSettingsInfoPage(bool force) {
     const int16_t bar_w = cw - (UI_SETTINGS_CONTENT_PAD * 2);
     const int16_t mac_y = cy + UI_SETTINGS_CONTENT_PAD + UI_SETTINGS_INFO_BAR_BASELINE_OFFSET;
     const int16_t status_y = mac_y + UI_SETTINGS_INFO_LINE_GAP;
+    const int16_t mqtt_y = status_y + UI_SETTINGS_INFO_LINE_GAP;
 
     char mac_line[48];
     char status_line[64];
+    char mqtt_line[48];
     uint8_t mac[6];
     // WiFi.macAddress() is all zeros on Arduino-ESP32 v3 until the STA/AP
     // interface is started; esp_read_mac always returns the chip WiFi MAC.
@@ -555,6 +566,12 @@ void TouchDisplayController::drawSettingsInfoPage(bool force) {
         sprintf(status_line, "Status: Disconnected");
     }
 
+    if (mqttController && mqttController->isConnected()) {
+        sprintf(mqtt_line, "Mqtt: Connected");
+    } else {
+        sprintf(mqtt_line, "Mqtt: Disconnected");
+    }
+
     if (force || strcmp(mac_line, settings_info_mac_drawn) != 0) {
         drawSettingsInfoBar(text_x, mac_y, bar_w, mac_line);
         strncpy(settings_info_mac_drawn, mac_line, sizeof(settings_info_mac_drawn) - 1);
@@ -565,6 +582,12 @@ void TouchDisplayController::drawSettingsInfoPage(bool force) {
         drawSettingsInfoBar(text_x, status_y, bar_w, status_line);
         strncpy(settings_info_status_drawn, status_line, sizeof(settings_info_status_drawn) - 1);
         settings_info_status_drawn[sizeof(settings_info_status_drawn) - 1] = 0;
+    }
+
+    if (force || strcmp(mqtt_line, settings_info_mqtt_drawn) != 0) {
+        drawSettingsInfoBar(text_x, mqtt_y, bar_w, mqtt_line);
+        strncpy(settings_info_mqtt_drawn, mqtt_line, sizeof(settings_info_mqtt_drawn) - 1);
+        settings_info_mqtt_drawn[sizeof(settings_info_mqtt_drawn) - 1] = 0;
     }
 }
 
@@ -591,6 +614,7 @@ void TouchDisplayController::drawSettingsContent() {
     drawSettingsContentChrome();
     settings_info_mac_drawn[0] = 0;
     settings_info_status_drawn[0] = 0;
+    settings_info_mqtt_drawn[0] = 0;
     if (settings_tab_index == UI_SETTINGS_TAB_INFO) {
         drawSettingsInfoPage(true);
     } else if (settingsForms) {
@@ -613,6 +637,7 @@ void TouchDisplayController::drawScreenSettings() {
     drawSettingsJoinSeam();
     settings_info_mac_drawn[0] = 0;
     settings_info_status_drawn[0] = 0;
+    settings_info_mqtt_drawn[0] = 0;
     if (settingsForms) {
         int16_t x, y, w, h;
         getSettingsContentRect(x, y, w, h);
@@ -635,6 +660,7 @@ void TouchDisplayController::initScreenSettings() {
     settings_info_last_refresh_ms = 0;
     settings_info_mac_drawn[0] = 0;
     settings_info_status_drawn[0] = 0;
+    settings_info_mqtt_drawn[0] = 0;
     noteSettingsActivity();
     if (settingsForms) {
         settingsForms->loadDraftsFromSettings();
@@ -670,6 +696,7 @@ void TouchDisplayController::handleSettingsTouch(DisplayButtonEvent event) {
         drawSettingsJoinSeam();
         settings_info_mac_drawn[0] = 0;
         settings_info_status_drawn[0] = 0;
+        settings_info_mqtt_drawn[0] = 0;
         if (settingsForms) {
             int16_t x, y, w, h;
             getSettingsContentRect(x, y, w, h);

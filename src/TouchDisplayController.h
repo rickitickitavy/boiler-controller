@@ -57,10 +57,10 @@
 
 #define UI_SETTINGS_IDLE_MS 20000
 #define UI_SETTINGS_INFO_REFRESH_MS 1000
-#define UI_SETTINGS_TAB_COUNT 5
+#define UI_SETTINGS_TAB_COUNT 8
 #define UI_SETTINGS_SCREEN_WIDTH 480
 #define UI_SETTINGS_SCREEN_HEIGHT 320
-#define UI_SETTINGS_TAB_WIDTH (UI_SETTINGS_SCREEN_WIDTH / 5)
+#define UI_SETTINGS_TAB_WIDTH ((UI_SETTINGS_SCREEN_WIDTH / 8) + 32)
 #define UI_SETTINGS_TAB_MARGIN 6
 #define UI_SETTINGS_TAB_GAP 4
 #define UI_SETTINGS_TAB_RADIUS 10
@@ -91,6 +91,7 @@ class SettingsManager;
 class SettingsTftForms;
 class SensorController;
 class WiFiController;
+class MqttController;
 
 
 class TouchDisplayController {
@@ -99,6 +100,7 @@ protected:
     HeaterController *heaterController;
     SettingsManager *settingsManager;
     SettingsTftForms *settingsForms;
+    MqttController *mqttController;
 
     ILI9488 *tft;
     XPT2046 *touch;
@@ -111,6 +113,7 @@ protected:
     unsigned long settings_info_last_refresh_ms = 0;
     char settings_info_mac_drawn[48];
     char settings_info_status_drawn[64];
+    char settings_info_mqtt_drawn[48];
     TelemetryDataRecord savedDataRecord;
     bool telemetry_initialized;
 
@@ -194,6 +197,7 @@ public:
     void setSettingsManager(SettingsManager *settingsManager);
     void setSensorController(SensorController *sensorController);
     void setWiFiController(WiFiController *wiFiController);
+    void setMqttController(MqttController *mqttController);
 
     void dirty();
 

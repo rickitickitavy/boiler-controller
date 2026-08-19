@@ -9,10 +9,12 @@
 #include "SettingsManager.h"
 #include "ArduinoOTA.h"
 #include "WiFiController.h"
+#include "MqttController.h"
 #include "TouchDisplayController.h"
 
 SettingsManager *settingsManager;
 WiFiController *wiFiController;
+MqttController *mqttController;
 SensorController *sensorController;
 HeaterController *heaterController;
 TouchDisplayController *touchDisplayController;
@@ -97,6 +99,10 @@ void setup() {
     wiFiController->getWebServerController()->setTouchDisplayController(touchDisplayController);
     touchDisplayController->setWiFiController(wiFiController);
 
+    twoDeviceInfo("starting MQTT...");
+    mqttController = new MqttController(settingsManager);
+    touchDisplayController->setMqttController(mqttController);
+
     twoDeviceInfo("starting HeaterController...");
     wiFiController->setHeaterController(heaterController);
 
@@ -154,6 +160,9 @@ void loop() {
         LOGGER.info("display->setScreenIndex(0) done ");
         screen_setup_finished = true;
     }
+
+    if (mqttController)
+        mqttController->handle();
 
     touchDisplayController->handle();
     sensorController->readNextBlockOfSensors();

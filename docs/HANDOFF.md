@@ -126,11 +126,12 @@ E_kWh = ((T_top − 35) × boiler_ltr + (avg_acc − 35) × accumulator_ltr)
 ## TFT UI
 
 - Active path: `screen_index == 0` — 3×3 gauge grid + pump / init-fire / Settings buttons (`TouchDisplayController`)
-- `screen_index == 1` — Settings: left vertical tabs joined to page body (Info, WiFi, Mqtt, Sensors, Servo); idle **20 s** returns to main (unsaved drafts discarded); heater/sensors keep running while open
-- **Info** tab: WiFi MAC (`esp_read_mac` STA) + Status/RSSI (1 s per-line refresh)
-- **WiFi / MQTT / Sensors / Servo** tabs: scrollable forms via `SettingsTftForms` + `src/lib/ui/form/*`; on-screen keyboard `src/lib/ui/keyboard/OnScreenKeyboard.*` (may overlay footer)
+- `screen_index == 1` — Settings: left vertical tabs joined to page body (Info, WiFi, Mqtt, Sensors, Servo, Capasit., Rules, Modes); idle **20 s** returns to main (unsaved drafts discarded); heater/sensors keep running while open
+- **Info** tab: WiFi MAC (`esp_read_mac` STA) + WiFi Status/RSSI + MQTT Connected/Disconnected (1 s per-line refresh)
+- **WiFi / MQTT / Sensors / Servo / Capasit. / Rules / Modes** tabs: scrollable forms via `SettingsTftForms` + `src/lib/ui/form/*`; on-screen keyboard `src/lib/ui/keyboard/OnScreenKeyboard.*` (may overlay footer)
+- Capasit. / Rules / Modes mirror matching Web UI sections; section blocks separated by non-interactive header labels
 - Number / text field limits (min/max, string max len) come from `SettingsNavigator` `ParamDescriptor`s — same ranges as web settings
-- Full-width footer (**26 px**): Reload / Cancel / Save — Cancel closes without save; Save writes EEPROM **without restart** and calls `WiFiController::reapplyNetworkSettings()` (soft STA reconnect / AP fallback)
+- Full-width footer (**26 px**): Reload / Cancel / Save — Cancel closes without save; Save writes EEPROM **without restart**; calls `WiFiController::reapplyNetworkSettings()` **only if WiFi SSID/password changed**; always calls `MqttController::reloadFromSettings()`
 - Sensors: 10 address dropdowns (discovered OneWire + `0000000000000000`); Servo order Smoke → Oxygen → Upper
 - Gauges include Core T, Core P, Warm T, Output T, Pwr P, Top T, Input T, Energy kWh, Bottom T
 - Mid-acc sensors feed energy math but are not dedicated main gauges
@@ -143,12 +144,12 @@ E_kWh = ((T_top − 35) × boiler_ltr + (avg_acc − 35) × accumulator_ltr)
 | Concern | As-is behavior |
 |---------|----------------|
 | WiFi | STA to `network.ssid/password`; fail → AP `{mqttDeviceName}-WiFi` / `00000000`, IP `192.168.0.1`, mDNS HTTP; connect wait kicks `esp_task_wdt_reset()` |
-| WiFi soft reapply | `WiFiController::reapplyNetworkSettings()` — disconnect + STA begin (or AP fallback); no restart; used by TFT Save |
+| WiFi soft reapply | `WiFiController::reapplyNetworkSettings()` — skips if already STA on configured SSID; otherwise disconnect + STA begin (or hardened AP fallback); no restart; used by TFT Save when credentials change |
 | TWDT | Arduino may pre-init TWDT; `setup` uses `esp_task_wdt_reconfigure` for **25 s** if `init` returns `ESP_ERR_INVALID_STATE` |
 | Web | Async server (`ESPAsyncWebServer` via `lib_deps`): `/`, `/settings.html`, `/settingsApi`, modelling / door / telemetry endpoints; files from LittleFS |
 | Display libs | Adafruit GFX + BusIO via `lib_deps`; customized driver in `lib/ILI9488/` |
 | Temps libs | `paulstoffregen/OneWire` + `milesburton/DallasTemperature` via `lib_deps` |
-| MQTT | Fields + ParamDescriptors exist; `PubSubClient` vendored — **not constructed or looped in app code** |
+| MQTT | `MqttController` + vendored `PubSubClient`: connect/loop/reconnect **only when WiFi mode is STA and linked to a router** (`WIFI_STA` + connected); soft-AP mode keeps MQTT idle. Uses `mqttServer`/`mqttPort`/`mqttDeviceName`; Info tab shows live status; **no publish/subscribe yet**. Failed connect uses short TCP/MQTT timeouts (~1 s) and at least **5 s** between attempts so the main loop stays responsive |
 | OTA | `ArduinoOTA` in `main.cpp`; **6 s OTA-only window** after boot; TFT progress; no HTTP `/update` |
 | EEPROM | `SettingsManager`: versioned `GlobalSettings` + 4-byte marker |
 | NTP | Implemented but call site commented out |
@@ -166,13 +167,14 @@ E_kWh = ((T_top − 35) × boiler_ltr + (avg_acc − 35) × accumulator_ltr)
 | TFT Settings forms | `src/SettingsTftForms.*`, `src/lib/ui/form/*`, `src/lib/ui/keyboard/*` |
 | Settings / EEPROM | `src/SettingsManager.*`, `src/GlobalSettings.h`, `src/SettingsNavigator.*` |
 | WiFi / web | `src/WiFiController.*`, `src/WebServerController.*` |
+| MQTT client | `src/MqttController.*`, `src/lib/mqtt/PubSubClient.*` |
 | Pins | `include/pins.h` |
 | Constants / log / sensor indices | `src/Defines.h` |
 | Web assets | `data/` |
 
 ## Known gaps (do not “fix” unless asked)
 
-- MQTT runtime unused
+- MQTT has connect/status only — no telemetry publish / topic subscriptions
 - GPIO 32 shared by OW2 and `PUMP_4`
 - `EMERGENCY_VALVE_PIN == 0` makes some `if (EMERGENCY_VALVE_PIN)` setup paths skip
 - `handle_DOOR_OPENED_mode` empty; ALARM / refuel UX incomplete

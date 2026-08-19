@@ -52,7 +52,8 @@ void Button::draw() {
         return;
     need_redraw = false;
 
-    DisplayBuffer *displayBuffer = defaultDisplayBuffer ? defaultDisplayBuffer : new DisplayBuffer(_width, _height);
+    const bool ownsBuffer = (defaultDisplayBuffer == nullptr);
+    DisplayBuffer *displayBuffer = ownsBuffer ? new DisplayBuffer(_width, _height) : defaultDisplayBuffer;
     displayBuffer->fillScreen(bg_color);
 
 
@@ -65,18 +66,37 @@ void Button::draw() {
 
     if (!file) {
         Serial.println("Failed to open the file");
-        displayBuffer->freeBuffer();
-        free(displayBuffer);
+        // Never free shared defaultDisplayBuffer — that caused heap corruption after FD/open failures.
+        if (ownsBuffer) {
+            displayBuffer->freeBuffer();
+            free(displayBuffer);
+        }
         return;
     }
 
     int x_icon = (_width - icon_width) >> 1;
-    int y_icon = BUTTON_GRAPH_MARGIN_TOP + icon_height;
-    int shift = y_icon * _width + x_icon;
+    if (x_icon < 0)
+        x_icon = 0;
+    const int y_top = BUTTON_GRAPH_MARGIN_TOP;
+    const int bufPixels = displayBuffer->width() * displayBuffer->height();
 
-    for (int row = _height - 1; row >= 0; row--) {
+    // BMP payload is bottom-up; blit only icon_height rows into the button content area.
+    for (int fileRow = 0; fileRow < icon_height; fileRow++) {
+        const int dest_y = y_top + (icon_height - 1 - fileRow);
+        if (dest_y < 0 || dest_y >= _height) {
+            char discard[160];
+            int remaining = icon_width * 2;
+            while (remaining > 0) {
+                const int chunk = remaining > (int) sizeof(discard) ? (int) sizeof(discard) : remaining;
+                file.readBytes(discard, chunk);
+                remaining -= chunk;
+            }
+            continue;
+        }
+        const int shift = dest_y * _width + x_icon;
+        if (shift < 0 || shift + icon_width > bufPixels)
+            break;
         file.readBytes((char *) &displayBuffer->buffer[shift], icon_width * 2);
-        shift -= _width;
     }
 
     file.close();
@@ -90,7 +110,7 @@ void Button::draw() {
     }
 
     display->drawImage((uint8_t*)displayBuffer->buffer, x, y, _width, _height);
-    if (!defaultDisplayBuffer) {
+    if (ownsBuffer) {
         displayBuffer->freeBuffer();
         free(displayBuffer);
     }
@@ -118,5 +138,4 @@ void Button::setBgColor(int color) {
         need_redraw = true;
     }
 }
-
 
