@@ -122,10 +122,10 @@ void Gauge::draw() {
         displayBuffer->fillTriangle(x1, y1, x_l, y_l, x_r, y_r, font_color);
 
         // draw value
-        char  charBuffer[20];
-        memset(charBuffer, 0, 20);
-        String format = "%0." + String(display_decimal_digits_count) + "f";
-        sprintf(charBuffer, format.c_str(), value);
+        char charBuffer[20];
+        char format[8];
+        snprintf(format, sizeof(format), "%%0.%df", display_decimal_digits_count);
+        snprintf(charBuffer, sizeof(charBuffer), format, value);
 
         displayBuffer->setCursor((width - displayBuffer->calcTextWidth(charBuffer)) >> 1,
                                  GAUGE_GRAPH_MARGIN_TOP + base_radius + (font->yAdvance >> 1));
@@ -164,7 +164,7 @@ void Gauge::draw() {
     display->drawImage((uint8_t*)displayBuffer->buffer, x, y, width, height);
     if (!defaultDisplayBuffer) {
         displayBuffer->freeBuffer();
-        free(displayBuffer);
+        delete displayBuffer;
     }
 
 }

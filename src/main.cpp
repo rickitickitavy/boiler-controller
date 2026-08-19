@@ -21,6 +21,7 @@ TouchDisplayController *touchDisplayController;
 //TouchController *displayButtonController;
 
 long lastTimeDisplayed;
+long lastHeapLogMs = 0;
 
 void twoDeviceInfo(const char *msg) {
     LOGGER.info(msg);
@@ -180,5 +181,13 @@ void loop() {
     }
     if (touchDisplayController->isDirty())
         touchDisplayController->drawScreen();
+
+    if ((millis() - lastHeapLogMs) >= 60000) {
+        lastHeapLogMs = millis();
+        char heapMsg[80];
+        snprintf(heapMsg, sizeof(heapMsg), "heap free=%u min=%u",
+                 (unsigned) ESP.getFreeHeap(), (unsigned) ESP.getMinFreeHeap());
+        LOGGER.info(heapMsg);
+    }
 
 }

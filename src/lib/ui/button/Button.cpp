@@ -69,7 +69,7 @@ void Button::draw() {
         // Never free shared defaultDisplayBuffer — that caused heap corruption after FD/open failures.
         if (ownsBuffer) {
             displayBuffer->freeBuffer();
-            free(displayBuffer);
+            delete displayBuffer;
         }
         return;
     }
@@ -112,7 +112,7 @@ void Button::draw() {
     display->drawImage((uint8_t*)displayBuffer->buffer, x, y, _width, _height);
     if (ownsBuffer) {
         displayBuffer->freeBuffer();
-        free(displayBuffer);
+        delete displayBuffer;
     }
 
 }

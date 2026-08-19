@@ -13,10 +13,10 @@ WiFiController::WiFiController(SettingsManager *settingsManager) {
 }
 
 void WiFiController::initNTP() {
-    char *date_str = (char *) malloc(1024);
+    char date_str[128];
 
-    time_t _time = time(0);
-    tm *localtm = localtime(&_time);
+    time_t epochTime = time(0);
+    tm *localtm = localtime(&epochTime);
 
     sprintf(date_str, "Date time before %s", asctime(localtm));
     LOGGER.info(date_str);
@@ -37,15 +37,13 @@ void WiFiController::initNTP() {
         LOGGER.info("Data is " + timeClient->getFormattedDate());
         LOGGER.info("Time is " + timeClient->getFormattedTime());
 
-
-        char *date_str = (char *) malloc(1024);
-        _time = timeClient->getEpochTime();
-        localtm = localtime(&_time);
+        epochTime = timeClient->getEpochTime();
+        localtm = localtime(&epochTime);
 
         sprintf(date_str, "Set time as %s", asctime(localtm));
         LOGGER.info(date_str);
 
-        struct timeval now = {.tv_sec = _time};
+        struct timeval now = {.tv_sec = epochTime};
         settimeofday(&now, NULL);
 
         if (getLocalTime(localtm, 0)) {
@@ -55,8 +53,6 @@ void WiFiController::initNTP() {
 
     } else
         LOGGER.error("Failed to get current date and time");
-
-    free(date_str);
 }
 
 void WiFiController::setApMode(IPAddress *ipAddress) {

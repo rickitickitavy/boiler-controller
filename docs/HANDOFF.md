@@ -152,7 +152,9 @@ E_kWh = ((T_top − 35) × boiler_ltr + (avg_acc − 35) × accumulator_ltr)
 | MQTT | `MqttController` + vendored `PubSubClient`: connect/loop/reconnect **only when WiFi mode is STA and linked to a router** (`WIFI_STA` + connected); soft-AP mode keeps MQTT idle. Uses `mqttServer`/`mqttPort`/`mqttDeviceName`; Info tab shows live status; **no publish/subscribe yet**. Failed connect uses short TCP/MQTT timeouts (~1 s) and at least **5 s** between attempts so the main loop stays responsive |
 | OTA | `ArduinoOTA` in `main.cpp`; **6 s OTA-only window** after boot; TFT progress; no HTTP `/update` |
 | EEPROM | `SettingsManager`: versioned `GlobalSettings` + 4-byte marker |
-| NTP | Implemented but call site commented out |
+| NTP | Implemented but call site commented out; `initNTP` uses a stack buffer (no heap alloc) |
+| Heap log | `loop` logs `ESP.getFreeHeap` / `ESP.getMinFreeHeap` about once per 60 s |
+| Telemetry RAM | In-memory ring not allocated (memcpy path commented); avoids starving WiFi DMA RX buffers at boot |
 
 ## Key sources
 

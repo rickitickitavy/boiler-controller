@@ -272,8 +272,6 @@ void TouchDisplayController::initFireButtonDrawAction(DisplayBuffer *canvas){
         int prcnt = est * 100 / TIME_FOR_INIT_FIRE_SEC;
         float theta = PI * (float)est / (float)TIME_FOR_INIT_FIRE_SEC;
 
-        Serial.println("theta = " + String(theta));
-
         int _color;
         if (prcnt > 33)
             _color = UI_PAGE_0_COLOR_GAUGE_INITFIRE_EST_MANY;
