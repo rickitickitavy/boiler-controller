@@ -6,9 +6,9 @@
 #define BASE_ESP8266_MQTT_SENSORCONTROLLER_H
 
 
-#include <lib/oneWire/OneWire.h>
+#include <OneWire.h>
+#include <DallasTemperature.h>
 #include <lib/math/Sma.h>
-#include "lib/dallasSensors/DallasTemperature.h"
 #include "SettingsManager.h"
 #include "CoreModel.h"
 

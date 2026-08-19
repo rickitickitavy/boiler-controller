@@ -4,7 +4,7 @@
 
 #include <SD.h>
 #include "WebServerController.h"
-#include "SPIFFS.h"
+#include <LittleFS.h>
 #include "Defines.h"
 #include "Logger.h"
 
@@ -32,15 +32,15 @@ WebServerController::WebServerController(SettingsManager *settingsManager) {
     webServer = new AsyncWebServer(80);
 
     webServer->on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-        request->send(SPIFFS, "/index.html", String(), false, systemSettingsProcessor);
+        request->send(LittleFS, "/index.html", String(), false, systemSettingsProcessor);
     });
 
     webServer->on("/index.html", HTTP_GET, [](AsyncWebServerRequest *request) {
-        request->send(SPIFFS, "/index.html", String(), false, systemSettingsProcessor);
+        request->send(LittleFS, "/index.html", String(), false, systemSettingsProcessor);
     });
 
     webServer->on("/settings.html", HTTP_GET, [](AsyncWebServerRequest *request) {
-        request->send(SPIFFS, "/settings.html", String(), false, systemSettingsProcessor);
+        request->send(LittleFS, "/settings.html", String(), false, systemSettingsProcessor);
     });
 
 //    webServer->on("/log", HTTP_GET, [](AsyncWebServerRequest *request) {
@@ -207,7 +207,7 @@ void WebServerController::closeDoor(AsyncWebServerRequest *request) {
 //----------------------------------------------------------------------
 
 void WebServerController::manualWarmControl(AsyncWebServerRequest *request) {
-    heaterController->postCounter++;
+    heaterController->postCounter = true;
     if (request->arg("action") == "open")
         openDoorFor15Min(request);
     else if (request->arg("action") == "close")
@@ -236,7 +236,7 @@ void WebServerController::loadFileByUrl(AsyncWebServerRequest *request) {
 
     FS *fs;
 
-    if (!SPIFFS.exists(request->url())) {
+    if (!LittleFS.exists(request->url())) {
 
         if (!LOGGER.isSdPresents() || !SD.exists(request->url())) {
             LOGGER.error("url not found: \"" + request->url() + "\"");
@@ -246,7 +246,7 @@ void WebServerController::loadFileByUrl(AsyncWebServerRequest *request) {
         } else
             fs = &SD;
     } else
-        fs = &SPIFFS;
+        fs = &LittleFS;
 
     if (url.endsWith(".html")) {
         mime = "text/html";

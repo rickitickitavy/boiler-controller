@@ -3,22 +3,25 @@
 //
 #include <Wire.h>
 #include <HardwareSerial.h>
-#include <SPIFFS.h>
+#include <LittleFS.h>
 #include <esp_task_wdt.h>
 #include "Logger.h"
 #include "SettingsManager.h"
 #include "ArduinoOTA.h"
 #include "WiFiController.h"
+#include "MqttController.h"
 #include "TouchDisplayController.h"
 
 SettingsManager *settingsManager;
 WiFiController *wiFiController;
+MqttController *mqttController;
 SensorController *sensorController;
 HeaterController *heaterController;
 TouchDisplayController *touchDisplayController;
 //TouchController *displayButtonController;
 
 long lastTimeDisplayed;
+long lastHeapLogMs = 0;
 
 void twoDeviceInfo(const char *msg) {
     LOGGER.info(msg);
@@ -32,9 +35,9 @@ void reset_wdt() {
     if (millis() - last_wdt_reset > 3000) {
         last_wdt_reset = millis();
         esp_task_wdt_reset();
-        digitalWrite(5, LOW);
+        digitalWrite(EXTERNAL_WDT_PIN, LOW);
         delay(1);
-        digitalWrite(5, HIGH);
+        digitalWrite(EXTERNAL_WDT_PIN, HIGH);
     }
 }
 
@@ -49,12 +52,20 @@ void setup() {
 
     LOGGER.info("Started UART at 115200");
 #endif
-    pinMode(5, OUTPUT);
+    pinMode(EXTERNAL_WDT_PIN, OUTPUT);
     reset_wdt();
 
     touchDisplayController = new TouchDisplayController();
 
-    esp_task_wdt_init(25, true); //enable panic so ESP32 restarts
+    esp_task_wdt_config_t wdt_config = {
+            .timeout_ms = 25000,
+            .idle_core_mask = 0,
+            .trigger_panic = true,
+    };
+    esp_err_t wdt_err = esp_task_wdt_init(&wdt_config);
+    if (wdt_err == ESP_ERR_INVALID_STATE) {
+        wdt_err = esp_task_wdt_reconfigure(&wdt_config);
+    }
     esp_task_wdt_add(NULL); //add current thread to WDT watch
 
     twoDeviceInfo("Starting...");
@@ -66,7 +77,7 @@ void setup() {
     settingsManager->getNavigator()->setSensorList(sensorController->buildSensorsList());
 
     twoDeviceInfo("Starting I2C");
-    Wire.begin(21, 22);
+    Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN);
     Wire.setClock(400000);
 
     twoDeviceInfo("Starting heater controller...");
@@ -74,17 +85,24 @@ void setup() {
                                             settingsManager->getNavigator());
 
     touchDisplayController->setHeaterController(heaterController);
+    touchDisplayController->setSettingsManager(settingsManager);
+    touchDisplayController->setSensorController(sensorController);
 
     LOGGER.info("Mounting internal flash...");
-    if (!SPIFFS.begin(false, "/spiffs", 5)) {
+    if (!LittleFS.begin(false)) {
         LOGGER.error(" Mount Failed");
     } else
-    LOGGER.error("   mounted");
+        LOGGER.info("   mounted");
 
     reset_wdt();
     twoDeviceInfo("starting WiFi...");
     wiFiController = new WiFiController(settingsManager);
     wiFiController->getWebServerController()->setTouchDisplayController(touchDisplayController);
+    touchDisplayController->setWiFiController(wiFiController);
+
+    twoDeviceInfo("starting MQTT...");
+    mqttController = new MqttController(settingsManager);
+    touchDisplayController->setMqttController(mqttController);
 
     twoDeviceInfo("starting HeaterController...");
     wiFiController->setHeaterController(heaterController);
@@ -144,6 +162,9 @@ void loop() {
         screen_setup_finished = true;
     }
 
+    if (mqttController)
+        mqttController->handle();
+
     touchDisplayController->handle();
     sensorController->readNextBlockOfSensors();
 
@@ -160,5 +181,13 @@ void loop() {
     }
     if (touchDisplayController->isDirty())
         touchDisplayController->drawScreen();
+
+    if ((millis() - lastHeapLogMs) >= 60000) {
+        lastHeapLogMs = millis();
+        char heapMsg[80];
+        snprintf(heapMsg, sizeof(heapMsg), "heap free=%u min=%u",
+                 (unsigned) ESP.getFreeHeap(), (unsigned) ESP.getMinFreeHeap());
+        LOGGER.info(heapMsg);
+    }
 
 }

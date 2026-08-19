@@ -2,7 +2,7 @@
 // Created by dsporykhin on 25.03.22.
 //
 
-#include <esp32-hal-gpio.h>
+#include <Arduino.h>
 #include <Logger.h>
 #include "Servo.h"
 
@@ -12,8 +12,7 @@ Servo::Servo(uint8_t pin, uint8_t channel){
     this->pin = pin;
 
     pinMode(pin, OUTPUT);
-    ledcSetup(channel, PWM_FREQUENCY, 16);
-    ledcAttachPin(pin, channel);
+    ledcAttachChannel(pin, (uint32_t)PWM_FREQUENCY, 16, channel);
 
     min_pulse_length_us = 800;
     max_pulse_length_us = 2000;
@@ -29,7 +28,7 @@ Servo* Servo::setAngle(double angle){
         angle_grad = rotation_grad;
 
     position = min_pulse_ticks + angle_grad * ticks_per_grad;
-    ledcWrite(channel, position);
+    ledcWriteChannel(channel, position);
     return this;
 }
 

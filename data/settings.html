@@ -4,12 +4,27 @@
     <meta charset="UTF-8">
     <title>Lamp WiFi settings</title>
     <link rel="stylesheet" type="text/css" href="css/all.css"/>
-    <script src="js/jq/jquery-3.4.1.js"></script>
     <script language="JavaScript">
 
         var changedFields = new Array();
         var wifiChanged = false;
 
+        function requestJson(url, method, body) {
+            var opts = { method: method || "GET" };
+            if (body != null) {
+                opts.headers = { "Content-Type": "application/x-www-form-urlencoded" };
+                opts.body = body;
+            }
+            return fetch(url, opts).then(function (r) {
+                return r.text().then(function (text) {
+                    try {
+                        return { ok: true, status: r.status, json: JSON.parse(text), text: text };
+                    } catch (e) {
+                        return { ok: false, status: r.status, json: null, text: text, statusText: r.statusText };
+                    }
+                });
+            });
+        }
 
         function updateGraph(response) {
             document.getElementById("heater>sensors>data>core_flow").value = "Q = " + response.pumps.core_flow;
@@ -17,20 +32,13 @@
 
         function registerSensorsReader() {
             var stopModellingFunction = function () {
-                $.ajax({
-                    url: "/getTelemetry",
-                    method: "GET",
-                    data: "on=0",
-                    success: function (response) {
-                        updateGraph(response);
-                    }.bind(this),
-                    error: function (error) {
-                        if (error.status == 200)
-                            alert("bad JSON");
-                    }.bind(this),
-                    dataType: "json"
+                requestJson("/getTelemetry?on=0", "GET", null).then(function (result) {
+                    if (result.ok) {
+                        updateGraph(result.json);
+                    } else if (result.status == 200) {
+                        alert("bad JSON");
+                    }
                 });
-
             };
 
             window.setInterval(stopModellingFunction, 1000);
@@ -61,17 +69,12 @@
 
         function startModelling() {
             var startModellingFunction = function () {
-                $.ajax({
-                    url: "/startModelling",
-                    method: "GET",
-                    data: "on=1",
-                    success: function (response) {
+                requestJson("/startModelling?on=1", "GET", null).then(function (result) {
+                    if (result.ok) {
                         alert("started");
-                    }.bind(this),
-                    error: function (error) {
-                        alert(error.statusText);
-                    }.bind(this),
-                    dataType: "json"
+                    } else {
+                        alert(result.statusText || "error");
+                    }
                 });
             }.bind(this);
             startModellingFunction();
@@ -79,17 +82,12 @@
 
         function stopModelling() {
             var stopModellingFunction = function () {
-                $.ajax({
-                    url: "/stopModelling",
-                    method: "GET",
-                    data: "on=0",
-                    success: function (response) {
+                requestJson("/stopModelling?on=0", "GET", null).then(function (result) {
+                    if (result.ok) {
                         alert("stopped");
-                    }.bind(this),
-                    error: function (error) {
-                        alert(error.statusText);
-                    }.bind(this),
-                    dataType: "json"
+                    } else {
+                        alert(result.statusText || "error");
+                    }
                 });
             }.bind(this);
             stopModellingFunction();
@@ -135,43 +133,39 @@
             }.bind(this));
 
             var saveNetworkSettings = function () {
-                $.ajax({
-                    url: "/settingsApi",
-                    method: "POST",
-                    data: "operation=write&parameter=wifi"
+                requestJson(
+                    "/settingsApi",
+                    "POST",
+                    "operation=write&parameter=wifi"
                     + "&network>ssid=" + wiFiSsId
-                    + "&network>password=" + wiFiPassword,
-                    success: function (response) {
+                    + "&network>password=" + wiFiPassword
+                ).then(function (result) {
+                    // Server returns plain OK (not JSON); treat HTTP 200 like success redirect
+                    if (result.ok || result.status == 200) {
                         window.location = "/";
-                    }.bind(this),
-                    error: function (error) {
-                        alert(error.statusText);
-                    }.bind(this),
-                    dataType: "json"
+                    } else {
+                        alert(result.statusText || "error");
+                    }
                 });
             }.bind(this);
 
             if (changedFields.length > 0)
-                $.ajax({
-                    url: "/settingsApi",
-                    method: "POST",
-                    data: "operation=write&parameter=" + requestText,
-                    success: function (response) {
-                        if (response != undefined) {
-
+                requestJson(
+                    "/settingsApi",
+                    "POST",
+                    "operation=write&parameter=" + requestText
+                ).then(function (result) {
+                    if (result.ok) {
+                        if (result.json != undefined) {
                         }
                         if (wifiChanged)
                             saveNetworkSettings();
-                    }.bind(this),
-                    error: function (error) {
-                        if (error.status == 200) {
-                            if (wifiChanged)
-                                saveNetworkSettings();
-                        } else {
-                            alert(error.statusText);
-                        }
-                    }.bind(this),
-                    dataType: "json"
+                    } else if (result.status == 200) {
+                        if (wifiChanged)
+                            saveNetworkSettings();
+                    } else {
+                        alert(result.statusText || "error");
+                    }
                 });
             else if (wifiChanged)
                 saveNetworkSettings();

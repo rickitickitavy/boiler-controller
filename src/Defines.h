@@ -1,4 +1,5 @@
 #include "Logger.h"
+#include "pins.h"
 
 #define PWM_MAX_WIDTH 1023
 
@@ -33,30 +34,6 @@
 #define WIFI_DEFAULT_SID "HKEE"
 #define WIFI_DEFAULT_HOST_NAME "base"
 #define WIFI_DEFAULT_PASSWORD "jj3PLPjj"
-
-#define SMOKE_SERVO_PIN 25
-#define OXYGEN_SERVO_PIN 26
-#define UPPER_SERVO_PIN 27
-
-#define EMERGENCY_VALVE_PIN 0
-
-#define PUMP_1_PIN 4
-#define PUMP_2_PIN 13
-#define PUMP_3_PIN 33
-#define PUMP_4_PIN 32
-
-#define ONE_WIRE_PIN 14
-#define ONE_WIRE_PIN_2 32
-#define FLOW_SENSOR_PIN 39
-
-#define DISPLAY_CS_PIN 17
-#define DISPLAY_DC_PIN 15
-#define DISPLAY_RST_PIN 16
-
-#define TOUCH_CS 12
-#define TOUCH_PEN 36
-
-#define MAIN_DOOR_SENSOR_PIN 34
 
 #define WATER_ENERGY_PER_LTR_PER_GRAD 4200.0D
 #define JOUL_PER_KWTCH 3600000.0D

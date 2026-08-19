@@ -10,6 +10,7 @@
 SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
     this->settingsManager = settingsManager;
     this->settings = settingsManager->getSettings();
+    this->sensorsList = nullptr;
 
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("network>ssid", STRING, 5,
                                                                            63,
@@ -707,7 +708,7 @@ String SettingsNavigator::getSettingByName(String origParamName) {
                            ? (showMin ? String((unsigned char) paramDescriptors[descriptorIndex]->minValue) : String(
                                     (unsigned char) paramDescriptors[descriptorIndex]->maxValue))
                            : String(*(unsigned char *) paramDescriptors[descriptorIndex]->valueReferenceForRead);
-                } else if (paramDescriptors[descriptorIndex]->paramType == IPv4) {
+                } else if (paramDescriptors[descriptorIndex]->paramType == IPV4) {
                     String ipAsString;
 
                     if (!showMin && !showMax) {
@@ -823,10 +824,27 @@ int SettingsNavigator::getParamDescriptorCounter() {
     return activeParamDescriptors;
 }
 
+ParamDescriptor *SettingsNavigator::findParamDescriptor(const String &paramName) {
+    for (int i = 0; i < activeParamDescriptors; i++) {
+        if (paramDescriptors[i] && paramDescriptors[i]->paramName == paramName)
+            return paramDescriptors[i];
+    }
+    return nullptr;
+}
+
 void SettingsNavigator::setSensorList(String sensorsList) {
+    free(this->sensorsList);
     this->sensorsList = (char *) malloc(sensorsList.length() + 1);
     memcpy(this->sensorsList, sensorsList.c_str(), sensorsList.length());
     this->sensorsList[sensorsList.length()] = 0;
+
+    ParamDescriptor *existing = findParamDescriptor("sensors>list");
+    if (existing) {
+        existing->valueReferenceForRead = (void *) this->sensorsList;
+        existing->valueReferenceForWrite = (void *) this->sensorsList;
+        return;
+    }
+
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>list", STRING, 0,
                                                                            0,
                                                                            (void *) this->sensorsList,

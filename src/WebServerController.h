@@ -15,7 +15,7 @@
 #define PROFILES_OPERATION_SAVE "save"
 #define PROFILES_OPERATION_REMOVE "remove"
 
-#include "lib/ESPAsyncWebServer/ESPAsyncWebServer.h"
+#include <ESPAsyncWebServer.h>
 #include "SettingsManager.h"
 #include "HeaterController.h"
 #include "TouchDisplayController.h"

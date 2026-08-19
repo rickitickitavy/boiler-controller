@@ -28,6 +28,7 @@ public:
 public:
     WiFiController(SettingsManager *settingsManager);
 
+    void reapplyNetworkSettings();
     void checkConnection();
     void setApMode(IPAddress *ipAddress);
     bool isClientConnected();

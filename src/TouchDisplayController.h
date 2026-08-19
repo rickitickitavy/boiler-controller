@@ -25,7 +25,7 @@
 #define SCREEN_GREEN 0x0600
 #define SCREEN_LIGHT_LIGHT_GREEN 0xDFF9
 
-#define COLOR_BACKGROUND ST77XX_WHITE
+#define COLOR_BACKGROUND ILI9488_WHITE
 #define COLOR_CORE SCREEN_COLOR_LIGHT_GRAY
 #define COLOR_ACCUMULATOR SCREEN_COLOR_LIGHT_LIGHT_BLUE
 #define COLOR_CONTROLLER SCREEN_LIGHT_LIGHT_GREEN
@@ -52,26 +52,55 @@
 #define BUTTON_DETECT_X_Y_COUNT 50
 #define BUTTONS_MAX_COUNT 10
 
-//1111 1    111 111    1 1111
-//1111 1    011 111    0 1111
-//0000 0    110 000    0 1001
+#define SCREEN_INDEX_MAIN 0
+#define SCREEN_INDEX_SETTINGS 1
 
-// 217 255 203
-#include <lib/adafruit/ILI9488.h>
+#define UI_SETTINGS_IDLE_MS 20000
+#define UI_SETTINGS_INFO_REFRESH_MS 1000
+#define UI_SETTINGS_TAB_COUNT 8
+#define UI_SETTINGS_SCREEN_WIDTH 480
+#define UI_SETTINGS_SCREEN_HEIGHT 320
+#define UI_SETTINGS_TAB_WIDTH ((UI_SETTINGS_SCREEN_WIDTH / 8) + 32)
+#define UI_SETTINGS_TAB_MARGIN 6
+#define UI_SETTINGS_TAB_GAP 4
+#define UI_SETTINGS_TAB_RADIUS 10
+#define UI_SETTINGS_CONTENT_RADIUS 8
+#define UI_SETTINGS_CONTENT_PAD 16
+#define UI_SETTINGS_INFO_LINE_GAP 28
+#define UI_SETTINGS_INFO_BAR_HEIGHT 20
+#define UI_SETTINGS_INFO_BAR_BASELINE_OFFSET 16
+#define UI_SETTINGS_FOOTER_HEIGHT 26
+
+// little grayed white page / unselected tab fill
+#define UI_SETTINGS_COLOR_PAGE 0xEF7D
+#define UI_SETTINGS_COLOR_TAB_SELECTED 0x2A79
+#define UI_SETTINGS_COLOR_TAB_BORDER 0xC618
+#define UI_SETTINGS_COLOR_TAB_TEXT_SELECTED 0xFFFF
+#define UI_SETTINGS_COLOR_TAB_TEXT_UNSELECTED 0x0000
+#define UI_SETTINGS_COLOR_GUTTER 0xE71C
+
+#include <ILI9488.h>
+#include <Adafruit_GFX.h>
 #include <lib/ui/button/Button.h>
-#include "lib/adafruit/Adafruit_GFX.h"
-#include "lib/adafruit/Adafruit_ST7789.h"
-#include "lib/adafruit/Fonts/FreeMonoBoldOblique18pt7b.h"
 #include "Telemetry.h"
 #include "lib/ui/gauge/Gauge.h"
 #include "HeaterController.h"
 #include <lib/xpt2046/xpt2046.h>
+
+class SettingsManager;
+class SettingsTftForms;
+class SensorController;
+class WiFiController;
+class MqttController;
 
 
 class TouchDisplayController {
 protected:
     static TouchDisplayController *instance;
     HeaterController *heaterController;
+    SettingsManager *settingsManager;
+    SettingsTftForms *settingsForms;
+    MqttController *mqttController;
 
     ILI9488 *tft;
     XPT2046 *touch;
@@ -79,6 +108,12 @@ protected:
     uint16_t _touch_x, _touch_y;
 
     int screen_index = -1;
+    int settings_tab_index = 0;
+    unsigned long settings_last_activity_ms = 0;
+    unsigned long settings_info_last_refresh_ms = 0;
+    char settings_info_mac_drawn[48];
+    char settings_info_status_drawn[64];
+    char settings_info_mqtt_drawn[48];
     TelemetryDataRecord savedDataRecord;
     bool telemetry_initialized;
 
@@ -99,6 +134,7 @@ protected:
 
     Button *button_pumps;
     Button *button_init_fire;
+    Button *button_settings;
 
     DisplayBuffer *defaultDisplayBuffer;
 
@@ -121,12 +157,27 @@ protected:
     void drawGauges();
 
     void initScreen0();
+    void initScreenSettings();
+    void drawScreenSettings();
+    void drawSettingsTab(int tab_index);
+    void drawSettingsContentChrome();
+    void drawSettingsJoinSeam();
+    void drawSettingsContent();
+    void drawSettingsInfoPage(bool force);
+    void drawSettingsInfoBar(int16_t text_x, int16_t baseline_y, int16_t bar_w, const char *text);
+    void getSettingsContentRect(int16_t &x, int16_t &y, int16_t &w, int16_t &h);
+    void getSettingsTabSlotRect(int tab_index, int16_t &x, int16_t &y, int16_t &w, int16_t &h);
+    void getSettingsTabRect(int tab_index, int16_t &x, int16_t &y, int16_t &w, int16_t &h);
+    int hitTestSettingsTab(uint16_t x, uint16_t y);
+    void noteSettingsActivity();
+    void handleSettingsTouch(DisplayButtonEvent event);
     void drawField(const char *msg, int txt_x, int txt_y, int width, int font_color, int bg_color);
     void drawIntField(const char *msg, int value, int txt_x, int txt_y, int width, int font_color, int bg_color);
     void drawFloatField(const char *msg, float value, int txt_x, int txt_y, int width, int font_color, int bg_color);
 
     static void initFireButtonAction(DisplayButtonEvent event);
     static void initFireButtonDrawAction(DisplayBuffer *canvas);
+    static void settingsButtonAction(DisplayButtonEvent event);
     void addButton(Button *button);
 
 public:
@@ -143,6 +194,10 @@ public:
     ILI9488 *getTft();
 
     void setHeaterController(HeaterController *heaterController);
+    void setSettingsManager(SettingsManager *settingsManager);
+    void setSensorController(SensorController *sensorController);
+    void setWiFiController(WiFiController *wiFiController);
+    void setMqttController(MqttController *mqttController);
 
     void dirty();
 

@@ -48,4 +48,5 @@ float Sma::setIntervals(int intervals) {
     this->intervals = intervals;
 
     sma = calcSma(intervals);
+    return sma;
 }

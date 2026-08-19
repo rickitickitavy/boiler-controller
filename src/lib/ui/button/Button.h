@@ -7,8 +7,8 @@
 
 
 #include <lib/ui/bufferedGraphics/DisplayBuffer.h>
-#include "lib/adafruit/gfxfont.h"
-#include "lib/adafruit/ILI9488.h"
+#include <Adafruit_GFX.h>
+#include <ILI9488.h>
 #include "lib/ui/bufferedGraphics/ui_struct.h"
 
 #define BUTTON_GRAPH_MARGIN_BOTTOM 10
@@ -57,6 +57,7 @@ public:
 
     void setCaption(const char* new_caption);
     void draw();
+    void invalidate();
     void getXY(uint16_t &x, uint16_t &y);
     void getWH(uint16_t &w, uint16_t &h);
     void _setWHOnly(uint16_t w, uint16_t h);

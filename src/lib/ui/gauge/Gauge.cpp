@@ -2,9 +2,9 @@
 // Created by dsporykhin on 12.01.23.
 //
 
-#include <lib/adafruit/gfxfont.h>
+#include <Adafruit_GFX.h>
 #include <lib/ui/bufferedGraphics/DisplayBuffer.h>
-#include "lib/adafruit/Fonts/FreeSans12pt7b.h"
+#include <Fonts/FreeSans12pt7b.h>
 #include "Gauge.h"
 
 Gauge::Gauge(ILI9488 *display, const char *title, int x, int y, int width, int height, int bg_color, int font_color, GFXfont *font,
@@ -49,6 +49,7 @@ float Gauge::getValue() {
 float Gauge::setValue(float value) {
     this->value = value;
     initialized = true;
+    return this->value;
 }
 
 void Gauge::draw() {
@@ -121,10 +122,10 @@ void Gauge::draw() {
         displayBuffer->fillTriangle(x1, y1, x_l, y_l, x_r, y_r, font_color);
 
         // draw value
-        char  charBuffer[20];
-        memset(charBuffer, 0, 20);
-        String format = "%0." + String(display_decimal_digits_count) + "f";
-        sprintf(charBuffer, format.c_str(), value);
+        char charBuffer[20];
+        char format[8];
+        snprintf(format, sizeof(format), "%%0.%df", display_decimal_digits_count);
+        snprintf(charBuffer, sizeof(charBuffer), format, value);
 
         displayBuffer->setCursor((width - displayBuffer->calcTextWidth(charBuffer)) >> 1,
                                  GAUGE_GRAPH_MARGIN_TOP + base_radius + (font->yAdvance >> 1));
@@ -163,7 +164,7 @@ void Gauge::draw() {
     display->drawImage((uint8_t*)displayBuffer->buffer, x, y, width, height);
     if (!defaultDisplayBuffer) {
         displayBuffer->freeBuffer();
-        free(displayBuffer);
+        delete displayBuffer;
     }
 
 }

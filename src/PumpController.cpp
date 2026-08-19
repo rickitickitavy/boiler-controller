@@ -29,6 +29,7 @@ void PumpController::setManualOn(bool manual_on) {
 bool PumpController::setStateOn(bool new_state) {
     stateOn = new_state;
     stateToPin();
+    return stateOn;
 }
 
 void PumpController::stateToPin() {

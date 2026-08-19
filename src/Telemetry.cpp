@@ -12,7 +12,9 @@ Telemetry::Telemetry(GlobalSettings *settings) {
     LOGGER.info("Telemetry starting...");
     index_of_next = 0;
     mask_for_index = (1 << TELEMETRY_BITS_FOR_BUFFER_SIZE) - 1;
-    data = (TelemetryDataRecord *) malloc((1 << TELEMETRY_BITS_FOR_BUFFER_SIZE - 1) * sizeof(TelemetryDataRecord));
+    // Ring buffer unused while addData memcpy is commented out — do not malloc ~100KB
+    // before WiFi (esp_wifi_init ESP_ERR_NO_MEM / "Expected to init 4 rx buffer").
+    data = nullptr;
 
     char _cat_name[128];
     sprintf(_cat_name, "/%s", settings->telemetrySettings.catName);
@@ -78,19 +80,20 @@ void Telemetry::openDataFile() {
         char _long_buf[17];
         sprintf(_long_buf, "%i", millis());
 
-        char *_arch_file_name = (char *) malloc(strlen(settings->telemetrySettings.catName)
+        char *archiveFileName = (char *) malloc(strlen(settings->telemetrySettings.catName)
                                                 + strlen(_long_buf)
                                                 + strlen(TELEMETRY_FILE_NAME)
                                                 + 4);
-        sprintf(_arch_file_name, "/%s/%s-%s", settings->telemetrySettings.catName, _long_buf, TELEMETRY_FILE_NAME);
-        LOGGER.info(_arch_file_name);
-        if (!SD.rename(file_name, _arch_file_name))
+        sprintf(archiveFileName, "/%s/%s-%s", settings->telemetrySettings.catName, _long_buf, TELEMETRY_FILE_NAME);
+        LOGGER.info(archiveFileName);
+        if (!SD.rename(file_name, archiveFileName))
             LOGGER.error("error move telemetry file to archive");
         else {
             LOGGER.info("telemetry file moved to archive");
             data_file = SD.open(file_name, FILE_APPEND);
             _new_file = true;
         }
+        free(archiveFileName);
     }
 
     char *header = "date_time_ms;interval_ms;internal_temp;core_temp;core_temp_sma;input_temp;"
@@ -209,6 +212,7 @@ bool Telemetry::addData(TelemetryDataRecord *dataRecord) {
                 dataRecord->core_SMA_diff_tempr, dataRecord->main_door_opened ? "true" : "false");
         LOGGER.info(save_buffer);
     }
+    return false;
 }
 
 void Telemetry::getRawCsvSensors(TelemetryDataRecord *dataRecord, char *buffer) {

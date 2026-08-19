@@ -59,6 +59,7 @@ public:
 
     int getParamDescriptorCounter();
 
+    ParamDescriptor *findParamDescriptor(const String &paramName);
 };
 
 

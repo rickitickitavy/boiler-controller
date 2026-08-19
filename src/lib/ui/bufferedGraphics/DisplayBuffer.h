@@ -6,7 +6,7 @@
 #define BASE_ESP8266_MQTT_DISPLAYBUFFER_H
 
 
-#include <lib/adafruit/Adafruit_GFX.h>
+#include <Adafruit_GFX.h>
 
 class DisplayBuffer : public Adafruit_GFX {
 private:
