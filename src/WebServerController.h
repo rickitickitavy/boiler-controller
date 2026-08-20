@@ -24,6 +24,12 @@ class WebServerController {
 private:
     AsyncWebServer* webServer;
     static TouchDisplayController *touchDisplayController;
+    static bool otaInProgress;
+    static int otaCommand;
+
+    static void handleOtaRequest(AsyncWebServerRequest *request);
+    static void handleOtaUpload(AsyncWebServerRequest *request, const String &filename, size_t index, uint8_t *data,
+                                size_t len, bool final);
 public:
     static SettingsManager* settingsManager;
     static HeaterController *heaterController;
@@ -31,6 +37,8 @@ public:
     WebServerController(SettingsManager* settingsManager);
 
     void setTouchDisplayController(TouchDisplayController *touchDisplayController);
+
+    static bool isOtaInProgress();
 
     static String systemSettingsProcessor(const String& paramName);
 

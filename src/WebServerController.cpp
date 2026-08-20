@@ -5,6 +5,8 @@
 #include <SD.h>
 #include "WebServerController.h"
 #include <LittleFS.h>
+#include <Update.h>
+#include <esp_task_wdt.h>
 #include "Defines.h"
 #include "Logger.h"
 
@@ -18,6 +20,8 @@ String PROFILES_PARAMETER_ATTR_NAME = "parameter";
 SettingsManager *WebServerController::settingsManager;
 HeaterController *WebServerController::heaterController;
 TouchDisplayController *WebServerController::touchDisplayController;
+bool WebServerController::otaInProgress = false;
+int WebServerController::otaCommand = U_FLASH;
 
 void WebServerController::setTouchDisplayController(TouchDisplayController *touchDisplayController) {
     this->touchDisplayController = touchDisplayController;
@@ -58,6 +62,10 @@ WebServerController::WebServerController(SettingsManager *settingsManager) {
 //    webServer->on("/manualWarmControl", HTTP_POST, manualWarmControl);
     webServer->on("/getTelemetry", HTTP_GET, getTelemetry);
 
+    webServer->on("/update/firmware", HTTP_POST, handleOtaRequest, handleOtaUpload);
+    webServer->on("/update/code", HTTP_POST, handleOtaRequest, handleOtaUpload);
+    webServer->on("/update/data", HTTP_POST, handleOtaRequest, handleOtaUpload);
+
     webServer->onNotFound(loadFileByUrl);
 
     webServer->begin();
@@ -75,13 +83,18 @@ void WebServerController::settingsApiProcessor(AsyncWebServerRequest *request) {
     String valueAttrName = "value";
 
     String operation = request->arg(PROFILES_OPERATION_ATTR_NAME);
+    if (operation == "dump") {
+        request->send(200, "application/json", settingsManager->getNavigator()->dumpAllSettingsJson());
+        return;
+    }
+
     String parameter = request->arg(parameterAttrName);
 
     if (!parameter || parameter.isEmpty()) {
         String message = "\"" + parameterAttrName + "\" can't be null";
         request->send(200, TEXT_PLAN, message);
     } else if (parameter == "wifi") {
-        if (operation = PARAMETER_OPERATION_WRITE) {
+        if (operation == PARAMETER_OPERATION_WRITE) {
             LOGGER.info("all setting.");
 
             String wifiSSID = request->arg("network>ssid");
@@ -253,7 +266,7 @@ void WebServerController::loadFileByUrl(AsyncWebServerRequest *request) {
     } else if (url.endsWith(".css")) {
         mime = "text/css";
     } else if (url.endsWith(".js")) {
-        mime = "text/js";
+        mime = "application/javascript";
     } else if (url.endsWith(".jpg")) {
         mime = "image/jpeg";
     } else {
@@ -267,5 +280,52 @@ void WebServerController::loadFileByUrl(AsyncWebServerRequest *request) {
 
 String WebServerController::systemSettingsProcessor(const String &paramName) {
     return settingsManager->getNavigator()->getSettingByName(paramName);
+}
+//----------------------------------------------------------------------
+
+bool WebServerController::isOtaInProgress() {
+    return otaInProgress;
+}
+//----------------------------------------------------------------------
+
+void WebServerController::handleOtaUpload(AsyncWebServerRequest *request, const String &filename, size_t index,
+                                          uint8_t *data, size_t len, bool final) {
+    (void) filename;
+    esp_task_wdt_reset();
+    if (index == 0) {
+        otaCommand = request->url().endsWith("/data") ? U_SPIFFS : U_FLASH;
+        otaInProgress = true;
+        LOGGER.info("HTTP OTA start, partition=" + String(otaCommand));
+        if (!Update.begin(UPDATE_SIZE_UNKNOWN, otaCommand)) {
+            LOGGER.error("HTTP OTA begin failed");
+            otaInProgress = false;
+            return;
+        }
+    }
+    if (len > 0 && Update.write(data, len) != len) {
+        LOGGER.error("HTTP OTA write failed");
+    }
+    if (final) {
+        if (!Update.end(true)) {
+            LOGGER.error("HTTP OTA end failed");
+            otaInProgress = false;
+        }
+    }
+}
+//----------------------------------------------------------------------
+
+void WebServerController::handleOtaRequest(AsyncWebServerRequest *request) {
+    if (Update.hasError() || !otaInProgress) {
+        String errorMessage = Update.hasError() ? Update.errorString() : "Upload failed";
+        LOGGER.error("HTTP OTA failed: " + errorMessage);
+        Update.abort();
+        otaInProgress = false;
+        request->send(500, TEXT_PLAN, errorMessage);
+        return;
+    }
+    LOGGER.info("HTTP OTA finished");
+    request->send(200, TEXT_PLAN, OK_RESPONSE);
+    delay(400);
+    ESP.restart();
 }
 //----------------------------------------------------------------------
