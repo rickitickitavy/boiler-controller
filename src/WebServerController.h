@@ -58,6 +58,8 @@ public:
 
     static void getTelemetry(AsyncWebServerRequest *request);
 
+    static void reboot(AsyncWebServerRequest *request);
+
 };
 
 extern String TEXT_PLAN;

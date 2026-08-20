@@ -61,6 +61,7 @@ WebServerController::WebServerController(SettingsManager *settingsManager) {
     webServer->on("/manualWarmControl", HTTP_GET | HTTP_POST, manualWarmControl);
 //    webServer->on("/manualWarmControl", HTTP_POST, manualWarmControl);
     webServer->on("/getTelemetry", HTTP_GET, getTelemetry);
+    webServer->on("/reboot", HTTP_POST, reboot);
 
     webServer->on("/update/firmware", HTTP_POST, handleOtaRequest, handleOtaUpload);
     webServer->on("/update/code", HTTP_POST, handleOtaRequest, handleOtaUpload);
@@ -324,6 +325,14 @@ void WebServerController::handleOtaRequest(AsyncWebServerRequest *request) {
         return;
     }
     LOGGER.info("HTTP OTA finished");
+    request->send(200, TEXT_PLAN, OK_RESPONSE);
+    delay(400);
+    ESP.restart();
+}
+//----------------------------------------------------------------------
+
+void WebServerController::reboot(AsyncWebServerRequest *request) {
+    LOGGER.info("HTTP reboot requested");
     request->send(200, TEXT_PLAN, OK_RESPONSE);
     delay(400);
     ESP.restart();

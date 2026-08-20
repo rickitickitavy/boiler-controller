@@ -55,7 +55,7 @@
 #define SCREEN_INDEX_MAIN 0
 #define SCREEN_INDEX_SETTINGS 1
 
-#define UI_SETTINGS_IDLE_MS 20000
+#define UI_SETTINGS_IDLE_MS 60000
 #define UI_SETTINGS_INFO_REFRESH_MS 1000
 #define UI_SETTINGS_TAB_COUNT 8
 #define UI_SETTINGS_SCREEN_WIDTH 480
@@ -114,6 +114,9 @@ protected:
     char settings_info_mac_drawn[48];
     char settings_info_status_drawn[64];
     char settings_info_mqtt_drawn[48];
+    char settings_info_doors_drawn[48];
+    char settings_info_pid_drawn[48];
+    char settings_info_mode_drawn[32];
     TelemetryDataRecord savedDataRecord;
     bool telemetry_initialized;
 

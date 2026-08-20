@@ -361,6 +361,26 @@
             xhr.send(formData);
         }
 
+        function rebootDevice() {
+            var statusEl = document.getElementById("rebootStatus");
+            if (!window.confirm("Reboot the device now?"))
+                return;
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "/reboot", true);
+            xhr.onload = function () {
+                if (xhr.status === 200 && String(xhr.responseText || "").trim() === "OK") {
+                    if (statusEl) statusEl.textContent = "Rebooting…";
+                    return;
+                }
+                if (statusEl) statusEl.textContent = xhr.responseText || ("Reboot failed (HTTP " + xhr.status + ")");
+            };
+            xhr.onerror = function () {
+                if (statusEl) statusEl.textContent = "Reboot failed (network error)";
+            };
+            if (statusEl) statusEl.textContent = "Sending reboot…";
+            xhr.send();
+        }
+
         function setupPasswordToggle(inputId, toggleId) {
             var input = document.getElementById(inputId);
             var toggle = document.getElementById(toggleId);
@@ -2237,6 +2257,14 @@
                 <button type="button" class="btn btn-primary"
                         onclick="uploadFirmware('/update/data', 'updateDataFile', 'updateDataProgress', 'updateDataStatus')">
                     Upload data
+                </button>
+            </div>
+            <div class="upload-card">
+                <h3 class="upload-title">Reboot</h3>
+                <p class="field-hint">Restart the controller without uploading firmware or data.</p>
+                <p id="rebootStatus" class="upload-status"></p>
+                <button type="button" class="btn btn-secondary" onclick="rebootDevice()">
+                    Reboot
                 </button>
             </div>
         </section>

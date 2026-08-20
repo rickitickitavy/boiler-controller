@@ -20,6 +20,25 @@ static const char *const SETTINGS_TAB_LABELS[UI_SETTINGS_TAB_COUNT] = {
         "Info", "WiFi", "Mqtt", "Sensors", "Servo", "Capasit.", "Rules", "Modes"
 };
 
+static const char *heaterModeEnglishName(uint8_t mode) {
+    switch (mode) {
+        case STAND_BY:
+            return "Stand By";
+        case WARMING:
+            return "Warming";
+        case FINAL_COOLING:
+            return "Cooling";
+        case PID:
+            return "Burning";
+        case OVERHEATED:
+            return "Overheat";
+        case CRITICAL:
+            return "Critical";
+        default:
+            return "Unknown";
+    }
+}
+
 TouchDisplayController *TouchDisplayController::instance;
 
 TouchDisplayController::TouchDisplayController() {
@@ -541,10 +560,16 @@ void TouchDisplayController::drawSettingsInfoPage(bool force) {
     const int16_t mac_y = cy + UI_SETTINGS_CONTENT_PAD + UI_SETTINGS_INFO_BAR_BASELINE_OFFSET;
     const int16_t status_y = mac_y + UI_SETTINGS_INFO_LINE_GAP;
     const int16_t mqtt_y = status_y + UI_SETTINGS_INFO_LINE_GAP;
+    const int16_t doors_y = mqtt_y + UI_SETTINGS_INFO_LINE_GAP;
+    const int16_t pid_y = doors_y + UI_SETTINGS_INFO_LINE_GAP;
+    const int16_t mode_y = pid_y + UI_SETTINGS_INFO_LINE_GAP;
 
     char mac_line[48];
     char status_line[64];
     char mqtt_line[48];
+    char doors_line[48];
+    char pid_line[48];
+    char mode_line[32];
     uint8_t mac[6];
     // WiFi.macAddress() is all zeros on Arduino-ESP32 v3 until the STA/AP
     // interface is started; esp_read_mac always returns the chip WiFi MAC.
@@ -570,6 +595,20 @@ void TouchDisplayController::drawSettingsInfoPage(bool force) {
         sprintf(mqtt_line, "Mqtt: Disconnected");
     }
 
+    if (telemetry_initialized) {
+        sprintf(doors_line, "Doors: U=%d%% O=%d%% S=%d%%",
+                (int) savedDataRecord.upper_door_position,
+                (int) savedDataRecord.oxygen_door_position,
+                (int) savedDataRecord.smoke_door_position);
+        sprintf(pid_line, "PID: P=%.0f I=%.1f D=%.1f",
+                savedDataRecord.pid_p, savedDataRecord.pid_i, savedDataRecord.pid_d);
+        sprintf(mode_line, "Mode: %s", heaterModeEnglishName(savedDataRecord.heaterMode));
+    } else {
+        sprintf(doors_line, "Doors: --");
+        sprintf(pid_line, "PID: --");
+        sprintf(mode_line, "Mode: --");
+    }
+
     if (force || strcmp(mac_line, settings_info_mac_drawn) != 0) {
         drawSettingsInfoBar(text_x, mac_y, bar_w, mac_line);
         strncpy(settings_info_mac_drawn, mac_line, sizeof(settings_info_mac_drawn) - 1);
@@ -586,6 +625,24 @@ void TouchDisplayController::drawSettingsInfoPage(bool force) {
         drawSettingsInfoBar(text_x, mqtt_y, bar_w, mqtt_line);
         strncpy(settings_info_mqtt_drawn, mqtt_line, sizeof(settings_info_mqtt_drawn) - 1);
         settings_info_mqtt_drawn[sizeof(settings_info_mqtt_drawn) - 1] = 0;
+    }
+
+    if (force || strcmp(doors_line, settings_info_doors_drawn) != 0) {
+        drawSettingsInfoBar(text_x, doors_y, bar_w, doors_line);
+        strncpy(settings_info_doors_drawn, doors_line, sizeof(settings_info_doors_drawn) - 1);
+        settings_info_doors_drawn[sizeof(settings_info_doors_drawn) - 1] = 0;
+    }
+
+    if (force || strcmp(pid_line, settings_info_pid_drawn) != 0) {
+        drawSettingsInfoBar(text_x, pid_y, bar_w, pid_line);
+        strncpy(settings_info_pid_drawn, pid_line, sizeof(settings_info_pid_drawn) - 1);
+        settings_info_pid_drawn[sizeof(settings_info_pid_drawn) - 1] = 0;
+    }
+
+    if (force || strcmp(mode_line, settings_info_mode_drawn) != 0) {
+        drawSettingsInfoBar(text_x, mode_y, bar_w, mode_line);
+        strncpy(settings_info_mode_drawn, mode_line, sizeof(settings_info_mode_drawn) - 1);
+        settings_info_mode_drawn[sizeof(settings_info_mode_drawn) - 1] = 0;
     }
 }
 
@@ -613,6 +670,9 @@ void TouchDisplayController::drawSettingsContent() {
     settings_info_mac_drawn[0] = 0;
     settings_info_status_drawn[0] = 0;
     settings_info_mqtt_drawn[0] = 0;
+    settings_info_doors_drawn[0] = 0;
+    settings_info_pid_drawn[0] = 0;
+    settings_info_mode_drawn[0] = 0;
     if (settings_tab_index == UI_SETTINGS_TAB_INFO) {
         drawSettingsInfoPage(true);
     } else if (settingsForms) {
