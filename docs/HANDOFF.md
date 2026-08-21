@@ -48,7 +48,7 @@ Pins from [`include/pins.h`](../include/pins.h):
 - **Pumps:** pumps 1–2 constructed in control path; 3–4 macros exist but are unused
 - **FS:** **LittleFS** for web/`data/` assets (`board_build.filesystem = littlefs`)
 - **Flash partitions:** custom [`partitions_4mb_ota_512fs.csv`](../partitions_4mb_ota_512fs.csv) — app0/app1 **1728 KB** each, LittleFS (`spiffs` subtype) **512 KB** (wired via `board_build.partitions` in `platformio.ini`). First cutover after changing this CSV needs a full reflash (`upload` + `uploadfs`), not app-only OTA.
-- **Web UI:** vanilla JS (`fetch`) in `data/index.html` / `data/settings.html` — **no jQuery**. TFT BMP icons remain under `data/img/`.
+- **Web UI:** vanilla JS in `data/index.html` (Status / Settings / Update shell) plus `data/js/*.js` — **no jQuery**. `data/settings.html` redirects to `/#settings`. TFT BMP icons remain under `data/img/`.
 - **Settings:** EEPROM 4096 bytes, marker `0x34 0x32 0x33 0x31`, `GLOBAL_CURRENT_SETTINGS_VERSION` = 2
 
 **Pin clash:** `ONE_WIRE_PIN_2` and `PUMP_4_PIN` both use GPIO **32**.
@@ -137,7 +137,7 @@ E_kWh = ((T_top − 35) × boiler_ltr + (avg_acc − 35) × accumulator_ltr)
 - Mid-acc sensors feed energy math but are not dedicated main gauges
 - `drawScreen1` (door % layout) largely commented out
 - BMP icons from LittleFS (`/img/…`)
-- Web settings UI remains available (`data/settings.html`, `/settingsApi`) alongside TFT forms
+- Web settings UI is a tabbed page in `data/index.html` (`/settingsApi`) alongside TFT forms
 
 ## Network / OTA / persistence
 
@@ -146,11 +146,11 @@ E_kWh = ((T_top − 35) × boiler_ltr + (avg_acc − 35) × accumulator_ltr)
 | WiFi | STA to `network.ssid/password`; fail → AP `{mqttDeviceName}-WiFi` / `00000000`, IP `192.168.0.1`, mDNS HTTP; connect wait kicks `esp_task_wdt_reset()` |
 | WiFi soft reapply | `WiFiController::reapplyNetworkSettings()` — skips if already STA on configured SSID; otherwise disconnect + STA begin (or hardened AP fallback); no restart; used by TFT Save when credentials change |
 | TWDT | Arduino may pre-init TWDT; `setup` uses `esp_task_wdt_reconfigure` for **25 s** if `init` returns `ESP_ERR_INVALID_STATE` |
-| Web | Async server (`ESPAsyncWebServer` via `lib_deps`): `/`, `/settings.html`, `/settingsApi`, modelling / door / telemetry endpoints; files from LittleFS |
+| Web | Async server: `/` and `/index.html` use the same `%param%` template processor as `/settings.html` (`systemSettingsProcessor`). Literal percents in SVG/JS are escaped as `%%`. Modelling / door / telemetry, `POST /update/code` (alias `/update/firmware`) and `POST /update/data` |
 | Display libs | Adafruit GFX + BusIO via `lib_deps`; customized driver in `lib/ILI9488/` |
 | Temps libs | `paulstoffregen/OneWire` + `milesburton/DallasTemperature` via `lib_deps` |
 | MQTT | `MqttController` + vendored `PubSubClient`: connect/loop/reconnect **only when WiFi mode is STA and linked to a router** (`WIFI_STA` + connected); soft-AP mode keeps MQTT idle. Uses `mqttServer`/`mqttPort`/`mqttDeviceName`; Info tab shows live status; **no publish/subscribe yet**. Failed connect uses short TCP/MQTT timeouts (~1 s) and at least **5 s** between attempts so the main loop stays responsive |
-| OTA | `ArduinoOTA` in `main.cpp`; **6 s OTA-only window** after boot; TFT progress; no HTTP `/update` |
+| OTA | `ArduinoOTA` in `main.cpp`; **6 s OTA-only window** after boot; TFT progress. HTTP: `POST /update/code` or `/update/firmware` writes the unused OTA app slot (`U_FLASH`); `POST /update/data` writes the LittleFS image (`U_SPIFFS`). Both reboot on success. Main loop skips heater/UI while an HTTP OTA is in progress |
 | EEPROM | `SettingsManager`: versioned `GlobalSettings` + 4-byte marker |
 | NTP | Implemented but call site commented out; `initNTP` uses a stack buffer (no heap alloc) |
 | Heap log | `loop` logs `ESP.getFreeHeap` / `ESP.getMinFreeHeap` about once per 60 s |

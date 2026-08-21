@@ -60,6 +60,8 @@ public:
     int getParamDescriptorCounter();
 
     ParamDescriptor *findParamDescriptor(const String &paramName);
+
+    String dumpAllSettingsJson();
 };
 
 

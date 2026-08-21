@@ -150,6 +150,11 @@ void loop() {
     wiFiController->checkConnection();
     reset_wdt();
 
+    if (wiFiController->getWebServerController() &&
+        wiFiController->getWebServerController()->isOtaInProgress()) {
+        return;
+    }
+
     // give first 3 seconds work OTA only
     if ((millis() - setup_finished_at) < 6000)
         return;

@@ -2,8 +2,10 @@
 // Created by dsporykhin on 24.04.20.
 //
 
+#include <cstdio>
 #include <IPAddress.h>
 #include "SettingsNavigator.h"
+#include "ParamDescriptor.h"
 #include "Logger.h"
 #include "Converter.h"
 
@@ -762,6 +764,66 @@ String SettingsNavigator::getSettingByName(String origParamName) {
     LOGGER.error("parameter " + paramName + " not found");
     return "bad parameter name";
 
+}
+//--------------------------------------------------------------------
+
+static String jsonEscape(const String &raw) {
+    String escaped;
+    escaped.reserve(raw.length() + 8);
+    for (unsigned index = 0; index < raw.length(); index++) {
+        char current = raw.charAt(index);
+        if (current == '"' || current == '\\') {
+            escaped += '\\';
+            escaped += current;
+        } else if (current == '\n') {
+            escaped += "\\n";
+        } else if (current == '\r') {
+            escaped += "\\r";
+        } else if (current == '\t') {
+            escaped += "\\t";
+        } else if ((unsigned char) current < 0x20) {
+            char unicodeEscape[8];
+            snprintf(unicodeEscape, sizeof(unicodeEscape), "\\u%04x", (unsigned char) current);
+            escaped += unicodeEscape;
+        } else {
+            escaped += current;
+        }
+    }
+    return escaped;
+}
+
+String SettingsNavigator::dumpAllSettingsJson() {
+    String json;
+    json.reserve(16000);
+    json += "{";
+    bool firstItem = true;
+    for (int descriptorIndex = 0; descriptorIndex < activeParamDescriptors; descriptorIndex++) {
+        ParamDescriptor *descriptor = paramDescriptors[descriptorIndex];
+        String value = getSettingByName(descriptor->paramName);
+        const bool omitLongString = descriptor->paramType == STRING && value.length() > 512;
+        if (!firstItem) {
+            json += ",";
+        }
+        firstItem = false;
+        if (!omitLongString) {
+            json += "\"";
+            json += descriptor->paramName;
+            json += "\":\"";
+            json += jsonEscape(value);
+            json += "\",";
+        }
+        json += "\"";
+        json += descriptor->paramName;
+        json += "#minR\":\"";
+        json += jsonEscape(getSettingByName(descriptor->paramName + "#minR"));
+        json += "\",\"";
+        json += descriptor->paramName;
+        json += "#maxR\":\"";
+        json += jsonEscape(getSettingByName(descriptor->paramName + "#maxR"));
+        json += "\"";
+    }
+    json += "}";
+    return json;
 }
 //--------------------------------------------------------------------
 
