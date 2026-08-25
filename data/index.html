@@ -1151,7 +1151,7 @@
             <div class="formHeader2">Warming mode settings</div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Core power upon reaching which it is necessary to switch to PID mode.
+                <div class="formParamCaption">Switch to the PID mode when the power reaches
                     Watts (from %heater>warming>pwr_to_sw_to_PID#minR% to %heater>warming>pwr_to_sw_to_PID#maxR%)
                 </div>
                 <div class="formParamValue"><input id="heater>warming>pwr_to_sw_to_PID" class="formStringParamValue"
@@ -1159,17 +1159,16 @@
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Core temperature upon reaching which, combined with power, it is necessary
-                    to switch to PID mode. (from %heater>warming>core_tempr_to_sw#minR% to
-                    %heater>warming>core_tempr_to_sw#maxR%)
+                <div class="formParamCaption">switch to the PID mode when the core temperature reaches  (from %heater>warming>core_tempr_to_sw#minR% to
+                    %heater>warming>core_tempr_to_sw#maxR%) (The core power must reach %heater>warming>pwr_to_sw_to_PID% W)
                 </div>
                 <div class="formParamValue"><input id="heater>warming>core_tempr_to_sw" class="formStringParamValue"
                                                    value="%heater>warming>core_tempr_to_sw%"></div>
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Time given to reaching power for switching to PID mode. Otherwise
-                    switching to colling mode. Sec (from %heater>warming>time_to_reach_pwr_sec#minR% to
+                <div class="formParamCaption">The time given to reaching the power for switching to the PID mode. Otherwise,
+                    switching to the colling mode. Sec (from %heater>warming>time_to_reach_pwr_sec#minR% to
                     %heater>warming>time_to_reach_pwr_sec#maxR%)
                 </div>
                 <div class="formParamValue"><input id="heater>warming>time_to_reach_pwr_sec"
