@@ -1,4 +1,4 @@
-#include <Fonts/FreeSans9pt7b.h>
+#include <lib/ui/fonts/BoilerFonts.h>
 #include <string.h>
 #include "OnScreenKeyboard.h"
 
@@ -216,7 +216,7 @@ void OnScreenKeyboard::draw() {
     need_redraw = false;
 
     display->fillRect(x, y, width, height, KB_COLOR_BG);
-    display->setFont(&FreeSans9pt7b);
+    display->setFont(FONT_FREE_SANS_9PT);
     display->setTextSize(1);
 
     const int rows = rowCount();

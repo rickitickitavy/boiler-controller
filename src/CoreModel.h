@@ -5,6 +5,7 @@
 #ifndef BASE_ESP8266_MQTT_COREMODEL_H
 #define BASE_ESP8266_MQTT_COREMODEL_H
 
+#ifdef ENABLE_MODELLING
 
 #include "PumpsController.h"
 #include "DoorsController.h"
@@ -83,5 +84,7 @@ public:
     void handle();
 };
 
+
+#endif // ENABLE_MODELLING
 
 #endif //BASE_ESP8266_MQTT_COREMODEL_H

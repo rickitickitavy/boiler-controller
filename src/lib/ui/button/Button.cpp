@@ -4,7 +4,6 @@
 
 #include <lib/ui/bufferedGraphics/DisplayBuffer.h>
 #include <LittleFS.h>
-#include <Fonts/FreeSans12pt7b.h>
 #include "Button.h"
 #include <sys/param.h>
 

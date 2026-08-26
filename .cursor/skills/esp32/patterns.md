@@ -19,8 +19,9 @@ Project-derived detail only. Read when implementing persistence, LittleFS assets
 ## OTA
 
 - ArduinoOTA is started unconditionally after WiFi setup.
-- Boot gate: for ~6 s after `setup` finishes, `loop` only runs `ArduinoOTA.handle()` / WiFi check / WDT — then enables the main UI/control path.
-- There is no HTTP firmware/filesystem update endpoint in this repo today.
+- Boot gate: for ~6 s after `setup` finishes, `loop` only runs `ArduinoOTA.handle()` / WiFi check / external WDT kick — then enables the main UI/control path.
+- HTTP Update: `POST /update/code|firmware|data` via `WebServerController`.
+- Flash partitions: stock `default.csv` (1280 KB OTA app slots) when configured.
 
 ## Doors / servos
 

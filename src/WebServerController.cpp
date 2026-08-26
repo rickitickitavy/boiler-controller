@@ -2,11 +2,9 @@
 // Created by dsporykhin on 19.04.20.
 //
 
-#include <SD.h>
 #include "WebServerController.h"
 #include <LittleFS.h>
 #include <Update.h>
-#include <esp_task_wdt.h>
 #include "Defines.h"
 #include "Logger.h"
 
@@ -54,8 +52,10 @@ WebServerController::WebServerController(SettingsManager *settingsManager) {
 
     webServer->on("/settingsApi", HTTP_GET, settingsApiProcessor);
     webServer->on("/settingsApi", HTTP_POST, settingsApiProcessor);
+#ifdef ENABLE_MODELLING
     webServer->on("/startModelling", HTTP_GET, startModelling);
     webServer->on("/stopModelling", HTTP_GET, stopModelling);
+#endif
     webServer->on("/openDoorFor15Min", HTTP_GET, openDoorFor15Min);
     webServer->on("/closeDoor", HTTP_GET, closeDoor);
     webServer->on("/manualWarmControl", HTTP_GET | HTTP_POST, manualWarmControl);
@@ -180,6 +180,7 @@ void WebServerController::settingsApiProcessor(AsyncWebServerRequest *request) {
 }
 //----------------------------------------------------------------------
 
+#ifdef ENABLE_MODELLING
 void WebServerController::startModelling(AsyncWebServerRequest *request) {
     if (heaterController) {
         heaterController->startModelling();
@@ -197,6 +198,7 @@ void WebServerController::stopModelling(AsyncWebServerRequest *request) {
         request->send(200, TEXT_JSON, "{\"status\":0, \"error\":\"heaterController is not initialized\"}");
 }
 //----------------------------------------------------------------------
+#endif
 
 void WebServerController::openDoorFor15Min(AsyncWebServerRequest *request) {
     if (heaterController) {
@@ -248,19 +250,11 @@ void WebServerController::loadFileByUrl(AsyncWebServerRequest *request) {
     String url = request->url();
     String mime;
 
-    FS *fs;
-
     if (!LittleFS.exists(request->url())) {
-
-        if (!LOGGER.isSdPresents() || !SD.exists(request->url())) {
-            LOGGER.error("url not found: \"" + request->url() + "\"");
-
-            request->send(404, TEXT_PLAN, "not found for this");
-            return;
-        } else
-            fs = &SD;
-    } else
-        fs = &LittleFS;
+        LOGGER.error("url not found: \"" + request->url() + "\"");
+        request->send(404, TEXT_PLAN, "not found for this");
+        return;
+    }
 
     if (url.endsWith(".html")) {
         mime = "text/html";
@@ -274,12 +268,19 @@ void WebServerController::loadFileByUrl(AsyncWebServerRequest *request) {
         mime = TEXT_PLAN;
     }
 
-    request->send(*fs, url, mime);
+    request->send(LittleFS, url, mime);
 }
 //----------------------------------------------------------------------
 
 
 String WebServerController::systemSettingsProcessor(const String &paramName) {
+    if (paramName == "modelling_hidden") {
+#ifdef ENABLE_MODELLING
+        return "";
+#else
+        return "is-hidden";
+#endif
+    }
     return settingsManager->getNavigator()->getSettingByName(paramName);
 }
 //----------------------------------------------------------------------
@@ -292,7 +293,6 @@ bool WebServerController::isOtaInProgress() {
 void WebServerController::handleOtaUpload(AsyncWebServerRequest *request, const String &filename, size_t index,
                                           uint8_t *data, size_t len, bool final) {
     (void) filename;
-    esp_task_wdt_reset();
     if (index == 0) {
         otaCommand = request->url().endsWith("/data") ? U_SPIFFS : U_FLASH;
         otaInProgress = true;

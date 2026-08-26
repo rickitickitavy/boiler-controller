@@ -5,7 +5,7 @@
 #ifndef BASE_ESP8266_MQTT_TELEMETRY_H
 #define BASE_ESP8266_MQTT_TELEMETRY_H
 
-#include <SD.h>
+#include <Arduino.h>
 #include "SettingsManager.h"
 
 #define TELEMETRY_BITS_FOR_BUFFER_SIZE 9
@@ -68,8 +68,6 @@ struct TelemetryDataRecord{
 
 class Telemetry {
 private:
-    File data_file;
-
     /**
      * date-time of last flushing and reopening telemetry file
      */

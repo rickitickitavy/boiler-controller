@@ -62,12 +62,6 @@ pio run -t uploadfs    # after data/ changes
 pio device monitor     # 921600
 ```
 
-## OTA (this project)
-
-- `ArduinoOTA.begin()` in `setup`; `ArduinoOTA.handle()` in `loop`.
-- First **6 s** after boot: early-return so OTA can finish without heater/UI work.
-- No HTTP `/update` path today — do not assume pressure-controller dual OTA.
-
 ## MQTT
 
 Settings and ParamDescriptors exist; no app-level MQTT client loop. Do not add publish/subscribe wiring unless the user asks.

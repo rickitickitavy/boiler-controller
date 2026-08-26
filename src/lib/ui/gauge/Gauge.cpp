@@ -4,7 +4,7 @@
 
 #include <Adafruit_GFX.h>
 #include <lib/ui/bufferedGraphics/DisplayBuffer.h>
-#include <Fonts/FreeSans12pt7b.h>
+#include <lib/ui/fonts/BoilerFonts.h>
 #include "Gauge.h"
 
 Gauge::Gauge(ILI9488 *display, const char *title, int x, int y, int width, int height, int bg_color, int font_color, GFXfont *font,
@@ -19,7 +19,7 @@ Gauge::Gauge(ILI9488 *display, const char *title, int x, int y, int width, int h
 
     this->bg_color = DisplayBuffer::color24To16(bg_color);
     this->font_color = DisplayBuffer::color24To16(font_color);
-    this->font = font ? font : &FreeSans12pt7b;
+    this->font = font ? font : FONT_FREE_SANS_12PT;
     this->display_decimal_digits_count = display_decimal_digits_count;
 
     this->min = min;

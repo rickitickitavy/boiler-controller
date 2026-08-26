@@ -6,7 +6,9 @@
 #include "Converter.h"
 
 SensorController::SensorController(int one_wire_pin, int one_wire_pin_2, SettingsManager *settingsManager) {
+#ifdef ENABLE_MODELLING
     this->coreModel = nullptr;
+#endif
     this->settingsManager = settingsManager;
     this->last_time_sensors_read = 0;
     memset(sensor_data, 0, sizeof(sensor_data));
@@ -123,9 +125,11 @@ int SensorController::countSensors(DallasTemperature *dallasTemperature) {
 
 
 
+#ifdef ENABLE_MODELLING
 void SensorController::setModeller(CoreModel *coreModel) {
     this->coreModel = coreModel;
 }
+#endif
 
 bool SensorController::hasData(char *data, int size) {
     for (int index = 0; index < size; index++)
@@ -135,12 +139,14 @@ bool SensorController::hasData(char *data, int size) {
     return false;
 }
 
+#ifdef ENABLE_MODELLING
 void SensorController::saveModelledSensorValue(int sensor_index, double value) {
     sensor_data[sensor_index].value = value;
     sensor_data[sensor_index].last_time_read = millis();
     sensor_data[sensor_index].data_ready = true;
     smaSensors[sensor_index]->addValue(value);
 }
+#endif
 
 String SensorController::buildSensorsList() {
     String const option_tag_start = "<option value=\"";
@@ -276,6 +282,7 @@ void SensorController::readNextBlockOfSensors(){
 }
 
 void SensorController::fire() {
+#ifdef ENABLE_MODELLING
     if (coreModel) {
         coreModel->handle();
         saveModelledSensorValue(T_SENS_INDEX_CORE, coreModel->core_tempr);
@@ -288,7 +295,9 @@ void SensorController::fire() {
         saveModelledSensorValue(T_SENS_INDEX_FORWARD_FLOW, coreModel->forward_tempr);
         saveModelledSensorValue(T_SENS_INDEX_BACKWARD_FLOW, coreModel->backward_tempr);
     }
-    else {
+    else
+#endif
+    {
         // data ALREADY ready. see
         if (cycle_status == STATUS_CYCLE_DONE) {
             cycle_status = STATUS_CYCLE_AWAITING;

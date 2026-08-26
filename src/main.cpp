@@ -4,7 +4,6 @@
 #include <Wire.h>
 #include <HardwareSerial.h>
 #include <LittleFS.h>
-#include <esp_task_wdt.h>
 #include "Logger.h"
 #include "SettingsManager.h"
 #include "ArduinoOTA.h"
@@ -32,9 +31,9 @@ void twoDeviceInfo(const char *msg) {
 long last_wdt_reset = 0;
 
 void reset_wdt() {
+    // Kick external hardware WDT only (ESP task WDT is disabled).
     if (millis() - last_wdt_reset > 3000) {
         last_wdt_reset = millis();
-        esp_task_wdt_reset();
         digitalWrite(EXTERNAL_WDT_PIN, LOW);
         delay(1);
         digitalWrite(EXTERNAL_WDT_PIN, HIGH);
@@ -56,17 +55,6 @@ void setup() {
     reset_wdt();
 
     touchDisplayController = new TouchDisplayController();
-
-    esp_task_wdt_config_t wdt_config = {
-            .timeout_ms = 25000,
-            .idle_core_mask = 0,
-            .trigger_panic = true,
-    };
-    esp_err_t wdt_err = esp_task_wdt_init(&wdt_config);
-    if (wdt_err == ESP_ERR_INVALID_STATE) {
-        wdt_err = esp_task_wdt_reconfigure(&wdt_config);
-    }
-    esp_task_wdt_add(NULL); //add current thread to WDT watch
 
     twoDeviceInfo("Starting...");
     settingsManager = new SettingsManager();
@@ -155,10 +143,10 @@ void loop() {
         return;
     }
 
-    // give first 3 seconds work OTA only
+    // give first 6 seconds work OTA only
     if ((millis() - setup_finished_at) < 6000)
         return;
-    else if (!screen_setup_finished){
+    if (!screen_setup_finished){
         twoDeviceInfo("DONE.");
         delay(500);
         touchDisplayController->setScreenIndex(0);
@@ -173,8 +161,12 @@ void loop() {
     touchDisplayController->handle();
     sensorController->readNextBlockOfSensors();
 
-    if (((heaterController->handle()) && !heaterController->isModelling())
-        || (heaterController->isModelling() && ((millis() - lastTimeDisplayed) > 3000))) {
+    if (((heaterController->handle())
+#ifdef ENABLE_MODELLING
+         && !heaterController->isModelling())
+        || (heaterController->isModelling() && ((millis() - lastTimeDisplayed) > 3000)
+#endif
+        )) {
 
 
         lastTimeDisplayed = millis();

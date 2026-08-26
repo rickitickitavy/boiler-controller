@@ -10,7 +10,6 @@
 
 #include <Arduino.h>
 #include "Defines.h"
-#include <FS.h>
 
 #define LOGGER_SIZE 100
 #define LOG_CAT_NAME "/logs"
@@ -18,8 +17,6 @@
 
 class Logger {
 private:
-    File log_file;
-
     void print(String msg);
 
     void println(String msg);
@@ -43,6 +40,7 @@ private:
 
     char *datetime_buffer;
     char *mini_datetime_buffer;
+
 
 public:
     char logLevel = LOG_LEVEL;

@@ -46,6 +46,7 @@ Full glossary, FSM, pins, and energy formulas: [`docs/HANDOFF.md`](docs/HANDOFF.
 
 ```bash
 pio run
+pio run -e esp32dev_modelling   # plant simulator (CoreModel) included
 pio run -t upload
 pio run -t uploadfs    # after data/ changes
 pio device monitor     # 921600
@@ -64,7 +65,7 @@ pio device monitor     # 921600
 
 - `ArduinoOTA` always started in `setup`.
 - First **6 s** after boot: loop returns early so OTA can run alone; TFT shows a wait message.
-- No HTTP firmware/data upload endpoints in this project today.
+- HTTP Update: `POST /update/code|firmware|data`.
 
 ## Key sources
 
