@@ -26,9 +26,7 @@
 #define TOUCH_CS 12
 #define TOUCH_PEN 35
 
-// Bus / misc
-#define I2C_SDA_PIN 21
-#define I2C_SCL_PIN 22
+// Misc
 #define EXTERNAL_WDT_PIN 5
 
 #endif

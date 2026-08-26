@@ -62,6 +62,8 @@ public:
 
     static void reboot(AsyncWebServerRequest *request);
 
+    static void getLog(AsyncWebServerRequest *request);
+
 };
 
 extern String TEXT_PLAN;

@@ -1,7 +1,6 @@
 //
 // Created by dsporykhin on 13.02.21.
 //
-#include <Wire.h>
 #include <HardwareSerial.h>
 #include <LittleFS.h>
 #include "Logger.h"
@@ -63,10 +62,6 @@ void setup() {
     delay(500);
     sensorController = new SensorController(ONE_WIRE_PIN, ONE_WIRE_PIN_2, settingsManager);
     settingsManager->getNavigator()->setSensorList(sensorController->buildSensorsList());
-
-    twoDeviceInfo("Starting I2C");
-    Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN);
-    Wire.setClock(400000);
 
     twoDeviceInfo("Starting heater controller...");
     heaterController = new HeaterController(settingsManager->getSettings(), sensorController,
@@ -179,7 +174,7 @@ void loop() {
     if (touchDisplayController->isDirty())
         touchDisplayController->drawScreen();
 
-    if ((millis() - lastHeapLogMs) >= 60000) {
+    if ((millis() - lastHeapLogMs) >= 600000) {
         lastHeapLogMs = millis();
         char heapMsg[80];
         snprintf(heapMsg, sizeof(heapMsg), "heap free=%u min=%u",

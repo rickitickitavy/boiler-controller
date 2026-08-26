@@ -161,7 +161,7 @@ String SensorController::buildSensorsList() {
         String address = String(buffer);
         result += option_tag_start + address + option_tag_middle + address + option_tag_end;
     }
-    LOGGER.info(result);
+
     return result;
 }
 

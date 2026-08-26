@@ -308,6 +308,60 @@
             showSettingsTab("wifi");
         }
 
+        function showSystemTab(name) {
+            var buttons = document.querySelectorAll(".system-tab-btn");
+            var panels = document.querySelectorAll(".system-tab-panel");
+            var buttonIndex;
+            for (buttonIndex = 0; buttonIndex < buttons.length; buttonIndex++) {
+                if (buttons[buttonIndex].getAttribute("data-tab") == name) {
+                    buttons[buttonIndex].classList.add("active");
+                } else {
+                    buttons[buttonIndex].classList.remove("active");
+                }
+            }
+            var panelIndex;
+            for (panelIndex = 0; panelIndex < panels.length; panelIndex++) {
+                if (panels[panelIndex].id == "system-tab-" + name) {
+                    panels[panelIndex].classList.add("active");
+                } else {
+                    panels[panelIndex].classList.remove("active");
+                }
+            }
+            if (name == "log") {
+                refreshLog();
+            }
+        }
+
+        function initSystemTabs() {
+            var buttons = document.querySelectorAll(".system-tab-btn");
+            var buttonIndex;
+            for (buttonIndex = 0; buttonIndex < buttons.length; buttonIndex++) {
+                buttons[buttonIndex].onclick = function () {
+                    showSystemTab(this.getAttribute("data-tab"));
+                };
+            }
+            showSystemTab("update");
+        }
+
+        function refreshLog() {
+            var logViewer = document.getElementById("memoryLogViewer");
+            if (!logViewer)
+                return;
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "/log", true);
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    logViewer.value = xhr.responseText || "";
+                    return;
+                }
+                logViewer.value = "Failed to load log (HTTP " + xhr.status + ")";
+            };
+            xhr.onerror = function () {
+                logViewer.value = "Failed to load log (network error)";
+            };
+            xhr.send();
+        }
+
         function initMainNav() {
             var buttons = document.querySelectorAll(".sidebar-btn");
             var buttonIndex;
@@ -396,6 +450,7 @@
             main_door_element = document.getElementById("main_door");
             window.setInterval(blinkMainDoor, 250);
             initSettingsTabs();
+            initSystemTabs();
             initMainNav();
             setupPasswordToggle("wiFiPassword", "wiFiPasswordToggle");
             bindSettingsEvents();
@@ -409,7 +464,7 @@
         <h1 class="sidebar-title">Boiler</h1>
         <button type="button" class="sidebar-btn active" data-section="status" onclick="showMainSection('status')">Status</button>
         <button type="button" class="sidebar-btn" data-section="settings" onclick="showMainSection('settings')">Settings</button>
-        <button type="button" class="sidebar-btn" data-section="update" onclick="showMainSection('update')">Update</button>
+        <button type="button" class="sidebar-btn" data-section="system" onclick="showMainSection('system')">System</button>
     </nav>
     <div class="main-panel">
         <section id="section-status" class="section-panel active" aria-label="Status">
@@ -2234,37 +2289,58 @@
                 </div>
             </div>
         </section>
-<section id="section-update" class="section-panel" aria-label="Update">
-            <h2 class="section-title">Update</h2>
-            <div class="upload-card">
-                <h3 class="upload-title">Code (firmware)</h3>
-                <p class="field-hint">PlatformIO: <code>.pio/build/esp32dev/firmware.bin</code></p>
-                <input id="updateCodeFile" type="file" accept=".bin,application/octet-stream">
-                <progress id="updateCodeProgress" class="progress-bar" max="100" value="0" hidden></progress>
-                <p id="updateCodeStatus" class="upload-status"></p>
-                <button type="button" class="btn btn-primary"
-                        onclick="uploadFirmware('/update/code', 'updateCodeFile', 'updateCodeProgress', 'updateCodeStatus')">
-                    Upload firmware
-                </button>
-            </div>
-            <div class="upload-card">
-                <h3 class="upload-title">Data (web assets)</h3>
-                <p class="field-hint">PlatformIO: <code>littlefs.bin</code> from <code>pio run -t buildfs</code></p>
-                <input id="updateDataFile" type="file" accept=".bin,application/octet-stream">
-                <progress id="updateDataProgress" class="progress-bar" max="100" value="0" hidden></progress>
-                <p id="updateDataStatus" class="upload-status"></p>
-                <button type="button" class="btn btn-primary"
-                        onclick="uploadFirmware('/update/data', 'updateDataFile', 'updateDataProgress', 'updateDataStatus')">
-                    Upload data
-                </button>
-            </div>
-            <div class="upload-card">
-                <h3 class="upload-title">Reboot</h3>
-                <p class="field-hint">Restart the controller without uploading firmware or data.</p>
-                <p id="rebootStatus" class="upload-status"></p>
-                <button type="button" class="btn btn-secondary" onclick="rebootDevice()">
-                    Reboot
-                </button>
+<section id="section-system" class="section-panel" aria-label="System">
+            <h2 class="section-title">System</h2>
+            <nav class="tabs system-tabs" role="tablist" aria-label="System groups">
+                <button type="button" class="system-tab-btn tab-btn active" data-tab="update" role="tab" onclick="showSystemTab('update')">Update</button>
+                <button type="button" class="system-tab-btn tab-btn" data-tab="log" role="tab" onclick="showSystemTab('log')">Log</button>
+                <button type="button" class="system-tab-btn tab-btn" data-tab="maintenance" role="tab" onclick="showSystemTab('maintenance')">Maintenance</button>
+            </nav>
+            <div class="tab-content">
+                <div id="system-tab-update" class="system-tab-panel tab-panel active" role="tabpanel">
+                    <div class="upload-card">
+                        <h3 class="upload-title">Code (firmware)</h3>
+                        <p class="field-hint">PlatformIO: <code>.pio/build/esp32dev/firmware.bin</code></p>
+                        <input id="updateCodeFile" type="file" accept=".bin,application/octet-stream">
+                        <progress id="updateCodeProgress" class="progress-bar" max="100" value="0" hidden></progress>
+                        <p id="updateCodeStatus" class="upload-status"></p>
+                        <button type="button" class="btn btn-primary"
+                                onclick="uploadFirmware('/update/code', 'updateCodeFile', 'updateCodeProgress', 'updateCodeStatus')">
+                            Upload firmware
+                        </button>
+                    </div>
+                    <div class="upload-card">
+                        <h3 class="upload-title">Data (web assets)</h3>
+                        <p class="field-hint">PlatformIO: <code>littlefs.bin</code> from <code>pio run -t buildfs</code></p>
+                        <input id="updateDataFile" type="file" accept=".bin,application/octet-stream">
+                        <progress id="updateDataProgress" class="progress-bar" max="100" value="0" hidden></progress>
+                        <p id="updateDataStatus" class="upload-status"></p>
+                        <button type="button" class="btn btn-primary"
+                                onclick="uploadFirmware('/update/data', 'updateDataFile', 'updateDataProgress', 'updateDataStatus')">
+                            Upload data
+                        </button>
+                    </div>
+                </div>
+                <div id="system-tab-log" class="system-tab-panel tab-panel" role="tabpanel">
+                    <div class="upload-card">
+                        <h3 class="upload-title">Log</h3>
+                        <p class="field-hint">In-memory UART log (last 10 KB, oldest lines dropped on overflow).</p>
+                        <textarea id="memoryLogViewer" class="log-viewer" readonly></textarea>
+                        <button type="button" class="btn btn-secondary" onclick="refreshLog()">
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+                <div id="system-tab-maintenance" class="system-tab-panel tab-panel" role="tabpanel">
+                    <div class="upload-card">
+                        <h3 class="upload-title">Reboot</h3>
+                        <p class="field-hint">Restart the controller without uploading firmware or data.</p>
+                        <p id="rebootStatus" class="upload-status"></p>
+                        <button type="button" class="btn btn-secondary" onclick="rebootDevice()">
+                            Reboot
+                        </button>
+                    </div>
+                </div>
             </div>
         </section>
     </div>

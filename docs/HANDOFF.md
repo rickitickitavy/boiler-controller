@@ -39,7 +39,6 @@ Pins from [`include/pins.h`](../include/pins.h):
 | Touch CS / PENIRQ | `TOUCH_CS`, `TOUCH_PEN` | 12 / 36 |
 | Fuel hatch sensor | `MAIN_DOOR_SENSOR_PIN` | 34 |
 | External WDT kick | `EXTERNAL_WDT_PIN` | 5 |
-| I2C SDA / SCL | `I2C_SDA_PIN`, `I2C_SCL_PIN` | 21 / 22 |
 
 - **MCU:** ESP32-WROOM (`esp32dev`)
 - **Display:** custom local `lib/ILI9488` + XPT2046 touch (`TouchDisplayController`), rotation 1; Adafruit GFX / BusIO via `lib_deps`
@@ -48,7 +47,7 @@ Pins from [`include/pins.h`](../include/pins.h):
 - **Pumps:** pumps 1–2 constructed in control path; 3–4 macros exist but are unused
 - **FS:** **LittleFS** for web/`data/` assets (`board_build.filesystem = littlefs`)
 - **Flash partitions:** stock PlatformIO **`default.csv`** — app0/app1 **1280 KB** each, LittleFS (`spiffs` subtype) **~1408 KB**, coredump **64 KB** (`board_build.partitions = default.csv`). First cutover after changing partitions needs a full erase + reflash (`upload` + `uploadfs`), not app-only OTA.
-- **Web UI:** vanilla JS in `data/index.html` (Status / Settings / Update shell) plus `data/js/*.js` — **no jQuery**. `data/settings.html` redirects to `/#settings`. TFT BMP icons remain under `data/img/`.
+- **Web UI:** vanilla JS in `data/index.html` (Status / Settings / System shell; System inner tabs Update / Log / Maintenance) plus `data/js/*.js` — **no jQuery**. `data/settings.html` redirects to `/#settings`. TFT BMP icons remain under `data/img/`.
 - **Settings:** EEPROM 4096 bytes, marker `0x34 0x32 0x33 0x31`, `GLOBAL_CURRENT_SETTINGS_VERSION` = 2
 
 **Pin clash:** `ONE_WIRE_PIN_2` and `PUMP_4_PIN` both use GPIO **32**.
@@ -146,7 +145,7 @@ E_kWh = ((T_top − 35) × boiler_ltr + (avg_acc − 35) × accumulator_ltr)
 | WiFi | STA to `network.ssid/password`; fail → AP `{mqttDeviceName}-WiFi` / `00000000`, IP `192.168.0.1`, mDNS HTTP |
 | WiFi soft reapply | `WiFiController::reapplyNetworkSettings()` — skips if already STA on configured SSID; otherwise disconnect + STA begin (or hardened AP fallback); no restart; used by TFT Save when credentials change |
 | WDT | ESP task WDT disabled (`custom_sdkconfig`). External hardware WDT on `EXTERNAL_WDT_PIN` (GPIO 5) is kicked from `reset_wdt()` about every 3 s |
-| Web | Async server: `/` and `/index.html` use the same `%param%` template processor as `/settings.html` (`systemSettingsProcessor`). Literal percents in SVG/JS are escaped as `%%`. Door / telemetry; modelling start/stop only when `ENABLE_MODELLING`; `POST /update/code` (alias `/update/firmware`) and `POST /update/data` |
+| Web | Async server: `/` and `/index.html` use the same `%param%` template processor as `/settings.html` (`systemSettingsProcessor`). Literal percents in SVG/JS are escaped as `%%`. Door / telemetry; modelling start/stop only when `ENABLE_MODELLING`; `POST /update/code` (alias `/update/firmware`) and `POST /update/data`; `GET /log` returns the in-memory UART log (`text/plain`)
 | Display libs | Adafruit GFX + BusIO via `lib_deps`; customized driver in `lib/ILI9488/` |
 | Temps libs | `paulstoffregen/OneWire` + `milesburton/DallasTemperature` via `lib_deps` |
 | MQTT | `MqttController` + vendored `PubSubClient`: connect/loop/reconnect **only when WiFi mode is STA and linked to a router** (`WIFI_STA` + connected); soft-AP mode keeps MQTT idle. Uses `mqttServer`/`mqttPort`/`mqttDeviceName`; Info tab shows live status; **no publish/subscribe yet**. Failed connect uses short TCP/MQTT timeouts (~1 s) and at least **5 s** between attempts so the main loop stays responsive |
@@ -154,6 +153,7 @@ E_kWh = ((T_top − 35) × boiler_ltr + (avg_acc − 35) × accumulator_ltr)
 | EEPROM | `SettingsManager`: versioned `GlobalSettings` + 4-byte marker |
 | NTP | Implemented but call site commented out; `initNTP` uses a stack buffer (no heap alloc) |
 | Heap log | `loop` logs `ESP.getFreeHeap` / `ESP.getMinFreeHeap` about once per 60 s |
+| RAM console log | `Logger` keeps the same lines as UART in a **10 KB** rotating buffer (oldest complete lines dropped); web System → Log reads it via `GET /log` |
 | Telemetry RAM | In-memory ring not allocated (memcpy path commented); avoids starving WiFi DMA RX buffers at boot |
 
 ## Plant modeller (compile-time)
@@ -178,6 +178,7 @@ Enable runtime simulation with `[env:esp32dev_modelling]` (`pio run -e esp32dev_
 | MQTT client | `src/MqttController.*`, `src/lib/mqtt/PubSubClient.*` |
 | Pins | `include/pins.h` |
 | Constants / log / sensor indices | `src/Defines.h` |
+| UART + RAM log | `src/Logger.*` |
 | Web assets | `data/` |
 
 ## Known gaps (do not “fix” unless asked)
