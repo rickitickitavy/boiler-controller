@@ -143,14 +143,14 @@ E_kWh = ((T_top − 35) × boiler_ltr + (avg_acc − 35) × accumulator_ltr)
 
 | Concern | As-is behavior |
 |---------|----------------|
-| WiFi | STA to `network.ssid/password`; fail → AP `{mqttDeviceName}-WiFi` / `00000000`, IP `192.168.0.1`, mDNS HTTP; connect wait kicks `esp_task_wdt_reset()` |
+| WiFi | STA to `network.ssid/password`; fail → AP `{mqttDeviceName}-WiFi` / `00000000`, IP `192.168.0.1`, mDNS HTTP |
 | WiFi soft reapply | `WiFiController::reapplyNetworkSettings()` — skips if already STA on configured SSID; otherwise disconnect + STA begin (or hardened AP fallback); no restart; used by TFT Save when credentials change |
-| TWDT | Arduino may pre-init TWDT; `setup` uses `esp_task_wdt_reconfigure` for **25 s** if `init` returns `ESP_ERR_INVALID_STATE` |
+| WDT | ESP task WDT disabled (`custom_sdkconfig`). External hardware WDT on `EXTERNAL_WDT_PIN` (GPIO 5) is kicked from `reset_wdt()` about every 3 s |
 | Web | Async server: `/` and `/index.html` use the same `%param%` template processor as `/settings.html` (`systemSettingsProcessor`). Literal percents in SVG/JS are escaped as `%%`. Modelling / door / telemetry, `POST /update/code` (alias `/update/firmware`) and `POST /update/data` |
 | Display libs | Adafruit GFX + BusIO via `lib_deps`; customized driver in `lib/ILI9488/` |
 | Temps libs | `paulstoffregen/OneWire` + `milesburton/DallasTemperature` via `lib_deps` |
 | MQTT | `MqttController` + vendored `PubSubClient`: connect/loop/reconnect **only when WiFi mode is STA and linked to a router** (`WIFI_STA` + connected); soft-AP mode keeps MQTT idle. Uses `mqttServer`/`mqttPort`/`mqttDeviceName`; Info tab shows live status; **no publish/subscribe yet**. Failed connect uses short TCP/MQTT timeouts (~1 s) and at least **5 s** between attempts so the main loop stays responsive |
-| OTA | Production (`esp32dev`): HTTP only — `POST /update/code` or `/update/firmware` writes the unused OTA app slot (`U_FLASH`); `POST /update/data` writes the LittleFS image (`U_SPIFFS`); both reboot on success. Lab (`esp32dev_ota` / `-DENABLE_ARDUINO_OTA`): also `ArduinoOTA` in `main.cpp` with a **6 s** OTA-only window after boot and TFT progress. Main loop skips heater/UI while an HTTP OTA is in progress |
+| OTA | `ArduinoOTA` in `main.cpp` with a **6 s** OTA-only window after boot and TFT progress. HTTP: `POST /update/code` or `/update/firmware` writes the unused OTA app slot (`U_FLASH`); `POST /update/data` writes the LittleFS image (`U_SPIFFS`); both reboot on success. Main loop skips heater/UI while an HTTP OTA is in progress |
 | EEPROM | `SettingsManager`: versioned `GlobalSettings` + 4-byte marker |
 | NTP | Implemented but call site commented out; `initNTP` uses a stack buffer (no heap alloc) |
 | Heap log | `loop` logs `ESP.getFreeHeap` / `ESP.getMinFreeHeap` about once per 60 s |

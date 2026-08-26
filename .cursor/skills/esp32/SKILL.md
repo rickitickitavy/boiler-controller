@@ -62,12 +62,6 @@ pio run -t uploadfs    # after data/ changes
 pio device monitor     # 921600
 ```
 
-## OTA (this project)
-
-- Production: HTTP Update via web UI (`/update/code|firmware|data`).
-- Lab (`-DENABLE_ARDUINO_OTA` / `esp32dev_ota`): `ArduinoOTA.begin()` in `setup`; `ArduinoOTA.handle()` in `loop`; first **6 s** after boot early-returns for ArduinoOTA.
-- No assumption of pressure-controller dual OTA beyond the HTTP paths above.
-
 ## MQTT
 
 Settings and ParamDescriptors exist; no app-level MQTT client loop. Do not add publish/subscribe wiring unless the user asks.

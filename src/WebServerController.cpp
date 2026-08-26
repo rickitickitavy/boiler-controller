@@ -5,7 +5,6 @@
 #include "WebServerController.h"
 #include <LittleFS.h>
 #include <Update.h>
-#include <esp_task_wdt.h>
 #include "Defines.h"
 #include "Logger.h"
 
@@ -283,7 +282,6 @@ bool WebServerController::isOtaInProgress() {
 void WebServerController::handleOtaUpload(AsyncWebServerRequest *request, const String &filename, size_t index,
                                           uint8_t *data, size_t len, bool final) {
     (void) filename;
-    esp_task_wdt_reset();
     if (index == 0) {
         otaCommand = request->url().endsWith("/data") ? U_SPIFFS : U_FLASH;
         otaInProgress = true;

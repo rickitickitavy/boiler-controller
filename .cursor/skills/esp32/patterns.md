@@ -18,9 +18,10 @@ Project-derived detail only. Read when implementing persistence, LittleFS assets
 
 ## OTA
 
-- Production (`esp32dev`): HTTP Update only (`POST /update/code|firmware|data` via `WebServerController`).
-- Lab (`esp32dev_ota` / `-DENABLE_ARDUINO_OTA`): ArduinoOTA after WiFi setup; for ~6 s after `setup` finishes, `loop` early-returns so ArduinoOTA can run alone.
-- Flash partitions: stock `default.csv` (1280 KB OTA app slots).
+- ArduinoOTA is started unconditionally after WiFi setup.
+- Boot gate: for ~6 s after `setup` finishes, `loop` only runs `ArduinoOTA.handle()` / WiFi check / external WDT kick — then enables the main UI/control path.
+- HTTP Update: `POST /update/code|firmware|data` via `WebServerController`.
+- Flash partitions: stock `default.csv` (1280 KB OTA app slots) when configured.
 
 ## Doors / servos
 
