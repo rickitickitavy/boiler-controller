@@ -19,6 +19,9 @@
 #include "DoorsController.h"
 #include "FlowSensor.h"
 #include <lib/math/Intervals.h>
+#ifdef ENABLE_MODELLING
+#include "CoreModel.h"
+#endif
 
 #define MODE_WARMING_TIME_TO_WAIT_FOR_REACHED_PID_MODE_SEC 1200
 
@@ -65,13 +68,17 @@ private:
 
     PumpsController *pumpsController;
 
+#ifdef ENABLE_MODELLING
     CoreModel *coreModel;
+#endif
     PidRegulator *pidRegulator;
     long last_cycle_time;
     long last_cycle_length;
     float previous_core_temperature;
 
+#ifdef ENABLE_MODELLING
     int estimated_modelling_cycle_counter;
+#endif
 
     MainCoreParams mainCoreParams;
 
@@ -89,7 +96,9 @@ private:
 
     long time_to_close_oxygen_door_in_stanby_mode;
 
+#ifdef ENABLE_MODELLING
     bool modelling_is_active;
+#endif
 
     float* core_power_history = nullptr;
     int core_power_history_size = 0;
@@ -171,14 +180,18 @@ public:
 
     void closeOxygenDoor();
 
+#ifdef ENABLE_MODELLING
     void startModelling();
     void stopModelling();
+#endif
     void getTelemetry(char *buffer);
     TelemetryDataRecord *getTelemetryRecord();
     void getRawCsvSensors(char* buffer);
     void getCsvSensors(char* buffer);
     void getCsvCalculates(char* buffer);
+#ifdef ENABLE_MODELLING
     bool isModelling();
+#endif
 
     bool isOxygenDoorOpenedForATime();
     long getOxygenDoorOpenedForATime();

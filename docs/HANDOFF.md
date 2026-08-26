@@ -146,7 +146,7 @@ E_kWh = ((T_top − 35) × boiler_ltr + (avg_acc − 35) × accumulator_ltr)
 | WiFi | STA to `network.ssid/password`; fail → AP `{mqttDeviceName}-WiFi` / `00000000`, IP `192.168.0.1`, mDNS HTTP |
 | WiFi soft reapply | `WiFiController::reapplyNetworkSettings()` — skips if already STA on configured SSID; otherwise disconnect + STA begin (or hardened AP fallback); no restart; used by TFT Save when credentials change |
 | WDT | ESP task WDT disabled (`custom_sdkconfig`). External hardware WDT on `EXTERNAL_WDT_PIN` (GPIO 5) is kicked from `reset_wdt()` about every 3 s |
-| Web | Async server: `/` and `/index.html` use the same `%param%` template processor as `/settings.html` (`systemSettingsProcessor`). Literal percents in SVG/JS are escaped as `%%`. Modelling / door / telemetry, `POST /update/code` (alias `/update/firmware`) and `POST /update/data` |
+| Web | Async server: `/` and `/index.html` use the same `%param%` template processor as `/settings.html` (`systemSettingsProcessor`). Literal percents in SVG/JS are escaped as `%%`. Door / telemetry; modelling start/stop only when `ENABLE_MODELLING`; `POST /update/code` (alias `/update/firmware`) and `POST /update/data` |
 | Display libs | Adafruit GFX + BusIO via `lib_deps`; customized driver in `lib/ILI9488/` |
 | Temps libs | `paulstoffregen/OneWire` + `milesburton/DallasTemperature` via `lib_deps` |
 | MQTT | `MqttController` + vendored `PubSubClient`: connect/loop/reconnect **only when WiFi mode is STA and linked to a router** (`WIFI_STA` + connected); soft-AP mode keeps MQTT idle. Uses `mqttServer`/`mqttPort`/`mqttDeviceName`; Info tab shows live status; **no publish/subscribe yet**. Failed connect uses short TCP/MQTT timeouts (~1 s) and at least **5 s** between attempts so the main loop stays responsive |
@@ -155,6 +155,12 @@ E_kWh = ((T_top − 35) × boiler_ltr + (avg_acc − 35) × accumulator_ltr)
 | NTP | Implemented but call site commented out; `initNTP` uses a stack buffer (no heap alloc) |
 | Heap log | `loop` logs `ESP.getFreeHeap` / `ESP.getMinFreeHeap` about once per 60 s |
 | Telemetry RAM | In-memory ring not allocated (memcpy path commented); avoids starving WiFi DMA RX buffers at boot |
+
+## Plant modeller (compile-time)
+
+`CoreModel` plant simulation is **off by default** (`[env:esp32dev]` has no `-DENABLE_MODELLING`). EEPROM `ModellerSettings`, web/TFT modelling parameter fields, and SettingsNavigator descriptors stay in every build.
+
+Enable runtime simulation with `[env:esp32dev_modelling]` (`pio run -e esp32dev_modelling`). That compiles `CoreModel`, wires `/startModelling` `/stopModelling`, and shows the Settings **Advanced** tab (modelling + telemetry). Default `esp32dev` hides that tab and its label (`%modelling_hidden%` → `is-hidden`).
 
 ## Key sources
 

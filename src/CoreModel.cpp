@@ -2,6 +2,8 @@
 // Created by dsporykhin on 27.06.22.
 //
 
+#ifdef ENABLE_MODELLING
+
 #include <math.h>
 #include <Arduino.h>
 #include "CoreModel.h"
@@ -346,3 +348,5 @@ void CoreModel::println(String data) {
     if (settings->modellerSettings.logging_modeller_info)
         Serial.println("coreModel: " + data);
 }
+
+#endif // ENABLE_MODELLING

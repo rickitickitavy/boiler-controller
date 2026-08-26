@@ -46,6 +46,7 @@ Full glossary, FSM, pins, and energy formulas: [`docs/HANDOFF.md`](docs/HANDOFF.
 
 ```bash
 pio run
+pio run -e esp32dev_modelling   # plant simulator (CoreModel) included
 pio run -t upload
 pio run -t uploadfs    # after data/ changes
 pio device monitor     # 921600

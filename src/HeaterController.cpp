@@ -15,7 +15,9 @@ HeaterController::HeaterController(GlobalSettings *settings, SensorController *s
     this->sensorController = sensorController;
     this->settingsNavigator = settingsNavigator;
     instance = this;
+#ifdef ENABLE_MODELLING
     modelling_is_active = false;
+#endif
     flowSensor = new FlowSensor(FLOW_SENSOR_PIN);
 
     power_balance = new Intervals(30);
@@ -47,11 +49,14 @@ HeaterController::HeaterController(GlobalSettings *settings, SensorController *s
 
     flow_ticks = 0;
 
+#ifdef ENABLE_MODELLING
     coreModel = new CoreModel(&settings->heaterSettings, pumpsController, doorsController, telemetry);
+#endif
 
     time_to_close_oxygen_door_in_stanby_mode = 0;
 
     cycle_index = 10000;
+#ifdef ENABLE_MODELLING
     estimated_modelling_cycle_counter = 0;
 
     settingsNavigator->addParamDescriptor(new ParamDescriptor("heater>modelling>est_modelling_cycles", INTEGER,
@@ -65,6 +70,21 @@ HeaterController::HeaterController(GlobalSettings *settings, SensorController *s
                                                               50000,
                                                               (void *) &coreModel->stage_index,
                                                               (void *) nullptr));
+#else
+    static int estimated_modelling_cycle_counter = 0;
+    static int modelling_current_stage = 0;
+    settingsNavigator->addParamDescriptor(new ParamDescriptor("heater>modelling>est_modelling_cycles", INTEGER,
+                                                              100,
+                                                              50000,
+                                                              (void *) &estimated_modelling_cycle_counter,
+                                                              (void *) nullptr));
+
+    settingsNavigator->addParamDescriptor(new ParamDescriptor("heater>modelling>current_stage", INTEGER,
+                                                              100,
+                                                              50000,
+                                                              (void *) &modelling_current_stage,
+                                                              (void *) nullptr));
+#endif
 
     // init history buffer for the average power acceleration
     core_power_history_size = settings->interval_for_calc_power_different_sec * 1000 / settings->heaterSettings.scan_interval_ms + 1;
@@ -204,7 +224,9 @@ void HeaterController::calcMainCoreCharacteristics(long last_cycle_length) {
         mainCoreParams.core_flow /= heaterSettings->two_pumps_settings.flow_sensor_ticks_per_litters;
     }
 
+#ifdef ENABLE_MODELLING
     mainCoreParams.backward_flow = coreModel->radiator_flow_value;
+#endif
 
     mainCoreParams.core_temperature = sensorController->getSmaValue(T_SENS_INDEX_CORE);
 
@@ -371,20 +393,25 @@ void printSensors(String title, SensorController *sensorController){
 bool HeaterController::handle() {
     doorsController->handle();
     bool proceeded = false;
-    if ((sensorController->isHasSensors() && (last_cycle_time == 0 || ((millis() - last_cycle_time) >
+    if ((sensorController->isHasSensors() && (last_cycle_time == 0         || ((millis() - last_cycle_time) >
                                                                        heaterSettings->scan_interval_ms))
                                                                        // check if all sensors data is ready
                                                && (sensorController->cycle_status == STATUS_CYCLE_DONE))
-        || modelling_is_active) {
+#ifdef ENABLE_MODELLING
+        || modelling_is_active
+#endif
+        ) {
         proceeded = true;
         cycle_index++;
 
+#ifdef ENABLE_MODELLING
         if (modelling_is_active) {
             if (estimated_modelling_cycle_counter-- <= 0) {
                 stopModelling();
                 return false;
             }
         }
+#endif
 
         LOGGER.info("work cycle...");
 
@@ -544,9 +571,12 @@ void HeaterController::handle_WARMING_mode() {
         // check if time to reach target power is up
     if ((((millis() - entered_to_warming_mode_at) / 1000) >
          heaterSettings->warming_settings.time_to_reach_target_power_sec)
+#ifdef ENABLE_MODELLING
         || (modelling_is_active &&
             (((cycle_index - entered_to_warming_mode_at_cycle_index) * heaterSettings->scan_interval_ms / 1000.0)
-             >= heaterSettings->warming_settings.time_to_reach_target_power_sec)))
+             >= heaterSettings->warming_settings.time_to_reach_target_power_sec))
+#endif
+        )
         switchTo_FINAL_COOLING_mode();
     else {
         // process. if needed
@@ -700,6 +730,7 @@ void HeaterController::handle_DOOR_OPENED_mode() {
 }
 //-------------------------------------------------------------------
 
+#ifdef ENABLE_MODELLING
 void HeaterController::startModelling() {
     if (!modelling_is_active) {
         LOGGER.info(" ---- STARTING MODELLING ----");
@@ -730,6 +761,7 @@ void HeaterController::stopModelling() {
 bool HeaterController::isModelling() {
     return modelling_is_active;
 }
+#endif
 //-------------------------------------------------------------------
 
 long HeaterController::getOxygenDoorOpenedForATime() {

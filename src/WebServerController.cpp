@@ -52,8 +52,10 @@ WebServerController::WebServerController(SettingsManager *settingsManager) {
 
     webServer->on("/settingsApi", HTTP_GET, settingsApiProcessor);
     webServer->on("/settingsApi", HTTP_POST, settingsApiProcessor);
+#ifdef ENABLE_MODELLING
     webServer->on("/startModelling", HTTP_GET, startModelling);
     webServer->on("/stopModelling", HTTP_GET, stopModelling);
+#endif
     webServer->on("/openDoorFor15Min", HTTP_GET, openDoorFor15Min);
     webServer->on("/closeDoor", HTTP_GET, closeDoor);
     webServer->on("/manualWarmControl", HTTP_GET | HTTP_POST, manualWarmControl);
@@ -178,6 +180,7 @@ void WebServerController::settingsApiProcessor(AsyncWebServerRequest *request) {
 }
 //----------------------------------------------------------------------
 
+#ifdef ENABLE_MODELLING
 void WebServerController::startModelling(AsyncWebServerRequest *request) {
     if (heaterController) {
         heaterController->startModelling();
@@ -195,6 +198,7 @@ void WebServerController::stopModelling(AsyncWebServerRequest *request) {
         request->send(200, TEXT_JSON, "{\"status\":0, \"error\":\"heaterController is not initialized\"}");
 }
 //----------------------------------------------------------------------
+#endif
 
 void WebServerController::openDoorFor15Min(AsyncWebServerRequest *request) {
     if (heaterController) {
@@ -270,6 +274,13 @@ void WebServerController::loadFileByUrl(AsyncWebServerRequest *request) {
 
 
 String WebServerController::systemSettingsProcessor(const String &paramName) {
+    if (paramName == "modelling_hidden") {
+#ifdef ENABLE_MODELLING
+        return "";
+#else
+        return "is-hidden";
+#endif
+    }
     return settingsManager->getNavigator()->getSettingByName(paramName);
 }
 //----------------------------------------------------------------------

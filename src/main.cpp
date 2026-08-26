@@ -161,8 +161,12 @@ void loop() {
     touchDisplayController->handle();
     sensorController->readNextBlockOfSensors();
 
-    if (((heaterController->handle()) && !heaterController->isModelling())
-        || (heaterController->isModelling() && ((millis() - lastTimeDisplayed) > 3000))) {
+    if (((heaterController->handle())
+#ifdef ENABLE_MODELLING
+         && !heaterController->isModelling())
+        || (heaterController->isModelling() && ((millis() - lastTimeDisplayed) > 3000)
+#endif
+        )) {
 
 
         lastTimeDisplayed = millis();

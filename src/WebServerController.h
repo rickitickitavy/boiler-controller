@@ -46,9 +46,11 @@ public:
 
     static void loadFileByUrl(AsyncWebServerRequest *request);
 
+#ifdef ENABLE_MODELLING
     static void startModelling(AsyncWebServerRequest *request);
 
     static void stopModelling(AsyncWebServerRequest *request);
+#endif
 
     static void openDoorFor15Min(AsyncWebServerRequest *request);
 

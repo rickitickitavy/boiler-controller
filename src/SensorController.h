@@ -10,7 +10,9 @@
 #include <DallasTemperature.h>
 #include <lib/math/Sma.h>
 #include "SettingsManager.h"
+#ifdef ENABLE_MODELLING
 #include "CoreModel.h"
+#endif
 
 enum SensorControllerStatus{
     STATUS_CYCLE_AWAITING, STATUS_CYCLE_STARTED, STATUS_CYCLE_DONE
@@ -39,11 +41,15 @@ private:
     bool hasSensors;
 
     bool hasData(char *data, int size);
+#ifdef ENABLE_MODELLING
     void saveModelledSensorValue(int sensor_index, double value);
+#endif
 
     Sma **smaSensors;
 
+#ifdef ENABLE_MODELLING
     CoreModel *coreModel;
+#endif
 
 public:
     bool data_ready;
@@ -62,7 +68,9 @@ public:
     bool readDallasSensor(int sensor_index);
     void startAsyncConversion();
     void readNextBlockOfSensors();
+#ifdef ENABLE_MODELLING
     void setModeller(CoreModel *coreModel);
+#endif
     void handle();
     void fire();
     bool isHasSensors();
