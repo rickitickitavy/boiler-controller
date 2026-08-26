@@ -1,5 +1,4 @@
-#include <Fonts/FreeSans9pt7b.h>
-#include <Fonts/FreeSans12pt7b.h>
+#include <lib/ui/fonts/BoilerFonts.h>
 #include <string.h>
 #include <stdio.h>
 #include "SettingsTftForms.h"
@@ -856,7 +855,7 @@ void SettingsTftForms::showApplyingMessageBox() {
     const int by = (UI_SETTINGS_SCREEN_HEIGHT - bh) / 2;
     tft->fillRoundRect(bx, by, bw, bh, 10, 0x2945);
     tft->drawRoundRect(bx, by, bw, bh, 10, 0xFFFF);
-    tft->setFont(&FreeSans12pt7b);
+    tft->setFont(FONT_FREE_SANS_12PT);
     tft->setTextSize(1);
     tft->setTextColor(0xFFFF);
     const char *line1 = "Applying settings...";
@@ -1010,7 +1009,7 @@ void SettingsTftForms::drawFooter() {
     const int third = UI_SETTINGS_SCREEN_WIDTH / 3;
     auto drawBtn = [&](int bx, const char *cap, uint16_t bg, uint16_t fg) {
         tft->fillRoundRect(bx + 2, fy + 2, third - 4, SETTINGS_FOOTER_HEIGHT - 4, 4, bg);
-        tft->setFont(&FreeSans9pt7b);
+        tft->setFont(FONT_FREE_SANS_9PT);
         tft->setTextSize(1);
         tft->setTextColor(fg);
         int16_t tbx, tby;

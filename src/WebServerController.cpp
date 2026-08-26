@@ -2,7 +2,6 @@
 // Created by dsporykhin on 19.04.20.
 //
 
-#include <SD.h>
 #include "WebServerController.h"
 #include <LittleFS.h>
 #include <Update.h>
@@ -248,19 +247,11 @@ void WebServerController::loadFileByUrl(AsyncWebServerRequest *request) {
     String url = request->url();
     String mime;
 
-    FS *fs;
-
     if (!LittleFS.exists(request->url())) {
-
-        if (!LOGGER.isSdPresents() || !SD.exists(request->url())) {
-            LOGGER.error("url not found: \"" + request->url() + "\"");
-
-            request->send(404, TEXT_PLAN, "not found for this");
-            return;
-        } else
-            fs = &SD;
-    } else
-        fs = &LittleFS;
+        LOGGER.error("url not found: \"" + request->url() + "\"");
+        request->send(404, TEXT_PLAN, "not found for this");
+        return;
+    }
 
     if (url.endsWith(".html")) {
         mime = "text/html";
@@ -274,7 +265,7 @@ void WebServerController::loadFileByUrl(AsyncWebServerRequest *request) {
         mime = TEXT_PLAN;
     }
 
-    request->send(*fs, url, mime);
+    request->send(LittleFS, url, mime);
 }
 //----------------------------------------------------------------------
 

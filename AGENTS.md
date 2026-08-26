@@ -62,9 +62,9 @@ pio device monitor     # 921600
 
 ## OTA (current)
 
-- `ArduinoOTA` always started in `setup`.
-- First **6 s** after boot: loop returns early so OTA can run alone; TFT shows a wait message.
-- No HTTP firmware/data upload endpoints in this project today.
+- Production (`esp32dev`): HTTP Update only (`POST /update/code|firmware|data`).
+- Lab (`esp32dev_ota` / `-DENABLE_ARDUINO_OTA`): `ArduinoOTA` started in `setup`; first **6 s** after boot early-returns so ArduinoOTA can run alone.
+- No separate firmware/data HTTP endpoints beyond the paths above.
 
 ## Key sources
 

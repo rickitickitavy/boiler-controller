@@ -11,8 +11,7 @@
 #include "SettingsTftForms.h"
 #include "MqttController.h"
 #include "Defines.h"
-#include <Fonts/FreeSans12pt7b.h>
-#include <Fonts/FreeSans9pt7b.h>
+#include <lib/ui/fonts/BoilerFonts.h>
 #include "HeaterController.h"
 #include "lib/ui/gauge/Gauge.h"
 
@@ -53,7 +52,7 @@ TouchDisplayController::TouchDisplayController() {
     tft->setRotation(1);
     tft->fillScreen(0);
 
-    tft->setFont(&FreeSans12pt7b);
+    tft->setFont(FONT_FREE_SANS_12PT);
 
     tft->setCursor(0, 0);
     tft->setTextColor(0xff00, 0x00ff);
@@ -522,7 +521,7 @@ void TouchDisplayController::drawSettingsTab(int tab_index) {
         tft->fillRect(x + w - 3, y + 1, 3, h - 2, fill);
     }
 
-    tft->setFont(&FreeSans9pt7b);
+    tft->setFont(FONT_FREE_SANS_9PT);
     tft->setTextSize(1);
     int16_t tbx, tby;
     uint16_t tbw, tbh;
@@ -537,7 +536,7 @@ void TouchDisplayController::drawSettingsInfoBar(int16_t text_x, int16_t baselin
                                                  const char *text) {
     tft->fillRect(text_x, baseline_y - UI_SETTINGS_INFO_BAR_BASELINE_OFFSET, bar_w, UI_SETTINGS_INFO_BAR_HEIGHT,
                   UI_SETTINGS_COLOR_PAGE);
-    tft->setFont(&FreeSans9pt7b);
+    tft->setFont(FONT_FREE_SANS_9PT);
     tft->setTextSize(1);
     tft->setTextColor(UI_SETTINGS_COLOR_TAB_TEXT_UNSELECTED);
     tft->setCursor(text_x, baseline_y);
@@ -797,7 +796,7 @@ uint8_t *TouchDisplayController::loadImage(const char *file_name, uint16_t width
 void TouchDisplayController::drawScreen1(TelemetryDataRecord *telemetryDataRecord) {
     char buffer[30];
 
-    tft->setFont(&FreeSans12pt7b);
+    tft->setFont(FONT_FREE_SANS_12PT);
 
     drawIntField("%d%%", (int) telemetryDataRecord->smoke_door_position, 5, 20, 97, SCREEN_COLOR_GRAY, COLOR_CORE);
 //    drawFloatField("%0.2fC", telemetryDataRecord->output_temp_sma, 5, 45, 77, ST77XX_RED, COLOR_CORE);

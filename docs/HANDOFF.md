@@ -47,7 +47,7 @@ Pins from [`include/pins.h`](../include/pins.h):
 - **Doors:** three LEDC PWM servos (`Servo` / `ServoController` / `DoorsController`); all inverted; ~60 °/s rate limit
 - **Pumps:** pumps 1–2 constructed in control path; 3–4 macros exist but are unused
 - **FS:** **LittleFS** for web/`data/` assets (`board_build.filesystem = littlefs`)
-- **Flash partitions:** custom [`partitions_4mb_ota_512fs.csv`](../partitions_4mb_ota_512fs.csv) — app0/app1 **1728 KB** each, LittleFS (`spiffs` subtype) **576 KB**, no coredump (wired via `board_build.partitions` in `platformio.ini`). First cutover after changing this CSV needs a full reflash (`upload` + `uploadfs`), not app-only OTA.
+- **Flash partitions:** stock PlatformIO **`default.csv`** — app0/app1 **1280 KB** each, LittleFS (`spiffs` subtype) **~1408 KB**, coredump **64 KB** (`board_build.partitions = default.csv`). First cutover after changing partitions needs a full erase + reflash (`upload` + `uploadfs`), not app-only OTA.
 - **Web UI:** vanilla JS in `data/index.html` (Status / Settings / Update shell) plus `data/js/*.js` — **no jQuery**. `data/settings.html` redirects to `/#settings`. TFT BMP icons remain under `data/img/`.
 - **Settings:** EEPROM 4096 bytes, marker `0x34 0x32 0x33 0x31`, `GLOBAL_CURRENT_SETTINGS_VERSION` = 2
 
@@ -150,7 +150,7 @@ E_kWh = ((T_top − 35) × boiler_ltr + (avg_acc − 35) × accumulator_ltr)
 | Display libs | Adafruit GFX + BusIO via `lib_deps`; customized driver in `lib/ILI9488/` |
 | Temps libs | `paulstoffregen/OneWire` + `milesburton/DallasTemperature` via `lib_deps` |
 | MQTT | `MqttController` + vendored `PubSubClient`: connect/loop/reconnect **only when WiFi mode is STA and linked to a router** (`WIFI_STA` + connected); soft-AP mode keeps MQTT idle. Uses `mqttServer`/`mqttPort`/`mqttDeviceName`; Info tab shows live status; **no publish/subscribe yet**. Failed connect uses short TCP/MQTT timeouts (~1 s) and at least **5 s** between attempts so the main loop stays responsive |
-| OTA | `ArduinoOTA` in `main.cpp`; **6 s OTA-only window** after boot; TFT progress. HTTP: `POST /update/code` or `/update/firmware` writes the unused OTA app slot (`U_FLASH`); `POST /update/data` writes the LittleFS image (`U_SPIFFS`). Both reboot on success. Main loop skips heater/UI while an HTTP OTA is in progress |
+| OTA | Production (`esp32dev`): HTTP only — `POST /update/code` or `/update/firmware` writes the unused OTA app slot (`U_FLASH`); `POST /update/data` writes the LittleFS image (`U_SPIFFS`); both reboot on success. Lab (`esp32dev_ota` / `-DENABLE_ARDUINO_OTA`): also `ArduinoOTA` in `main.cpp` with a **6 s** OTA-only window after boot and TFT progress. Main loop skips heater/UI while an HTTP OTA is in progress |
 | EEPROM | `SettingsManager`: versioned `GlobalSettings` + 4-byte marker |
 | NTP | Implemented but call site commented out; `initNTP` uses a stack buffer (no heap alloc) |
 | Heap log | `loop` logs `ESP.getFreeHeap` / `ESP.getMinFreeHeap` about once per 60 s |
@@ -188,5 +188,5 @@ E_kWh = ((T_top − 35) × boiler_ltr + (avg_acc − 35) × accumulator_ltr)
 
 - Prefer small diffs; match existing naming.
 - After `data/` changes, flash filesystem (`pio run -t uploadfs`) as well as firmware.
-- After changing `partitions_4mb_ota_512fs.csv`, erase/full-flash once so app and FS offsets match.
+- After changing `board_build.partitions`, erase/full-flash once so app and FS offsets match.
 - Keep this handoff in sync when behavior or APIs change.

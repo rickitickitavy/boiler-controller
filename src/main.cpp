@@ -7,7 +7,9 @@
 #include <esp_task_wdt.h>
 #include "Logger.h"
 #include "SettingsManager.h"
+#ifdef ENABLE_ARDUINO_OTA
 #include "ArduinoOTA.h"
+#endif
 #include "WiFiController.h"
 #include "MqttController.h"
 #include "TouchDisplayController.h"
@@ -108,6 +110,7 @@ void setup() {
     wiFiController->setHeaterController(heaterController);
 
     reset_wdt();
+#ifdef ENABLE_ARDUINO_OTA
     twoDeviceInfo("starting OTA");
     ArduinoOTA.onStart([]() {
         ILI9488 *tft = touchDisplayController->getTft();
@@ -130,6 +133,7 @@ void setup() {
         touchDisplayController->drawScreen();
     });
     ArduinoOTA.begin();
+#endif
 
     twoDeviceInfo("start displayBtn controller");
 
@@ -139,14 +143,18 @@ void setup() {
     reset_wdt();
     twoDeviceInfo("all done");
 
+#ifdef ENABLE_ARDUINO_OTA
     touchDisplayController->getTft()->fillScreen(COLOR_BACKGROUND);
     touchDisplayController->getTft()->setCursor(10, 160);
     twoDeviceInfo("WAITING FOR OTA FOR 6 SECONDS...");
+#endif
     setup_finished_at = millis();
 }
 
 void loop() {
+#ifdef ENABLE_ARDUINO_OTA
     ArduinoOTA.handle();
+#endif
     wiFiController->checkConnection();
     reset_wdt();
 
@@ -155,10 +163,12 @@ void loop() {
         return;
     }
 
-    // give first 3 seconds work OTA only
+#ifdef ENABLE_ARDUINO_OTA
+    // give first 6 seconds work OTA only
     if ((millis() - setup_finished_at) < 6000)
         return;
-    else if (!screen_setup_finished){
+#endif
+    if (!screen_setup_finished){
         twoDeviceInfo("DONE.");
         delay(500);
         touchDisplayController->setScreenIndex(0);

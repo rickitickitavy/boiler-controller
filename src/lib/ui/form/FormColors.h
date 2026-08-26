@@ -1,11 +1,10 @@
 #ifndef BOILERCONTROLLER_FORM_COLORS_H
 #define BOILERCONTROLLER_FORM_COLORS_H
 
-#include <Fonts/FreeSans12pt7b.h>
-#include <Fonts/FreeSans9pt7b.h>
+#include <lib/ui/fonts/BoilerFonts.h>
 
-#define FORM_FONT (&FreeSans12pt7b)
-#define FORM_LABEL_FONT (&FreeSans9pt7b)
+#define FORM_FONT FONT_FREE_SANS_12PT
+#define FORM_LABEL_FONT FONT_FREE_SANS_9PT
 #define FORM_FIELD_HEIGHT 28
 #define FORM_LABEL_HEIGHT 18
 #define FORM_LABEL_FIELD_GAP 4

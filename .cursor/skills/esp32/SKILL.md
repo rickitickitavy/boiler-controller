@@ -64,9 +64,9 @@ pio device monitor     # 921600
 
 ## OTA (this project)
 
-- `ArduinoOTA.begin()` in `setup`; `ArduinoOTA.handle()` in `loop`.
-- First **6 s** after boot: early-return so OTA can finish without heater/UI work.
-- No HTTP `/update` path today — do not assume pressure-controller dual OTA.
+- Production: HTTP Update via web UI (`/update/code|firmware|data`).
+- Lab (`-DENABLE_ARDUINO_OTA` / `esp32dev_ota`): `ArduinoOTA.begin()` in `setup`; `ArduinoOTA.handle()` in `loop`; first **6 s** after boot early-returns for ArduinoOTA.
+- No assumption of pressure-controller dual OTA beyond the HTTP paths above.
 
 ## MQTT
 

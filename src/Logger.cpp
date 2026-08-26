@@ -8,8 +8,6 @@
 #include "Logger.h"
 #include <stdio.h>
 #include <Arduino.h>
-#include <FS.h>
-#include <SD.h>
 
 #define NEW_LINE_PART_LEN 4
 
@@ -29,55 +27,24 @@ Logger::Logger() {
 //------------------------------------------------------------------------------
 
 void Logger::initSD() {
+    // SD card logging is not used on this hardware; keep the flag for API compat.
     sd_presents = false;
-//    if (!SD.begin(5)) {
-//#ifdef CON_DEBUG
-//        Serial.println("SD Card Mount Failed");
-//#endif
-//        return;
-//    } else {
-//        sd_presents = true;
-//        uint8_t cardType = SD.cardType();
-//#ifdef CON_DEBUG
-//        Serial.printf("SD opened. fs = %i\0", cardType);
-//#endif
-//        if (!SD.exists(LOG_CAT_NAME)) {
-//            SD.mkdir(LOG_CAT_NAME);
-//        }
-//        log_file = SD.open(LOG_FILE_NAME, FILE_APPEND);
-//        const char *_init_message = "</br>--------------  new session started ---------------</br>";
-//        int wrote = log_file.write((uint8_t *) _init_message, strlen(_init_message));
-//        if (wrote == 0) {
-//#ifdef CON_DEBUG
-//            Serial.println("ERROR!!! - error write to log file");
-//#endif
-//            sd_presents = false;
-//        }
-//    }
 }
 //------------------------------------------------------------------------------
 
 void Logger::flush() {
+    if (!sd_presents)
+        return;
 #ifdef CON_DEBUG
     Serial.println("FLUSHING...");
 #endif
     collected_lines = LOGGER_SIZE;
     last_flushed_time = millis();
-    log_file.flush();
-    log_file.close();
-    log_file = SD.open(LOG_FILE_NAME, FILE_APPEND);
 }
 //------------------------------------------------------------------------------
 
-
-
 void Logger::addToFile(const char *msg) {
-    if (!log_file.write((uint8_t *) msg, strlen(msg))) {
-        Serial.println("ERROR!!! - error write to log file");
-    } else {
-        if (!--collected_lines)
-            flush();
-    }
+    (void) msg;
 }
 //------------------------------------------------------------------------------
 
@@ -87,15 +54,15 @@ bool Logger::isSdPresents() {
 //------------------------------------------------------------------------------
 
 void Logger::add(String msg) {
-    if (sd_presents) {
-        addToFile(msg.c_str());
-    }
+    (void) msg;
 }
 //------------------------------------------------------------------------------
 
 void Logger::println(String msg) {
 #ifdef CON_DEBUG
     Serial.println(msg);
+#else
+    (void) msg;
 #endif
 }
 //------------------------------------------------------------------------------
@@ -103,6 +70,8 @@ void Logger::println(String msg) {
 void Logger::print(String msg) {
 #ifdef CON_DEBUG
     Serial.print(msg);
+#else
+    (void) msg;
 #endif
 }
 //------------------------------------------------------------------------------
@@ -171,6 +140,3 @@ void Logger::handle() {
         flush();
 }
 //------------------------------------------------------------------------------
-
-
-
