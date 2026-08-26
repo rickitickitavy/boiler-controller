@@ -174,12 +174,12 @@ void loop() {
     if (touchDisplayController->isDirty())
         touchDisplayController->drawScreen();
 
-    if ((millis() - lastHeapLogMs) >= 600000) {
-        lastHeapLogMs = millis();
-        char heapMsg[80];
-        snprintf(heapMsg, sizeof(heapMsg), "heap free=%u min=%u",
-                 (unsigned) ESP.getFreeHeap(), (unsigned) ESP.getMinFreeHeap());
-        LOGGER.info(heapMsg);
-    }
+    // if ((millis() - lastHeapLogMs) >= 600000) {
+    //     lastHeapLogMs = millis();
+    //     char heapMsg[80];
+    //     snprintf(heapMsg, sizeof(heapMsg), "heap free=%u min=%u",
+    //              (unsigned) ESP.getFreeHeap(), (unsigned) ESP.getMinFreeHeap());
+    //     LOGGER.info(heapMsg);
+    // }
 
 }

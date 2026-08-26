@@ -13,6 +13,9 @@ Project-derived detail only. Read when implementing persistence, LittleFS assets
 
 - Mount LittleFS in `setup` (`LittleFS.begin(false)`).
 - Serve static files from `data/` via the async web server; UI icons also load from LittleFS (e.g. `/img/*.bmp`).
+- If you use AsyncWebServer and you need to use exactly the char `%` ALWAYS double it. Use `%%` because char `%` is used by AsyncWebServer to mark placeholders.
+  - BAD: `var a = b % c`
+  - GOOD: `var a = b %% c`
 - After changing `data/`, run `pio run -t uploadfs` in addition to firmware upload.
 - PlatformIO: `board_build.filesystem = littlefs`.
 

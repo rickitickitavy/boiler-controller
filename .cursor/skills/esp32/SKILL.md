@@ -38,7 +38,20 @@ Rules below are from **this** project’s stack. Document as-is behavior; do not
 - PlatformIO `espressif32` + Arduino; board `esp32dev` — see `platformio.ini`.
 - Filesystem: **LittleFS** (`board_build.filesystem = littlefs`); web assets under `data/`.
 - Web server: `me-no-dev/ESPAsyncWebServer@3.6.0` + `me-no-dev/AsyncTCP@3.3.2` via `lib_deps` (not under `src/lib/`).
-- Display: custom local [`lib/ILI9488`](../../../lib/ILI9488/); `adafruit/Adafruit GFX Library@1.11.11` + `adafruit/Adafruit BusIO@1.16.2` via `lib_deps`.
+
+## AsyncWebServer placeholders
+
+If you use AsyncWebServer and you need to use exactly the char `%` ALWAYS double it. Use `%%` because char `%` is used by AsyncWebServer to mark placeholders.
+
+```javascript
+// BAD
+var a = b % c
+
+// GOOD
+var a = b %% c
+```
+
+## Display custom local [`lib/ILI9488`](../../../lib/ILI9488/); `adafruit/Adafruit GFX Library@1.11.11` + `adafruit/Adafruit BusIO@1.16.2` via `lib_deps`.
 - Persistence: EEPROM + versioned `GlobalSettings` — **not** Preferences/NVS; do not switch casually.
 - Temps: DS18x20 via `SensorController` / `paulstoffregen/OneWire@2.3.8` + `milesburton/DallasTemperature@3.11.0` (`lib_deps`); addresses in settings.
 - Doors: LEDC PWM via `src/lib/servo/Servo.*`, rate-limited by `ServoController`, owned by `DoorsController`.

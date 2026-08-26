@@ -52,9 +52,9 @@
         function updateGraph(response) {
             document.getElementById("core_temperature").innerHTML = "T= " + response.temperature.core;
             document.getElementById("core_power").innerHTML = "P= " + response.core_power;
-            document.getElementById("power_balance").innerHTML = "+накоп/-расх= " + response.power_balance + "kW";
-            document.getElementById("accumulated_power").innerHTML = "Aккум.= " + response.accumulated_power + "kW*h";
-            document.getElementById("core_flow").innerHTML = "Q= " + response.pumps.core_flow + "л/мин";
+            document.getElementById("power_balance").innerHTML = "+accum/-spend= " + response.power_balance + "kW";
+            document.getElementById("accumulated_power").innerHTML = "Accum.= " + response.accumulated_power + "kW*h";
+            document.getElementById("core_flow").innerHTML = "Q= " + response.pumps.core_flow + "l/min";
             document.getElementById("oxygen_door").innerHTML = "A= " + response.doors.oxygen + "%%";
             document.getElementById("upper_door").innerHTML = "A= " + response.doors.upper + "%%";
             document.getElementById("smoke_door").innerHTML = "A= " + response.doors.smoke + "%%";
@@ -78,7 +78,7 @@
             } else if (oxy_door_text.classList.contains("svg-oxy-door-control-red-text")) {
                 oxy_door_text.classList.remove("svg-oxy-door-control-red-text");
                 oxy_door_text.classList.add("svg-oxy-door-control-green-text");
-                oxy_door_text.innerHTML = "Откр. на 15 мин";
+                oxy_door_text.innerHTML = "Open for 15 min";
             }
             var pump1 = document.getElementById("pump1");
             if (response.pumps.pump_1_on) {
@@ -108,18 +108,42 @@
             document.getElementById("pid_output").innerHTML = "out= " + response.pid.output;
             var mode;
             switch (response.mode) {
-                case 1: mode = "ХОЛОДНЫЙ"; break;
-                case 2: mode = "РАЗОГРЕВ"; break;
-                case 4: mode = "ОТОПЛЕНИЕ"; break;
-                case 8: mode = "ОСТУЖЕНИЕ"; break;
-                case 16: mode = "ПЕРЕГРЕВ"; break;
-                case 32: mode = "КРИТИЧЕСКИЙ ПЕРЕГРЕВ"; break;
+                case 1: mode = "Cold"; break;
+                case 2: mode = "Warming"; break;
+                case 4: mode = "Burning"; break;
+                case 8: mode = "Cooling"; break;
+                case 16: mode = "Overheat"; break;
+                case 32: mode = "Critical overheat"; break;
             }
-            document.getElementById("core_mode").innerHTML = "Режим: " + mode;
+            document.getElementById("core_mode").innerHTML = "Mode: " + mode;
             var coreFlowField = document.getElementById("heater>sensors>data>core_flow");
             if (coreFlowField) {
                 coreFlowField.value = "Q = " + response.pumps.core_flow;
             }
+            var uptimeEl = document.getElementById("device_uptime");
+            if (uptimeEl) {
+                uptimeEl.textContent = formatUptime(parseInt(response.date_time_ms, 10) || 0);
+            }
+        }
+
+        function twoDigits(value) {
+            return value < 10 ? "0" + value : String(value);
+        }
+
+        function formatUptime(uptimeMs) {
+            var totalSeconds = Math.floor(uptimeMs / 1000);
+            if (totalSeconds < 0) {
+                totalSeconds = 0;
+            }
+            var days = Math.floor(totalSeconds / 86400);
+            var hours = Math.floor((totalSeconds %% 86400) / 3600);
+            var minutes = Math.floor((totalSeconds %% 3600) / 60);
+            var seconds = totalSeconds %% 60;
+            var clock = twoDigits(hours) + ":" + twoDigits(minutes) + ":" + twoDigits(seconds);
+            if (days > 0) {
+                return "Online " + days + "d " + clock;
+            }
+            return "Online " + clock;
         }
 
         function getTelemetry() {
@@ -340,7 +364,7 @@
                     showSystemTab(this.getAttribute("data-tab"));
                 };
             }
-            showSystemTab("update");
+            showSystemTab("log");
         }
 
         function refreshLog() {
@@ -461,14 +485,20 @@
 <body>
 <div class="app-shell">
     <nav class="sidebar-nav" role="navigation" aria-label="Main sections">
-        <h1 class="sidebar-title">Boiler</h1>
+        <div class="sidebar-brand">
+            <h1 class="sidebar-title">Boiler</h1>
+            <span class="sidebar-version">3.0.1</span>
+        </div>
         <button type="button" class="sidebar-btn active" data-section="status" onclick="showMainSection('status')">Status</button>
         <button type="button" class="sidebar-btn" data-section="settings" onclick="showMainSection('settings')">Settings</button>
         <button type="button" class="sidebar-btn" data-section="system" onclick="showMainSection('system')">System</button>
     </nav>
     <div class="main-panel">
         <section id="section-status" class="section-panel active" aria-label="Status">
-            <h2 class="section-title">Status</h2>
+            <div class="section-title-row">
+                <h2 class="section-title">Status</h2>
+                <p id="device_uptime" class="status-uptime">Online --:--:--</p>
+            </div>
             <div class="status-board">
                 <svg class="svg" viewBox="0 0 1220 620" preserveAspectRatio="xMinYMin meet" width="1210" height="800">
             <defs>
@@ -539,10 +569,10 @@
             </text>
 
             <text id="power_balance" class="svg-orange-text"
-                  x="660" y="500">+накоп/-расх= 0.00 kW
+                  x="660" y="500">+accum/-spend= 0.00 kW
             </text>
             <text id="accumulated_power" class="svg-orange-text"
-                  x="680" y="540">Аккум.= 0.00 kW*h
+                  x="680" y="540">Accum.= 0.00 kW*h
             </text>
 
             <circle id="pump1" class="svg-pump-off" r="25" cx="525" cy="540"/>
@@ -2292,12 +2322,32 @@
 <section id="section-system" class="section-panel" aria-label="System">
             <h2 class="section-title">System</h2>
             <nav class="tabs system-tabs" role="tablist" aria-label="System groups">
-                <button type="button" class="system-tab-btn tab-btn active" data-tab="update" role="tab" onclick="showSystemTab('update')">Update</button>
-                <button type="button" class="system-tab-btn tab-btn" data-tab="log" role="tab" onclick="showSystemTab('log')">Log</button>
+                <button type="button" class="system-tab-btn tab-btn active" data-tab="log" role="tab" onclick="showSystemTab('log')">Log</button>
                 <button type="button" class="system-tab-btn tab-btn" data-tab="maintenance" role="tab" onclick="showSystemTab('maintenance')">Maintenance</button>
+                <button type="button" class="system-tab-btn tab-btn" data-tab="update" role="tab" onclick="showSystemTab('update')">Update</button>
             </nav>
             <div class="tab-content">
-                <div id="system-tab-update" class="system-tab-panel tab-panel active" role="tabpanel">
+                <div id="system-tab-log" class="system-tab-panel tab-panel active" role="tabpanel">
+                    <div class="upload-card">
+                        <h3 class="upload-title">Log</h3>
+                        <p class="field-hint">In-memory UART log (last 10 KB, oldest lines dropped on overflow).</p>
+                        <textarea id="memoryLogViewer" class="log-viewer" readonly></textarea>
+                        <button type="button" class="btn btn-secondary" onclick="refreshLog()">
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+                <div id="system-tab-maintenance" class="system-tab-panel tab-panel" role="tabpanel">
+                    <div class="upload-card">
+                        <h3 class="upload-title">Reboot</h3>
+                        <p class="field-hint">Restart the controller without uploading firmware or data.</p>
+                        <p id="rebootStatus" class="upload-status"></p>
+                        <button type="button" class="btn btn-secondary" onclick="rebootDevice()">
+                            Reboot
+                        </button>
+                    </div>
+                </div>
+                <div id="system-tab-update" class="system-tab-panel tab-panel" role="tabpanel">
                     <div class="upload-card">
                         <h3 class="upload-title">Code (firmware)</h3>
                         <p class="field-hint">PlatformIO: <code>.pio/build/esp32dev/firmware.bin</code></p>
@@ -2318,26 +2368,6 @@
                         <button type="button" class="btn btn-primary"
                                 onclick="uploadFirmware('/update/data', 'updateDataFile', 'updateDataProgress', 'updateDataStatus')">
                             Upload data
-                        </button>
-                    </div>
-                </div>
-                <div id="system-tab-log" class="system-tab-panel tab-panel" role="tabpanel">
-                    <div class="upload-card">
-                        <h3 class="upload-title">Log</h3>
-                        <p class="field-hint">In-memory UART log (last 10 KB, oldest lines dropped on overflow).</p>
-                        <textarea id="memoryLogViewer" class="log-viewer" readonly></textarea>
-                        <button type="button" class="btn btn-secondary" onclick="refreshLog()">
-                            Refresh
-                        </button>
-                    </div>
-                </div>
-                <div id="system-tab-maintenance" class="system-tab-panel tab-panel" role="tabpanel">
-                    <div class="upload-card">
-                        <h3 class="upload-title">Reboot</h3>
-                        <p class="field-hint">Restart the controller without uploading firmware or data.</p>
-                        <p id="rebootStatus" class="upload-status"></p>
-                        <button type="button" class="btn btn-secondary" onclick="rebootDevice()">
-                            Reboot
                         </button>
                     </div>
                 </div>

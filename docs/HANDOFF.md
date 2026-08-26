@@ -47,7 +47,7 @@ Pins from [`include/pins.h`](../include/pins.h):
 - **Pumps:** pumps 1–2 constructed in control path; 3–4 macros exist but are unused
 - **FS:** **LittleFS** for web/`data/` assets (`board_build.filesystem = littlefs`)
 - **Flash partitions:** stock PlatformIO **`default.csv`** — app0/app1 **1280 KB** each, LittleFS (`spiffs` subtype) **~1408 KB**, coredump **64 KB** (`board_build.partitions = default.csv`). First cutover after changing partitions needs a full erase + reflash (`upload` + `uploadfs`), not app-only OTA.
-- **Web UI:** vanilla JS in `data/index.html` (Status / Settings / System shell; System inner tabs Update / Log / Maintenance) plus `data/js/*.js` — **no jQuery**. `data/settings.html` redirects to `/#settings`. TFT BMP icons remain under `data/img/`.
+- **Web UI:** vanilla JS in `data/index.html` (Status / Settings / System shell; sidebar version `3.0.1`; Status card online time from telemetry `date_time_ms`; System inner tabs Log / Maintenance / Update) plus `data/js/*.js` — **no jQuery**. `data/settings.html` redirects to `/#settings`. TFT BMP icons remain under `data/img/`.
 - **Settings:** EEPROM 4096 bytes, marker `0x34 0x32 0x33 0x31`, `GLOBAL_CURRENT_SETTINGS_VERSION` = 2
 
 **Pin clash:** `ONE_WIRE_PIN_2` and `PUMP_4_PIN` both use GPIO **32**.
