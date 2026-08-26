@@ -45,11 +45,6 @@ WebServerController::WebServerController(SettingsManager *settingsManager) {
         request->send(LittleFS, "/settings.html", String(), false, systemSettingsProcessor);
     });
 
-//    webServer->on("/log", HTTP_GET, [](AsyncWebServerRequest *request) {
-//        request->send(200, "text/html", &LOGGER.logData[0]);
-//    });
-//
-
     webServer->on("/settingsApi", HTTP_GET, settingsApiProcessor);
     webServer->on("/settingsApi", HTTP_POST, settingsApiProcessor);
 #ifdef ENABLE_MODELLING
@@ -62,6 +57,7 @@ WebServerController::WebServerController(SettingsManager *settingsManager) {
 //    webServer->on("/manualWarmControl", HTTP_POST, manualWarmControl);
     webServer->on("/getTelemetry", HTTP_GET, getTelemetry);
     webServer->on("/reboot", HTTP_POST, reboot);
+    webServer->on("/log", HTTP_GET, getLog);
 
     webServer->on("/update/firmware", HTTP_POST, handleOtaRequest, handleOtaUpload);
     webServer->on("/update/code", HTTP_POST, handleOtaRequest, handleOtaUpload);
@@ -336,5 +332,12 @@ void WebServerController::reboot(AsyncWebServerRequest *request) {
     request->send(200, TEXT_PLAN, OK_RESPONSE);
     delay(400);
     ESP.restart();
+}
+//----------------------------------------------------------------------
+
+void WebServerController::getLog(AsyncWebServerRequest *request) {
+    String logText;
+    LOGGER.copyMemoryLog(logText);
+    request->send(200, "text/plain", logText);
 }
 //----------------------------------------------------------------------

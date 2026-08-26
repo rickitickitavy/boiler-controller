@@ -413,8 +413,6 @@ bool HeaterController::handle() {
         }
 #endif
 
-        LOGGER.info("work cycle...");
-
         last_cycle_length = millis() - last_cycle_time;
 
         last_cycle_time = millis();

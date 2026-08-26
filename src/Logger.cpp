@@ -7,6 +7,7 @@
 
 #include "Logger.h"
 #include <stdio.h>
+#include <string.h>
 #include <Arduino.h>
 
 #define NEW_LINE_PART_LEN 4
@@ -22,6 +23,12 @@ Logger::Logger() {
     collected_lines = LOGGER_SIZE;
     datetime_buffer = (char*)malloc(256);
     mini_datetime_buffer = (char*)malloc(256);
+    memoryLogLength = 0;
+    memoryLogBuffer = (char *) malloc(MEMORY_LOG_CAPACITY + 1);
+    if (memoryLogBuffer != nullptr) {
+        memoryLogBuffer[0] = 0;
+    }
+    memoryLogMutex = xSemaphoreCreateMutex();
     initSD();
 }
 //------------------------------------------------------------------------------
@@ -54,7 +61,54 @@ bool Logger::isSdPresents() {
 //------------------------------------------------------------------------------
 
 void Logger::add(String msg) {
-    (void) msg;
+    if (memoryLogBuffer == nullptr)
+        return;
+
+    const char *incomingText = msg.c_str();
+    size_t incomingLength = msg.length();
+    size_t needed = incomingLength + 1;
+
+    if (memoryLogMutex != nullptr)
+        xSemaphoreTake(memoryLogMutex, portMAX_DELAY);
+
+    if (needed > MEMORY_LOG_CAPACITY) {
+        size_t keepLength = MEMORY_LOG_CAPACITY - 1;
+        memcpy(memoryLogBuffer, incomingText + (incomingLength - keepLength), keepLength);
+        memoryLogBuffer[keepLength] = '\n';
+        memoryLogLength = MEMORY_LOG_CAPACITY;
+    } else {
+        while (memoryLogLength + needed > MEMORY_LOG_CAPACITY && memoryLogLength > 0) {
+            char *firstNewline = (char *) memchr(memoryLogBuffer, '\n', memoryLogLength);
+            if (firstNewline == nullptr) {
+                memoryLogLength = 0;
+                break;
+            }
+            size_t dropCount = (size_t) (firstNewline - memoryLogBuffer) + 1;
+            memoryLogLength -= dropCount;
+            memmove(memoryLogBuffer, firstNewline + 1, memoryLogLength);
+        }
+        memcpy(memoryLogBuffer + memoryLogLength, incomingText, incomingLength);
+        memoryLogLength += incomingLength;
+        memoryLogBuffer[memoryLogLength] = '\n';
+        memoryLogLength++;
+    }
+    memoryLogBuffer[memoryLogLength] = 0;
+
+    if (memoryLogMutex != nullptr)
+        xSemaphoreGive(memoryLogMutex);
+}
+//------------------------------------------------------------------------------
+
+void Logger::copyMemoryLog(String &out) {
+    if (memoryLogBuffer == nullptr) {
+        out = "";
+        return;
+    }
+    if (memoryLogMutex != nullptr)
+        xSemaphoreTake(memoryLogMutex, portMAX_DELAY);
+    out = String(memoryLogBuffer, memoryLogLength);
+    if (memoryLogMutex != nullptr)
+        xSemaphoreGive(memoryLogMutex);
 }
 //------------------------------------------------------------------------------
 
@@ -93,8 +147,9 @@ void Logger::getTime() {
 void Logger::error(String msg) {
     if (logLevel <= LOG_LEVEL_ERROR) {
         getTime();
-        println(String(mini_datetime_buffer) + "ERROR: " + msg);
-        add(String(datetime_buffer) + spanStart + "red\"><b>ERROR</b>: " + spanEnd + msg + br);
+        String line = String(mini_datetime_buffer) + "ERROR: " + msg;
+        println(line);
+        add(line);
     }
 }
 //------------------------------------------------------------------------------
@@ -102,8 +157,9 @@ void Logger::error(String msg) {
 void Logger::warning(String msg) {
     if (logLevel <= LOG_LEVEL_WARNING) {
         getTime();
-        println(String(mini_datetime_buffer) + "WARNING: " + msg);
-        add(String(datetime_buffer) + spanStart + "orange\"><b>WARNING</b>: " + spanEnd + msg + br);
+        String line = String(mini_datetime_buffer) + "WARNING: " + msg;
+        println(line);
+        add(line);
     }
 }
 //------------------------------------------------------------------------------
@@ -111,8 +167,9 @@ void Logger::warning(String msg) {
 void Logger::debug(String msg) {
     if (logLevel <= LOG_LEVEL_DEBUG) {
         getTime();
-        println(String(mini_datetime_buffer) + "DEBUG: " + msg);
-        add(String(datetime_buffer) + spanStart + "darkGray\"><b>DEBUG</b>: " + spanEnd + msg + br);
+        String line = String(mini_datetime_buffer) + "DEBUG: " + msg;
+        println(line);
+        add(line);
     }
 }
 //------------------------------------------------------------------------------
@@ -120,8 +177,9 @@ void Logger::debug(String msg) {
 void Logger::detailDebug(String msg) {
     if (logLevel <= LOG_LEVEL_DETAIL_DEBUG) {
         getTime();
-        println(String(mini_datetime_buffer) + "DEBUG: " + msg);
-        add(String(datetime_buffer) + spanStart + "darkGray\"><b>DEBUG</b>: " + spanEnd + msg + br);
+        String line = String(mini_datetime_buffer) + "DEBUG: " + msg;
+        println(line);
+        add(line);
     }
 }
 //------------------------------------------------------------------------------
@@ -129,8 +187,9 @@ void Logger::detailDebug(String msg) {
 void Logger::info(String msg) {
     if (logLevel <= LOG_LEVEL_INFO) {
         getTime();
-        println(String(mini_datetime_buffer) + "INFO: " + msg);
-        add(String(datetime_buffer) + spanStart + "black\"><b>INFO</b>: " + spanEnd + msg  + br);
+        String line = String(mini_datetime_buffer) + "INFO: " + msg;
+        println(line);
+        add(line);
     }
 }
 //------------------------------------------------------------------------------
