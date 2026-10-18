@@ -24,7 +24,7 @@
 #define DISPLAY_DC_PIN 15
 #define DISPLAY_RST_PIN 16
 #define TOUCH_CS 12
-#define TOUCH_PEN 35
+#define TOUCH_PEN 36
 
 // Misc
 #define EXTERNAL_WDT_PIN 5

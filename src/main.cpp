@@ -85,6 +85,11 @@ void setup() {
 
     twoDeviceInfo("starting MQTT...");
     mqttController = new MqttController(settingsManager);
+    mqttController->setHeaterController(heaterController);
+    mqttController->setCallback([](char *topic, uint8_t *payload, unsigned int length) {
+        if (mqttController)
+            mqttController->onMessage(topic, payload, length);
+    });
     touchDisplayController->setMqttController(mqttController);
 
     twoDeviceInfo("starting HeaterController...");

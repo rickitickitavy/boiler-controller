@@ -38,6 +38,18 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
                                                                            31,
                                                                            (void *) &settings->mqttDeviceName[0],
                                                                            (void *) &settings->mqttDeviceName[0]);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("mqtt>user", STRING, 0,
+                                                                           63,
+                                                                           (void *) &settings->mqttUser[0],
+                                                                           (void *) &settings->mqttUser[0]);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("mqtt>password", STRING, 0,
+                                                                           63,
+                                                                           (void *) &settings->mqttPassword[0],
+                                                                           (void *) &settings->mqttPassword[0]);
+    this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("mqtt>publish", CHECK_BOX, 0,
+                                                                           1,
+                                                                           (void *) &settings->mqttPublish,
+                                                                           (void *) &settings->mqttPublish);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("mqtt>serverBornTopic", STRING, 2,
                                                                            63,
                                                                            (void *) &settings->mqttServerBornTopic[0],
@@ -160,9 +172,10 @@ SettingsNavigator::SettingsNavigator(SettingsManager *settingsManager) {
                                                                                    SENSORS_ADDR_SIZE * 10]);
     this->paramDescriptors[activeParamDescriptors++] = new ParamDescriptor("sensors>send_data_to_mqtt_interval_ms",
                                                                            INTEGER, 3000,
-                                                                           120000,
+                                                                           30000,
                                                                            (void *) &settings->send_data_to_mqtt_interval_ms,
                                                                            (void *) &settings->send_data_to_mqtt_interval_ms);
+    this->paramDescriptors[activeParamDescriptors - 1]->uiToStorageScale = 1000.0f;
 
 
     // ================= ALL HEATER SETTINGS
@@ -687,10 +700,16 @@ String SettingsNavigator::getSettingByName(String origParamName) {
             // Нашли наш параметер
             if (paramDescriptors[descriptorIndex]->arraySize == 0 || showMax || showMin || showMaxR || showMinR) {
                 if (paramDescriptors[descriptorIndex]->paramType == INTEGER || showMaxR || showMinR) {
-                    return showMin || showMax || showMinR || showMaxR
-                           ? (showMin || showMinR ? String((int) paramDescriptors[descriptorIndex]->minValue) : String(
-                                    (int) paramDescriptors[descriptorIndex]->maxValue))
-                           : String(*(int *) paramDescriptors[descriptorIndex]->valueReferenceForRead);
+                    float uiScale = paramDescriptors[descriptorIndex]->uiToStorageScale;
+                    if (uiScale <= 0.0f)
+                        uiScale = 1.0f;
+                    if (showMin || showMax || showMinR || showMaxR) {
+                        float bound = (showMin || showMinR)
+                                      ? paramDescriptors[descriptorIndex]->minValue
+                                      : paramDescriptors[descriptorIndex]->maxValue;
+                        return String((int) (bound / uiScale));
+                    }
+                    return String((int) (*(int *) paramDescriptors[descriptorIndex]->valueReferenceForRead / uiScale));
                 } else if (paramDescriptors[descriptorIndex]->paramType == BOOLEAN) {
                     return *(bool *) paramDescriptors[descriptorIndex]->valueReferenceForRead ? "true" : "false";
                 } else if (paramDescriptors[descriptorIndex]->paramType == CHECK_BOX) {
@@ -861,11 +880,18 @@ String SettingsNavigator::saveSettingsByNames(String *params, int paramsCount) {
             paramName.trim();
             value.trim();
 
-            if (param.isEmpty() || value.isEmpty()) {
+            if (paramName.isEmpty()) {
                 return invalidParameterMessage;
             }
+            if (value.isEmpty()) {
+                ParamDescriptor *emptyValueDescriptor = findParamDescriptor(paramName);
+                if (!emptyValueDescriptor
+                    || emptyValueDescriptor->paramType != STRING
+                    || emptyValueDescriptor->minValue > 0) {
+                    return invalidParameterMessage;
+                }
+            }
 
-            char tempBuf[64];
             res = saveSettingByName(paramName, value);
         }
         // Если ошибка записи переменной, то далее не продолжаем
@@ -920,12 +946,15 @@ String SettingsNavigator::saveSettingByName(String paramName, String value) {
             // Нашли наш параметер
             if (paramDescriptors[descriptorIndex]->arraySize == 0) {
                 if (paramDescriptors[descriptorIndex]->paramType == INTEGER) {
-                    int intValue = value.toInt();
+                    float uiScale = paramDescriptors[descriptorIndex]->uiToStorageScale;
+                    if (uiScale <= 0.0f)
+                        uiScale = 1.0f;
+                    int intValue = (int) (value.toFloat() * uiScale + (uiScale > 1.0f ? 0.5f : 0.0f));
                     if ((intValue < paramDescriptors[descriptorIndex]->minValue)
                         || (intValue > paramDescriptors[descriptorIndex]->maxValue)) {
                         return "Value of \"" + paramName + "\" is not in diapason from "
-                               + String(paramDescriptors[descriptorIndex]->minValue) + " to "
-                               + String(paramDescriptors[descriptorIndex]->maxValue);
+                               + String((int) (paramDescriptors[descriptorIndex]->minValue / uiScale)) + " to "
+                               + String((int) (paramDescriptors[descriptorIndex]->maxValue / uiScale));
                     } else {
                         *((int *) paramDescriptors[descriptorIndex]->valueReferenceForWrite) = intValue;
                     }

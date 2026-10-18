@@ -3,7 +3,7 @@
 
 #include "HeaterSettings.h"
 
-#define GLOBAL_CURRENT_SETTINGS_VERSION 2
+#define GLOBAL_CURRENT_SETTINGS_VERSION 4
 #define GLOBAL_SETTINGS_MARKER_0 0x34
 #define GLOBAL_SETTINGS_MARKER_1 0x32
 #define GLOBAL_SETTINGS_MARKER_2 0x33
@@ -134,6 +134,21 @@ struct GlobalSettings {
      * close upper door if the core power decreasing during the last ICPD seconds and has been fallen below this power
      */
     int core_power_to_close_upper_door_if_ICPD_W  = 32000;
+
+    /**
+     * Optional MQTT username (empty = connect without credentials unless password also set)
+     */
+    char mqttUser[64];
+
+    /**
+     * Optional MQTT password (used only when mqttUser is also non-empty)
+     */
+    char mqttPassword[64];
+
+    /**
+     * When true, periodically publish device STATE to MQTT
+     */
+    bool mqttPublish;
 
 };
 

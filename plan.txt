@@ -1,0 +1,43 @@
+I want to start using mqtt topics.
+1) add to Mqtt settings mqtt user and mqtt password. if they are empty then do not use them for athorization. default are empty.
+2) Add to Mqtt settings parameter "publis state interval (sec)".e exactly this text for field label on UI) Min 3, max 30, default 6.
+3) publish to "STATE" topic with specified ininterval info using this format: {VALUE1,value2,...valueN}. This is the order and format of values
+    current mode - string
+    timer of opened oxygen door - int
+    pump status - boolean (ON/OFF)
+    time online (already present) - integer
+    Internal thermosensor    - float (2 decimal digits)
+    Thermosensor of heater core - float (2 decimal digits)
+    Thermosensor of heater output flow - float (2 decimal digits)
+    Thermosensor of heater input flow - float (2 decimal digits)
+    Thermosensor of thermo accumulator top - float (2 decimal digits)
+    Thermosensor of thermo accumulator middle higher - float (2 decimal digits)
+    Thermosensor of thermo accumulator middle lower - float (2 decimal digits)
+    Thermosensor of thermo accumulator bottom - float (2 decimal digits)
+    Thermosensor of forward flow to all contours - float (2 decimal digits)
+    Thermosensor of back flow from contour 1 - float (2 decimal digits)
+    percentage of oxygen door - float (2 decimal digits)
+    percentage of afterburning (Upper oxygen door) door - float (2 decimal digits)
+    percentage of smoke door - float (2 decimal digits)
+    core power - integer
+    accumulate/spend power - integer
+    accumulated energy - float (2 decimal digits)
+    P (PID) - float (2 decimal digits)
+    I (PID) - float (2 decimal digits)
+    D (PID) - float (2 decimal digits)
+    PID output - float (2 decimal digits)
+
+Do not add new entity or parameters. If you do not know - ask me. P, I, D are not setting but current calculated PID
+
+4) add commands MQTT listener. the next command need supports
+   OPEN (the same as open oxygen fo 15 minutes)
+   CLOSE (close oxygen. the same function as on UI "close oxygen" with the same limitations)
+   a new command PUMPS_ON - if mode is COLD - then turn pumps on for 5 minutes. If heater switches to any mode pumps will control by mode the controller switches to
+   a new command PUMPS_OFF the revert command for previous but works only if controller in cold mode and pumps are under control of the previous command
+
+5) fix the word Termosensor in UI. correct is Thermosensor
+
+HARD!!! DO NOT touch other logic, algorithms or any structures. Do this change with maximum care to not ruin important zones.
+
+
+add global rule to .cursor: ALWAYS when you changing codebase bump the build number

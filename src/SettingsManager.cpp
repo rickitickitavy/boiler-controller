@@ -43,6 +43,13 @@ SettingsManager::SettingsManager(){
     sanitizeCString(settings.mqttServerBornTopic, sizeof(settings.mqttServerBornTopic));
     sanitizeCString(settings.mqttInputToolTopic, sizeof(settings.mqttInputToolTopic));
     sanitizeCString(settings.mqttOutputToolTopic, sizeof(settings.mqttOutputToolTopic));
+    sanitizeCString(settings.mqttUser, sizeof(settings.mqttUser));
+    sanitizeCString(settings.mqttPassword, sizeof(settings.mqttPassword));
+
+    if (settings.send_data_to_mqtt_interval_ms < 3000)
+        settings.send_data_to_mqtt_interval_ms = 3000;
+    else if (settings.send_data_to_mqtt_interval_ms > 30000)
+        settings.send_data_to_mqtt_interval_ms = 30000;
 
     LOGGER.info("------------------ read ------------- ");
     LOGGER.info("      scan_interval_ms: " + String(settings.heaterSettings.scan_interval_ms));
@@ -90,6 +97,9 @@ SettingsManager::SettingsManager(){
 
         memset(&settings.mqttInputToolTopic, 0, 32);
         memset(&settings.mqttOutputToolTopic, 0, 32);
+        memset(settings.mqttUser, 0, sizeof(settings.mqttUser));
+        memset(settings.mqttPassword, 0, sizeof(settings.mqttPassword));
+        settings.mqttPublish = true;
 
         settings.defaultSwitcherState = false;
         settings.dimmerPwmValue = 50;
@@ -200,7 +210,7 @@ SettingsManager::SettingsManager(){
             settings.heaterSettings.modellerSettings.stages[stage_index].tempr_start_core_volume = 0;
         }
 
-        settings.version = 2;
+        settings.version = GLOBAL_CURRENT_SETTINGS_VERSION;
         settings.send_data_to_mqtt_interval_ms = 6000;
 
         memcpy(settings.telemetrySettings.catName, "telemetry\0", 10);
@@ -223,6 +233,21 @@ SettingsManager::SettingsManager(){
             settings.core_power_to_close_upper_door_if_ICPD_W = 32000;
             settings.interval_for_calc_power_different_sec = 120;
             LOGGER.warning("Settings has been updated to version 2");
+        }
+        if (settings.version == 2) {
+            settings.version = 3;
+            memset(settings.mqttUser, 0, sizeof(settings.mqttUser));
+            memset(settings.mqttPassword, 0, sizeof(settings.mqttPassword));
+            if (settings.send_data_to_mqtt_interval_ms < 3000)
+                settings.send_data_to_mqtt_interval_ms = 3000;
+            else if (settings.send_data_to_mqtt_interval_ms > 30000)
+                settings.send_data_to_mqtt_interval_ms = 30000;
+            LOGGER.warning("Settings has been updated to version 3");
+        }
+        if (settings.version == 3) {
+            settings.version = 4;
+            settings.mqttPublish = true;
+            LOGGER.warning("Settings has been updated to version 4");
         }
 
         saveSetting(false);

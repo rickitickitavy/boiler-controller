@@ -21,6 +21,12 @@ private:
 
     void initNTP();
 
+    /**
+     * Scan 2.4 GHz APs, then begin STA on the strongest RSSI match for ssid
+     * (mesh/repeaters share one name). Falls back to SSID-only begin if none found.
+     */
+    void beginStaWithStrongestSignal(const char *ssid, const char *password);
+
     WiFiUDP *ntpUDP;
 public:
     NTPClient *timeClient;

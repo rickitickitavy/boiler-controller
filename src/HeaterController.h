@@ -96,6 +96,9 @@ private:
 
     long time_to_close_oxygen_door_in_stanby_mode;
 
+    bool mqtt_pump_override_active;
+    unsigned long mqtt_pump_override_deadline_ms;
+
 #ifdef ENABLE_MODELLING
     bool modelling_is_active;
 #endif
@@ -179,6 +182,12 @@ public:
     bool openOxygenDoorForTime(long time_sec);
 
     void closeOxygenDoor();
+
+    void requestMqttPumpsOn();
+
+    void requestMqttPumpsOff();
+
+    bool isAnyPumpOn();
 
 #ifdef ENABLE_MODELLING
     void startModelling();

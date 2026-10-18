@@ -1,6 +1,8 @@
 #include "Logger.h"
 #include "pins.h"
 
+#define FIRMWARE_VERSION "3.0.5"
+
 #define PWM_MAX_WIDTH 1023
 
 #define CON_DEBUG_LEVEL_ALL 1

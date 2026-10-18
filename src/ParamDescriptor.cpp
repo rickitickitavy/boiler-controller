@@ -14,6 +14,7 @@ ParamDescriptor::ParamDescriptor(String paramName, ParamType paramType, float mi
     this->valueReferenceForWrite = valueReferenceForWrite;
     this->arraySize = 0;
     this->byte_data_length = 0;
+    this->uiToStorageScale = 1.0f;
 }
 
 ParamDescriptor::ParamDescriptor(String paramName, ParamType paramType, float minValue, float maxValue, int arraySize,
@@ -26,6 +27,7 @@ ParamDescriptor::ParamDescriptor(String paramName, ParamType paramType, float mi
     this->valueReferenceForWrite = valueReferenceForWrite;
     this->arraySize = arraySize;
     this->byte_data_length = 0;
+    this->uiToStorageScale = 1.0f;
 }
 ParamDescriptor::ParamDescriptor(String paramName, int byte_data_length,
                                  void *valueReferenceForRead, void *valueReferenceForWrite) {
@@ -37,4 +39,5 @@ ParamDescriptor::ParamDescriptor(String paramName, int byte_data_length,
     this->valueReferenceForWrite = valueReferenceForWrite;
     this->arraySize = 0;
     this->byte_data_length = byte_data_length;
+    this->uiToStorageScale = 1.0f;
 }

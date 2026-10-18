@@ -77,7 +77,7 @@ pio device monitor     # 921600
 
 ## MQTT
 
-Settings and ParamDescriptors exist; no app-level MQTT client loop. Do not add publish/subscribe wiring unless the user asks.
+`MqttController` connects on STA, publishes STATE on the configured interval, and subscribes for commands (`OPEN`/`CLOSE`/`PUMPS_ON`/`PUMPS_OFF`). Wire callbacks from `main.cpp` (no new class singleton).
 
 ## Deeper notes
 
