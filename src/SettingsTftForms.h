@@ -61,6 +61,9 @@ private:
     LabeledTextField *mqtt_text[SETTINGS_MQTT_TEXT];
     LabeledNumberField *mqtt_port;
     LabeledNumberField *mqtt_reconnect;
+    LabeledTextField *mqtt_user;
+    LabeledTextField *mqtt_password;
+    LabeledNumberField *mqtt_publish_interval_sec;
 
     LabeledDropDown *sensor_fields[SETTINGS_SENSOR_FIELDS];
     LabeledNumberField *servo_fields[SETTINGS_SERVO_FIELDS];

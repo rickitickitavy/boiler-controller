@@ -54,6 +54,8 @@ HeaterController::HeaterController(GlobalSettings *settings, SensorController *s
 #endif
 
     time_to_close_oxygen_door_in_stanby_mode = 0;
+    mqtt_pump_override_active = false;
+    mqtt_pump_override_deadline_ms = 0;
 
     cycle_index = 10000;
 #ifdef ENABLE_MODELLING
@@ -382,6 +384,33 @@ void HeaterController::closeOxygenDoor() {
 }
 //-------------------------------------------------------------------
 
+void HeaterController::requestMqttPumpsOn() {
+    if ((mode != STAND_BY) && (mode != FINAL_COOLING))
+        return;
+    mqtt_pump_override_active = true;
+    mqtt_pump_override_deadline_ms = millis() + 300000UL;
+    pumpsController->setOnPumpsCount(2);
+    LOGGER.info("MQTT pump override ON for 300s");
+}
+//-------------------------------------------------------------------
+
+void HeaterController::requestMqttPumpsOff() {
+    if (!mqtt_pump_override_active)
+        return;
+    if ((mode != STAND_BY) && (mode != FINAL_COOLING))
+        return;
+    mqtt_pump_override_active = false;
+    mqtt_pump_override_deadline_ms = 0;
+    pumpsController->setOnPumpsCount(0);
+    LOGGER.info("MQTT pump override OFF");
+}
+//-------------------------------------------------------------------
+
+bool HeaterController::isAnyPumpOn() {
+    return pumpsController && pumpsController->getOnPumpsCount() > 0;
+}
+//-------------------------------------------------------------------
+
 void printSensors(String title, SensorController *sensorController){
     Serial.println("------------" + title + "--------------");
     for (int i = 0; i < MAX_SENSORS_COUNT; i++){
@@ -489,6 +518,18 @@ void HeaterController::handle_STAND_BY_mode() {
 //-------------------------------------------------------------------
 
 void HeaterController::handlePumps() {
+    if (mqtt_pump_override_active) {
+        bool stillCold = (mode == STAND_BY) || (mode == FINAL_COOLING);
+        bool expired = millis() >= mqtt_pump_override_deadline_ms;
+        if (!stillCold || expired) {
+            mqtt_pump_override_active = false;
+            mqtt_pump_override_deadline_ms = 0;
+        } else {
+            pumpsController->setOnPumpsCount(2);
+            return;
+        }
+    }
+
     if ((mode == STAND_BY) || (mode == FINAL_COOLING)) {
         float core_temp = sensorController->getSmaValue(T_SENS_INDEX_CORE);
         // cooling only

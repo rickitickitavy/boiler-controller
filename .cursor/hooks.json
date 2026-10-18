@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "hooks": {
+    "beforeShellExecution": [
+      {
+        "command": ".cursor/hooks/block-master-develop-git.py",
+        "matcher": "git\\s+(commit|push)",
+        "failClosed": true
+      }
+    ],
+    "beforeSubmitPrompt": [
+      {
+        "command": ".cursor/hooks/inject-no-unilateral-behavior.py"
+      }
+    ]
+  }
+}

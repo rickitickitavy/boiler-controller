@@ -5,7 +5,7 @@ Project-derived detail only. Read when implementing persistence, LittleFS assets
 ## Settings persistence
 
 - Store settings in **EEPROM** (`EEPROM.begin(4096)`) via `SettingsManager` — not `Preferences`/NVS.
-- `GlobalSettings` uses a 4-byte marker (`0x34 0x32 0x33 0x31`) and `GLOBAL_CURRENT_SETTINGS_VERSION` (currently 2).
+- `GlobalSettings` uses a 4-byte marker (`0x34 0x32 0x33 0x31`) and `GLOBAL_CURRENT_SETTINGS_VERSION` (currently 4).
 - First boot (bad/missing marker): apply defaults, write marker/version, save.
 - On version mismatch, follow the existing upgrade path in `SettingsManager`; do not invent Preferences migration.
 

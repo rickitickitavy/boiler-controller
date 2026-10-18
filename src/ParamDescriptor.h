@@ -25,6 +25,13 @@ public:
     void *valueReferenceForRead;
     void *valueReferenceForWrite;
 
+    /**
+     * When > 1, UI get/save convert between storage units and UI units:
+     * UI value = storage / uiToStorageScale, storage = UI * uiToStorageScale.
+     * minValue/maxValue remain in storage units; #minR/#maxR are shown in UI units.
+     */
+    float uiToStorageScale;
+
 //    {new ParamDescriptor("flame>loopIntervalMs", INTEGER, 2, 300
 //                , (void *) &settings->activeProfile.flameSettings.loopIntervalMs, (void *) &tempProfile.flameSettings.loopIntervalMs)}
 

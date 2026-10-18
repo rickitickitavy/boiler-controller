@@ -47,8 +47,9 @@ Pins from [`include/pins.h`](../include/pins.h):
 - **Pumps:** pumps 1–2 constructed in control path; 3–4 macros exist but are unused
 - **FS:** **LittleFS** for web/`data/` assets (`board_build.filesystem = littlefs`)
 - **Flash partitions:** stock PlatformIO **`default.csv`** — app0/app1 **1280 KB** each, LittleFS (`spiffs` subtype) **~1408 KB**, coredump **64 KB** (`board_build.partitions = default.csv`). First cutover after changing partitions needs a full erase + reflash (`upload` + `uploadfs`), not app-only OTA.
-- **Web UI:** vanilla JS in `data/index.html` (Status / Settings / System shell; sidebar version `3.0.1`; Status card online time from telemetry `date_time_ms`; System inner tabs Log / Maintenance / Update) plus `data/js/*.js` — **no jQuery**. `data/settings.html` redirects to `/#settings`. TFT BMP icons remain under `data/img/`.
-- **Settings:** EEPROM 4096 bytes, marker `0x34 0x32 0x33 0x31`, `GLOBAL_CURRENT_SETTINGS_VERSION` = 2
+- **Web UI:** vanilla JS in `data/index.html` (Status / Settings / System shell; sidebar version from `%FIRMWARE_VERSION%` / `Defines.h`; Status card online time from telemetry `date_time_ms`; System inner tabs Log / Maintenance / Update) plus `data/js/*.js` — **no jQuery**. `data/settings.html` redirects to `/#settings`. TFT BMP icons remain under `data/img/`.
+- **Firmware version:** `FIRMWARE_VERSION` in `src/Defines.h` (MAJOR.MINOR.BUILD); web sidebar injects it via `WebServerController::systemSettingsProcessor`.
+- **Settings:** EEPROM 4096 bytes, marker `0x34 0x32 0x33 0x31`, `GLOBAL_CURRENT_SETTINGS_VERSION` = 4
 
 **Pin clash:** `ONE_WIRE_PIN_2` and `PUMP_4_PIN` both use GPIO **32**.
 
@@ -142,13 +143,13 @@ E_kWh = ((T_top − 35) × boiler_ltr + (avg_acc − 35) × accumulator_ltr)
 
 | Concern | As-is behavior |
 |---------|----------------|
-| WiFi | STA to `network.ssid/password`; fail → AP `{mqttDeviceName}-WiFi` / `00000000`, IP `192.168.0.1`, mDNS HTTP |
-| WiFi soft reapply | `WiFiController::reapplyNetworkSettings()` — skips if already STA on configured SSID; otherwise disconnect + STA begin (or hardened AP fallback); no restart; used by TFT Save when credentials change |
+| WiFi | STA to `network.ssid/password` via `beginStaWithStrongestSignal`: scan (incl. hidden), pick highest-RSSI BSSID for that SSID (mesh), then `WiFi.begin(ssid, pass, channel, bssid)`; SSID-only fallback if scan misses; fail → AP `{mqttDeviceName}-WiFi` / `00000000`, IP `192.168.0.1`, mDNS HTTP |
+| WiFi soft reapply | `WiFiController::reapplyNetworkSettings()` — skips if already STA on configured SSID; otherwise disconnect + strongest-BSSID STA begin (or hardened AP fallback); no restart; used by TFT Save when credentials change |
 | WDT | ESP task WDT disabled (`custom_sdkconfig`). External hardware WDT on `EXTERNAL_WDT_PIN` (GPIO 5) is kicked from `reset_wdt()` about every 3 s |
 | Web | Async server: `/` and `/index.html` use the same `%param%` template processor as `/settings.html` (`systemSettingsProcessor`). Literal percents in SVG/JS are escaped as `%%`. Door / telemetry; modelling start/stop only when `ENABLE_MODELLING`; `POST /update/code` (alias `/update/firmware`) and `POST /update/data`; `GET /log` returns the in-memory UART log (`text/plain`)
 | Display libs | Adafruit GFX + BusIO via `lib_deps`; customized driver in `lib/ILI9488/` |
 | Temps libs | `paulstoffregen/OneWire` + `milesburton/DallasTemperature` via `lib_deps` |
-| MQTT | `MqttController` + vendored `PubSubClient`: connect/loop/reconnect **only when WiFi mode is STA and linked to a router** (`WIFI_STA` + connected); soft-AP mode keeps MQTT idle. Uses `mqttServer`/`mqttPort`/`mqttDeviceName`; Info tab shows live status; **no publish/subscribe yet**. Failed connect uses short TCP/MQTT timeouts (~1 s) and at least **5 s** between attempts so the main loop stays responsive |
+| MQTT | `MqttController` + vendored `PubSubClient`: connect/loop/reconnect **only when WiFi mode is STA and linked to a router** (`WIFI_STA` + connected); soft-AP mode keeps MQTT idle. Optional `mqttUser`/`mqttPassword` (auth only when both non-empty). `mqttPublish` (web checkbox left of interval; default true) gates STATE publishing. Topics: `{mqttDeviceName}/{deviceStateOutgoingTopicPrefix}` publish STATE brace-list every `send_data_to_mqtt_interval_ms` (UI seconds 3–30) when publish is on; numeric fields sanitized (non-finite / out of range / INT_MAX-scale → `0`). Subscribe `{mqttDeviceName}/{deviceIncomingCommandTopicPrefix}` for `OPEN`/`CLOSE`/`PUMPS_ON`/`PUMPS_OFF`. Exact topics logged on connect. Info tab shows live status. Failed connect uses short TCP/MQTT timeouts (~1 s) and at least **5 s** between attempts so the main loop stays responsive |
 | OTA | `ArduinoOTA` in `main.cpp` with a **6 s** OTA-only window after boot and TFT progress. HTTP: `POST /update/code` or `/update/firmware` writes the unused OTA app slot (`U_FLASH`); `POST /update/data` writes the LittleFS image (`U_SPIFFS`); both reboot on success. Main loop skips heater/UI while an HTTP OTA is in progress |
 | EEPROM | `SettingsManager`: versioned `GlobalSettings` + 4-byte marker |
 | NTP | Implemented but call site commented out; `initNTP` uses a stack buffer (no heap alloc) |
@@ -183,7 +184,6 @@ Enable runtime simulation with `[env:esp32dev_modelling]` (`pio run -e esp32dev_
 
 ## Known gaps (do not “fix” unless asked)
 
-- MQTT has connect/status only — no telemetry publish / topic subscriptions
 - GPIO 32 shared by OW2 and `PUMP_4`
 - `EMERGENCY_VALVE_PIN == 0` makes some `if (EMERGENCY_VALVE_PIN)` setup paths skip
 - `handle_DOOR_OPENED_mode` empty; ALARM / refuel UX incomplete

@@ -139,6 +139,9 @@ SettingsTftForms::SettingsTftForms(ILI9488 *tft)
     mqtt_port = new LabeledNumberField(tft, 0, 0, 100, "MQTT port", 0, 1, false);
     mqtt_reconnect = new LabeledNumberField(tft, 0, 0, 100, "Reconnect ms", 0, 1, false);
     mqtt_text[1] = new LabeledTextField(tft, 0, 0, 100, "Device name");
+    mqtt_user = new LabeledTextField(tft, 0, 0, 100, "MQTT user");
+    mqtt_password = new LabeledTextField(tft, 0, 0, 100, "MQTT password");
+    mqtt_publish_interval_sec = new LabeledNumberField(tft, 0, 0, 100, "publis state interval (sec)", 0, 1, false);
     mqtt_text[2] = new LabeledTextField(tft, 0, 0, 100, "Server born topic");
     mqtt_text[3] = new LabeledTextField(tft, 0, 0, 100, "State out topic prefix");
     mqtt_text[4] = new LabeledTextField(tft, 0, 0, 100, "I-have-born topic");
@@ -220,6 +223,9 @@ SettingsTftForms::~SettingsTftForms() {
     for (int i = 0; i < SETTINGS_MQTT_TEXT; i++) delete mqtt_text[i];
     delete mqtt_port;
     delete mqtt_reconnect;
+    delete mqtt_user;
+    delete mqtt_password;
+    delete mqtt_publish_interval_sec;
     for (int i = 0; i < SETTINGS_SENSOR_FIELDS; i++) delete sensor_fields[i];
     for (int i = 0; i < SETTINGS_SERVO_FIELDS; i++) delete servo_fields[i];
     for (int i = 0; i < SETTINGS_CAPACITY_HEADERS; i++) delete capacity_headers[i];
@@ -289,6 +295,8 @@ void SettingsTftForms::applyLimitsFromNavigator() {
 
     applyNumberLimits(mqtt_port, "mqtt>port", "MQTT port");
     applyNumberLimits(mqtt_reconnect, "mqtt>reconnectIntervalMs", "Reconnect ms");
+    applyNumberLimits(mqtt_publish_interval_sec, "sensors>send_data_to_mqtt_interval_ms",
+                      "publis state interval (sec)");
 
     static const char *door_keys[3] = {"smoke", "oxygen", "upper"};
     static const char *door_titles[3] = {"Smoke", "Oxygen", "Upper"};
@@ -332,6 +340,7 @@ LabeledNumberField *SettingsTftForms::editingNumberField() {
         return nullptr;
     if (editing_index == 0) return mqtt_port;
     if (editing_index == 1) return mqtt_reconnect;
+    if (editing_index == 2) return mqtt_publish_interval_sec;
     if (editing_index >= 100 && editing_index < 100 + SETTINGS_SERVO_FIELDS)
         return servo_fields[editing_index - 100];
     if (editing_index >= SETTINGS_EDIT_NUM_CAPACITY
@@ -365,6 +374,10 @@ void SettingsTftForms::applyKeyboardText(const char *text) {
         wifi_password->setValue(text);
     } else if (editing_kind == 1 && editing_index >= 10 && editing_index < 10 + SETTINGS_MQTT_TEXT) {
         mqtt_text[editing_index - 10]->setValue(text);
+    } else if (editing_kind == 1 && editing_index == 20) {
+        mqtt_user->setValue(text);
+    } else if (editing_kind == 1 && editing_index == 21) {
+        mqtt_password->setValue(text);
     } else if (editing_kind == 2) {
         LabeledNumberField *field = editingNumberField();
         if (field)
@@ -382,6 +395,12 @@ void SettingsTftForms::redrawEditingField() {
     } else if (editing_kind == 1 && editing_index >= 10 && editing_index < 10 + SETTINGS_MQTT_TEXT) {
         mqtt_text[editing_index - 10]->getField().invalidate();
         mqtt_text[editing_index - 10]->getField().draw();
+    } else if (editing_kind == 1 && editing_index == 20) {
+        mqtt_user->getField().invalidate();
+        mqtt_user->getField().draw();
+    } else if (editing_kind == 1 && editing_index == 21) {
+        mqtt_password->getField().invalidate();
+        mqtt_password->getField().draw();
     } else if (editing_kind == 2) {
         LabeledNumberField *field = editingNumberField();
         if (field) {
@@ -405,6 +424,8 @@ void SettingsTftForms::dismissKeyboard() {
     else if (editing_kind == 1 && editing_index == 1) wifi_password->setFocused(false);
     else if (editing_kind == 1 && editing_index >= 10 && editing_index < 10 + SETTINGS_MQTT_TEXT)
         mqtt_text[editing_index - 10]->setFocused(false);
+    else if (editing_kind == 1 && editing_index == 20) mqtt_user->setFocused(false);
+    else if (editing_kind == 1 && editing_index == 21) mqtt_password->setFocused(false);
     else if (editing_kind == 2) {
         LabeledNumberField *field = editingNumberField();
         if (field)
@@ -443,7 +464,7 @@ int SettingsTftForms::fieldTop(int index_in_tab) const {
 int SettingsTftForms::tabContentHeight() const {
     int count = 0;
     if (active_tab == UI_SETTINGS_TAB_WIFI) count = 2;
-    else if (active_tab == UI_SETTINGS_TAB_MQTT) count = SETTINGS_MQTT_TEXT + 2;
+    else if (active_tab == UI_SETTINGS_TAB_MQTT) count = SETTINGS_MQTT_TEXT + 5;
     else if (active_tab == UI_SETTINGS_TAB_SENSORS) count = SETTINGS_SENSOR_FIELDS;
     else if (active_tab == UI_SETTINGS_TAB_SERVO) count = SETTINGS_SERVO_FIELDS;
     else if (active_tab == UI_SETTINGS_TAB_CAPACITIES) count = SETTINGS_CAPACITY_SLOTS;
@@ -574,8 +595,12 @@ void SettingsTftForms::layoutFields() {
         place(mqtt_text[0], 0);
         place(mqtt_port, 1);
         place(mqtt_reconnect, 2);
-        for (int i = 1; i < SETTINGS_MQTT_TEXT; i++)
-            place(mqtt_text[i], i + 2);
+        place(mqtt_text[1], 3);
+        place(mqtt_user, 4);
+        place(mqtt_password, 5);
+        place(mqtt_publish_interval_sec, 6);
+        for (int i = 2; i < SETTINGS_MQTT_TEXT; i++)
+            place(mqtt_text[i], i + 5);
     } else if (active_tab == UI_SETTINGS_TAB_SENSORS) {
         for (int i = 0; i < SETTINGS_SENSOR_FIELDS; i++)
             place(sensor_fields[i], i);
@@ -609,6 +634,9 @@ void SettingsTftForms::loadDraftsFromSettings() {
     mqtt_port->setNumber((float) globalSettings->mqttPort);
     mqtt_reconnect->setNumber((float) globalSettings->mqttReconnectIntervalMs);
     mqtt_text[1]->setValue(globalSettings->mqttDeviceName);
+    mqtt_user->setValue(globalSettings->mqttUser);
+    mqtt_password->setValue(globalSettings->mqttPassword);
+    mqtt_publish_interval_sec->setNumber((float) (globalSettings->send_data_to_mqtt_interval_ms / 1000));
     mqtt_text[2]->setValue(globalSettings->mqttServerBornTopic);
     mqtt_text[3]->setValue(globalSettings->deviceStateOutgoingTopicPrefix);
     mqtt_text[4]->setValue(globalSettings->deviceIHaveBornTopic);
@@ -745,6 +773,16 @@ bool SettingsTftForms::save() {
     globalSettings->mqttReconnectIntervalMs = (long) mqtt_reconnect->getNumber();
     strncpy(globalSettings->mqttDeviceName, mqtt_text[1]->getValue(), sizeof(globalSettings->mqttDeviceName) - 1);
     globalSettings->mqttDeviceName[sizeof(globalSettings->mqttDeviceName) - 1] = 0;
+    strncpy(globalSettings->mqttUser, mqtt_user->getValue(), sizeof(globalSettings->mqttUser) - 1);
+    globalSettings->mqttUser[sizeof(globalSettings->mqttUser) - 1] = 0;
+    strncpy(globalSettings->mqttPassword, mqtt_password->getValue(), sizeof(globalSettings->mqttPassword) - 1);
+    globalSettings->mqttPassword[sizeof(globalSettings->mqttPassword) - 1] = 0;
+    int publishIntervalMs = (int) mqtt_publish_interval_sec->getNumber() * 1000;
+    if (publishIntervalMs < 3000)
+        publishIntervalMs = 3000;
+    else if (publishIntervalMs > 30000)
+        publishIntervalMs = 30000;
+    globalSettings->send_data_to_mqtt_interval_ms = publishIntervalMs;
     strncpy(globalSettings->mqttServerBornTopic, mqtt_text[2]->getValue(),
             sizeof(globalSettings->mqttServerBornTopic) - 1);
     globalSettings->mqttServerBornTopic[sizeof(globalSettings->mqttServerBornTopic) - 1] = 0;
@@ -1040,8 +1078,15 @@ void SettingsTftForms::drawTabBody() {
         if (visible(fieldTop(0), item_h)) { mqtt_text[0]->invalidate(); mqtt_text[0]->draw(); }
         if (visible(fieldTop(1), item_h)) { mqtt_port->invalidate(); mqtt_port->draw(); }
         if (visible(fieldTop(2), item_h)) { mqtt_reconnect->invalidate(); mqtt_reconnect->draw(); }
-        for (int i = 1; i < SETTINGS_MQTT_TEXT; i++) {
-            if (visible(fieldTop(i + 2), item_h)) {
+        if (visible(fieldTop(3), item_h)) { mqtt_text[1]->invalidate(); mqtt_text[1]->draw(); }
+        if (visible(fieldTop(4), item_h)) { mqtt_user->invalidate(); mqtt_user->draw(); }
+        if (visible(fieldTop(5), item_h)) { mqtt_password->invalidate(); mqtt_password->draw(); }
+        if (visible(fieldTop(6), item_h)) {
+            mqtt_publish_interval_sec->invalidate();
+            mqtt_publish_interval_sec->draw();
+        }
+        for (int i = 2; i < SETTINGS_MQTT_TEXT; i++) {
+            if (visible(fieldTop(i + 5), item_h)) {
                 mqtt_text[i]->invalidate();
                 mqtt_text[i]->draw();
             }
@@ -1213,7 +1258,31 @@ bool SettingsTftForms::handleTouch(uint16_t tx, uint16_t ty) {
         if (mqtt_reconnect->hitTest(tx, ty)) {
             editing_kind = 2; editing_index = 1; openKeyboardForNumber(mqtt_reconnect); return true;
         }
-        for (int i = 1; i < SETTINGS_MQTT_TEXT; i++) {
+        if (mqtt_text[1]->hitTest(tx, ty)) {
+            editing_kind = 1;
+            editing_index = 11;
+            openKeyboardForText(mqtt_text[1], textMaxLenForParam(mqtt_text_params[1], 31));
+            return true;
+        }
+        if (mqtt_user->hitTest(tx, ty)) {
+            editing_kind = 1;
+            editing_index = 20;
+            openKeyboardForText(mqtt_user, textMaxLenForParam("mqtt>user", 63));
+            return true;
+        }
+        if (mqtt_password->hitTest(tx, ty)) {
+            editing_kind = 1;
+            editing_index = 21;
+            openKeyboardForText(mqtt_password, textMaxLenForParam("mqtt>password", 63));
+            return true;
+        }
+        if (mqtt_publish_interval_sec->hitTest(tx, ty)) {
+            editing_kind = 2;
+            editing_index = 2;
+            openKeyboardForNumber(mqtt_publish_interval_sec);
+            return true;
+        }
+        for (int i = 2; i < SETTINGS_MQTT_TEXT; i++) {
             if (mqtt_text[i]->hitTest(tx, ty)) {
                 editing_kind = 1;
                 editing_index = 10 + i;

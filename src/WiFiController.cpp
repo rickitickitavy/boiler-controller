@@ -3,12 +3,65 @@
 //
 
 #include <ESPmDNS.h>
+#include <WiFi.h>
+#include <string.h>
 #include "WiFiController.h"
+#include "Logger.h"
 
 WiFiController::WiFiController(SettingsManager *settingsManager) {
     this->settingsManager = settingsManager;
     this->lastConnectedTime = 10000;
     init();
+}
+
+void WiFiController::beginStaWithStrongestSignal(const char *ssid, const char *password) {
+    if (!ssid || ssid[0] == 0) {
+        LOGGER.error("WiFi SSID is empty; cannot connect");
+        return;
+    }
+
+    LOGGER.info(String("Scanning WiFi for strongest AP of SSID '") + ssid + "'...");
+    WiFi.disconnect(false, false);
+    delay(100);
+
+    int networkCount = WiFi.scanNetworks(false, true);
+    if (networkCount < 0) {
+        LOGGER.error("WiFi scan failed; joining without BSSID lock");
+        WiFi.begin(ssid, password);
+        return;
+    }
+
+    int bestIndex = -1;
+    int bestRssi = -127;
+    String targetSsid(ssid);
+    for (int networkIndex = 0; networkIndex < networkCount; networkIndex++) {
+        if (WiFi.SSID(networkIndex) != targetSsid)
+            continue;
+        int rssi = WiFi.RSSI(networkIndex);
+        LOGGER.info("  candidate ch=" + String(WiFi.channel(networkIndex))
+                    + " RSSI=" + String(rssi)
+                    + " BSSID=" + WiFi.BSSIDstr(networkIndex));
+        if (bestIndex < 0 || rssi > bestRssi) {
+            bestRssi = rssi;
+            bestIndex = networkIndex;
+        }
+    }
+
+    if (bestIndex < 0) {
+        LOGGER.warning("Configured SSID not found in scan; joining without BSSID lock");
+        WiFi.scanDelete();
+        WiFi.begin(ssid, password);
+        return;
+    }
+
+    uint8_t bssid[6];
+    memcpy(bssid, WiFi.BSSID(bestIndex), 6);
+    int32_t channel = WiFi.channel(bestIndex);
+    LOGGER.info("Joining strongest AP RSSI=" + String(bestRssi)
+                + " ch=" + String(channel)
+                + " BSSID=" + WiFi.BSSIDstr(bestIndex));
+    WiFi.scanDelete();
+    WiFi.begin(ssid, password, channel, bssid);
 }
 
 void WiFiController::initNTP() {
@@ -76,7 +129,7 @@ void WiFiController::init() {
 
 //        WiFi.mode(settings->network.wifiMode == 1 ? WIFI_AP : WIFI_STA);
         WiFi.mode(WIFI_STA);
-        WiFi.begin(settings->network.ssid, settings->network.password);
+        beginStaWithStrongestSignal(settings->network.ssid, settings->network.password);
 
         long startedAt = millis();
         while (!WiFi.isConnected() && (millis() - startedAt < 10000)) {
@@ -153,7 +206,7 @@ void WiFiController::reapplyNetworkSettings() {
     delay(100);
     WiFi.mode(WIFI_STA);
     WiFi.setHostname(globalSettings->mqttDeviceName);
-    WiFi.begin(globalSettings->network.ssid, globalSettings->network.password);
+    beginStaWithStrongestSignal(globalSettings->network.ssid, globalSettings->network.password);
 
     long startedAt = millis();
     while (!WiFi.isConnected() && (millis() - startedAt < 10000)) {

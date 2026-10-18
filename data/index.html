@@ -477,6 +477,7 @@
             initSystemTabs();
             initMainNav();
             setupPasswordToggle("wiFiPassword", "wiFiPasswordToggle");
+            setupPasswordToggle("mqtt>password", "mqttPasswordToggle");
             bindSettingsEvents();
         });
 
@@ -487,7 +488,7 @@
     <nav class="sidebar-nav" role="navigation" aria-label="Main sections">
         <div class="sidebar-brand">
             <h1 class="sidebar-title">Boiler</h1>
-            <span class="sidebar-version">3.0.1</span>
+            <span class="sidebar-version">%FIRMWARE_VERSION%</span>
         </div>
         <button type="button" class="sidebar-btn active" data-section="status" onclick="showMainSection('status')">Status</button>
         <button type="button" class="sidebar-btn" data-section="settings" onclick="showMainSection('settings')">Settings</button>
@@ -727,6 +728,28 @@
                 </div>
             </div>
             <div class="form-inputField-container">
+                <div class="formParamCaption">MQTT user</div>
+                <div class="formParamValue">
+                    <input id="mqtt>user" class="formStringParamValue" value="%mqtt>user%" autocomplete="off">
+                </div>
+            </div>
+            <div class="form-inputField-container">
+                <div class="formParamCaption">MQTT password</div>
+                <div class="formParamValue">
+                    <div class="password-row"><input id="mqtt>password" class="formStringParamValue" type="password" autocomplete="off" value="%mqtt>password%"><button type="button" id="mqttPasswordToggle" class="password-toggle">Show</button></div>
+                </div>
+            </div>
+            <div class="form-inputField-container">
+                <div class="formParamCaption">publis state interval (sec) (from %sensors>send_data_to_mqtt_interval_ms#minR% to %sensors>send_data_to_mqtt_interval_ms#maxR%)</div>
+                <div class="formParamValue mqtt-publish-interval-row">
+                    <label class="mqtt-publish-check" title="publish">
+                        <input id="mqtt>publish" type="checkbox" class="formStringParamValue" %mqtt>publish%>
+                        <span>publish</span>
+                    </label>
+                    <input id="sensors>send_data_to_mqtt_interval_ms" class="formStringParamValue" value="%sensors>send_data_to_mqtt_interval_ms%">
+                </div>
+            </div>
+            <div class="form-inputField-container">
                 <div class="formParamCaption">Server born topic</div>
                 <div class="formParamValue">
                     <input id="mqtt>serverBornTopic" class="formStringParamValue" value="%mqtt>serverBornTopic%">
@@ -769,7 +792,7 @@
             <div class="formHeader2">Thermal sensors</div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Internal termosensor</div>
+                <div class="formParamCaption">Internal thermosensor</div>
                 <div class="formParamValue">
                     <select id="sensors>internal>temperature" name="sensors>internal>temperature" class="formStringParamValue"
                             title="%sensors>internal>temperature%">
@@ -779,7 +802,7 @@
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Termosensor of heater core</div>
+                <div class="formParamCaption">Thermosensor of heater core</div>
                 <div class="formParamValue">
                     <select id="sensors>heater>core" name="sensors>heater>core" class="formStringParamValue"
                             title="%sensors>heater>core%">
@@ -789,7 +812,7 @@
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Termosensor of heater output flow</div>
+                <div class="formParamCaption">Thermosensor of heater output flow</div>
                 <div class="formParamValue">
                     <select id="sensors>heater>output_flow" name="sensors>heater>output_flow"
                             class="formStringParamValue"
@@ -800,7 +823,7 @@
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Termosensor of heater input flow</div>
+                <div class="formParamCaption">Thermosensor of heater input flow</div>
                 <div class="formParamValue">
                     <select id="sensors>heater>input_flow" name="sensors>heater>input_flow" class="formStringParamValue"
                             title="%sensors>heater>input_flow%">
@@ -810,7 +833,7 @@
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Termosensor of termoaccumulator top</div>
+                <div class="formParamCaption">Thermosensor of termoaccumulator top</div>
                 <div class="formParamValue">
                     <select id="sensors>termoaccumulator>top" name="sensors>termoaccumulator>top"
                             class="formStringParamValue" title="%sensors>termoaccumulator>top%">
@@ -820,7 +843,7 @@
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Termosensor of termoaccumulator middle higher</div>
+                <div class="formParamCaption">Thermosensor of termoaccumulator middle higher</div>
                 <div class="formParamValue">
                     <select id="sensors>termoaccumulator>middle_hi" name="sensors>termoaccumulator>middle_hi"
                             class="formStringParamValue" title="%sensors>termoaccumulator>middle_hi%">
@@ -830,7 +853,7 @@
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Termosensor of termoaccumulator middle lower</div>
+                <div class="formParamCaption">Thermosensor of termoaccumulator middle lower</div>
                 <div class="formParamValue">
                     <select id="sensors>termoaccumulator>middle_low" name="sensors>termoaccumulator>middle_low"
                             class="formStringParamValue" title="%sensors>termoaccumulator>middle_low%">
@@ -840,7 +863,7 @@
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Termosensor of termoaccumulator bottom</div>
+                <div class="formParamCaption">Thermosensor of termoaccumulator bottom</div>
                 <div class="formParamValue">
                     <select id="sensors>termoaccumulator>bottom" name="sensors>termoaccumulator>bottom"
                             class="formStringParamValue" title="%sensors>termoaccumulator>bottom%">
@@ -850,7 +873,7 @@
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Termosensor of forward flow to all contours</div>
+                <div class="formParamCaption">Thermosensor of forward flow to all contours</div>
                 <div class="formParamValue">
                     <select id="sensors>forward>temperature" name="sensors>forward>temperature"
                             class="formStringParamValue"
@@ -861,7 +884,7 @@
             </div>
 
             <div class="form-inputField-container">
-                <div class="formParamCaption">Termosensor of back flow from contour 1</div>
+                <div class="formParamCaption">Thermosensor of back flow from contour 1</div>
                 <div class="formParamValue">
                     <select id="sensors>backward>temperature" name="sensors>back>contour1" class="formStringParamValue"
                             title="%sensors>backward>temperature%">

@@ -270,6 +270,9 @@ void WebServerController::loadFileByUrl(AsyncWebServerRequest *request) {
 
 
 String WebServerController::systemSettingsProcessor(const String &paramName) {
+    if (paramName == "FIRMWARE_VERSION") {
+        return FIRMWARE_VERSION;
+    }
     if (paramName == "modelling_hidden") {
 #ifdef ENABLE_MODELLING
         return "";
