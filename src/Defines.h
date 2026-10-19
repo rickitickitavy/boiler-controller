@@ -1,7 +1,7 @@
 #include "Logger.h"
 #include "pins.h"
 
-#define FIRMWARE_VERSION "3.0.5"
+#define FIRMWARE_VERSION "3.0.6"
 
 #define PWM_MAX_WIDTH 1023
 

@@ -167,7 +167,7 @@ void MqttController::publishState() {
     char payload[MQTT_STATE_BUFFER_SIZE];
     int written = snprintf(
             payload, sizeof(payload),
-            "{%s,%d,%s,%lu,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%d,%d,%.2f,%.2f,%.2f,%.2f,%.2f}",
+            "{%s,%d,%s,%lu,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%d,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f}",
             modeField,
             oxygenTimerSec,
             pumpStatus,
@@ -186,7 +186,7 @@ void MqttController::publishState() {
             mqttSaneOrZero(telemetry->upper_door_position, 0.0f, 100.0f),
             mqttSaneOrZero(telemetry->smoke_door_position, 0.0f, 100.0f),
             mqttSaneIntOrZero(telemetry->core_EMA_power, -40000.0f, 200000.0f),
-            mqttSaneIntOrZero(telemetry->power_balance_kwt_hour, -800.0f, 800.0f),
+            mqttSaneOrZero(telemetry->power_balance_kwt_hour, -800.0f, 800.0f),
             mqttSaneOrZero(telemetry->accumulated_energy_kwt_hour, -800.0f, 800.0f),
             mqttSaneOrZero(telemetry->pid_p, -2000.0f, 2000.0f),
             mqttSaneOrZero(telemetry->pid_i, -2000.0f, 2000.0f),
