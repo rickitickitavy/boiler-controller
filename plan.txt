@@ -20,7 +20,7 @@ I want to start using mqtt topics.
     percentage of afterburning (Upper oxygen door) door - float (2 decimal digits)
     percentage of smoke door - float (2 decimal digits)
     core power - integer
-    accumulate/spend power - integer
+    accumulate/spend power - float (2 decimal digits)
     accumulated energy - float (2 decimal digits)
     P (PID) - float (2 decimal digits)
     I (PID) - float (2 decimal digits)

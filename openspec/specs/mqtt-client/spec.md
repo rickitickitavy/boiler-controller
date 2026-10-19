@@ -63,7 +63,7 @@ While MQTT is connected, the system SHALL publish to the STATE topic at the conf
 16. afterburning (upper oxygen) door percentage — float, 2 decimal places
 17. smoke door percentage — float, 2 decimal places
 18. core power — integer
-19. accumulate/spend power — integer
+19. accumulate/spend power — float, 2 decimal places
 20. accumulated energy — float, 2 decimal places
 21. P (PID) — live calculated P term, float, 2 decimal places
 22. I (PID) — live calculated I term (integrator), float, 2 decimal places
